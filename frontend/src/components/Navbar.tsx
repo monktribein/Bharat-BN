@@ -13,7 +13,10 @@ import {
   Plus,
   LogOut,
   Edit,
+  LogIn,
+  LayoutDashboard,
 } from 'lucide-react';
+import BusinessLoginModal from './BusinessLoginModal';
 
 interface OwnerSession {
   businessId: string;
@@ -27,6 +30,7 @@ interface OwnerSession {
 export default function Navbar() {
   const pathname = usePathname();
   const [ownerSession, setOwnerSession] = useState<OwnerSession | null>(null);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   // Sync Owner Session from localStorage
   useEffect(() => {
@@ -166,6 +170,16 @@ export default function Navbar() {
                 </div>
               </div>
 
+              {/* Dashboard Link */}
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs"
+                title="Go to Business Operations Dashboard"
+              >
+                <LayoutDashboard className="w-3.5 h-3.5 text-slate-600" />
+                <span className="hidden sm:inline">Dashboard</span>
+              </Link>
+
               {/* Edit Profile Button */}
               <Link
                 href={`/claim/${ownerSession.businessId || ownerSession.businessSlug}`}
@@ -197,11 +211,28 @@ export default function Navbar() {
               >
                 <Link
                   href="/dashboard"
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs"
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs"
                 >
-                  <User className="w-4 h-4 text-slate-600" />
+                  <User className="w-4 h-4 text-slate-500" />
                   <span>Portal</span>
                 </Link>
+              </motion.div>
+
+              {/* Business Login Button */}
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setIsLoginModalOpen(true)}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-[#F95700] bg-[#F95700]/10 hover:bg-[#F95700]/15 border border-[#F95700]/30 transition cursor-pointer"
+                  title="Log in to manage your listed business"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>Login</span>
+                </button>
               </motion.div>
 
               {/* List Business Button */}
@@ -222,6 +253,12 @@ export default function Navbar() {
           )}
         </div>
       </div>
+
+      {/* Business Login Modal */}
+      <BusinessLoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+      />
     </motion.header>
   );
 }

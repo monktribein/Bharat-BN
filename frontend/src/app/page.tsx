@@ -62,6 +62,20 @@ interface VerifiedBusiness {
 
 const defaultVerifiedList: VerifiedBusiness[] = [
   {
+    id: 'BBN-CLM-799760',
+    name: 'Apple',
+    slug: 'apple-khora-colony-ghaziabad-noida',
+    category: 'Automobile & EV',
+    city: 'Noida, UP',
+    phone: '+91 97170 56860',
+    whatsapp: '919717056860',
+    rating: 4.9,
+    reviewsCount: 38,
+    tags: ['Electric Vehicles', 'Automobile Accessories', 'Authorized Dealership', 'Govt Verified'],
+    isVerified: true,
+    statusText: 'Admin Approved & Verified',
+  },
+  {
     id: 'BBN-CLM-982104',
     name: 'Choco Delights & Confectionery (Cadboury)',
     slug: 'choco-delights-confectionery-andheri-mumbai',
@@ -143,41 +157,69 @@ export default function HomePage() {
   const [verifiedBusinesses, setVerifiedBusinesses] = useState<VerifiedBusiness[]>(defaultVerifiedList);
   const [showAll, setShowAll] = useState(false);
 
-  // Sync with Admin Approvals / localStorage
+  // Sync with Admin Approvals / localStorage / Cross-Port Sync
   useEffect(() => {
     const syncApprovedClaims = () => {
       try {
+        let claimsData: any[] = [];
         const stored = localStorage.getItem('bharatbn_claims_store');
         if (stored) {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed)) {
-            const newApproved: VerifiedBusiness[] = parsed
-              .filter((c: any) => c.status === 'approved')
-              .map((c: any) => ({
-                id: c.id,
-                name: c.businessName,
-                slug: c.businessSlug || 'choco-delights-confectionery-andheri-mumbai',
-                category: c.category || 'Food, Bakeries & Confectionery',
-                city: c.city || 'Mumbai, MH',
-                phone: c.phone || '+91 89653 26578',
-                whatsapp: (c.phone || '918965326578').replace(/[^0-9]/g, ''),
-                rating: 4.9,
-                reviewsCount: 48,
-                tags: ['Artisan Chocolates', 'Gift Hampers', 'Verified Partner'],
-                isVerified: true,
-                statusText: 'Admin Approved & Verified',
-              }));
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed)) claimsData = parsed;
+          } catch {}
+        }
 
-            if (newApproved.length > 0) {
-              setVerifiedBusinesses((prev) => {
-                const map = new Map<string, VerifiedBusiness>();
-                newApproved.forEach((b) => map.set(b.id, b));
-                prev.forEach((b) => {
-                  if (!map.has(b.id)) map.set(b.id, b);
-                });
-                return Array.from(map.values());
+        // Also check cross-port shared cookie
+        try {
+          const match = document.cookie.match(/bharatbn_approved_sync=([^;]+)/);
+          if (match && match[1]) {
+            const cookieClaims = JSON.parse(decodeURIComponent(match[1]));
+            if (Array.isArray(cookieClaims)) {
+              cookieClaims.forEach((cc: any) => {
+                const idx = claimsData.findIndex((x) => x.id === cc.id);
+                if (idx >= 0) claimsData[idx] = cc;
+                else claimsData.push(cc);
               });
             }
+          }
+        } catch {}
+
+        if (claimsData.length > 0) {
+          const newApproved: VerifiedBusiness[] = claimsData
+            .filter((c: any) => c.status === 'approved')
+            .map((c: any) => ({
+              id: c.id,
+              name: c.businessName,
+              slug:
+                c.businessSlug ||
+                c.slug ||
+                (c.businessName || 'business').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+              category: c.category || 'Automobile & EV',
+              city: c.city || 'Noida, UP',
+              phone: c.phone || '+91 97170 56860',
+              whatsapp: (c.phone || c.whatsapp || '919717056860').replace(/[^0-9]/g, ''),
+              rating: 4.9,
+              reviewsCount: c.reviewsCount || 38,
+              tags:
+                Array.isArray(c.tags) && c.tags.length > 0
+                  ? c.tags
+                  : Array.isArray(c.services) && c.services.length > 0
+                  ? c.services.slice(0, 4)
+                  : ['Verified Enterprise', 'Govt Audited', 'Direct Inquiries'],
+              isVerified: true,
+              statusText: 'Admin Approved & Verified',
+            }));
+
+          if (newApproved.length > 0) {
+            setVerifiedBusinesses((prev) => {
+              const map = new Map<string, VerifiedBusiness>();
+              newApproved.forEach((b) => map.set(b.id, b));
+              prev.forEach((b) => {
+                if (!map.has(b.id)) map.set(b.id, b);
+              });
+              return Array.from(map.values());
+            });
           }
         }
       } catch (e) {

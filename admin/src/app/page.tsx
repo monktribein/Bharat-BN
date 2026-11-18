@@ -274,6 +274,8 @@ export default function AdminDashboardPage() {
       });
       try {
         localStorage.setItem('bharatbn_claims_store', JSON.stringify(updated));
+        const approvedOnly = updated.filter((c) => c.status === 'approved');
+        document.cookie = `bharatbn_approved_sync=${encodeURIComponent(JSON.stringify(approvedOnly))}; path=/; max-age=31536000; SameSite=Lax`;
         window.dispatchEvent(new Event('bharatbn_claims_updated'));
       } catch (e) {}
       return updated;
