@@ -262,6 +262,81 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
       docType: 'official_id',
       docNumber: '29AABTL9982M1Z0',
     },
+    tech: {
+      name: 'NexaByte Software & Cloud Labs',
+      logo: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
+      logoFileName: 'nexabyte-logo.png',
+      category: 'IT, Software & Technology',
+      subCategories: 'Custom Software Development, Web & Mobile Apps, Cloud Architecture, DevOps & Cybersecurity',
+      establishedYear: '2021',
+      addressLine: '4th Floor, Tech Park One, Outer Ring Road, Bellandur',
+      landmark: 'Near EcoSpace Tech Park',
+      city: 'Bengaluru',
+      state: 'Karnataka',
+      pincode: '560103',
+      whatsapp: '+91 98860 54321',
+      phone: '+91 98860 54321',
+      email: 'contact@nexabytesoftware.com',
+      website: 'https://nexabytesoftware.com',
+      fullName: 'Vikramaditya Rao',
+      ownerRole: 'Chief Technology Officer & Managing Director',
+      memberSince: 'Jan 2024',
+      responseRate: '< 10 mins',
+      cityRank: 'Top-3 Verified Tech Firm',
+      description:
+        'NexaByte Software & Cloud Labs is an audited technology development firm in Bengaluru. Specializing in custom enterprise software, scalable web & mobile apps, cloud migrations, and dedicated engineering teams for Indian businesses.',
+      aboutStory:
+        'Founded in 2021 in Bengaluru, NexaByte Software & Cloud Labs has delivered mission-critical software architectures, modern web & mobile platforms, and enterprise digital solutions for growing companies across India. Our certified in-house engineering team focuses on clean code, secure cloud deployments on AWS and Azure, and agile delivery. With over 80+ successful software projects and a 99.8% client satisfaction rate, we partner with businesses to scale their technology seamlessly.',
+      gallery: [
+        {
+          url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80',
+          caption: 'Modern Engineering Workspace & Collaborative Tech Labs',
+        },
+        {
+          url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80',
+          caption: 'Agile Product Sprint & Architecture Review Sessions',
+        },
+        {
+          url: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=1200&q=80',
+          caption: 'High-Performance UI/UX Design & Prototyping Lab',
+        },
+        {
+          url: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80',
+          caption: 'Secure Cloud DevOps & 24/7 Production Monitoring Desk',
+        },
+      ],
+      services: [
+        'Custom Web Application Development',
+        'iOS & Android Mobile App Engineering',
+        'Cloud Architecture & AWS/Azure Migration',
+        'UI/UX Product Design & Wireframing',
+        'Enterprise ERP & CRM Integration',
+        'Cybersecurity & Source Code Audits',
+        'Dedicated Developer Pods & Staff Augmentation',
+        'API Design & Microservices Architecture',
+      ],
+      amenities: [
+        'High-Speed Dedicated Fiber Internet',
+        '24x7 Power Backup & Server Room',
+        'Client Conference & Video Pods',
+        'ISO 27001 Certified Security Standards',
+        'NDA & IP Rights Protection Guaranteed',
+        'Official GST Invoicing',
+        'Visitor Parking Available',
+      ],
+      monFriHours: '09:00 AM – 07:00 PM',
+      satHours: '10:00 AM – 02:00 PM (By Appointment)',
+      sunHours: 'Closed',
+      rating: '4.9',
+      reviewsCount: '62',
+      featuredReviewAuthor: 'Sunil Nair (Founder, LogiKart)',
+      featuredReviewRating: 5,
+      featuredReviewDate: '15 Oct 2026',
+      featuredReviewComment:
+        'NexaByte rebuilt our logistics dashboard and mobile driver app within 3 months. Their sprint discipline, clean architecture, and quick communication were outstanding. Production uptime has been 100%.',
+      docType: 'gst_certificate',
+      docNumber: '29AABCN4821P1Z5',
+    },
   };
 
   // Clean Blank Gallery Template
@@ -287,16 +362,16 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
   // Standard Amenities List
   const standardAmenities = [
     'Air Conditioned Premises',
+    'High-Speed Wi-Fi & Internet',
     'Credit / Debit Cards & UPI Accepted',
     'Official GST Invoicing',
     'Customer Parking Available',
+    'Conference & Meeting Rooms',
     'Wheelchair Accessible',
     'Home / Doorstep Delivery',
-    'FSSAI / Health Certified',
+    'Online Appointments & Booking',
     '24x7 Customer Support Hotline',
     'CCTV Monitored Premises',
-    'Child-Safe Infrastructure',
-    'Cashless Insurance & EMI Support',
     'Certified Professional Staff',
   ];
 
@@ -499,7 +574,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
   // ==========================================
   // PRESET SWITCHER FUNCTION
   // ==========================================
-  const applyPreset = (key: 'choco' | 'apex' | 'little_elly') => {
+  const applyPreset = (key: 'choco' | 'apex' | 'little_elly' | 'tech') => {
     const p = presetsData[key];
     if (!p) return;
     setBusinessName(p.name);
@@ -847,14 +922,14 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
           </div>
 
           <div className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-800 border border-amber-200 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-            ✦ Ticket: {claimTicket} &bull; ⏳ Pending Admin Verification
+            ✦ Ticket ID: {claimTicket} &bull; Verification in Progress
           </div>
 
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-navy-900 tracking-tight">
-            {isEditing ? 'Business Profile Updated!' : 'Business Profile Submitted for Review!'}
+            {isEditing ? 'Business Profile Updated!' : 'Business Profile Submitted Successfully!'}
           </h1>
           <p className="text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
-            Your real brand identity, address, contact numbers, and verification documents have been received. Your profile is queued in the admin moderation desk.
+            Your brand details, address, contact numbers, and verification documents have been received. Standard verification takes 12–24 hours.
           </p>
         </div>
 
@@ -874,7 +949,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
             <div className="space-y-1 min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <span className="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                  ⏳ UNDER AUDIT &bull; PENDING ADMIN APPROVAL
+                  ⏳ Under Verification
                 </span>
                 <span className="text-xs text-slate-400 font-mono">ID: {claimTicket}</span>
               </div>
@@ -916,28 +991,29 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
             </div>
           </div>
 
-          {/* Action CTAs */}
+          {/* Action CTAs for Business Owner */}
           <div className="pt-4 flex flex-col sm:flex-row items-center gap-3">
             <Link
               href={`/biz/${createdSlug}`}
               className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2 bg-[#F95700] hover:bg-[#e04e00] text-white font-bold text-sm px-6 py-3.5 rounded-xl shadow-md shadow-[#F95700]/25 transition cursor-pointer"
             >
-              <span>👉 View Profile (Under Review)</span>
+              <span>View Business Profile</span>
               <ExternalLink className="w-4 h-4" />
-            </Link>
-
-            <Link
-              href="/admin/claims"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#07213A] hover:bg-[#0C2D4E] text-white font-semibold text-xs px-5 py-3.5 rounded-xl transition cursor-pointer"
-            >
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>Open Admin Approval Desk</span>
             </Link>
 
             <button
               type="button"
+              onClick={() => setSubmitted(false)}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs px-5 py-3.5 rounded-xl transition cursor-pointer"
+            >
+              <Edit className="w-4 h-4 text-slate-600" />
+              <span>Edit Details</span>
+            </button>
+
+            <button
+              type="button"
               onClick={handleLogout}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs px-5 py-3.5 rounded-xl transition cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 font-semibold text-xs px-5 py-3.5 rounded-xl transition cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
               <span>Logout &amp; List New Business</span>
@@ -1096,6 +1172,14 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                 >
                   🎓 Little Elly
                 </button>
+                <button
+                  type="button"
+                  onClick={() => applyPreset('tech')}
+                  className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200/90 rounded-lg text-[11px] font-semibold transition cursor-pointer"
+                  title="1-Click template: NexaByte IT & Software"
+                >
+                  💻 NexaByte IT
+                </button>
               </div>
             </div>
 
@@ -1110,7 +1194,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   required
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
-                  placeholder="Enter business name (e.g. Metro Multispeciality Clinic)"
+                  placeholder="Enter business name (e.g. Metro Multispeciality Clinic, NexaByte IT Labs)"
                   className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] focus:ring-2 focus:ring-[#F95700]/10 transition bg-white"
                 />
               </div>
@@ -1122,14 +1206,27 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] bg-white cursor-pointer"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] bg-white cursor-pointer font-medium text-slate-800"
                 >
-                  <option value="Food, Bakeries & Confectionery">Food, Bakeries &amp; Confectionery</option>
+                  <option value="IT, Software & Technology">IT, Software &amp; Technology</option>
                   <option value="Healthcare & Clinics">Healthcare &amp; Clinics</option>
-                  <option value="Preschools & Education">Preschools &amp; Education</option>
-                  <option value="Automobile & EV">Automobile &amp; EV</option>
-                  <option value="Retail & Shopping">Retail &amp; Shopping</option>
-                  <option value="Professional Services">Professional Services</option>
+                  <option value="Education, Schools & Coaching">Education, Schools &amp; Coaching</option>
+                  <option value="Food, Bakeries & Cafes">Food, Bakeries &amp; Cafes</option>
+                  <option value="Restaurants & Cloud Kitchens">Restaurants &amp; Cloud Kitchens</option>
+                  <option value="Automobile, EV & Repair Services">Automobile, EV &amp; Repair Services</option>
+                  <option value="Real Estate, Builders & Architects">Real Estate, Builders &amp; Architects</option>
+                  <option value="Chartered Accountants, Tax & Legal">Chartered Accountants, Tax &amp; Legal</option>
+                  <option value="Manufacturing, Industrial & Wholesale">Manufacturing, Industrial &amp; Wholesale</option>
+                  <option value="Retail, Supermarkets & Shopping">Retail, Supermarkets &amp; Shopping</option>
+                  <option value="Digital Marketing, Media & Printing">Digital Marketing, Media &amp; Printing</option>
+                  <option value="Beauty, Salons & Wellness Spas">Beauty, Salons &amp; Wellness Spas</option>
+                  <option value="Home Services, Electrical & Plumbing">Home Services, Electrical &amp; Plumbing</option>
+                  <option value="Logistics, Transporters & Movers">Logistics, Transporters &amp; Movers</option>
+                  <option value="Events, Weddings & Catering">Events, Weddings &amp; Catering</option>
+                  <option value="Financial Services, Loans & Insurance">Financial Services, Loans &amp; Insurance</option>
+                  <option value="Hotels, Resorts & Travel Agencies">Hotels, Resorts &amp; Travel Agencies</option>
+                  <option value="Security & Facility Management">Security &amp; Facility Management</option>
+                  <option value="Professional & Corporate Services">Professional &amp; Corporate Services</option>
                 </select>
               </div>
 
@@ -1148,30 +1245,30 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
 
               <div className="sm:col-span-2">
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Taxonomy Sub-Categories (Comma-Separated Tags)
+                  Sub-Categories &amp; Business Specialties (Comma-separated)
                 </label>
                 <input
                   type="text"
                   value={subCategories}
                   onChange={(e) => setSubCategories(e.target.value)}
-                  placeholder="e.g. Healthcare, Dental Clinics, Orthodontics, Emergency Care"
+                  placeholder="e.g. Web Development, Cloud Services, Mobile Apps, IT Consulting (or Dental Care, Orthodontics, Root Canal)"
                   className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                 />
                 <p className="text-[10px] text-slate-400 mt-1">
-                  These appear as breadcrumb hierarchy tags directly below your business title on the profile.
+                  These appear as business specialty tags directly below your business name on the public profile.
                 </p>
               </div>
             </div>
           </div>
 
           {/* ======================================================== */}
-          {/* SECTION 2: Physical Address & Location Standards (NAP) */}
+          {/* SECTION 2: Business Address & Location */}
           {/* ======================================================== */}
           <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <MapPin className="w-5 h-5 text-[#F95700]" />
               <h2 className="text-base font-black text-navy-900">
-                2. Physical Address &amp; Location Standards (NAP)
+                2. Business Address &amp; Location
               </h2>
             </div>
 
@@ -1185,7 +1282,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   required
                   value={addressLine}
                   onChange={(e) => setAddressLine(e.target.value)}
-                  placeholder="e.g. Shop 4, Ground Floor, Central Commercial Complex"
+                  placeholder="e.g. Shop 4, Ground Floor, Central Commercial Complex (or 4th Floor, Tech Park One)"
                   className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                 />
               </div>
@@ -1199,35 +1296,35 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                     type="text"
                     value={landmark}
                     onChange={(e) => setLandmark(e.target.value)}
-                    placeholder="e.g. Near Metro Station"
+                    placeholder="e.g. Near Metro Station / Tech Park"
                     className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    City Hub <span className="text-[#F95700]">*</span>
+                    City <span className="text-[#F95700]">*</span>
                   </label>
                   <input
                     type="text"
                     required
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    placeholder="e.g. Mumbai"
+                    placeholder="e.g. Mumbai, Bengaluru, Delhi NCR, Pune"
                     className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    State / Region <span className="text-[#F95700]">*</span>
+                    State <span className="text-[#F95700]">*</span>
                   </label>
                   <input
                     type="text"
                     required
                     value={state}
                     onChange={(e) => setState(e.target.value)}
-                    placeholder="e.g. Maharashtra"
+                    placeholder="e.g. Maharashtra, Karnataka, Delhi"
                     className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                   />
                 </div>
@@ -1241,7 +1338,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                     required
                     value={pincode}
                     onChange={(e) => setPincode(e.target.value)}
-                    placeholder="e.g. 400053"
+                    placeholder="e.g. 400053 or 560103"
                     className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                   />
                 </div>
@@ -1250,13 +1347,13 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
           </div>
 
           {/* ======================================================== */}
-          {/* SECTION 3: Communication & Inquiries Channels */}
+          {/* SECTION 3: Contact & Direct Inquiries */}
           {/* ======================================================== */}
           <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <MessageCircle className="w-5 h-5 text-emerald-600" />
               <h2 className="text-base font-black text-navy-900">
-                3. Direct Inquiries &amp; Contact Channels
+                3. Contact &amp; Direct Inquiries
               </h2>
             </div>
 
@@ -1280,7 +1377,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Official Phone / Mobile (With Reveal Protection) <span className="text-[#F95700]">*</span>
+                  Official Phone / Mobile Number <span className="text-[#F95700]">*</span>
                 </label>
                 <input
                   type="text"
@@ -1291,7 +1388,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                 />
                 <p className="text-[10px] text-slate-400 mt-1">
-                  Shown with [Reveal] button protection to prevent spam harvesting bots.
+                  Displayed with a [Reveal] button on your profile to protect from spam calls.
                 </p>
               </div>
 
@@ -1325,13 +1422,13 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
           </div>
 
           {/* ======================================================== */}
-          {/* SECTION 4: Verified Owner Card & Operational Highlights */}
+          {/* SECTION 4: Business Owner / Representative Details */}
           {/* ======================================================== */}
           <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <User className="w-5 h-5 text-indigo-600" />
               <h2 className="text-base font-black text-navy-900">
-                4. Verified Owner &amp; Operational Highlights (Profile Sidebar)
+                4. Business Owner / Representative Details
               </h2>
             </div>
 
@@ -1378,30 +1475,30 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Average Response Guarantee
+                  Average Customer Response Time
                 </label>
                 <select
                   value={responseRate}
                   onChange={(e) => setResponseRate(e.target.value)}
                   className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] bg-white cursor-pointer"
                 >
-                  <option value="< 10 mins">&lt; 10 mins (Lightning Fast)</option>
-                  <option value="< 15 mins">&lt; 15 mins (Standard High Priority)</option>
+                  <option value="< 10 mins">&lt; 10 mins (Immediate response)</option>
+                  <option value="< 15 mins">&lt; 15 mins (Fast reply)</option>
                   <option value="< 30 mins">&lt; 30 mins</option>
                   <option value="Within 1 hour">Within 1 hour</option>
-                  <option value="Same-Day">Same-Day Inquiries</option>
+                  <option value="Within 24 hours">Within 24 hours</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  City Rank / Hub Status Badge
+                  Profile Recognition Tag
                 </label>
                 <input
                   type="text"
                   value={cityRank}
                   onChange={(e) => setCityRank(e.target.value)}
-                  placeholder="e.g. Top-3 Verified"
+                  placeholder="e.g. Verified Business, Top Rated, Trusted Partner"
                   className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                 />
               </div>
@@ -1838,9 +1935,12 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                     className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] bg-white cursor-pointer"
                   >
                     <option value="gst_certificate">GST Registration Certificate (GSTIN Match)</option>
-                    <option value="official_id">Govt Issued Shop &amp; Establishment License</option>
+                    <option value="udyam_cert">Udyam MSME Registration Certificate (Govt of India)</option>
+                    <option value="mca_incorp">MCA Certificate of Incorporation (CIN / LLPIN)</option>
+                    <option value="official_id">Shop &amp; Establishment License (Gumasta / Trade License)</option>
                     <option value="utility_bill">Commercial Electricity / Phone Bill</option>
                     <option value="fssai_cert">FSSAI Food Safety License / Board Certificate</option>
+                    <option value="prof_license">Professional Council Certificate (Medical, Bar, ICAI)</option>
                   </select>
                 </div>
 

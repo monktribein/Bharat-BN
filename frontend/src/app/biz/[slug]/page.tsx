@@ -647,24 +647,15 @@ export default function BusinessProfilePage() {
         </div>
       </div>
 
-      {/* Pending Admin Approval Banner */}
+      {/* Verification Notice Banner */}
       {business.status === 'pending' && (
-        <div className="bg-amber-50 border-b border-amber-200 px-4 py-3 sm:px-6">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-900">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
-              <span className="font-bold">Listing Under Review (Awaiting Admin Approval):</span>
-              <span className="text-amber-800">
-                This business listing has been submitted and is currently in the verification queue. Admin approval is required before it appears on the public verified directory.
-              </span>
-            </div>
-            <Link
-              href="/admin/claims"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg transition self-start sm:self-auto cursor-pointer shadow-xs whitespace-nowrap"
-            >
-              <span>Open Admin Desk to Approve</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </Link>
+        <div className="bg-amber-50/90 border-b border-amber-200/90 px-4 py-2.5 sm:px-6">
+          <div className="max-w-7xl mx-auto flex items-center gap-2.5 text-xs text-amber-900">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
+            <span className="font-bold">Profile Verification in Progress:</span>
+            <span className="text-amber-800">
+              This listing has been submitted and is undergoing standard platform verification. All business details and contact channels shown below are live.
+            </span>
           </div>
         </div>
       )}
@@ -693,7 +684,7 @@ export default function BusinessProfilePage() {
                 {business.status === 'pending' ? (
                   <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-800 border border-amber-200/80 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
                     <Clock className="w-3.5 h-3.5 text-amber-600" />
-                    Pending Admin Approval
+                    Under Verification
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">

@@ -24,17 +24,25 @@ import {
   Star,
   ExternalLink,
   ChevronDown,
+  Laptop,
+  Factory,
+  ShoppingBag,
+  Truck,
 } from 'lucide-react';
 
 const categories = [
+  { name: 'IT & Software Services', slug: 'it-software-technology', icon: Laptop, count: '16,500+' },
   { name: 'Healthcare & Clinics', slug: 'healthcare-clinics', icon: Stethoscope, count: '14,200+' },
-  { name: 'Preschools & Education', slug: 'education-preschools', icon: GraduationCap, count: '9,800+' },
+  { name: 'Education & Coaching', slug: 'education-preschools', icon: GraduationCap, count: '9,800+' },
   { name: 'Automobile & EV', slug: 'automobile-ev-showrooms', icon: Car, count: '6,400+' },
   { name: 'Restaurants & Cafes', slug: 'restaurants-cafes', icon: UtensilsCrossed, count: '18,500+' },
   { name: 'Real Estate & Builders', slug: 'real-estate-builders', icon: Building2, count: '5,100+' },
   { name: 'Legal & CA Services', slug: 'legal-financial-services', icon: Briefcase, count: '4,300+' },
-  { name: 'Beauty & Spas', slug: 'beauty-spa-salons', icon: Sparkles, count: '8,900+' },
+  { name: 'Retail & Supermarkets', slug: 'retail-shopping', icon: ShoppingBag, count: '11,200+' },
+  { name: 'Manufacturing & Industrial', slug: 'manufacturing-industrial', icon: Factory, count: '7,400+' },
   { name: 'Home Services', slug: 'home-industrial-services', icon: Wrench, count: '12,600+' },
+  { name: 'Logistics & Packers', slug: 'logistics-packers-movers', icon: Truck, count: '5,800+' },
+  { name: 'Beauty & Spas', slug: 'beauty-spa-salons', icon: Sparkles, count: '8,900+' },
 ];
 
 interface VerifiedBusiness {

@@ -39,6 +39,7 @@ const CITIES = [
 
 const CATEGORIES = [
   { id: '', name: 'All Categories', icon: '🏷️' },
+  { id: 'it-software-technology', name: 'IT & Software Services', icon: '💻' },
   { id: 'healthcare-clinics', name: 'Healthcare & Clinics', icon: '🏥' },
   { id: 'food-confectionery', name: 'Food & Confectionery', icon: '🍫' },
   { id: 'education-preschools', name: 'Preschools & Education', icon: '🎓' },
@@ -46,9 +47,16 @@ const CATEGORIES = [
   { id: 'restaurants-cafes', name: 'Restaurants & Cafes', icon: '🍽️' },
   { id: 'legal-financial-services', name: 'CA & Legal Services', icon: '⚖️' },
   { id: 'real-estate-builders', name: 'Real Estate & Builders', icon: '🏢' },
+  { id: 'manufacturing-industrial', name: 'Manufacturing & Wholesale', icon: '🏭' },
+  { id: 'digital-marketing-media', name: 'Digital Marketing & Media', icon: '📢' },
+  { id: 'retail-shopping', name: 'Retail & Supermarkets', icon: '🛍️' },
+  { id: 'home-services-maintenance', name: 'Home & Repair Services', icon: '🔧' },
+  { id: 'beauty-salons-spas', name: 'Beauty & Spas', icon: '✨' },
+  { id: 'logistics-packers-movers', name: 'Logistics & Packers', icon: '🚚' },
 ];
 
 const TRENDING_TAGS = [
+  { label: 'Software & IT', q: 'software', icon: '💻' },
   { label: 'Dentists', q: 'dental', icon: '🦷' },
   { label: 'Artisan Chocolates', q: 'choco', icon: '🍫' },
   { label: 'Preschools', q: 'preschool', icon: '🎓' },
