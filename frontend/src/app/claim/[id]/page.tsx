@@ -31,6 +31,7 @@ import {
   Trash2,
   Eye,
   EyeOff,
+  LayoutDashboard,
 } from 'lucide-react';
 
 export default function ClaimBusinessPage({ params }: { params: Promise<{ id: string }> }) {
@@ -43,7 +44,90 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
   // PRESET DATA DEFINITIONS
   // ==========================================
   const presetsData = {
+    apple: {
+      id: 'BBN-CLM-799760',
+      name: 'Apple',
+      slug: 'apple-khora-colony-ghaziabad-noida',
+      logo: '/apple-logo.svg',
+      logoFileName: 'apple-logo.svg',
+      category: 'Automobile & EV',
+      subCategories: 'Automobile & EV, Automobile Showrooms, EV Mobility & Spares, Authorized Dealership',
+      establishedYear: '2021',
+      addressLine: 'Gali Number 14, Master Park, Khora Colony, Ghaziabad, Noida',
+      landmark: 'Near Master Park Main Market',
+      city: 'Noida',
+      state: 'Uttar Pradesh',
+      pincode: '102010',
+      whatsapp: '+91 97170 56860',
+      phone: '+91 97170 56860',
+      email: 'apple@business.in',
+      website: 'https://apple.com',
+      fullName: 'Kashish Saxena (CEO)',
+      ownerRole: 'Chief Executive Officer',
+      memberSince: 'Nov 2024',
+      responseRate: '< 10 mins',
+      cityRank: 'Top-1 Verified in Noida',
+      description:
+        'Apple (Noida Hub) is an audited enterprise business listed on BharatBN™ Business Network. Specializing in next-gen Automobile & EV solutions, verified ROC & GST registration certificates, and direct customer inquiry channels across Noida / NCR.',
+      aboutStory:
+        'Established in Khora Colony, Ghaziabad / Noida, Apple is driven by innovation and excellence in EV mobility and modern automobile engineering. With customer-first support and verified credential auditing by BharatBN, we provide authentic vehicles, spares, and rapid service turnaround.',
+      gallery: [
+        {
+          url: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80',
+          caption: 'Apple EV Mobility & Showroom Pavilion',
+        },
+        {
+          url: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80',
+          caption: 'Genuine Spares & Accessories Bay',
+        },
+        {
+          url: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=1200&q=80',
+          caption: 'Fast EV Charging & Diagnostic Center',
+        },
+        {
+          url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
+          caption: 'Corporate Customer Relations & Consultations',
+        },
+      ],
+      services: [
+        'Electric Vehicles & Cars',
+        'Automobile Accessories & Spares',
+        'Authorized EV Dealership',
+        'Annual Maintenance & Servicing',
+        'EV Charging Stations Setup',
+        'Commercial Fleet Support',
+        'Direct WhatsApp Inquiries',
+        'Corporate Fleet Partnerships',
+      ],
+      amenities: [
+        'EV Fast Charging Bay',
+        'Customer Air Conditioned Lounge',
+        'Certified Automobile Engineers',
+        'Debit/Credit Cards & UPI Payments',
+        'Official GST Commercial Billing',
+        'Test Drive Bookings',
+        'Genuine Parts Guarantee',
+      ],
+      monFriHours: '09:00 AM – 08:30 PM',
+      satHours: '09:00 AM – 08:30 PM',
+      sunHours: '10:00 AM – 06:00 PM',
+      rating: '4.9',
+      reviewsCount: '38',
+      featuredReviewAuthor: 'Rahul Sharma',
+      featuredReviewRating: 5,
+      featuredReviewDate: '15 Nov 2026',
+      featuredReviewComment:
+        'Visited the Noida hub for inquiry. Super courteous staff, quick response on WhatsApp, and genuine parts guarantee. 5 stars!',
+      docType: 'gst_certificate',
+      docNumber: '09AAACA7997K1ZP',
+      status: 'approved',
+      password: '12345678',
+    },
     choco: {
+      id: 'BBN-CLM-982104',
+      slug: 'choco-delights-confectionery-andheri-mumbai',
+      status: 'approved',
+      password: '12345678',
       name: 'Choco Delights & Confectionery (Cadboury)',
       logo: '/choco-logo.svg',
       logoFileName: 'choco-logo.svg',
@@ -119,6 +203,10 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
       docNumber: '27AABCC8491K1Z8',
     },
     apex: {
+      id: '55555555-5555-5555-5555-555555555001',
+      slug: 'apex-super-speciality-dental-clinic-andheri-mumbai',
+      status: 'approved',
+      password: '12345678',
       name: 'Apex Super Speciality Dental Clinic',
       logo: '/apex-logo.svg',
       logoFileName: 'apex-logo.svg',
@@ -193,6 +281,10 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
       docNumber: '27AAACA1234F1Z5',
     },
     little_elly: {
+      id: '55555555-5555-5555-5555-555555555002',
+      slug: 'little-elly-international-preschool-indiranagar-bengaluru',
+      status: 'approved',
+      password: '12345678',
       name: 'Little Elly International Preschool',
       logo: '/little-elly-logo.svg',
       logoFileName: 'little-elly-logo.svg',
@@ -265,6 +357,10 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
       docNumber: '29AABTL9982M1Z0',
     },
     tech: {
+      id: '55555555-5555-5555-5555-555555555003',
+      slug: 'nexabyte-software-cloud-labs-bengaluru',
+      status: 'approved',
+      password: '12345678',
       name: 'NexaByte Software & Cloud Labs',
       logo: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
       logoFileName: 'nexabyte-logo.png',
@@ -382,6 +478,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
   // ==========================================
   const [isEditing, setIsEditing] = useState(false);
   const [existingId, setExistingId] = useState<string | null>(null);
+  const [existingSlug, setExistingSlug] = useState<string | null>(null);
   const [existingStatus, setExistingStatus] = useState<string>('pending');
   const [activeSession, setActiveSession] = useState<any>(null);
 
@@ -489,58 +586,102 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
     // If ID is specified and not 'new', or if an existing business is targeted
     if (id && id !== 'new') {
       try {
+        let found: any = null;
+
+        // 1. Check custom localStorage claims store (persisted edits)
         const storedClaims = localStorage.getItem('bharatbn_claims_store');
         if (storedClaims) {
           const claims = JSON.parse(storedClaims);
-          const found = claims.find((c: any) => c.id === id || c.businessSlug === id);
-          if (found) {
-            setIsEditing(true);
-            setExistingId(found.id);
-            setExistingStatus(found.status || 'pending');
-            setBusinessName(found.businessName || '');
-            setCategory(found.category || 'Food, Bakeries & Confectionery');
-            setSubCategories(
-              Array.isArray(found.categoryHierarchy)
-                ? found.categoryHierarchy.join(', ')
-                : found.subCategories || ''
-            );
-            setEstablishedYear(found.establishedYear ? String(found.establishedYear) : '');
-            setLogoPreview(found.logoBase64 || found.logoUrl || '');
-            setLogoFileName(found.logoFileName || 'logo.png');
-            setAddressLine(found.addressLine || '');
-            setLandmark(found.landmark || '');
-            setCity(found.city || '');
-            setState(found.state || '');
-            setPincode(found.pincode || '');
-            setWhatsapp(found.whatsapp || '');
-            setPhone(found.phone || '');
-            setEmail(found.workEmail || found.email || '');
-            setWebsite(found.website || '');
-            setFullName(found.claimantName || found.fullName || '');
-            setOwnerRole(found.ownerRole || '');
-            setMemberSince(found.memberSince || '');
-            setResponseRate(found.responseRate || '< 15 mins');
-            setCityRank(found.cityRank || 'Top-3 Verified');
-            setDescription(found.description || '');
-            setAboutStory(found.aboutStory || '');
-            if (found.gallery && found.gallery.length > 0) setGallery(found.gallery);
-            if (found.services && found.services.length > 0) setServices(found.services);
-            if (found.amenities && found.amenities.length > 0) setAmenities(found.amenities);
-            if (found.workingHours && found.workingHours.length > 0) {
-              setMonFriHours(found.workingHours[0]?.time || '');
-              setSatHours(found.workingHours[1]?.time || '');
-              setSunHours(found.workingHours[2]?.time || '');
-            }
-            setRating(found.rating ? String(found.rating) : '5.0');
-            setReviewsCount(found.reviewsCount ? String(found.reviewsCount) : '1');
-            if (found.reviews && found.reviews[0]) {
-              setFeaturedReviewAuthor(found.reviews[0].author || '');
-              setFeaturedReviewRating(found.reviews[0].rating || 5);
-              setFeaturedReviewDate(found.reviews[0].date || 'Recently');
-              setFeaturedReviewComment(found.reviews[0].comment || '');
-            }
-            setDocType(found.docType || 'gst_certificate');
-            setDocNumber(found.gstin || found.docNumber || '');
+          found = claims.find((c: any) => c.id === id || c.businessSlug === id || c.slug === id);
+        }
+
+        // 2. If not found in localStorage, resolve from default verified businesses
+        if (!found) {
+          const cleanId = (id || '').toLowerCase();
+          if (cleanId === 'bbn-clm-799760' || cleanId.includes('apple')) {
+            found = presetsData.apple;
+          } else if (cleanId === 'bbn-clm-982104' || cleanId.includes('choco') || cleanId.includes('cadboury')) {
+            found = presetsData.choco;
+          } else if (cleanId.includes('apex') || cleanId.includes('555555555001') || cleanId === 'bbn-clm-849102') {
+            found = presetsData.apex;
+          } else if (cleanId.includes('little-elly') || cleanId.includes('555555555002')) {
+            found = presetsData.little_elly;
+          } else {
+            // Check if active session matches
+            try {
+              const active = localStorage.getItem('bharatbn_owner_session');
+              if (active) {
+                const sess = JSON.parse(active);
+                if (sess.businessId === id || sess.businessSlug === id || sess.businessName?.toLowerCase().includes('apple')) {
+                  found = presetsData.apple;
+                }
+              }
+            } catch {}
+          }
+        }
+
+        // 3. Populate form with business details
+        if (found) {
+          setIsEditing(true);
+          setExistingId(found.id || 'BBN-CLM-799760');
+          setExistingSlug(found.businessSlug || found.slug || null);
+          setExistingStatus(found.status || 'approved');
+          setBusinessName(found.businessName || found.name || '');
+          setCategory(found.category || 'Automobile & EV');
+          setSubCategories(
+            Array.isArray(found.categoryHierarchy)
+              ? found.categoryHierarchy.join(', ')
+              : found.subCategories || ''
+          );
+          setEstablishedYear(found.establishedYear ? String(found.establishedYear) : '');
+          setLogoPreview(found.logoBase64 || found.logoUrl || found.logo || '');
+          setLogoFileName(found.logoFileName || 'logo.png');
+          setAddressLine(found.addressLine || '');
+          setLandmark(found.landmark || '');
+          setCity(found.city || '');
+          setState(found.state || '');
+          setPincode(found.pincode || '');
+          setWhatsapp(found.whatsapp || '');
+          setPhone(found.phone || '');
+          setEmail(found.workEmail || found.email || '');
+          setWebsite(found.website || '');
+          setFullName(found.claimantName || found.fullName || (found.owner?.name) || '');
+          setOwnerRole(found.ownerRole || (found.owner?.role) || '');
+          setMemberSince(found.memberSince || (found.owner?.memberSince) || '');
+          setResponseRate(found.responseRate || (found.owner?.responseRate) || '< 10 mins');
+          setCityRank(found.cityRank || 'Top-3 Verified');
+          setDescription(found.description || '');
+          setAboutStory(found.aboutStory || '');
+          if (found.gallery && found.gallery.length > 0) setGallery(found.gallery);
+          if (found.services && found.services.length > 0) setServices(found.services);
+          if (found.amenities && found.amenities.length > 0) setAmenities(found.amenities);
+          if (found.workingHours && found.workingHours.length > 0) {
+            setMonFriHours(found.workingHours[0]?.time || '');
+            setSatHours(found.workingHours[1]?.time || '');
+            setSunHours(found.workingHours[2]?.time || '');
+          } else {
+            if (found.monFriHours) setMonFriHours(found.monFriHours);
+            if (found.satHours) setSatHours(found.satHours);
+            if (found.sunHours) setSunHours(found.sunHours);
+          }
+          setRating(found.rating ? String(found.rating) : '4.9');
+          setReviewsCount(found.reviewsCount ? String(found.reviewsCount) : '38');
+          if (found.reviews && found.reviews[0]) {
+            setFeaturedReviewAuthor(found.reviews[0].author || '');
+            setFeaturedReviewRating(found.reviews[0].rating || 5);
+            setFeaturedReviewDate(found.reviews[0].date || 'Recently');
+            setFeaturedReviewComment(found.reviews[0].comment || '');
+          } else if (found.featuredReviewAuthor) {
+            setFeaturedReviewAuthor(found.featuredReviewAuthor);
+            setFeaturedReviewRating(found.featuredReviewRating || 5);
+            setFeaturedReviewDate(found.featuredReviewDate || 'Recently');
+            setFeaturedReviewComment(found.featuredReviewComment || '');
+          }
+          setDocType(found.docType || 'gst_certificate');
+          setDocNumber(found.gstin || found.docNumber || '');
+          if (found.password) {
+            setAccountPassword(found.password);
+            setConfirmPassword(found.password);
           }
         }
       } catch (err) {
@@ -555,6 +696,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
   const clearForm = () => {
     setIsEditing(false);
     setExistingId(null);
+    setExistingSlug(null);
     setBusinessName('');
     setCategory('Food, Bakeries & Confectionery');
     setSubCategories('');
@@ -599,12 +741,12 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
   // ==========================================
   // PRESET SWITCHER FUNCTION
   // ==========================================
-  const applyPreset = (key: 'choco' | 'apex' | 'little_elly' | 'tech') => {
+  const applyPreset = (key: 'apple' | 'choco' | 'apex' | 'little_elly' | 'tech') => {
     const p = presetsData[key];
     if (!p) return;
     setBusinessName(p.name);
-    setLogoPreview(p.logo);
-    setLogoFileName(p.logoFileName);
+    setLogoPreview(p.logo || '');
+    setLogoFileName(p.logoFileName || 'logo.png');
     setCategory(p.category);
     setSubCategories(p.subCategories);
     setEstablishedYear(p.establishedYear);
@@ -638,6 +780,10 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
     setFeaturedReviewComment(p.featuredReviewComment);
     setDocType(p.docType);
     setDocNumber(p.docNumber);
+    if ((p as any).password) {
+      setAccountPassword((p as any).password);
+      setConfirmPassword((p as any).password);
+    }
   };
 
   // ==========================================
@@ -840,11 +986,13 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
     try {
       const ticketId = existingId || `BBN-CLM-${Math.floor(100000 + Math.random() * 900000)}`;
 
-      // Generate clean slug
-      let generatedSlug = (businessName + '-' + (city || 'local'))
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
+      // Generate clean slug or preserve existing slug when editing
+      let generatedSlug = (isEditing && existingSlug)
+        ? existingSlug
+        : (businessName + '-' + (city || 'local'))
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '');
 
       if (!generatedSlug) {
         generatedSlug = `business-${ticketId.toLowerCase()}`;
@@ -915,7 +1063,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
         fileName: file ? file.name : 'Registration_Proof_Certificate.pdf',
         fileSize: file ? (file.size / (1024 * 1024)).toFixed(1) + ' MB' : '1.2 MB',
         submittedAt: 'Just now (Recently Submitted)',
-        status: isEditing ? existingStatus : 'pending', // PENDING ADMIN APPROVAL
+        status: isEditing ? (existingStatus || 'approved') : 'pending',
         password: accountPassword || '12345678',
       };
 
@@ -925,6 +1073,11 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
         const existing = stored ? JSON.parse(stored) : [];
         const filtered = existing.filter((c: any) => c.id !== ticketId && c.businessSlug !== generatedSlug);
         localStorage.setItem('bharatbn_claims_store', JSON.stringify([claimItem, ...filtered]));
+
+        // Cross-window and cookie sync
+        try {
+          document.cookie = `bharatbn_approved_sync=${encodeURIComponent(JSON.stringify([claimItem]))}; path=/; max-age=604800; SameSite=Lax`;
+        } catch {}
 
         // Persist Owner Session so user stays logged in to manage this business
         const ownerSession = {
@@ -945,6 +1098,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
         // Notify entire app of auth & listings update
         window.dispatchEvent(new Event('bharatbn_claims_updated'));
         window.dispatchEvent(new Event('bharatbn_auth_changed'));
+        window.dispatchEvent(new StorageEvent('storage', { key: 'bharatbn_claims_store' }));
       }
 
       await new Promise((resolve) => setTimeout(resolve, 800));
@@ -970,15 +1124,25 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
             <Clock className="w-9 h-9" />
           </div>
 
-          <div className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-800 border border-amber-200 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-            ✦ Ticket ID: {claimTicket} &bull; Verification in Progress
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider border">
+            {isEditing && existingStatus === 'approved' ? (
+              <span className="text-emerald-800 bg-emerald-50 border-emerald-200">
+                ✦ Ticket ID: {claimTicket} &bull; Profile Updated &amp; Live
+              </span>
+            ) : (
+              <span className="text-amber-800 bg-amber-50 border-amber-200">
+                ✦ Ticket ID: {claimTicket} &bull; Verification in Progress
+              </span>
+            )}
           </div>
 
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-navy-900 tracking-tight">
-            {isEditing ? 'Business Profile Updated!' : 'Business Profile Submitted Successfully!'}
+            {isEditing ? 'Business Profile Updated Successfully!' : 'Business Profile Submitted Successfully!'}
           </h1>
           <p className="text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
-            Your brand details, address, contact numbers, and verification documents have been received. Standard verification takes 12–24 hours.
+            {isEditing
+              ? 'Your updated business details, address, contact numbers, and showcase photography are now live on BharatBN™.'
+              : 'Your brand details, address, contact numbers, and verification documents have been received. Standard verification takes 12–24 hours.'}
           </p>
         </div>
 
@@ -997,8 +1161,14 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
 
             <div className="space-y-1 min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                  ⏳ Under Verification
+                <span
+                  className={`text-[11px] font-bold px-2 py-0.5 rounded border ${
+                    isEditing && existingStatus === 'approved'
+                      ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                      : 'text-amber-700 bg-amber-50 border-amber-200'
+                  }`}
+                >
+                  {isEditing && existingStatus === 'approved' ? '✓ Verified & Live' : '⏳ Under Verification'}
                 </span>
                 <span className="text-xs text-slate-400 font-mono">ID: {claimTicket}</span>
               </div>
@@ -1048,6 +1218,14 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
             >
               <span>View Business Profile</span>
               <ExternalLink className="w-4 h-4" />
+            </Link>
+
+            <Link
+              href="/dashboard"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#07213A] hover:bg-[#0c3154] text-white font-semibold text-xs px-5 py-3.5 rounded-xl transition cursor-pointer"
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span>Back to Dashboard</span>
             </Link>
 
             <button
@@ -1197,6 +1375,14 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
               {/* Optional Quick Preset Templates */}
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 mr-0.5">Quick Presets:</span>
+                <button
+                  type="button"
+                  onClick={() => applyPreset('apple')}
+                  className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200/90 rounded-lg text-[11px] font-semibold transition cursor-pointer"
+                  title="1-Click template: Apple EV Mobility"
+                >
+                  🍎 Apple EV
+                </button>
                 <button
                   type="button"
                   onClick={() => applyPreset('choco')}

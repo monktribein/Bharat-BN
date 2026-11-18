@@ -229,7 +229,13 @@ export default function HomePage() {
 
     syncApprovedClaims();
     window.addEventListener('bharatbn_claims_updated', syncApprovedClaims);
-    return () => window.removeEventListener('bharatbn_claims_updated', syncApprovedClaims);
+    window.addEventListener('bharatbn_auth_changed', syncApprovedClaims);
+    window.addEventListener('storage', syncApprovedClaims);
+    return () => {
+      window.removeEventListener('bharatbn_claims_updated', syncApprovedClaims);
+      window.removeEventListener('bharatbn_auth_changed', syncApprovedClaims);
+      window.removeEventListener('storage', syncApprovedClaims);
+    };
   }, []);
 
   return (

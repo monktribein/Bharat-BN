@@ -12,7 +12,6 @@ import {
   User,
   Plus,
   LogOut,
-  Edit,
   LogIn,
   LayoutDashboard,
 } from 'lucide-react';
@@ -179,16 +178,6 @@ export default function Navbar() {
               >
                 <LayoutDashboard className="w-3.5 h-3.5 text-slate-600" />
                 <span className="hidden sm:inline">Dashboard</span>
-              </Link>
-
-              {/* Edit Profile Button */}
-              <Link
-                href={`/claim/${ownerSession.businessId || ownerSession.businessSlug}`}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs"
-                title="Edit your business profile"
-              >
-                <Edit className="w-3.5 h-3.5 text-[#F95700]" />
-                <span className="hidden sm:inline">Edit Profile</span>
               </Link>
 
               {/* Logout Button */}
