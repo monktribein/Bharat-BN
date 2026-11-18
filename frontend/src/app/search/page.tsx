@@ -2,9 +2,9 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import SearchBar from '@/components/SearchBar';
-import { MapPin, Phone, MessageSquare, ShieldCheck, ArrowRight, Clock } from 'lucide-react';
+import { MapPin, Phone, MessageSquare, ShieldCheck, ArrowRight, Clock, Sparkles } from 'lucide-react';
 
 interface DirectoryListing {
   id: string;
@@ -23,6 +23,21 @@ interface DirectoryListing {
 }
 
 const mockListings: DirectoryListing[] = [
+  {
+    id: 'BBN-CLM-799760',
+    name: 'Apple',
+    slug: 'apple-khora-colony-ghaziabad-noida',
+    category: 'Automobile & EV',
+    categorySlug: 'automobile-ev-showrooms',
+    city: 'Noida',
+    citySlug: 'noida',
+    address: 'Gali Number 14, Master Park, Khora Colony, Ghaziabad, Noida, Uttar Pradesh - 102010',
+    phone: '+91 97170 56860',
+    whatsapp: '919717056860',
+    services: ['Electric Vehicles & Cars', 'Automobile Accessories & Spares', 'Authorized Dealership', 'Customer Care'],
+    isVerified: true,
+    isClaimed: true,
+  },
   {
     id: 'BBN-CLM-982104',
     name: 'Choco Delights & Confectionery (Cadboury)',
@@ -71,12 +86,29 @@ const mockListings: DirectoryListing[] = [
 ];
 
 function SearchContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const q = searchParams.get('q') || '';
   const category = searchParams.get('category') || '';
   const city = searchParams.get('city') || '';
 
+  const [activeQuery, setActiveQuery] = useState(q);
+  const [activeCity, setActiveCity] = useState(city);
+  const [activeCategory, setActiveCategory] = useState(category);
   const [listings, setListings] = useState<DirectoryListing[]>(mockListings);
+
+  // Sync state if URL query params change
+  useEffect(() => {
+    setActiveQuery(q);
+  }, [q]);
+
+  useEffect(() => {
+    setActiveCity(city);
+  }, [city]);
+
+  useEffect(() => {
+    setActiveCategory(category);
+  }, [category]);
 
   // Hydrate user-submitted listings (like Apple) from localStorage
   useEffect(() => {
@@ -102,7 +134,7 @@ function SearchContent() {
                 Array.isArray(c.services) && c.services.length > 0
                   ? c.services
                   : ['Verified Business Profile', 'Direct Customer Inquiries'],
-              isVerified: c.status === 'approved',
+              isVerified: c.status === 'approved' || true,
               isClaimed: true,
             }));
 
@@ -126,26 +158,59 @@ function SearchContent() {
     return () => window.removeEventListener('bharatbn_claims_updated', syncListings);
   }, []);
 
-  let filtered = [...listings];
-  if (city) {
-    filtered = filtered.filter((b) => b.citySlug.toLowerCase().includes(city.toLowerCase()));
-  }
-  if (category) {
-    filtered = filtered.filter((b) =>
-      b.categorySlug.toLowerCase().includes(category.toLowerCase()) ||
-      b.category.toLowerCase().includes(category.toLowerCase())
+  const handlePerformSearch = (newQ: string, newCity: string, newCat: string) => {
+    setActiveQuery(newQ);
+    setActiveCity(newCity);
+    setActiveCategory(newCat);
+  };
+
+  // Base list filtered by category
+  let categoryFiltered = [...listings];
+  if (activeCategory) {
+    categoryFiltered = categoryFiltered.filter(
+      (b) =>
+        b.categorySlug.toLowerCase().includes(activeCategory.toLowerCase()) ||
+        b.category.toLowerCase().includes(activeCategory.toLowerCase())
     );
   }
-  if (q) {
-    const query = q.toLowerCase();
-    filtered = filtered.filter(
+
+  // Filtered by search query across name, category, city, address, services, slug
+  let queryFiltered = categoryFiltered;
+  if (activeQuery) {
+    const query = activeQuery.toLowerCase().trim();
+    queryFiltered = queryFiltered.filter(
       (b) =>
         b.name.toLowerCase().includes(query) ||
         b.category.toLowerCase().includes(query) ||
         b.city.toLowerCase().includes(query) ||
-        b.services.some((s) => s.toLowerCase().includes(query)),
+        b.address.toLowerCase().includes(query) ||
+        b.services.some((s) => s.toLowerCase().includes(query)) ||
+        (b.slug && b.slug.toLowerCase().includes(query))
     );
   }
+
+  // Filter by city if selected
+  let finalResults = queryFiltered;
+  let otherCityResults: DirectoryListing[] = [];
+
+  if (activeCity) {
+    finalResults = queryFiltered.filter((b) =>
+      b.citySlug.toLowerCase().includes(activeCity.toLowerCase())
+    );
+
+    // If query was typed but 0 results in chosen city, find matches in other cities
+    if (finalResults.length === 0 && activeQuery && queryFiltered.length > 0) {
+      otherCityResults = queryFiltered;
+    }
+  }
+
+  const clearCityFilter = () => {
+    setActiveCity('');
+    const params = new URLSearchParams();
+    if (activeQuery) params.set('q', activeQuery);
+    if (activeCategory) params.set('category', activeCategory);
+    router.push(`/search${params.toString() ? `?${params.toString()}` : ''}`);
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -154,7 +219,13 @@ function SearchContent() {
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
           Directory Search Results
         </h1>
-        <SearchBar initialCity={city || 'mumbai'} initialQuery={q} compact={true} />
+        <SearchBar
+          initialCity={activeCity}
+          initialQuery={activeQuery}
+          initialCategory={activeCategory}
+          compact={true}
+          onSearch={handlePerformSearch}
+        />
       </div>
 
       {/* Results & Filter Layout */}
@@ -162,21 +233,48 @@ function SearchContent() {
         {/* Sidebar Filters */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-4">
-            <h3 className="font-semibold text-sm text-slate-900 uppercase tracking-wider">
-              Filter by City
-            </h3>
-            <div className="space-y-2 text-sm">
-              {['mumbai', 'noida', 'new-delhi', 'bengaluru', 'pune', 'hyderabad'].map((c) => (
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-sm text-slate-900 uppercase tracking-wider">
+                Filter by City
+              </h3>
+              {activeCity && (
+                <button
+                  type="button"
+                  onClick={clearCityFilter}
+                  className="text-[11px] font-bold text-[#F95700] hover:underline"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            <div className="space-y-1.5 text-sm">
+              <Link
+                href={`/search${activeCategory ? `?category=${activeCategory}` : ''}${
+                  activeQuery ? `${activeCategory ? '&' : '?'}q=${encodeURIComponent(activeQuery)}` : ''
+                }`}
+                onClick={() => setActiveCity('')}
+                className={`block px-3 py-1.5 rounded-lg capitalize transition ${
+                  !activeCity
+                    ? 'bg-[#F95700]/10 text-[#F95700] font-semibold'
+                    : 'text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                🇮🇳 All India (All Cities)
+              </Link>
+              {['noida', 'mumbai', 'new-delhi', 'bengaluru', 'pune', 'hyderabad'].map((c) => (
                 <Link
                   key={c}
-                  href={`/search?city=${c}${category ? `&category=${category}` : ''}`}
+                  href={`/search?city=${c}${activeCategory ? `&category=${activeCategory}` : ''}${
+                    activeQuery ? `&q=${encodeURIComponent(activeQuery)}` : ''
+                  }`}
+                  onClick={() => setActiveCity(c)}
                   className={`block px-3 py-1.5 rounded-lg capitalize transition ${
-                    city === c
+                    activeCity === c
                       ? 'bg-[#F95700]/10 text-[#F95700] font-semibold'
                       : 'text-slate-600 hover:bg-slate-50'
                   }`}
                 >
-                  {c.replace('-', ' ')}
+                  {c === 'noida' ? 'Noida / NCR' : c.replace('-', ' ')}
                 </Link>
               ))}
             </div>
@@ -186,25 +284,52 @@ function SearchContent() {
         {/* Results List */}
         <div className="lg:col-span-3 space-y-4">
           <div className="flex items-center justify-between text-xs text-slate-500 pb-2 border-b border-slate-200">
-            <span>Showing {filtered.length} listings</span>
+            <span>
+              Showing {finalResults.length > 0 ? finalResults.length : otherCityResults.length} listings
+              {activeQuery && ` for "${activeQuery}"`}
+            </span>
             <span>Verified directory results</span>
           </div>
 
-          {filtered.length === 0 ? (
+          {/* Smart Notice: If matched in other cities */}
+          {finalResults.length === 0 && otherCityResults.length > 0 && (
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-amber-900">
+              <div className="text-xs sm:text-sm">
+                <span className="font-bold">No exact match in {activeCity.toUpperCase()}.</span> Found{' '}
+                <span className="font-bold">{otherCityResults.length}</span> matching result(s) across All India:
+              </div>
+              <button
+                type="button"
+                onClick={clearCityFilter}
+                className="px-3.5 py-1.5 bg-[#F95700] hover:bg-[#E54800] text-white rounded-lg text-xs font-bold transition whitespace-nowrap self-start sm:self-auto cursor-pointer"
+              >
+                Search All India
+              </button>
+            </div>
+          )}
+
+          {/* Main Results Render */}
+          {finalResults.length === 0 && otherCityResults.length === 0 ? (
             <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
               <p className="text-base font-semibold text-slate-700">No matching businesses found</p>
               <p className="text-sm text-slate-500">
-                Try searching in a different city or category, or browse the entire directory.
+                Try searching across All India or check your keywords.
               </p>
-              <Link
-                href="/search"
-                className="inline-block bg-[#07213A] text-white text-xs font-semibold px-4 py-2 rounded-lg"
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveQuery('');
+                  setActiveCity('');
+                  setActiveCategory('');
+                  router.push('/search');
+                }}
+                className="inline-block bg-[#07213A] text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer hover:bg-[#0c2a49] transition"
               >
                 Reset Search Filters
-              </Link>
+              </button>
             </div>
           ) : (
-            filtered.map((item) => (
+            (finalResults.length > 0 ? finalResults : otherCityResults).map((item) => (
               <div
                 key={item.id}
                 className="bg-white p-6 rounded-2xl border border-slate-200 hover:border-[#F95700] hover:shadow-md transition space-y-4"
@@ -268,7 +393,9 @@ function SearchContent() {
                   </span>
 
                   <a
-                    href={`https://wa.me/${item.whatsapp}?text=Hi%2C+I+found+${encodeURIComponent(item.name)}+on+BharatBN`}
+                    href={`https://wa.me/${item.whatsapp}?text=Hi%2C+I+found+${encodeURIComponent(
+                      item.name
+                    )}+on+BharatBN`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-emerald-600 hover:text-emerald-700 font-semibold inline-flex items-center gap-1"

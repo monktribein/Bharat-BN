@@ -24,9 +24,12 @@ interface SearchBarProps {
   initialCategory?: string;
   initialQuery?: string;
   compact?: boolean;
+  onSearch?: (query: string, city: string, category: string) => void;
 }
 
 const CITIES = [
+  { id: '', name: 'All India', state: 'IN', label: 'All India (All Cities)' },
+  { id: 'noida', name: 'Noida', state: 'UP', label: 'Noida / NCR' },
   { id: 'mumbai', name: 'Mumbai', state: 'MH', label: 'Mumbai, MH' },
   { id: 'new-delhi', name: 'Delhi NCR', state: 'DL', label: 'Delhi NCR' },
   { id: 'bengaluru', name: 'Bengaluru', state: 'KA', label: 'Bengaluru, KA' },
@@ -65,10 +68,11 @@ const TRENDING_TAGS = [
 ];
 
 export default function SearchBar({
-  initialCity = 'mumbai',
+  initialCity = '',
   initialCategory = '',
   initialQuery = '',
   compact = false,
+  onSearch,
 }: SearchBarProps) {
   const router = useRouter();
   const [city, setCity] = useState(initialCity);
@@ -80,6 +84,19 @@ export default function SearchBar({
   const cityDropdownRef = useRef<HTMLDivElement>(null);
   const catDropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Sync state if props change (e.g. navigation / url update)
+  useEffect(() => {
+    if (initialQuery !== undefined) setQuery(initialQuery);
+  }, [initialQuery]);
+
+  useEffect(() => {
+    if (initialCity !== undefined) setCity(initialCity);
+  }, [initialCity]);
+
+  useEffect(() => {
+    if (initialCategory !== undefined) setCategory(initialCategory);
+  }, [initialCategory]);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -95,21 +112,33 @@ export default function SearchBar({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSearch = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  const handleSearch = (e?: React.FormEvent | React.MouseEvent) => {
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
+    const cleanQ = query.trim();
     const params = new URLSearchParams();
-    if (query.trim()) params.set('q', query.trim());
-    if (city) params.set('city', city);
+    if (cleanQ) params.set('q', cleanQ);
+    if (city && city !== 'all') params.set('city', city);
     if (category) params.set('category', category);
-    router.push(`/search?${params.toString()}`);
+
+    if (onSearch) {
+      onSearch(cleanQ, city, category);
+    }
+
+    const targetUrl = `/search${params.toString() ? `?${params.toString()}` : ''}`;
+    router.push(targetUrl);
   };
 
   const handleTagClick = (tagQuery: string) => {
     setQuery(tagQuery);
     const params = new URLSearchParams();
     params.set('q', tagQuery);
-    if (city) params.set('city', city);
+    if (city && city !== 'all') params.set('city', city);
     if (category) params.set('category', category);
+
+    if (onSearch) {
+      onSearch(tagQuery, city, category);
+    }
+
     router.push(`/search?${params.toString()}`);
   };
 
@@ -184,6 +213,9 @@ export default function SearchBar({
                           onClick={() => {
                             setCity(c.id);
                             setIsCityOpen(false);
+                            if (onSearch) {
+                              onSearch(query.trim(), c.id, category);
+                            }
                           }}
                           className={`w-full px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition ${
                             isActive
@@ -261,6 +293,9 @@ export default function SearchBar({
                           onClick={() => {
                             setCategory(cat.id);
                             setIsCatOpen(false);
+                            if (onSearch) {
+                              onSearch(query.trim(), city, cat.id);
+                            }
                           }}
                           className={`w-full px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
                             isActive
@@ -295,6 +330,12 @@ export default function SearchBar({
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSearch();
+                }
+              }}
               placeholder="Search clinic, preschool, chocolates, brand or service..."
               className="w-full bg-transparent text-sm sm:text-base font-semibold text-slate-900 placeholder:text-slate-400 placeholder:font-normal focus:outline-none"
             />
@@ -304,6 +345,9 @@ export default function SearchBar({
                 onClick={() => {
                   setQuery('');
                   inputRef.current?.focus();
+                  if (onSearch) {
+                    onSearch('', city, category);
+                  }
                 }}
                 className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition mr-1 flex-shrink-0"
                 title="Clear input"
@@ -317,6 +361,7 @@ export default function SearchBar({
           <div className="w-full md:w-auto flex-shrink-0 p-0.5">
             <motion.button
               type="submit"
+              onClick={handleSearch}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               transition={{ type: 'spring', stiffness: 450, damping: 24 }}
