@@ -64,7 +64,7 @@ const defaultVerifiedList: VerifiedBusiness[] = [
   {
     id: 'BBN-CLM-799760',
     name: 'Apple',
-    slug: 'apple-khora-colony-ghaziabad-noida',
+    slug: 'apple',
     category: 'Automobile & EV',
     city: 'Noida, UP',
     phone: '+91 97170 56860',
@@ -78,7 +78,7 @@ const defaultVerifiedList: VerifiedBusiness[] = [
   {
     id: 'BBN-CLM-982104',
     name: 'Choco Delights & Confectionery (Cadboury)',
-    slug: 'choco-delights-confectionery-andheri-mumbai',
+    slug: 'choco-delights-confectionery-cadboury',
     category: 'Food, Bakeries & Confectionery',
     city: 'Mumbai, MH',
     phone: '+91 89653 26578',
@@ -92,7 +92,7 @@ const defaultVerifiedList: VerifiedBusiness[] = [
   {
     id: '55555555-5555-5555-5555-555555555001',
     name: 'Apex Super Speciality Dental Clinic',
-    slug: 'apex-super-speciality-dental-clinic-andheri-mumbai',
+    slug: 'apex-super-speciality-dental-clinic',
     category: 'Healthcare & Clinics',
     city: 'Mumbai, MH',
     phone: '+91 98200 12345',
@@ -106,7 +106,7 @@ const defaultVerifiedList: VerifiedBusiness[] = [
   {
     id: '55555555-5555-5555-5555-555555555002',
     name: 'Little Elly International Preschool',
-    slug: 'little-elly-international-preschool-indiranagar-bengaluru',
+    slug: 'little-elly-international-preschool',
     category: 'Preschools & Education',
     city: 'Bengaluru, KA',
     phone: '+91 98450 67890',
@@ -544,7 +544,7 @@ export default function HomePage() {
               <div className="pt-4 flex items-center gap-4">
                 <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
                   <Link
-                    href="/biz/apex-super-speciality-dental-clinic-andheri-mumbai"
+                    href="/biz/apex-super-speciality-dental-clinic"
                     className="inline-block bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition shadow-md shadow-brand-500/20"
                   >
                     View Profile &amp; Inquire

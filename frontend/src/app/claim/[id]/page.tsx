@@ -47,7 +47,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
     apple: {
       id: 'BBN-CLM-799760',
       name: 'Apple',
-      slug: 'apple-khora-colony-ghaziabad-noida',
+      slug: 'apple',
       logo: '/apple-logo.svg',
       logoFileName: 'apple-logo.svg',
       category: 'Automobile & EV',
@@ -125,7 +125,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
     },
     choco: {
       id: 'BBN-CLM-982104',
-      slug: 'choco-delights-confectionery-andheri-mumbai',
+      slug: 'choco-delights-confectionery-cadboury',
       status: 'approved',
       password: '12345678',
       name: 'Choco Delights & Confectionery (Cadboury)',
@@ -204,7 +204,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
     },
     apex: {
       id: '55555555-5555-5555-5555-555555555001',
-      slug: 'apex-super-speciality-dental-clinic-andheri-mumbai',
+      slug: 'apex-super-speciality-dental-clinic',
       status: 'approved',
       password: '12345678',
       name: 'Apex Super Speciality Dental Clinic',
@@ -282,7 +282,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
     },
     little_elly: {
       id: '55555555-5555-5555-5555-555555555002',
-      slug: 'little-elly-international-preschool-indiranagar-bengaluru',
+      slug: 'little-elly-international-preschool',
       status: 'approved',
       password: '12345678',
       name: 'Little Elly International Preschool',
@@ -358,7 +358,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
     },
     tech: {
       id: '55555555-5555-5555-5555-555555555003',
-      slug: 'nexabyte-software-cloud-labs-bengaluru',
+      slug: 'nexabyte-software-cloud-labs',
       status: 'approved',
       password: '12345678',
       name: 'NexaByte Software & Cloud Labs',
@@ -986,10 +986,10 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
     try {
       const ticketId = existingId || `BBN-CLM-${Math.floor(100000 + Math.random() * 900000)}`;
 
-      // Generate clean slug or preserve existing slug when editing
+      // Generate clean slug purely based on business name or preserve existing slug when editing
       let generatedSlug = (isEditing && existingSlug)
         ? existingSlug
-        : (businessName + '-' + (city || 'local'))
+        : businessName
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/(^-|-$)/g, '');

@@ -42,7 +42,7 @@ const mockListings: ListingItem[] = [
   {
     id: 'BBN-CLM-799760',
     name: 'Apple',
-    slug: 'apple-khora-colony-ghaziabad-noida',
+    slug: 'apple',
     city: 'Noida, UP',
     category: 'Automobile & EV',
     phone: '+91 97170 56860',
@@ -55,7 +55,7 @@ const mockListings: ListingItem[] = [
   {
     id: 'BBN-CLM-982104',
     name: 'Choco Delights & Confectionery (Cadboury)',
-    slug: 'choco-delights-confectionery-andheri-mumbai',
+    slug: 'choco-delights-confectionery-cadboury',
     city: 'Mumbai, MH',
     category: 'Food, Bakeries & Confectionery',
     phone: '+91 89653 26578',
@@ -68,7 +68,7 @@ const mockListings: ListingItem[] = [
   {
     id: 'BBN-DIR-001',
     name: 'Apex Super Speciality Dental Clinic',
-    slug: 'apex-super-speciality-dental-clinic-andheri-mumbai',
+    slug: 'apex-super-speciality-dental-clinic',
     city: 'Mumbai, MH',
     category: 'Healthcare & Clinics',
     phone: '+91 98200 12345',
@@ -81,7 +81,7 @@ const mockListings: ListingItem[] = [
   {
     id: 'BBN-DIR-002',
     name: 'Little Elly Preschool & Daycare',
-    slug: 'little-elly-preschool-indiranagar-bengaluru',
+    slug: 'little-elly-international-preschool',
     city: 'Bengaluru, KA',
     category: 'Preschools & Education',
     phone: '+91 98450 67890',

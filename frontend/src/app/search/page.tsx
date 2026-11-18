@@ -28,7 +28,7 @@ const mockListings: DirectoryListing[] = [
   {
     id: 'BBN-CLM-799760',
     name: 'Apple',
-    slug: 'apple-khora-colony-ghaziabad-noida',
+    slug: 'apple',
     category: 'Automobile & EV',
     categorySlug: 'automobile-ev-showrooms',
     city: 'Noida',
@@ -43,7 +43,7 @@ const mockListings: DirectoryListing[] = [
   {
     id: 'BBN-CLM-982104',
     name: 'Choco Delights & Confectionery (Cadboury)',
-    slug: 'choco-delights-confectionery-andheri-mumbai',
+    slug: 'choco-delights-confectionery-cadboury',
     category: 'Food, Bakeries & Confectionery',
     categorySlug: 'food-confectionery',
     city: 'Mumbai',
@@ -58,7 +58,7 @@ const mockListings: DirectoryListing[] = [
   {
     id: '55555555-5555-5555-5555-555555555001',
     name: 'Apex Super Speciality Dental Clinic',
-    slug: 'apex-super-speciality-dental-clinic-andheri-mumbai',
+    slug: 'apex-super-speciality-dental-clinic',
     category: 'Healthcare & Clinics',
     categorySlug: 'healthcare-clinics',
     city: 'Mumbai',
@@ -73,7 +73,7 @@ const mockListings: DirectoryListing[] = [
   {
     id: '55555555-5555-5555-5555-555555555002',
     name: 'Little Elly International Preschool',
-    slug: 'little-elly-international-preschool-indiranagar-bengaluru',
+    slug: 'little-elly-international-preschool',
     category: 'Preschools & Education',
     categorySlug: 'education-preschools',
     city: 'Bengaluru',

@@ -50,7 +50,7 @@ const defaultCampaigns: SeoCampaign[] = [
     businessName: 'Apex Dental Care Group',
     keyword: 'best dental clinic in andheri west',
     targetCity: 'Mumbai (Mobile)',
-    targetUrl: 'https://bharatbn.com/mumbai/healthcare-clinics/apex-super-speciality-dental-clinic-andheri-mumbai',
+    targetUrl: 'https://bharat-bn.vercel.app/biz/apex-super-speciality-dental-clinic',
     device: 'mobile',
     currentRank: 8,
     baselineRank: 48,

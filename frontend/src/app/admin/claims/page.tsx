@@ -52,7 +52,7 @@ const defaultClaims: ClaimItem[] = [
   {
     id: 'BBN-CLM-799760',
     businessName: 'Apple',
-    businessSlug: 'apple-khora-colony-ghaziabad-noida',
+    businessSlug: 'apple',
     city: 'Noida, UP',
     category: 'Automobile & EV',
     claimantName: 'Kashish Saxena (CEO)',
@@ -70,7 +70,7 @@ const defaultClaims: ClaimItem[] = [
   {
     id: 'BBN-CLM-982104',
     businessName: 'Choco Delights & Confectionery (Cadboury)',
-    businessSlug: 'choco-delights-confectionery-andheri-mumbai',
+    businessSlug: 'choco-delights-confectionery-cadboury',
     city: 'Mumbai, MH',
     category: 'Food, Bakeries & Confectionery',
     claimantName: 'Cadboury Admin',
@@ -87,7 +87,7 @@ const defaultClaims: ClaimItem[] = [
   {
     id: 'BBN-CLM-849102',
     businessName: 'Apex Super Speciality Dental Clinic',
-    businessSlug: 'apex-super-speciality-dental-clinic-andheri-mumbai',
+    businessSlug: 'apex-super-speciality-dental-clinic',
     city: 'Mumbai, MH',
     category: 'Healthcare & Clinics',
     claimantName: 'Dr. Rajesh Sharma',
@@ -104,7 +104,7 @@ const defaultClaims: ClaimItem[] = [
   {
     id: 'BBN-CLM-623194',
     businessName: 'Little Elly Preschool & Daycare',
-    businessSlug: 'little-elly-preschool-indiranagar-bengaluru',
+    businessSlug: 'little-elly-international-preschool',
     city: 'Bengaluru, KA',
     category: 'Preschools & Education',
     claimantName: 'Sunita Rao',

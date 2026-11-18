@@ -94,7 +94,7 @@ export default function BusinessLoginModal({
           {
             id: 'BBN-CLM-799760',
             businessName: 'Apple',
-            businessSlug: 'apple-khora-colony-ghaziabad-noida',
+            businessSlug: 'apple',
             ownerName: 'Apple Store Representative',
             email: 'apple@business.in',
             phone: '+91 97170 56860',
@@ -106,7 +106,7 @@ export default function BusinessLoginModal({
           {
             id: 'BBN-CLM-982104',
             businessName: 'Choco Delights & Confectionery (Cadboury)',
-            businessSlug: 'choco-delights-confectionery-andheri-mumbai',
+            businessSlug: 'choco-delights-confectionery-cadboury',
             ownerName: 'Cadboury Admin',
             email: 'cad@gmail.com',
             phone: '+91 89653 26578',
@@ -118,7 +118,7 @@ export default function BusinessLoginModal({
           {
             id: '55555555-5555-5555-5555-555555555001',
             businessName: 'Apex Super Speciality Dental Clinic',
-            businessSlug: 'apex-super-speciality-dental-clinic-andheri-mumbai',
+            businessSlug: 'apex-super-speciality-dental-clinic',
             ownerName: 'Dr. Rajesh Sharma',
             email: 'care@apexdentalmumbai.com',
             phone: '+91 98200 12345',
