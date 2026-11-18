@@ -29,6 +29,8 @@ import {
   LogOut,
   Edit,
   Trash2,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 
 export default function ClaimBusinessPage({ params }: { params: Promise<{ id: string }> }) {
@@ -445,10 +447,24 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
   const [fileError, setFileError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  // 12. Portal Account Login Password
+  // 12. Portal Account Login Password (Strictly 8 Characters)
   const [accountPassword, setAccountPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [showAccountPassword, setShowAccountPassword] = useState(false);
+
+  // Generate 8-character password helper
+  const generate8CharPassword = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setAccountPassword(result);
+    setConfirmPassword(result);
+    setPasswordError(null);
+    setShowAccountPassword(true);
+  };
 
   // Form Submission & Status State
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -576,6 +592,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
     setAccountPassword('');
     setConfirmPassword('');
     setPasswordError(null);
+    setShowAccountPassword(false);
     setFile(null);
   };
 
@@ -802,8 +819,14 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
     setFileError(null);
     setPasswordError(null);
 
-    if (!isEditing && accountPassword && accountPassword.length < 6) {
-      setPasswordError('Password must be at least 6 characters long.');
+    if (!isEditing && (!accountPassword || accountPassword.length !== 8)) {
+      setPasswordError('Password must be exactly 8 characters long.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (accountPassword && accountPassword.length !== 8) {
+      setPasswordError('Password must be exactly 8 characters long.');
       setIsSubmitting(false);
       return;
     }
@@ -893,7 +916,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
         fileSize: file ? (file.size / (1024 * 1024)).toFixed(1) + ' MB' : '1.2 MB',
         submittedAt: 'Just now (Recently Submitted)',
         status: isEditing ? existingStatus : 'pending', // PENDING ADMIN APPROVAL
-        password: accountPassword || 'password123',
+        password: accountPassword || '12345678',
       };
 
       // Persist to localStorage claims store
@@ -1446,37 +1469,64 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Portal Login Password {!isEditing && <span className="text-[#F95700]">*</span>}
-                </label>
-                <input
-                  type="password"
-                  required={!isEditing}
-                  value={accountPassword}
-                  onChange={(e) => {
-                    setAccountPassword(e.target.value);
-                    setPasswordError(null);
-                  }}
-                  placeholder={isEditing ? "Leave blank to keep current password" : "Create password (min 6 characters)"}
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
-                />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Portal Login Password {!isEditing && <span className="text-[#F95700]">* (8 Characters)</span>}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={generate8CharPassword}
+                    className="text-[11px] font-semibold text-[#F95700] hover:text-[#d94a00] hover:underline flex items-center gap-1 cursor-pointer transition"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>⚡ Generate 8-char Password</span>
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showAccountPassword ? "text" : "password"}
+                    required={!isEditing}
+                    maxLength={8}
+                    value={accountPassword}
+                    onChange={(e) => {
+                      setAccountPassword(e.target.value.slice(0, 8));
+                      setPasswordError(null);
+                    }}
+                    placeholder={isEditing ? "Leave blank to keep current password" : "Enter exactly 8 characters"}
+                    className="w-full text-xs px-3 py-2 pr-9 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowAccountPassword(!showAccountPassword)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  >
+                    {showAccountPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+                <div className="flex items-center justify-between mt-1 text-[10px] text-slate-400">
+                  <span>Must be strictly 8 characters</span>
+                  <span>{accountPassword.length}/8</span>
+                </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Confirm Password {!isEditing && <span className="text-[#F95700]">*</span>}
                 </label>
-                <input
-                  type="password"
-                  required={!isEditing && Boolean(accountPassword)}
-                  value={confirmPassword}
-                  onChange={(e) => {
-                    setConfirmPassword(e.target.value);
-                    setPasswordError(null);
-                  }}
-                  placeholder="Re-enter password to confirm"
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
-                />
+                <div className="relative">
+                  <input
+                    type={showAccountPassword ? "text" : "password"}
+                    required={!isEditing && Boolean(accountPassword)}
+                    maxLength={8}
+                    value={confirmPassword}
+                    onChange={(e) => {
+                      setConfirmPassword(e.target.value.slice(0, 8));
+                      setPasswordError(null);
+                    }}
+                    placeholder="Re-enter 8-character password"
+                    className="w-full text-xs px-3 py-2 pr-9 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
+                  />
+                </div>
               </div>
             </div>
 

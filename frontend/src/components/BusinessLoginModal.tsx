@@ -95,13 +95,13 @@ export default function BusinessLoginModal({
             id: 'BBN-CLM-799760',
             businessName: 'Apple',
             businessSlug: 'apple-khora-colony-ghaziabad-noida',
-            ownerName: 'Kashish Saxena (CEO)',
-            email: 'kashish.saxena.123056@gmail.com',
+            ownerName: 'Apple Store Representative',
+            email: 'apple@business.in',
             phone: '+91 97170 56860',
             city: 'Noida, UP',
             category: 'Automobile & EV',
             status: 'approved',
-            password: 'password123',
+            password: '12345678',
           },
           {
             id: 'BBN-CLM-982104',
@@ -113,19 +113,19 @@ export default function BusinessLoginModal({
             city: 'Mumbai, MH',
             category: 'Food, Bakeries & Confectionery',
             status: 'approved',
-            password: 'password123',
+            password: '12345678',
           },
           {
             id: '55555555-5555-5555-5555-555555555001',
             businessName: 'Apex Super Speciality Dental Clinic',
             businessSlug: 'apex-super-speciality-dental-clinic-andheri-mumbai',
             ownerName: 'Dr. Rajesh Sharma',
-            email: 'rajesh@apexclinic.com',
+            email: 'care@apexdentalmumbai.com',
             phone: '+91 98200 12345',
             city: 'Mumbai, MH',
             category: 'Healthcare & Clinics',
             status: 'approved',
-            password: 'password123',
+            password: '12345678',
           },
         ];
 
@@ -133,6 +133,18 @@ export default function BusinessLoginModal({
           const email = a.email.toLowerCase();
           const cleanPhone = a.phone.replace(/[^0-9]/g, '');
           const cleanInput = idInput.replace(/[^0-9]/g, '');
+
+          // Special check for Apple to match email, secondary email, or mobile
+          if (a.businessName.toLowerCase() === 'apple') {
+            if (
+              idInput === 'apple@business.in' ||
+              idInput === 'kashish.saxena.123056@gmail.com' ||
+              idInput === 'apple' ||
+              (cleanInput.length >= 10 && cleanPhone.includes(cleanInput.slice(-10)))
+            ) {
+              return true;
+            }
+          }
 
           return (
             email === idInput ||
@@ -150,10 +162,19 @@ export default function BusinessLoginModal({
         return;
       }
 
-      // Verify Password (if custom password was saved, verify against it; otherwise allow password123 or standard password)
-      if (matchedBusiness.password && matchedBusiness.password !== passInput && passInput !== 'password123' && passInput !== '123456') {
+      // Ensure Apple password is consistently 12345678
+      if (
+        matchedBusiness.id === 'BBN-CLM-799760' ||
+        matchedBusiness.businessName?.toLowerCase() === 'apple'
+      ) {
+        matchedBusiness.password = '12345678';
+      }
+
+      // Verify Password
+      const expectedPassword = matchedBusiness.password || '12345678';
+      if (passInput !== expectedPassword) {
         setIsSubmitting(false);
-        setErrorMessage('Incorrect password. Please re-enter your password.');
+        setErrorMessage('Incorrect password. Please verify your credentials.');
         return;
       }
 
@@ -186,12 +207,6 @@ export default function BusinessLoginModal({
         router.push('/dashboard');
       }, 700);
     }, 400);
-  };
-
-  const fillQuickDemo = (demoEmail: string) => {
-    setIdentifier(demoEmail);
-    setPassword('password123');
-    setErrorMessage(null);
   };
 
   return createPortal(
@@ -258,7 +273,7 @@ export default function BusinessLoginModal({
                     required
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
-                    placeholder="e.g. kashish.saxena.123056@gmail.com or 9717056860"
+                    placeholder="e.g. apple@business.in or 9820012345"
                     className="w-full text-xs pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] focus:ring-1 focus:ring-[#F95700] transition bg-white"
                   />
                 </div>
@@ -316,38 +331,6 @@ export default function BusinessLoginModal({
                 )}
               </button>
             </form>
-          )}
-
-          {/* Quick Demo Credentials Assistant */}
-          {!loginSuccess && (
-            <div className="pt-2 border-t border-slate-100 space-y-2">
-              <span className="text-[11px] text-slate-400 font-semibold block text-center">
-                Quick Demo Credentials:
-              </span>
-              <div className="flex flex-wrap items-center justify-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => fillQuickDemo('kashish.saxena.123056@gmail.com')}
-                  className="px-2.5 py-1 text-[11px] font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition cursor-pointer"
-                >
-                  Apple (Kashish Saxena)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => fillQuickDemo('cad@gmail.com')}
-                  className="px-2.5 py-1 text-[11px] font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition cursor-pointer"
-                >
-                  Choco Delights (Cadboury)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => fillQuickDemo('rajesh@apexclinic.com')}
-                  className="px-2.5 py-1 text-[11px] font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition cursor-pointer"
-                >
-                  Apex Dental
-                </button>
-              </div>
-            </div>
           )}
         </div>
 
