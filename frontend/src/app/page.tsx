@@ -1,19 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import SearchBar from '@/components/SearchBar';
 import {
-  Stethoscope,
-  GraduationCap,
-  Car,
-  UtensilsCrossed,
   Building2,
-  Briefcase,
-  Sparkles,
-  Wrench,
   CheckCircle2,
   TrendingUp,
   ShieldCheck,
@@ -23,27 +16,12 @@ import {
   MessageCircle,
   Star,
   ExternalLink,
-  ChevronDown,
-  Laptop,
-  Factory,
-  ShoppingBag,
-  Truck,
+  ChevronLeft,
+  ChevronRight,
+  Award,
+  Sparkles,
+  Search,
 } from 'lucide-react';
-
-const categories = [
-  { name: 'IT & Software Services', slug: 'it-software-technology', icon: Laptop, count: '16,500+' },
-  { name: 'Healthcare & Clinics', slug: 'healthcare-clinics', icon: Stethoscope, count: '14,200+' },
-  { name: 'Education & Coaching', slug: 'education-preschools', icon: GraduationCap, count: '9,800+' },
-  { name: 'Automobile & EV', slug: 'automobile-ev-showrooms', icon: Car, count: '6,400+' },
-  { name: 'Restaurants & Cafes', slug: 'restaurants-cafes', icon: UtensilsCrossed, count: '18,500+' },
-  { name: 'Real Estate & Builders', slug: 'real-estate-builders', icon: Building2, count: '5,100+' },
-  { name: 'Legal & CA Services', slug: 'legal-financial-services', icon: Briefcase, count: '4,300+' },
-  { name: 'Retail & Supermarkets', slug: 'retail-shopping', icon: ShoppingBag, count: '11,200+' },
-  { name: 'Manufacturing & Industrial', slug: 'manufacturing-industrial', icon: Factory, count: '7,400+' },
-  { name: 'Home Services', slug: 'home-industrial-services', icon: Wrench, count: '12,600+' },
-  { name: 'Logistics & Packers', slug: 'logistics-packers-movers', icon: Truck, count: '5,800+' },
-  { name: 'Beauty & Spas', slug: 'beauty-spa-salons', icon: Sparkles, count: '8,900+' },
-];
 
 interface VerifiedBusiness {
   id: string;
@@ -71,7 +49,7 @@ const defaultVerifiedList: VerifiedBusiness[] = [
     whatsapp: '919717056860',
     rating: 4.9,
     reviewsCount: 38,
-    tags: ['Electric Vehicles', 'Automobile Accessories', 'Authorized Dealership', 'Govt Verified'],
+    tags: ['Electric Vehicles', 'Automobile Accessories', 'Authorized Dealership'],
     isVerified: true,
     statusText: 'Admin Approved & Verified',
   },
@@ -85,7 +63,7 @@ const defaultVerifiedList: VerifiedBusiness[] = [
     whatsapp: '918965326578',
     rating: 4.9,
     reviewsCount: 48,
-    tags: ['Artisan Chocolates', 'Belgian Truffles', 'Gift Hampers', 'Same-Day Delivery'],
+    tags: ['Artisan Chocolates', 'Belgian Truffles', 'Gift Hampers'],
     isVerified: true,
     statusText: 'Admin Approved & Verified',
   },
@@ -99,7 +77,7 @@ const defaultVerifiedList: VerifiedBusiness[] = [
     whatsapp: '919820012345',
     rating: 4.9,
     reviewsCount: 124,
-    tags: ['Invisalign', 'Root Canal', 'Dental Implants', '24x7 Emergency'],
+    tags: ['Invisalign', 'Root Canal', 'Dental Implants'],
     isVerified: true,
     statusText: 'Audited & Verified',
   },
@@ -113,7 +91,7 @@ const defaultVerifiedList: VerifiedBusiness[] = [
     whatsapp: '919845067890',
     rating: 4.8,
     reviewsCount: 86,
-    tags: ['Toddler Care', 'Pre-K Program', 'Daycare', 'CCTV Enabled'],
+    tags: ['Toddler Care', 'Pre-K Program', 'Daycare'],
     isVerified: true,
     statusText: 'Audited & Verified',
   },
@@ -130,6 +108,176 @@ const defaultVerifiedList: VerifiedBusiness[] = [
     tags: ['EV Two-Wheelers', 'Battery Swapping', 'Authorized Spares'],
     isVerified: true,
     statusText: 'Audited & Verified',
+  },
+  {
+    id: 'BBN-DIR-005',
+    name: 'Tata EV Mobility Hub',
+    slug: 'tata-ev-mobility-hub-sector-63-noida',
+    category: 'Automobile & EV',
+    city: 'Noida, UP',
+    phone: '+91 98188 44556',
+    whatsapp: '919818844556',
+    rating: 4.9,
+    reviewsCount: 58,
+    tags: ['Automobile Showrooms', 'Electric Cars', 'EV Fast Charging'],
+    isVerified: true,
+    statusText: 'Audited & Verified',
+  },
+  {
+    id: '55555555-5555-5555-5555-555555555003',
+    name: 'NexaByte Software & Cloud Labs',
+    slug: 'nexabyte-software-cloud-labs',
+    category: 'IT, Software & Technology',
+    city: 'Bengaluru, KA',
+    phone: '+91 98860 54321',
+    whatsapp: '919886054321',
+    rating: 4.9,
+    reviewsCount: 42,
+    tags: ['Custom Software', 'Cloud Architecture', 'Mobile Apps'],
+    isVerified: true,
+    statusText: 'Audited & Verified',
+  },
+  {
+    id: 'BBN-DIR-004',
+    name: 'Copper Chimney Fine Dining',
+    slug: 'copper-chimney-worli-mumbai',
+    category: 'Restaurants & Cafes',
+    city: 'Mumbai, MH',
+    phone: '+91 98210 55555',
+    whatsapp: '919821055555',
+    rating: 4.8,
+    reviewsCount: 95,
+    tags: ['North Indian', 'Dum Biryani', 'Banquet & Catering'],
+    isVerified: true,
+    statusText: 'Audited & Verified',
+  },
+];
+
+// Exact Categories matching Reference Image 2
+const visualCategories = [
+  {
+    name: 'Health',
+    categorySlug: 'healthcare-clinics',
+    query: 'Health',
+    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    name: 'Education',
+    categorySlug: 'education-preschools',
+    query: 'Education',
+    image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    name: 'Food & Cafe',
+    categorySlug: 'food-confectionery',
+    query: 'Food',
+    image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    name: 'Malls',
+    categorySlug: 'retail-shopping',
+    query: 'Mall',
+    image: 'https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    name: 'Entertainment',
+    categorySlug: 'restaurants-cafes',
+    query: 'Entertainment',
+    image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    name: 'Hobbies',
+    categorySlug: 'education-preschools',
+    query: 'Hobbies',
+    image: 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    name: 'Real-Estate',
+    categorySlug: 'real-estate-builders',
+    query: 'Real Estate',
+    image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    name: 'Citizens',
+    categorySlug: 'legal-financial-services',
+    query: 'Citizen Services',
+    image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    name: 'Associations',
+    categorySlug: 'it-software-technology',
+    query: 'Associations',
+    image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    name: 'Fashion Lifestyle',
+    categorySlug: 'retail-shopping',
+    query: 'Fashion',
+    image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    name: 'Pet & Animals',
+    categorySlug: 'healthcare-clinics',
+    query: 'Pet Veterinary',
+    image: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    name: 'Services',
+    categorySlug: 'legal-financial-services',
+    query: 'Services',
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80',
+  },
+];
+
+// Exact City Portals matching Reference Image 3
+const cityPortals = [
+  {
+    name: 'Noidabn',
+    cityQuery: 'noida',
+    cityName: 'Noida Hub / NCR',
+    image: 'https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    name: 'Greaternoidabn',
+    cityQuery: 'noida',
+    cityName: 'Greater Noida / Expressway',
+    image: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    name: 'Meerutbn',
+    cityQuery: 'meerut',
+    cityName: 'Meerut City / NCR',
+    image: 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    name: 'Gurgaonbn',
+    cityQuery: 'new-delhi',
+    cityName: 'Gurugram / Cyber City',
+    image: 'https://images.unsplash.com/photo-1580655653885-65763b2597d0?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    name: 'Dehradunbn',
+    cityQuery: 'dehradun',
+    cityName: 'Dehradun Valley',
+    image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    name: 'Ghaziabadbn',
+    cityQuery: 'noida',
+    cityName: 'Ghaziabad / Indirapuram',
+    image: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    name: 'Haridwarbn',
+    cityQuery: 'haridwar',
+    cityName: 'Haridwar Ghats',
+    image: 'https://images.unsplash.com/photo-1609137144813-7d9921338f24?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    name: 'Lucknowbn',
+    cityQuery: 'lucknow',
+    cityName: 'Lucknow Heritage',
+    image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=600&q=80',
   },
 ];
 
@@ -155,7 +303,8 @@ const itemFadeUp = {
 
 export default function HomePage() {
   const [verifiedBusinesses, setVerifiedBusinesses] = useState<VerifiedBusiness[]>(defaultVerifiedList);
-  const [showAll, setShowAll] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const sliderRef = useRef<HTMLDivElement>(null);
 
   // Sync with Admin Approvals / localStorage / Cross-Port Sync
   useEffect(() => {
@@ -205,8 +354,8 @@ export default function HomePage() {
                 Array.isArray(c.tags) && c.tags.length > 0
                   ? c.tags
                   : Array.isArray(c.services) && c.services.length > 0
-                  ? c.services.slice(0, 4)
-                  : ['Verified Enterprise', 'Govt Audited', 'Direct Inquiries'],
+                  ? c.services.slice(0, 3)
+                  : ['Verified Enterprise', 'Govt Audited'],
               isVerified: true,
               statusText: 'Admin Approved & Verified',
             }));
@@ -238,11 +387,44 @@ export default function HomePage() {
     };
   }, []);
 
+  // Butter-Smooth Auto-Sliding Carousel with Pause on Mouse Hover / Click
+  useEffect(() => {
+    const slider = sliderRef.current;
+    if (!slider) return;
+
+    let animationId: number;
+    let accumulatedScroll = slider.scrollLeft;
+
+    const autoScroll = () => {
+      if (!isPaused && slider) {
+        accumulatedScroll += 0.8;
+        if (accumulatedScroll >= slider.scrollWidth - slider.clientWidth - 1) {
+          accumulatedScroll = 0;
+          slider.scrollLeft = 0;
+        } else {
+          slider.scrollLeft = accumulatedScroll;
+        }
+      } else if (slider) {
+        accumulatedScroll = slider.scrollLeft;
+      }
+      animationId = requestAnimationFrame(autoScroll);
+    };
+
+    animationId = requestAnimationFrame(autoScroll);
+    return () => cancelAnimationFrame(animationId);
+  }, [isPaused]);
+
+  const scrollByAmount = (direction: 'left' | 'right') => {
+    if (sliderRef.current) {
+      const amount = direction === 'left' ? -320 : 320;
+      sliderRef.current.scrollBy({ left: amount, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className="space-y-10 pb-16">
-      {/* 1. Hero Section with 3D Connected Local Network Background (Softly Blurred & Compact) */}
+    <div className="space-y-12 pb-16">
+      {/* 1. Hero Section with 3D Connected Local Network Background */}
       <section className="relative pt-10 pb-12 px-4 sm:px-6 lg:px-8 bg-[#FAF7F2] z-30">
-        {/* Background Layer (Confines Background 3D Image & Ambient Glow with overflow-hidden) */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
           <Image
             src="/bharatbn-network-3d.jpg"
@@ -252,10 +434,7 @@ export default function HomePage() {
             quality={90}
             className="object-cover object-center opacity-30 blur-[2px] scale-[1.03] select-none"
           />
-          {/* Soft Atmospheric Light Wash for 100% Text & Search Clarity */}
           <div className="absolute inset-0 bg-gradient-to-b from-[#FAF7F2]/70 via-transparent to-white/95" />
-
-          {/* Animated background ambient glow orb */}
           <motion.div
             animate={{
               scale: [1, 1.05, 1],
@@ -276,7 +455,6 @@ export default function HomePage() {
           animate="visible"
           className="relative z-20 max-w-7xl mx-auto text-center space-y-6"
         >
-          {/* Logo Tagline Pill */}
           <motion.div variants={itemFadeUp} className="inline-block">
             <div className="inline-flex items-center gap-2 bg-white/95 backdrop-blur px-4 py-1.5 rounded-full border border-brand-200 shadow-xs text-xs font-semibold text-navy-900 hover:border-brand-400 transition">
               <span className="text-brandGold-500 font-bold">✦</span>
@@ -285,7 +463,6 @@ export default function HomePage() {
             </div>
           </motion.div>
 
-          {/* Heading */}
           <motion.h1
             variants={itemFadeUp}
             className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-navy-900 leading-tight max-w-5xl mx-auto drop-shadow-xs"
@@ -294,7 +471,6 @@ export default function HomePage() {
             <span className="text-brand-500">Grow High-Intent Visibility.</span>
           </motion.h1>
 
-          {/* Subtitle */}
           <motion.p
             variants={itemFadeUp}
             className="text-base sm:text-lg text-slate-700 font-medium max-w-3xl mx-auto leading-relaxed drop-shadow-xs"
@@ -303,216 +479,272 @@ export default function HomePage() {
             Audited NAP details, direct WhatsApp inquiries, and guaranteed local rank visibility.
           </motion.p>
 
-          {/* Sleek SearchBar */}
           <motion.div variants={itemFadeUp} className="pt-2 w-full">
             <SearchBar />
           </motion.div>
         </motion.div>
       </section>
 
-      {/* 2. LIVE VERIFIED BUSINESSES GRID (Recently Approved / Active) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4 }}
-          className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3"
-        >
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-bold text-navy-900">
-                Verified Local Businesses
+      {/* ======================================================== */}
+      {/* 2. SECTION: Categories (Matching Reference Image 2)      */}
+      {/* ======================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="space-y-1 mb-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              Categories
+            </h2>
+            <Link
+              href="/search"
+              className="text-xs sm:text-sm font-bold text-[#F95700] hover:underline flex items-center gap-1"
+            >
+              <span>View All</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+          <div className="w-14 h-1 bg-[#F95700] rounded-full" />
+        </div>
+
+        {/* 12 Visual Cards Grid (Matching Reference Image 2: 6x2 layout) */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5 sm:gap-4">
+          {visualCategories.map((cat, index) => (
+            <motion.div
+              key={cat.name}
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.1 }}
+              transition={{ duration: 0.3, delay: index * 0.04 }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="group relative rounded-xl overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 aspect-[4/3] bg-slate-900"
+            >
+              <Link
+                href={`/search?category=${cat.categorySlug}&q=${encodeURIComponent(cat.query)}`}
+                className="block w-full h-full relative"
+                title={`Explore ${cat.name} on BharatBN`}
+              >
+                {/* Background Photo */}
+                <Image
+                  src={cat.image}
+                  alt={cat.name}
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
+                  className="object-cover group-hover:scale-110 transition-transform duration-500 opacity-80"
+                />
+
+                {/* Dark Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/30 group-hover:from-black/75 group-hover:via-black/30 group-hover:to-transparent transition duration-300" />
+
+                {/* Gold/Orange Centered Text Title (Signature of Image 2) */}
+                <div className="absolute inset-0 flex items-center justify-center p-2 text-center z-10">
+                  <span className="font-extrabold text-sm sm:text-base text-[#F95700] group-hover:text-amber-400 tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition transform group-hover:scale-105">
+                    {cat.name}
+                  </span>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 3. SECTION: Recent Listings (Auto-Sliding Carousel with Pause on Hover)   */}
+      {/* ========================================================================= */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+        <div className="flex items-center justify-between pb-2">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                Recent Listings
               </h2>
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                Audited &amp; Active
+              <span className="inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Auto-Sliding Feed
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-              Businesses approved through official proof documents (ROC, GSTIN, Shop Licenses)
-            </p>
+            <div className="w-14 h-1 bg-[#F95700] rounded-full" />
           </div>
-          <Link
-            href="/search"
-            className="text-xs sm:text-sm font-semibold text-brand-500 hover:text-brand-600 flex items-center gap-1 self-start sm:self-auto"
-          >
-            Explore All Listings <ArrowRight className="w-4 h-4" />
-          </Link>
-        </motion.div>
 
-        {/* Business Cards Grid with Framer Motion Stagger (Top 4 only by default) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5">
-          {(showAll ? verifiedBusinesses : verifiedBusinesses.slice(0, 4)).map((biz, index) => (
-            <motion.div
-              key={biz.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.15 }}
-              transition={{ duration: 0.4, delay: index * 0.08 }}
-              whileHover={{ y: -4, transition: { duration: 0.2 } }}
-              className="bg-white rounded-2xl border border-slate-200/90 shadow-xs hover:border-brand-400 hover:shadow-md transition p-5 flex flex-col justify-between space-y-4"
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => scrollByAmount('left')}
+              className="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition shadow-xs cursor-pointer text-slate-600 hover:text-slate-900"
+              title="Slide Left"
             >
-              <div className="space-y-2.5">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
-                        <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                        Verified Business
-                      </span>
-                      <span className="text-[11px] text-slate-400 font-mono">
-                        {biz.city}
-                      </span>
-                    </div>
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollByAmount('right')}
+              className="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition shadow-xs cursor-pointer text-slate-600 hover:text-slate-900"
+              title="Slide Right"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+            <Link
+              href="/search"
+              className="text-xs sm:text-sm font-bold text-[#F95700] hover:underline ml-2 hidden sm:inline-flex items-center gap-1"
+            >
+              <span>View All</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
 
-                    <Link href={`/biz/${biz.slug}`}>
-                      <h3 className="font-bold text-base sm:text-lg text-navy-900 hover:text-brand-600 transition leading-snug">
-                        {biz.name}
-                      </h3>
-                    </Link>
-                    <div className="text-xs text-slate-500 font-medium">{biz.category}</div>
+        {/* Small Compact Cards Carousel (Pauses on Hover / Mouse Click) */}
+        <div
+          ref={sliderRef}
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onTouchStart={() => setIsPaused(true)}
+          onTouchEnd={() => setIsPaused(false)}
+          className="flex items-stretch gap-4 overflow-x-auto py-3 px-1 no-scrollbar scroll-smooth cursor-grab active:cursor-grabbing select-none"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {/* Double array for infinite seamless looping */}
+          {[...verifiedBusinesses, ...verifiedBusinesses].map((biz, idx) => (
+            <div
+              key={`${biz.id}-${idx}`}
+              className="w-72 sm:w-80 flex-shrink-0 bg-white rounded-2xl border border-slate-200/90 shadow-xs hover:border-[#F95700] hover:shadow-lg transition-all duration-300 p-4 flex flex-col justify-between space-y-3 group"
+            >
+              <div className="space-y-2">
+                {/* Header Tag & Rating */}
+                <div className="flex items-center justify-between gap-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
+                      <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                      Verified
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-400 truncate max-w-[100px]">
+                      {biz.city}
+                    </span>
                   </div>
 
-                  <div className="flex items-center gap-1 bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg text-xs font-bold text-amber-700 flex-shrink-0">
-                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                  <div className="flex items-center gap-0.5 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded text-[11px] font-bold text-amber-700">
+                    <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                     <span>{biz.rating}</span>
-                    <span className="text-[10px] text-slate-400 font-normal">({biz.reviewsCount})</span>
+                    <span className="text-[9px] text-slate-400 font-normal">({biz.reviewsCount})</span>
                   </div>
                 </div>
 
-                {/* Service Tags */}
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {biz.tags.map((tag) => (
+                {/* Business Name */}
+                <Link
+                  href={`/biz/${biz.slug}`}
+                  className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-[#F95700] transition leading-snug line-clamp-1 block"
+                  title={biz.name}
+                >
+                  {biz.name}
+                </Link>
+
+                <div className="text-[11px] text-slate-500 font-medium truncate">
+                  {biz.category}
+                </div>
+
+                {/* Tags Preview */}
+                <div className="flex flex-wrap gap-1 pt-1">
+                  {biz.tags.slice(0, 2).map((t) => (
                     <span
-                      key={tag}
-                      className="text-[11px] bg-slate-50 border border-slate-200 text-slate-600 px-2 py-0.5 rounded"
+                      key={t}
+                      className="text-[10px] bg-slate-50 border border-slate-200 text-slate-600 px-1.5 py-0.5 rounded truncate max-w-[130px]"
                     >
-                      {tag}
+                      {t}
                     </span>
                   ))}
                 </div>
               </div>
 
-              {/* Action Buttons Row */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                <span className="text-xs font-mono text-slate-600 flex items-center gap-1">
-                  <Phone className="w-3 h-3 text-slate-400" />
-                  {biz.phone}
-                </span>
+              {/* Action Buttons: Phone & WhatsApp */}
+              <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
+                <a
+                  href={`https://wa.me/${biz.whatsapp}?text=Hi%2C+I+found+${encodeURIComponent(biz.name)}+on+BharatBN`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 bg-[#25D366] hover:bg-[#20bd5a] text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition"
+                >
+                  <MessageCircle className="w-3 h-3" />
+                  <span>WhatsApp</span>
+                </a>
 
-                <div className="flex items-center gap-2">
-                  <motion.a
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    href={`https://wa.me/${biz.whatsapp}?text=Hi%2C+I+found+${encodeURIComponent(biz.name)}+on+BharatBN+and+want+to+inquire`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xs transition"
-                  >
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    <span>WhatsApp</span>
-                  </motion.a>
-
-                  <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                    <Link
-                      href={`/biz/${biz.slug}`}
-                      className="inline-flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-lg transition"
-                    >
-                      <span>Profile</span>
-                      <ExternalLink className="w-3 h-3 text-slate-500" />
-                    </Link>
-                  </motion.div>
-                </div>
+                <Link
+                  href={`/biz/${biz.slug}`}
+                  className="inline-flex items-center gap-1 bg-slate-100 hover:bg-[#F95700] hover:text-white text-slate-700 text-[11px] font-bold px-3 py-1.5 rounded-lg transition"
+                >
+                  <span>Profile</span>
+                  <ExternalLink className="w-3 h-3" />
+                </Link>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
+      </section>
 
-        {/* View All Action Button Bar */}
-        {verifiedBusinesses.length > 4 && (
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              type="button"
-              onClick={() => setShowAll(!showAll)}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white hover:bg-slate-50 border border-slate-200/90 hover:border-[#F95700]/50 text-slate-700 hover:text-[#F95700] font-bold text-xs sm:text-sm shadow-xs hover:shadow transition"
-            >
-              <span>{showAll ? 'Show Top 4 Only' : `View All Verified Listings (${verifiedBusinesses.length})`}</span>
-              <ChevronDown
-                className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-                  showAll ? 'rotate-180 text-[#F95700]' : ''
-                }`}
-              />
-            </motion.button>
-
+      {/* ======================================================== */}
+      {/* 4. SECTION: City Portal (Matching Reference Image 3)    */}
+      {/* ======================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="space-y-1 mb-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              City Portal
+            </h2>
             <Link
               href="/search"
-              className="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-[#F95700] hover:text-[#E24A00] px-3 py-2 hover:underline"
+              className="text-xs sm:text-sm font-bold text-[#F95700] hover:underline flex items-center gap-1"
             >
-              <span>Explore Full Directory</span>
+              <span>All Cities</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-        )}
-      </section>
+          <div className="w-14 h-1 bg-[#F95700] rounded-full" />
+        </div>
 
-      {/* 3. Explore by Category with Staggered Card Entrance */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4 }}
-          className="flex items-center justify-between"
-        >
-          <div>
-            <h2 className="text-2xl font-bold text-navy-900">Explore by Category</h2>
-            <p className="text-sm text-slate-500">Verified service providers curated by domain specialists</p>
-          </div>
-          <Link href="/search" className="text-sm font-semibold text-brand-500 hover:text-brand-600 flex items-center gap-1">
-            View All <ArrowRight className="w-4 h-4" />
-          </Link>
-        </motion.div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {categories.map((cat, index) => {
-            const Icon = cat.icon;
-            return (
-              <motion.div
-                key={cat.slug}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.1 }}
-                transition={{ duration: 0.35, delay: index * 0.05 }}
-                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+        {/* 8 Visual City Cards Grid (Matching Reference Image 3: 4x2 layout) */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
+          {cityPortals.map((cp, index) => (
+            <motion.div
+              key={cp.name}
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.1 }}
+              transition={{ duration: 0.35, delay: index * 0.05 }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="group relative rounded-xl overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 aspect-[16/10] bg-slate-900"
+            >
+              <Link
+                href={`/search?city=${cp.cityQuery}`}
+                className="block w-full h-full relative"
+                title={`Explore businesses in ${cp.cityName}`}
               >
-                <Link
-                  href={`/search?category=${cat.slug}`}
-                  className="group p-5 bg-white rounded-2xl border border-slate-200 hover:border-brand-500 hover:shadow-lg hover:shadow-brand-500/10 transition flex flex-col justify-between h-full"
-                >
-                  <motion.div
-                    whileHover={{ scale: 1.15, rotate: 3 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                    className="w-12 h-12 rounded-xl bg-brand-50 text-brand-500 flex items-center justify-center mb-4 group-hover:bg-brand-500 group-hover:text-white transition"
-                  >
-                    <Icon className="w-6 h-6" />
-                  </motion.div>
-                  <div>
-                    <h3 className="font-semibold text-navy-900 group-hover:text-brand-500 transition text-sm">
-                      {cat.name}
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-1">{cat.count} listings</p>
-                  </div>
-                </Link>
-              </motion.div>
-            );
-          })}
+                {/* Background Photo */}
+                <Image
+                  src={cp.image}
+                  alt={cp.name}
+                  fill
+                  sizes="(max-width: 640px) 50vw, 25vw"
+                  className="object-cover group-hover:scale-110 transition-transform duration-500 opacity-75"
+                />
+
+                {/* Dark Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/30 group-hover:from-black/75 group-hover:via-black/30 group-hover:to-transparent transition duration-300" />
+
+                {/* Gold/Orange Centered Text (Signature of Image 3) */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-2 text-center z-10">
+                  <span className="font-extrabold text-base sm:text-lg text-[#F95700] group-hover:text-amber-400 tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition transform group-hover:scale-105">
+                    {cp.name}
+                  </span>
+                  <span className="text-[10px] text-slate-300 font-medium drop-shadow-xs mt-0.5">
+                    {cp.cityName}
+                  </span>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
         </div>
       </section>
 
-      {/* 4. Featured Verified Business Profile Preview */}
+      {/* 5. Featured Verified Business Profile Preview */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 25 }}
@@ -582,10 +814,9 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      {/* 5. Pay-As-You-Rank™ & Enterprise Value Prop */}
+      {/* 6. Pay-As-You-Rank™ & Enterprise Value Prop */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Card 1: Pay-As-You-Rank */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -610,7 +841,6 @@ export default function HomePage() {
             </Link>
           </motion.div>
 
-          {/* Card 2: Enterprise Franchise */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -637,7 +867,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 6. Claim CTA Banner */}
+      {/* 7. Claim CTA Banner */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
@@ -647,7 +877,6 @@ export default function HomePage() {
           style={{ backgroundColor: '#07213A' }}
           className="relative overflow-hidden bg-[#07213A] bg-gradient-to-r from-[#041424] via-[#07213A] to-[#041424] text-white rounded-3xl p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 border border-slate-700/50 shadow-lg"
         >
-          {/* Subtle logo accent line at bottom */}
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-500 via-brandGold-400 to-[#128807]" />
           
           <div className="space-y-2 text-center md:text-left">
