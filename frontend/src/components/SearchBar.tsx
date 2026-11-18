@@ -112,6 +112,22 @@ export default function SearchBar({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const handleQueryChange = (val: string) => {
+    setQuery(val);
+    if (onSearch) {
+      onSearch(val, city, category);
+    }
+    const cleanQ = val.trim();
+    const params = new URLSearchParams();
+    if (cleanQ) params.set('q', cleanQ);
+    if (city && city !== 'all') params.set('city', city);
+    if (category) params.set('category', category);
+    const targetUrl = `/search${params.toString() ? `?${params.toString()}` : ''}`;
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', targetUrl);
+    }
+  };
+
   const handleSearch = (e?: React.FormEvent | React.MouseEvent) => {
     if (e && typeof e.preventDefault === 'function') e.preventDefault();
     const cleanQ = query.trim();
@@ -125,6 +141,9 @@ export default function SearchBar({
     }
 
     const targetUrl = `/search${params.toString() ? `?${params.toString()}` : ''}`;
+    if (typeof window !== 'undefined') {
+      window.history.pushState(null, '', targetUrl);
+    }
     router.push(targetUrl);
   };
 
@@ -139,7 +158,11 @@ export default function SearchBar({
       onSearch(tagQuery, city, category);
     }
 
-    router.push(`/search?${params.toString()}`);
+    const targetUrl = `/search?${params.toString()}`;
+    if (typeof window !== 'undefined') {
+      window.history.pushState(null, '', targetUrl);
+    }
+    router.push(targetUrl);
   };
 
   const selectedCityObj = CITIES.find((c) => c.id === city) || CITIES[0];
@@ -215,6 +238,14 @@ export default function SearchBar({
                             setIsCityOpen(false);
                             if (onSearch) {
                               onSearch(query.trim(), c.id, category);
+                            }
+                            const params = new URLSearchParams();
+                            if (query.trim()) params.set('q', query.trim());
+                            if (c.id && c.id !== 'all') params.set('city', c.id);
+                            if (category) params.set('category', category);
+                            const targetUrl = `/search${params.toString() ? `?${params.toString()}` : ''}`;
+                            if (typeof window !== 'undefined') {
+                              window.history.replaceState(null, '', targetUrl);
                             }
                           }}
                           className={`w-full px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition ${
@@ -296,6 +327,14 @@ export default function SearchBar({
                             if (onSearch) {
                               onSearch(query.trim(), city, cat.id);
                             }
+                            const params = new URLSearchParams();
+                            if (query.trim()) params.set('q', query.trim());
+                            if (city && city !== 'all') params.set('city', city);
+                            if (cat.id) params.set('category', cat.id);
+                            const targetUrl = `/search${params.toString() ? `?${params.toString()}` : ''}`;
+                            if (typeof window !== 'undefined') {
+                              window.history.replaceState(null, '', targetUrl);
+                            }
                           }}
                           className={`w-full px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
                             isActive
@@ -329,7 +368,7 @@ export default function SearchBar({
               ref={inputRef}
               type="text"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => handleQueryChange(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
@@ -343,13 +382,10 @@ export default function SearchBar({
               <button
                 type="button"
                 onClick={() => {
-                  setQuery('');
+                  handleQueryChange('');
                   inputRef.current?.focus();
-                  if (onSearch) {
-                    onSearch('', city, category);
-                  }
                 }}
-                className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition mr-1 flex-shrink-0"
+                className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition mr-1 flex-shrink-0 cursor-pointer"
                 title="Clear input"
               >
                 <X className="w-3.5 h-3.5" />
@@ -359,17 +395,17 @@ export default function SearchBar({
 
           {/* 4. High-Craft Saffron Search Button */}
           <div className="w-full md:w-auto flex-shrink-0 p-0.5">
-            <motion.button
-              type="submit"
-              onClick={handleSearch}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              transition={{ type: 'spring', stiffness: 450, damping: 24 }}
-              className="w-full md:w-auto h-12 px-7 rounded-full bg-gradient-to-r from-[#F95700] via-[#FF6200] to-[#E54800] text-white font-extrabold text-sm tracking-wide shadow-md shadow-[#F95700]/30 hover:shadow-lg hover:shadow-[#F95700]/45 flex items-center justify-center gap-2 cursor-pointer transition-all"
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                handleSearch(e);
+              }}
+              className="w-full md:w-auto h-12 px-7 rounded-full bg-gradient-to-r from-[#F95700] via-[#FF6200] to-[#E54800] hover:from-[#e04e00] hover:to-[#cc3e00] text-white font-extrabold text-sm tracking-wide shadow-md shadow-[#F95700]/30 hover:shadow-lg hover:shadow-[#F95700]/45 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95"
             >
               <Search className="w-4 h-4 stroke-[2.5]" />
               <span>Search</span>
-            </motion.button>
+            </button>
           </div>
         </form>
       </motion.div>
