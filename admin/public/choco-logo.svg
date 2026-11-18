@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="chocoBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2D150B" />
+      <stop offset="50%" stop-color="#1B0C06" />
+      <stop offset="100%" stop-color="#3E1C0D" />
+    </linearGradient>
+    <linearGradient id="goldRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F5D061" />
+      <stop offset="50%" stop-color="#E5A93C" />
+      <stop offset="100%" stop-color="#C58520" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Outer Rounded Square Base -->
+  <rect width="200" height="200" rx="44" fill="url(#chocoBg)" />
+  <rect x="6" y="6" width="188" height="188" rx="38" fill="none" stroke="url(#goldRim)" stroke-width="3" opacity="0.8" />
+  <rect x="12" y="12" width="176" height="176" rx="32" fill="none" stroke="url(#goldRim)" stroke-width="1" stroke-dasharray="4 3" opacity="0.5" />
+
+  <!-- Center Decorative Chocolate Seal -->
+  <g transform="translate(100, 85)" filter="url(#glow)">
+    <!-- Golden Cocoa Pod / Crown Motif -->
+    <path d="M 0 -38 C 18 -38 32 -20 32 0 C 32 20 18 36 0 44 C -18 36 -32 20 -32 0 C -32 -20 -18 -38 0 -38 Z" fill="url(#goldRim)" />
+    <path d="M 0 -34 C 14 -34 26 -18 26 0 C 26 16 14 30 0 38 C -14 30 -26 16 -26 0 C -26 -18 -14 -34 0 -34 Z" fill="#240F06" />
+
+    <!-- Cocoa Bean Segments -->
+    <path d="M 0 -28 C 6 -15 6 15 0 28 C -6 15 -6 -15 0 -28 Z" fill="url(#goldRim)" />
+    <circle cx="0" cy="0" r="4" fill="#F5D061" />
+  </g>
+
+  <!-- Brand Typography -->
+  <text x="100" y="148" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="16" font-weight="900" fill="url(#goldRim)" text-anchor="middle" letter-spacing="1">
+    CHOCO DELIGHTS
+  </text>
+  <text x="100" y="168" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="9" font-weight="700" fill="#EAD5B8" text-anchor="middle" letter-spacing="2.5" opacity="0.9">
+    ARTISAN CONFECTIONERY
+  </text>
+</svg>

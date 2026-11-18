@@ -5,14 +5,17 @@
   "description": "BharatBN — AI-Powered Business Discovery & Enterprise Visibility Platform",
   "workspaces": [
     "frontend",
-    "backend"
+    "backend",
+    "admin"
   ],
   "scripts": {
     "dev:backend": "npm run start:dev --prefix backend",
     "dev:frontend": "npm run dev --prefix frontend",
+    "dev:admin": "npm run dev --prefix admin",
     "build:backend": "npm run build --prefix backend",
     "build:frontend": "npm run build --prefix frontend",
-    "lint": "npm run lint --prefix backend && npm run lint --prefix frontend"
+    "build:admin": "npm run build --prefix admin",
+    "lint": "npm run lint --prefix backend && npm run lint --prefix frontend && npm run lint --prefix admin"
   },
   "keywords": [
     "bharatbn",

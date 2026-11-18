@@ -1,35 +1,82 @@
-# Dependencies
+# ==========================================
+# BharatBN Monorepo Git Ignore Rules
+# Covers: Frontend, Admin, Backend (NestJS), Database
+# ==========================================
+
+# 1. Dependencies
 node_modules/
+**/node_modules/
 .pnpm-store/
-package-lock.json
-pnpm-lock.yaml
 
-# Build outputs
-dist/
+# 2. Next.js & Frontend / Admin Build Outputs
 .next/
+**/.next/
 out/
-build/
+**/out/
+.vercel/
+**/.vercel/
 
-# Environment files
+# 3. Backend (NestJS) & Compiler Outputs
+dist/
+**/dist/
+build/
+**/build/
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# 4. Environment Variables & Credentials (Security)
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+**/.env
+**/.env*.local
+!.env.example
 
-# Logs
+# 5. Logs & Process Files
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-*.log
+pnpm-debug.log*
+lerna-debug.log*
+*.pid
+*.seed
+*.pid.lock
 
-# IDE & OS
-.vscode/
-.idea/
-.DS_Store
-Thumbs.db
-
-# Turborepo & Cache
+# 6. Diagnostics, Caches & Turborepo
 .turbo/
+**/.turbo/
 .cache/
+**/.cache/
+.eslintcache
+.stylelintcache
 
+# 7. Testing & Coverage
+coverage/
+**/coverage/
+.nyc_output/
+**/.nyc_output/
+
+# 8. OS Generated Files (Windows & Mac)
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# 9. IDE & Editor Configs
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
