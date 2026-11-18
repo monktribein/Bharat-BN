@@ -483,9 +483,17 @@ export default function BusinessProfilePage() {
               owner: {
                 ...prev.owner,
                 name: found.claimantName || prev.owner.name,
+                role: found.ownerRole || prev.owner.role,
+                memberSince: found.memberSince || prev.owner.memberSince,
                 verifiedDocType: found.docType || prev.owner.verifiedDocType,
+                responseRate: found.responseRate || prev.owner.responseRate,
               },
+              rating: found.rating ? Number(found.rating) : prev.rating,
+              reviewsCount: found.reviewsCount ? Number(found.reviewsCount) : prev.reviewsCount,
             }));
+            if (found.reviews && Array.isArray(found.reviews) && found.reviews.length > 0) {
+              setReviewsList(found.reviews);
+            }
           }
         }
       } catch (err) {
@@ -810,7 +818,7 @@ export default function BusinessProfilePage() {
                 </div>
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/70">
                   <div className="text-[10px] uppercase font-bold text-slate-400 font-mono">Response Time</div>
-                  <div className="text-sm font-black text-navy-900 mt-0.5">&lt; 15 mins</div>
+                  <div className="text-sm font-black text-navy-900 mt-0.5">{business.owner.responseRate || '< 15 mins'}</div>
                 </div>
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/70">
                   <div className="text-[10px] uppercase font-bold text-slate-400 font-mono">City Rank</div>
