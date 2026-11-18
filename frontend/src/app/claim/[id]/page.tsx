@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef, use } from 'react';
+import { useState, useRef, use, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   ShieldCheck,
   Upload,
@@ -29,6 +30,7 @@ import {
 
 export default function ClaimBusinessPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRefs = [
