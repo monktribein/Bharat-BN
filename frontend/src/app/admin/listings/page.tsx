@@ -252,7 +252,7 @@ export default function AdminListingsPage() {
               All Business Listings
             </h1>
             <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
-              184,520 Listings
+              {listings.length} Listings
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -262,7 +262,7 @@ export default function AdminListingsPage() {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={() => alert('Exporting directory master records (184,520 rows)...')}
+            onClick={() => alert(`Exporting directory records (${listings.length} rows)...`)}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition shadow-xs"
           >
             <Download className="w-3.5 h-3.5 text-slate-500" />
@@ -463,7 +463,7 @@ export default function AdminListingsPage() {
         {/* Pagination Bar */}
         <div className="p-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="font-mono text-[11px]">
-            Showing 1-{filtered.length} of 184,520 records
+            Showing 1-{filtered.length} of {listings.length} records
           </div>
 
           <div className="flex items-center gap-1">

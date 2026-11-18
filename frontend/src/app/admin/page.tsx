@@ -282,7 +282,9 @@ export default function AdminDashboardPage() {
             <span>Verified Listings</span>
             <Building2 className="w-4 h-4 text-slate-400" />
           </div>
-          <div className="text-2xl font-bold font-mono text-slate-900">184,520</div>
+          <div className="text-2xl font-bold font-mono text-slate-900">
+            {claimsList.filter((c) => c.status === 'approved').length + 5}
+          </div>
           <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-medium">
             <span>↑ 12.4%</span>
             <span className="text-slate-400 font-normal">vs last month</span>

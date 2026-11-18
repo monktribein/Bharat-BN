@@ -161,6 +161,10 @@ export default function AdminLayout({
   const [headerSearch, setHeaderSearch] = useState('');
   const notifRef = useRef<HTMLDivElement>(null);
 
+  // Dynamic directory counts
+  const [totalBusinessesCount, setTotalBusinessesCount] = useState<number>(6);
+  const [pendingApprovalsCount, setPendingApprovalsCount] = useState<number>(1);
+
   // Close notifications on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -172,33 +176,38 @@ export default function AdminLayout({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Sync notifications with localStorage store if available
+  // Sync notifications & real counts with localStorage store
   useEffect(() => {
     const syncWithClaims = () => {
       try {
         const stored = localStorage.getItem('bharatbn_claims_store');
         if (stored) {
           const claims = JSON.parse(stored);
-          const pendingClaims = claims.filter((c: any) => c.status === 'pending');
-          if (pendingClaims.length > 0) {
-            setNotifications((prev) => {
-              const updated = [...prev];
-              pendingClaims.forEach((c: any) => {
-                if (!updated.some((n) => n.id === `claim-${c.id}`)) {
-                  updated.unshift({
-                    id: `claim-${c.id}`,
-                    title: `Claim Pending: ${c.businessName || 'Business'}`,
-                    description: `Submitted by ${c.claimantName || 'Claimant'}. Requires ROC/GSTIN audit.`,
-                    time: 'Just now',
-                    type: 'claim',
-                    isRead: false,
-                    link: '/admin/claims',
-                    badge: 'New Claim',
-                  });
-                }
+          if (Array.isArray(claims)) {
+            const pendingClaims = claims.filter((c: any) => c.status === 'pending');
+            setPendingApprovalsCount(pendingClaims.length);
+            setTotalBusinessesCount(6 + claims.length);
+
+            if (pendingClaims.length > 0) {
+              setNotifications((prev) => {
+                const updated = [...prev];
+                pendingClaims.forEach((c: any) => {
+                  if (!updated.some((n) => n.id === `claim-${c.id}`)) {
+                    updated.unshift({
+                      id: `claim-${c.id}`,
+                      title: `Claim Pending: ${c.businessName || 'Business'}`,
+                      description: `Submitted by ${c.claimantName || 'Claimant'}. Requires ROC/GSTIN audit.`,
+                      time: 'Just now',
+                      type: 'claim',
+                      isRead: false,
+                      link: '/admin/claims',
+                      badge: 'New Claim',
+                    });
+                  }
+                });
+                return updated;
               });
-              return updated;
-            });
+            }
           }
         }
       } catch (err) {
@@ -311,7 +320,11 @@ export default function AdminLayout({
                               : 'bg-slate-800 text-slate-300 border border-slate-700/60'
                           }`}
                         >
-                          {item.badge}
+                          {item.name === 'Pending Approvals'
+                            ? String(pendingApprovalsCount)
+                            : item.name === 'All Businesses'
+                            ? String(totalBusinessesCount)
+                            : item.badge}
                         </span>
                       )}
                     </Link>
@@ -335,8 +348,8 @@ export default function AdminLayout({
               </span>
             </div>
             <div className="flex items-center justify-between text-[10px] text-slate-400 border-t border-[#133256] pt-1.5">
-              <span>Pending Reviews: <strong className="text-amber-400 font-mono">3</strong></span>
-              <span>Total: <strong className="text-slate-200 font-mono">184,520</strong></span>
+              <span>Pending Reviews: <strong className="text-amber-400 font-mono">{pendingApprovalsCount}</strong></span>
+              <span>Total: <strong className="text-slate-200 font-mono">{totalBusinessesCount}</strong></span>
             </div>
           </div>
 
