@@ -131,8 +131,20 @@ const defaultClaims: ClaimItem[] = [
   },
 ];
 
-const recentActivities = [
+interface ActivityItem {
+  id?: string;
+  claimId?: string;
+  time: string;
+  title: string;
+  description: string;
+  badge: string;
+  badgeVariant: 'amber' | 'emerald' | 'blue' | 'slate';
+}
+
+const initialActivities: ActivityItem[] = [
   {
+    id: 'act-apple',
+    claimId: 'BBN-CLM-799760',
     time: '5m ago',
     title: 'New Claim Submitted',
     description: 'Apple (Noida) submitted GST registration certificate for ownership audit.',
@@ -140,6 +152,8 @@ const recentActivities = [
     badgeVariant: 'amber',
   },
   {
+    id: 'act-choco',
+    claimId: 'BBN-CLM-982104',
     time: '18m ago',
     title: 'New Claim Submitted',
     description: 'Choco Delights & Confectionery uploaded commercial verification proof.',
@@ -147,6 +161,7 @@ const recentActivities = [
     badgeVariant: 'amber',
   },
   {
+    id: 'act-apex',
     time: '45m ago',
     title: 'Document Verified',
     description: 'Apex Dental verified against GST registry (99% name match).',
@@ -154,6 +169,7 @@ const recentActivities = [
     badgeVariant: 'emerald',
   },
   {
+    id: 'act-elly',
     time: '2h ago',
     title: 'Google Top 5 Milestone',
     description: 'Little Elly Preschool reached Rank #1 on Google in Indiranagar.',
@@ -161,6 +177,7 @@ const recentActivities = [
     badgeVariant: 'blue',
   },
   {
+    id: 'act-batra',
     time: '4h ago',
     title: 'Chain Outlets Updated',
     description: 'Dr Batra’s updated addresses for 215 clinic branches.',
@@ -172,54 +189,125 @@ const recentActivities = [
 export default function AdminDashboardPage() {
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d' | '90d'>('7d');
   const [claimsList, setClaimsList] = useState<ClaimItem[]>(defaultClaims);
+  const [activitiesList, setActivitiesList] = useState<ActivityItem[]>(initialActivities);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('bharatbn_claims_store');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const formatted: ClaimItem[] = parsed.map((p: any) => ({
-            id: p.id,
-            businessName: p.businessName,
-            city: p.city,
-            category: p.category,
-            claimant: p.claimantName || p.claimant,
-            email: p.workEmail || p.email,
-            phone: p.phone,
-            docType: p.docType,
-            fileName: p.fileName,
-            confidenceScore: p.gstinMatch || 96,
-            submittedAt: p.submittedAt,
-            status: p.status,
-          }));
+    const syncFromStorage = () => {
+      try {
+        const stored = localStorage.getItem('bharatbn_claims_store');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const formatted: ClaimItem[] = parsed.map((p: any) => ({
+              id: p.id,
+              businessName: p.businessName,
+              city: p.city,
+              category: p.category,
+              claimant: p.claimantName || p.claimant,
+              email: p.workEmail || p.email,
+              phone: p.phone,
+              docType: p.docType,
+              fileName: p.fileName,
+              confidenceScore: p.gstinMatch || 96,
+              submittedAt: p.submittedAt,
+              status: p.status,
+            }));
 
-          setClaimsList((prev) => {
-            const map = new Map<string, ClaimItem>();
-            formatted.forEach((c) => map.set(c.id, c));
-            prev.forEach((c) => {
-              if (!map.has(c.id)) map.set(c.id, c);
+            setClaimsList((prev) => {
+              const map = new Map<string, ClaimItem>();
+              formatted.forEach((c) => map.set(c.id, c));
+              prev.forEach((c) => {
+                if (!map.has(c.id)) map.set(c.id, c);
+              });
+              return Array.from(map.values());
             });
-            return Array.from(map.values());
-          });
+
+            // Update activities list with any approved/rejected stored statuses
+            setActivitiesList((prev) =>
+              prev.map((act) => {
+                const matched = parsed.find(
+                  (p: any) => p.id === act.claimId || (p.businessName && act.description.includes(p.businessName))
+                );
+                if (matched && matched.status === 'approved') {
+                  return {
+                    ...act,
+                    title: 'Claim Approved & Verified',
+                    description: `${matched.businessName} verified against GST registry. Verified badge granted.`,
+                    badge: 'Approved',
+                    badgeVariant: 'emerald' as const,
+                  };
+                } else if (matched && matched.status === 'rejected') {
+                  return {
+                    ...act,
+                    title: 'Claim Rejected',
+                    description: `${matched.businessName} ownership claim was rejected.`,
+                    badge: 'Rejected',
+                    badgeVariant: 'slate' as const,
+                  };
+                }
+                return act;
+              })
+            );
+          }
         }
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
-    }
+    };
+
+    syncFromStorage();
+    window.addEventListener('bharatbn_claims_updated', syncFromStorage);
+    return () => window.removeEventListener('bharatbn_claims_updated', syncFromStorage);
   }, []);
 
   const handleAction = (id: string, decision: 'approved' | 'rejected') => {
+    let targetName = '';
     setClaimsList((prev) => {
-      const updated = prev.map((c) => (c.id === id ? { ...c, status: decision } : c));
+      const updated = prev.map((c) => {
+        if (c.id === id) {
+          targetName = c.businessName;
+          return { ...c, status: decision };
+        }
+        return c;
+      });
       try {
         localStorage.setItem('bharatbn_claims_store', JSON.stringify(updated));
         window.dispatchEvent(new Event('bharatbn_claims_updated'));
       } catch (e) {}
       return updated;
     });
+
+    // Reactively update the Recent Activity side card
+    setActivitiesList((prev) =>
+      prev.map((act) => {
+        const isTarget = act.claimId === id || (targetName && act.description.includes(targetName));
+        if (isTarget) {
+          if (decision === 'approved') {
+            return {
+              ...act,
+              time: 'Just now',
+              title: 'Claim Approved & Verified',
+              description: `${targetName || 'Business'} verified against GST registry. Verified badge granted.`,
+              badge: 'Approved',
+              badgeVariant: 'emerald' as const,
+            };
+          } else {
+            return {
+              ...act,
+              time: 'Just now',
+              title: 'Claim Rejected',
+              description: `${targetName || 'Business'} ownership claim was rejected.`,
+              badge: 'Rejected',
+              badgeVariant: 'slate' as const,
+            };
+          }
+        }
+        return act;
+      })
+    );
+
     setToastMessage(`Claim ${id} marked as ${decision.toUpperCase()}`);
     setTimeout(() => setToastMessage(null), 3500);
   };
@@ -565,7 +653,7 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="space-y-2.5 text-xs">
-              {recentActivities.map((act, i) => (
+              {activitiesList.map((act, i) => (
                 <div key={i} className="p-2.5 rounded-lg bg-slate-50/70 border border-slate-100 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-slate-900 text-xs">{act.title}</span>

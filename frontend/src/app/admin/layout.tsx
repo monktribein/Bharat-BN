@@ -195,12 +195,32 @@ export default function AdminLayout({
           const claims = JSON.parse(stored);
           if (Array.isArray(claims)) {
             const pendingClaims = claims.filter((c: any) => c.status === 'pending');
+            const approvedClaims = claims.filter((c: any) => c.status === 'approved');
             setPendingApprovalsCount(pendingClaims.length);
             setTotalBusinessesCount(6 + claims.length);
 
-            if (pendingClaims.length > 0) {
-              setNotifications((prev) => {
-                const updated = [...prev];
+            setNotifications((prev) => {
+              let updated = [...prev];
+
+              // Update any approved claims to show Approved badge
+              if (approvedClaims.length > 0) {
+                updated = updated.map((n) => {
+                  const isApproved = approvedClaims.some(
+                    (c: any) => n.id === `claim-${c.id}` || (c.businessName && n.title.includes(c.businessName))
+                  );
+                  if (isApproved) {
+                    return {
+                      ...n,
+                      title: n.title.replace('Pending', 'Approved').replace('New Ownership Claim:', 'Claim Approved:'),
+                      badge: 'Approved',
+                      isRead: true,
+                    };
+                  }
+                  return n;
+                });
+              }
+
+              if (pendingClaims.length > 0) {
                 pendingClaims.forEach((c: any) => {
                   if (!updated.some((n) => n.id === `claim-${c.id}`)) {
                     updated.unshift({
@@ -215,9 +235,9 @@ export default function AdminLayout({
                     });
                   }
                 });
-                return updated;
-              });
-            }
+              }
+              return updated;
+            });
           }
         }
       } catch (err) {
