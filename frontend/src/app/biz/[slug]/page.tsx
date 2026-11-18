@@ -510,6 +510,17 @@ export default function BusinessProfilePage() {
     return () => window.removeEventListener('bharatbn_claims_updated', loadDynamic);
   }, [slug]);
 
+  // Auto-advance slideshow every 3.5 seconds (pauses when hovered)
+  const [isSliderHovered, setIsSliderHovered] = useState(false);
+
+  useEffect(() => {
+    if (!business.gallery || business.gallery.length <= 1 || isSliderHovered) return;
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % business.gallery.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [business.gallery, isSliderHovered]);
+
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % business.gallery.length);
   };
@@ -748,7 +759,11 @@ export default function BusinessProfilePage() {
             {business.gallery && business.gallery.length > 0 ? (
               <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden p-3 space-y-3">
                 {/* Main Image Stage */}
-                <div className="relative aspect-[16/10] sm:aspect-[16/9] w-full rounded-xl overflow-hidden bg-slate-950 group">
+                <div
+                  onMouseEnter={() => setIsSliderHovered(true)}
+                  onMouseLeave={() => setIsSliderHovered(false)}
+                  className="relative aspect-[16/10] sm:aspect-[16/9] w-full rounded-xl overflow-hidden bg-slate-950 group"
+                >
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={currentSlide < business.gallery.length ? currentSlide : 0}
@@ -804,22 +819,18 @@ export default function BusinessProfilePage() {
                   )}
                 </div>
 
-                {/* Thumbnails Row (Only shown if multiple photos exist) */}
+                {/* Thumbnails Row: Small, Compact & Elegant (Only shown if multiple photos exist) */}
                 {business.gallery.length > 1 && (
-                  <div className={`grid gap-2.5 pt-1 ${
-                    business.gallery.length === 2 ? 'grid-cols-2' :
-                    business.gallery.length === 3 ? 'grid-cols-3' :
-                    business.gallery.length === 4 ? 'grid-cols-4' : 'grid-cols-5'
-                  }`}>
+                  <div className="flex items-center gap-2.5 pt-1 overflow-x-auto pb-0.5">
                     {business.gallery.map((img, idx) => (
                       <button
                         key={idx}
                         type="button"
                         onClick={() => setCurrentSlide(idx)}
-                        className={`relative aspect-[16/10] rounded-lg overflow-hidden border-2 transition cursor-pointer ${
+                        className={`relative w-20 sm:w-24 h-14 sm:h-16 flex-shrink-0 rounded-lg overflow-hidden border-2 transition cursor-pointer ${
                           currentSlide === idx
-                            ? 'border-[#F95700] ring-2 ring-[#F95700]/30 scale-[1.02]'
-                            : 'border-slate-200 opacity-70 hover:opacity-100 hover:border-slate-400'
+                            ? 'border-[#F95700] ring-2 ring-[#F95700]/30 scale-[1.03] shadow-xs'
+                            : 'border-slate-200 opacity-60 hover:opacity-100 hover:border-slate-400'
                         }`}
                       >
                         <img
@@ -827,6 +838,9 @@ export default function BusinessProfilePage() {
                           alt={img.caption || `Thumbnail ${idx + 1}`}
                           className="w-full h-full object-cover"
                         />
+                        <span className="absolute bottom-1 right-1 bg-slate-950/70 text-white text-[9px] font-mono font-bold px-1 rounded">
+                          {idx + 1}
+                        </span>
                       </button>
                     ))}
                   </div>
