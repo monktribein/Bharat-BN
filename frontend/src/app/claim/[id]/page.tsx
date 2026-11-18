@@ -445,6 +445,11 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
   const [fileError, setFileError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
+  // 12. Portal Account Login Password
+  const [accountPassword, setAccountPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
   // Form Submission & Status State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -568,6 +573,9 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
     setFeaturedReviewComment('');
     setDocType('gst_certificate');
     setDocNumber('');
+    setAccountPassword('');
+    setConfirmPassword('');
+    setPasswordError(null);
     setFile(null);
   };
 
@@ -792,6 +800,19 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
 
     setIsSubmitting(true);
     setFileError(null);
+    setPasswordError(null);
+
+    if (!isEditing && accountPassword && accountPassword.length < 6) {
+      setPasswordError('Password must be at least 6 characters long.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (accountPassword && confirmPassword && accountPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match. Please verify your password.');
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const ticketId = existingId || `BBN-CLM-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -872,6 +893,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
         fileSize: file ? (file.size / (1024 * 1024)).toFixed(1) + ' MB' : '1.2 MB',
         submittedAt: 'Just now (Recently Submitted)',
         status: isEditing ? existingStatus : 'pending', // PENDING ADMIN APPROVAL
+        password: accountPassword || 'password123',
       };
 
       // Persist to localStorage claims store
@@ -888,8 +910,12 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
           businessSlug: claimItem.businessSlug,
           ownerName: claimItem.claimantName,
           ownerEmail: claimItem.workEmail,
+          phone: claimItem.phone,
+          city: claimItem.city,
+          category: claimItem.category,
           logoUrl: claimItem.logoUrl || claimItem.logoBase64,
           status: claimItem.status,
+          password: claimItem.password,
         };
         localStorage.setItem('bharatbn_owner_session', JSON.stringify(ownerSession));
 
@@ -1418,7 +1444,47 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                 />
               </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Portal Login Password {!isEditing && <span className="text-[#F95700]">*</span>}
+                </label>
+                <input
+                  type="password"
+                  required={!isEditing}
+                  value={accountPassword}
+                  onChange={(e) => {
+                    setAccountPassword(e.target.value);
+                    setPasswordError(null);
+                  }}
+                  placeholder={isEditing ? "Leave blank to keep current password" : "Create password (min 6 characters)"}
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Confirm Password {!isEditing && <span className="text-[#F95700]">*</span>}
+                </label>
+                <input
+                  type="password"
+                  required={!isEditing && Boolean(accountPassword)}
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    setPasswordError(null);
+                  }}
+                  placeholder="Re-enter password to confirm"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
+                />
+              </div>
             </div>
+
+            {passwordError && (
+              <p className="text-xs text-red-600 font-semibold bg-red-50 p-2.5 rounded-xl border border-red-200">
+                {passwordError}
+              </p>
+            )}
           </div>
 
           {/* ======================================================== */}
