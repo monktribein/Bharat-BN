@@ -81,6 +81,95 @@ interface BusinessProfile {
 }
 
 const businessDatabase: Record<string, BusinessProfile> = {
+  'apple-khora-colony-ghaziabad-noida': {
+    id: 'BBN-CLM-799760',
+    name: 'Apple',
+    slug: 'apple-khora-colony-ghaziabad-noida',
+    phone: '+91 97170 56860',
+    whatsapp: '919717056860',
+    email: 'kashish.saxena.123056@gmail.com',
+    website: 'https://apple.com',
+    addressLine: 'Gali Number 14, Master Park, Khora Colony, Ghaziabad, Noida',
+    landmark: 'Near Master Park Main Market',
+    city: 'Noida',
+    state: 'Uttar Pradesh',
+    pincode: '102010',
+    category: 'Automobile & EV',
+    categoryHierarchy: ['Automobile & EV', 'Automobile Showrooms', 'EV Mobility & Spares', 'Authorized Dealership'],
+    services: [
+      'Electric Vehicles & Cars',
+      'Automobile Accessories & Spares',
+      'Authorized EV Dealership',
+      'Annual Maintenance & Servicing',
+      'EV Charging Stations Setup',
+      'Commercial Fleet Support',
+      'Direct WhatsApp Inquiries',
+      'Corporate Fleet Partnerships',
+    ],
+    amenities: [
+      'EV Fast Charging Bay',
+      'Customer Air Conditioned Lounge',
+      'Certified Automobile Engineers',
+      'Debit/Credit Cards & UPI Payments',
+      'Official GST Commercial Billing',
+      'Test Drive Bookings',
+      'Genuine Parts Guarantee',
+    ],
+    description:
+      'Apple (Noida Hub) is an audited enterprise business listed on BharatBN™ Business Network. Specializing in next-gen Automobile & EV solutions, verified ROC & GST registration certificates, and direct customer inquiry channels across Noida / NCR.',
+    aboutStory:
+      'Established in Khora Colony, Ghaziabad / Noida, Apple is driven by innovation and excellence in EV mobility and modern automobile engineering. With customer-first support and verified credential auditing by BharatBN, we provide authentic vehicles, spares, and rapid service turnaround.',
+    establishedYear: 2021,
+    rating: 4.9,
+    reviewsCount: 38,
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80',
+        caption: 'Apple EV Mobility & Showroom Pavilion',
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80',
+        caption: 'Genuine Spares & Accessories Bay',
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=1200&q=80',
+        caption: 'Fast EV Charging & Diagnostic Center',
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
+        caption: 'Corporate Customer Relations & Consultations',
+      },
+    ],
+    workingHours: [
+      { days: 'Monday – Saturday', time: '09:00 AM – 08:30 PM', isOpenNow: true },
+      { days: 'Sunday', time: '10:00 AM – 06:00 PM', isOpenNow: true },
+    ],
+    owner: {
+      name: 'Kashish Saxena (CEO)',
+      role: 'Verified Business Owner',
+      memberSince: 'Nov 2024',
+      verifiedDocType: 'GSTIN & ROC Verified',
+      responseRate: '100% (< 10 mins)',
+    },
+    reviews: [
+      {
+        id: 'rev-a1',
+        author: 'Rahul Sharma',
+        rating: 5,
+        date: '15 Nov 2026',
+        comment: 'Visited the Noida hub for inquiry. Super courteous staff, quick response on WhatsApp, and genuine parts guarantee. 5 stars!',
+        verified: true,
+      },
+      {
+        id: 'rev-a2',
+        author: 'Vikas Gupta',
+        rating: 5,
+        date: '08 Nov 2026',
+        comment: 'Best EV and automobile center in Khora Colony / Noida area. Clean showroom and transparent pricing.',
+        verified: true,
+      },
+    ],
+  },
   'choco-delights-confectionery-andheri-mumbai': {
     id: 'BBN-CLM-982104',
     name: 'Choco Delights & Confectionery (Cadboury)',

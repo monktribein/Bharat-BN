@@ -46,6 +46,20 @@ interface ClaimItem {
 
 const defaultClaims: ClaimItem[] = [
   {
+    id: 'BBN-CLM-799760',
+    businessName: 'Apple',
+    city: 'Noida, UP',
+    category: 'Automobile & EV',
+    claimant: 'Kashish Saxena (CEO)',
+    email: 'kashish.saxena.123056@gmail.com',
+    phone: '+91 97170 56860',
+    docType: 'GST Registration Certificate',
+    fileName: 'Apple_GST_Certificate_Noida.pdf',
+    confidenceScore: 98,
+    submittedAt: 'Today, 10:50 IST (New)',
+    status: 'pending',
+  },
+  {
     id: 'BBN-CLM-982104',
     businessName: 'Choco Delights & Confectionery (Cadboury)',
     city: 'Mumbai, MH',
@@ -119,7 +133,14 @@ const defaultClaims: ClaimItem[] = [
 
 const recentActivities = [
   {
-    time: '10m ago',
+    time: '5m ago',
+    title: 'New Claim Submitted',
+    description: 'Apple (Noida) submitted GST registration certificate for ownership audit.',
+    badge: 'Pending Review',
+    badgeVariant: 'amber',
+  },
+  {
+    time: '18m ago',
     title: 'New Claim Submitted',
     description: 'Choco Delights & Confectionery uploaded commercial verification proof.',
     badge: 'Pending Review',
@@ -191,9 +212,14 @@ export default function AdminDashboardPage() {
   }, []);
 
   const handleAction = (id: string, decision: 'approved' | 'rejected') => {
-    setClaimsList((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, status: decision } : c))
-    );
+    setClaimsList((prev) => {
+      const updated = prev.map((c) => (c.id === id ? { ...c, status: decision } : c));
+      try {
+        localStorage.setItem('bharatbn_claims_store', JSON.stringify(updated));
+        window.dispatchEvent(new Event('bharatbn_claims_updated'));
+      } catch (e) {}
+      return updated;
+    });
     setToastMessage(`Claim ${id} marked as ${decision.toUpperCase()}`);
     setTimeout(() => setToastMessage(null), 3500);
   };

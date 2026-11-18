@@ -106,10 +106,20 @@ const navSections: NavSection[] = [
 
 const initialNotifications: AdminNotification[] = [
   {
+    id: 'notif-apple',
+    title: 'New Ownership Claim: Apple',
+    description: 'Kashish Saxena (CEO) submitted GST registration proof for Apple (Noida).',
+    time: '5m ago',
+    type: 'claim',
+    isRead: false,
+    link: '/admin/claims',
+    badge: 'Review',
+  },
+  {
     id: 'notif-1',
     title: 'New Ownership Claim',
     description: 'Choco Delights & Confectionery uploaded commercial verification document.',
-    time: '10m ago',
+    time: '18m ago',
     type: 'claim',
     isRead: false,
     link: '/admin/claims',
@@ -162,8 +172,8 @@ export default function AdminLayout({
   const notifRef = useRef<HTMLDivElement>(null);
 
   // Dynamic directory counts
-  const [totalBusinessesCount, setTotalBusinessesCount] = useState<number>(6);
-  const [pendingApprovalsCount, setPendingApprovalsCount] = useState<number>(1);
+  const [totalBusinessesCount, setTotalBusinessesCount] = useState<number>(8);
+  const [pendingApprovalsCount, setPendingApprovalsCount] = useState<number>(5);
 
   // Close notifications on outside click
   useEffect(() => {

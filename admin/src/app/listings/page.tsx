@@ -40,6 +40,32 @@ interface ListingItem {
 
 const mockListings: ListingItem[] = [
   {
+    id: 'BBN-CLM-799760',
+    name: 'Apple',
+    slug: 'apple-khora-colony-ghaziabad-noida',
+    city: 'Noida, UP',
+    category: 'Automobile & EV',
+    phone: '+91 97170 56860',
+    status: 'published',
+    isVerified: true,
+    isSponsor: true,
+    napScore: 100,
+    lastCrawled: 'Today, 10:50 IST',
+  },
+  {
+    id: 'BBN-CLM-982104',
+    name: 'Choco Delights & Confectionery (Cadboury)',
+    slug: 'choco-delights-confectionery-andheri-mumbai',
+    city: 'Mumbai, MH',
+    category: 'Food, Bakeries & Confectionery',
+    phone: '+91 89653 26578',
+    status: 'pending_review',
+    isVerified: false,
+    isSponsor: false,
+    napScore: 92,
+    lastCrawled: 'Today, 10:45 IST',
+  },
+  {
     id: 'BBN-DIR-001',
     name: 'Apex Super Speciality Dental Clinic',
     slug: 'apex-super-speciality-dental-clinic-andheri-mumbai',

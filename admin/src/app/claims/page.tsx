@@ -50,6 +50,24 @@ interface ClaimItem {
 
 const defaultClaims: ClaimItem[] = [
   {
+    id: 'BBN-CLM-799760',
+    businessName: 'Apple',
+    businessSlug: 'apple-khora-colony-ghaziabad-noida',
+    city: 'Noida, UP',
+    category: 'Automobile & EV',
+    claimantName: 'Kashish Saxena (CEO)',
+    workEmail: 'kashish.saxena.123056@gmail.com',
+    phone: '+91 97170 56860',
+    gstin: '09AAACA7997K1ZP',
+    gstinMatch: 98,
+    docType: 'GST Registration Certificate',
+    fileName: 'Apple_GST_Registration_Noida.pdf',
+    fileSize: '1.8 MB',
+    submittedAt: 'Today, 10:50 IST (New)',
+    status: 'pending',
+    reviewerNotes: 'Document uploaded: GST Registration Certificate. Address: Gali Number 14, Master Park, Khora Colony, Ghaziabad, Noida. 98% entity match with Uttar Pradesh Commercial Tax registry.',
+  },
+  {
     id: 'BBN-CLM-982104',
     businessName: 'Choco Delights & Confectionery (Cadboury)',
     businessSlug: 'choco-delights-confectionery-andheri-mumbai',
