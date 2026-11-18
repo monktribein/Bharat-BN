@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Building2,
@@ -126,6 +126,51 @@ export default function AdminListingsPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
+  // Synchronize submitted businesses (e.g. Apple) from localStorage claims store
+  useEffect(() => {
+    const syncDynamicListings = () => {
+      if (typeof window === 'undefined') return;
+      try {
+        const stored = localStorage.getItem('bharatbn_claims_store');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const dynamicListings: ListingItem[] = parsed.map((c: any) => ({
+              id: c.id,
+              name: c.businessName,
+              slug: c.businessSlug || 'business',
+              city: `${c.city || 'Local'}${c.state ? `, ${c.state}` : ''}`,
+              category: c.category || 'Automobile & EV',
+              phone: c.phone || c.whatsapp || '+91 98200 12345',
+              status: c.status === 'approved' ? 'published' : 'pending_review',
+              isVerified: c.status === 'approved',
+              isSponsor: false,
+              napScore: c.status === 'approved' ? 100 : 88,
+              lastCrawled: 'Just now (Live)',
+            }));
+
+            setListings((prev) => {
+              const map = new Map<string, ListingItem>();
+              // User-listed businesses at the top!
+              dynamicListings.forEach((item) => map.set(item.id, item));
+              // Existing mock directory records
+              prev.forEach((item) => {
+                if (!map.has(item.id)) map.set(item.id, item);
+              });
+              return Array.from(map.values());
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Error syncing dynamic listings:', err);
+      }
+    };
+
+    syncDynamicListings();
+    window.addEventListener('bharatbn_claims_updated', syncDynamicListings);
+    return () => window.removeEventListener('bharatbn_claims_updated', syncDynamicListings);
+  }, []);
+
   const filtered = listings.filter((item) => {
     if (cityFilter !== 'all' && !item.city.toLowerCase().includes(cityFilter.toLowerCase())) {
       return false;
@@ -160,9 +205,35 @@ export default function AdminListingsPage() {
   };
 
   const toggleVerify = (id: string) => {
-    setListings(
-      listings.map((l) => (l.id === id ? { ...l, isVerified: !l.isVerified } : l))
-    );
+    const updated = listings.map((l) => {
+      if (l.id === id) {
+        const nextVerified = !l.isVerified;
+        return {
+          ...l,
+          isVerified: nextVerified,
+          status: (nextVerified ? 'published' : 'pending_review') as 'published' | 'pending_review' | 'draft',
+        };
+      }
+      return l;
+    });
+    setListings(updated);
+
+    // Sync to claims store
+    try {
+      const stored = localStorage.getItem('bharatbn_claims_store');
+      if (stored) {
+        const claims = JSON.parse(stored);
+        const updatedClaims = claims.map((c: any) => {
+          if (c.id === id) {
+            const nextStatus = c.status === 'approved' ? 'pending' : 'approved';
+            return { ...c, status: nextStatus };
+          }
+          return c;
+        });
+        localStorage.setItem('bharatbn_claims_store', JSON.stringify(updatedClaims));
+        window.dispatchEvent(new Event('bharatbn_claims_updated'));
+      }
+    } catch {}
   };
 
   const toggleSponsor = (id: string) => {
