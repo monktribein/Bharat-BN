@@ -1,8 +1,7 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef, use, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import {
   ShieldCheck,
   Upload,
@@ -26,19 +25,17 @@ import {
   User,
   Star,
   Camera,
+  RotateCcw,
+  LogOut,
+  Edit,
+  Trash2,
 } from 'lucide-react';
 
 export default function ClaimBusinessPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
-  const galleryInputRefs = [
-    useRef<HTMLInputElement>(null),
-    useRef<HTMLInputElement>(null),
-    useRef<HTMLInputElement>(null),
-    useRef<HTMLInputElement>(null),
-  ];
+  const galleryUploadInputRef = useRef<HTMLInputElement>(null);
 
   // ==========================================
   // PRESET DATA DEFINITIONS
@@ -267,126 +264,108 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
     },
   };
 
-  // ==========================================
-  // FORM STATE VARIABLES
-  // ==========================================
-  // 1. Basic Brand Identity
-  const [businessName, setBusinessName] = useState(
-    id !== 'new' && id ? id.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase()) : 'Choco Delights & Confectionery (Cadboury)'
-  );
-  const [category, setCategory] = useState('Food, Bakeries & Confectionery');
-  const [subCategories, setSubCategories] = useState('Food & Dining, Bakeries & Confectionery, Artisan Chocolates, Corporate Gifting');
-  const [establishedYear, setEstablishedYear] = useState('2018');
-
-  // Real Brand Logo
-  const [logoPreview, setLogoPreview] = useState<string>('/choco-logo.svg');
-  const [logoFileName, setLogoFileName] = useState<string>('choco-logo.svg');
-
-  // 2. Physical Address & Location Standards (NAP)
-  const [addressLine, setAddressLine] = useState('Shop 12, Crystal Plaza, New Link Road, Andheri West');
-  const [landmark, setLandmark] = useState('Opposite Infiniti Mall / Metro Station');
-  const [city, setCity] = useState('Mumbai');
-  const [state, setState] = useState('Maharashtra');
-  const [pincode, setPincode] = useState('400053');
-
-  // 3. Direct Inquiries & Contact Channels
-  const [whatsapp, setWhatsapp] = useState('+91 89653 26578');
-  const [phone, setPhone] = useState('+91 89653 26578');
-  const [email, setEmail] = useState('contact@chocodelights.in');
-  const [website, setWebsite] = useState('https://chocodelights.in');
-
-  // 4. Verified Business Owner & Operations
-  const [fullName, setFullName] = useState('Choco Delights HQ Operations');
-  const [ownerRole, setOwnerRole] = useState('Founder & Master Chocolatier');
-  const [memberSince, setMemberSince] = useState('Nov 2024');
-  const [responseRate, setResponseRate] = useState('< 15 mins');
-  const [cityRank, setCityRank] = useState('Top-3 Verified');
-
-  // 5. About Us & Story
-  const [description, setDescription] = useState(
-    'Choco Delights & Confectionery (Cadboury) is an audited premier confectionery brand in Andheri West, Mumbai. Certified for food safety standards, direct Belgian cocoa imports, and same-day temperature-controlled gift delivery across Mumbai.'
-  );
-  const [aboutStory, setAboutStory] = useState(
-    'Founded in 2018 in Andheri West, Choco Delights & Confectionery has grown into one of Mumbai’s most sought-after boutique chocolate studios. We combine artisanal European chocolate tempering techniques with the freshest Indian ingredients. Each batch of truffles, pralines, and custom corporate hampers is handcrafted fresh daily under strict temperature and hygiene controls. Having delivered over 10,000+ gift boxes for corporate clients, weddings, and chocolate connoisseurs, our mission is to deliver pure, unadulterated confectionery perfection with 100% verified provenance.'
-  );
-
-  // 6. Showcase Photography Gallery (4 Sliders)
-  const [gallery, setGallery] = useState<{ url: string; caption: string }[]>([
+  // Clean Blank Gallery Template
+  const blankGallery = [
     {
       url: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=1200&q=80',
-      caption: 'Handcrafted Belgian Dark Chocolate Truffles & Pralines',
+      caption: 'Front Entrance & Building Elevation',
     },
     {
       url: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=1200&q=80',
-      caption: 'Luxury Customized Corporate Gift Hampers & Festive Boxes',
+      caption: 'Core Products / Speciality Showcase',
     },
     {
       url: 'https://images.unsplash.com/photo-1511381939415-e44015466834?auto=format&fit=crop&w=1200&q=80',
-      caption: 'Pure Cocoa Bean Selection & Artisanal Ganache Cones',
+      caption: 'Premises Interior & Workspace Area',
     },
     {
       url: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=80',
-      caption: 'Choco Delights Flagship Studio — Crystal Plaza, Andheri West',
+      caption: 'Customer Consultation & Reception Lounge',
     },
-  ]);
+  ];
 
-  // 7. Key Offerings / Specialities Tags
-  const [services, setServices] = useState<string[]>([
-    'Artisan Dark Chocolates',
-    'Belgian Cocoa Truffles',
-    'Custom Corporate Hampers',
-    'Dessert & Grazing Tables',
-    'Sugar-Free & Vegan Truffles',
-    'Same-Day Mumbai Delivery',
-    'Personalized Wedding Favors',
-    'Festive Gift Packaging',
-  ]);
-  const [newServiceTag, setNewServiceTag] = useState('');
-
-  // 8. Premises Amenities & Standards
-  const [amenities, setAmenities] = useState<string[]>([
-    'Air Conditioned Boutique',
-    'Credit / Debit Cards & UPI',
-    'Custom Corporate Invoicing',
-    'Temperature-Controlled Van Delivery',
-    'Gift Wrapping & Custom Notes',
-    'FSSAI Certified Kitchen',
-    'Wheelchair Accessible',
-  ]);
-
+  // Standard Amenities List
   const standardAmenities = [
-    'Air Conditioned Boutique',
-    'Credit / Debit Cards & UPI',
-    'Custom Corporate Invoicing',
-    'Temperature-Controlled Van Delivery',
-    'Gift Wrapping & Custom Notes',
-    'FSSAI Certified Kitchen',
-    'Wheelchair Accessible',
+    'Air Conditioned Premises',
+    'Credit / Debit Cards & UPI Accepted',
+    'Official GST Invoicing',
     'Customer Parking Available',
-    '24x7 Emergency Contact',
+    'Wheelchair Accessible',
+    'Home / Doorstep Delivery',
+    'FSSAI / Health Certified',
+    '24x7 Customer Support Hotline',
     'CCTV Monitored Premises',
     'Child-Safe Infrastructure',
     'Cashless Insurance & EMI Support',
+    'Certified Professional Staff',
   ];
 
+  // ==========================================
+  // FORM STATE: STARTS CLEAN FOR NEW LISTING
+  // ==========================================
+  const [isEditing, setIsEditing] = useState(false);
+  const [existingId, setExistingId] = useState<string | null>(null);
+  const [existingStatus, setExistingStatus] = useState<string>('pending');
+  const [activeSession, setActiveSession] = useState<any>(null);
+
+  // 1. Brand Identity
+  const [businessName, setBusinessName] = useState('');
+  const [category, setCategory] = useState('Food, Bakeries & Confectionery');
+  const [subCategories, setSubCategories] = useState('');
+  const [establishedYear, setEstablishedYear] = useState('');
+  const [logoPreview, setLogoPreview] = useState<string>('');
+  const [logoFileName, setLogoFileName] = useState<string>('');
+
+  // 2. Physical Address & Location Standards (NAP)
+  const [addressLine, setAddressLine] = useState('');
+  const [landmark, setLandmark] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [pincode, setPincode] = useState('');
+
+  // 3. Direct Inquiries & Contact Channels
+  const [whatsapp, setWhatsapp] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [website, setWebsite] = useState('');
+
+  // 4. Verified Owner & Credentials
+  const [fullName, setFullName] = useState('');
+  const [ownerRole, setOwnerRole] = useState('');
+  const [memberSince, setMemberSince] = useState('');
+  const [responseRate, setResponseRate] = useState('< 15 mins');
+  const [cityRank, setCityRank] = useState('Top-3 Verified');
+
+  // 5. About Us & Narrative Story
+  const [description, setDescription] = useState('');
+  const [aboutStory, setAboutStory] = useState('');
+
+  // 6. Showcase Photography Gallery (Starts empty: Min 1, Max 5 uploaded by business)
+  const [gallery, setGallery] = useState<{ url: string; caption: string }[]>([]);
+
+  // 7. Key Offerings & Specialities Tags
+  const [services, setServices] = useState<string[]>([]);
+  const [newServiceTag, setNewServiceTag] = useState('');
+
+  // 8. Premises Amenities & Standards
+  const [amenities, setAmenities] = useState<string[]>([]);
+
   // 9. Operating Business Hours
-  const [monFriHours, setMonFriHours] = useState('09:30 AM – 09:30 PM');
-  const [satHours, setSatHours] = useState('09:30 AM – 10:00 PM');
-  const [sunHours, setSunHours] = useState('10:00 AM – 08:30 PM');
+  const [monFriHours, setMonFriHours] = useState('');
+  const [satHours, setSatHours] = useState('');
+  const [sunHours, setSunHours] = useState('');
 
   // 10. Customer Testimonials & Verified Reviews
-  const [rating, setRating] = useState('4.9');
-  const [reviewsCount, setReviewsCount] = useState('48');
-  const [featuredReviewAuthor, setFeaturedReviewAuthor] = useState('Rohan Mehra');
+  const [rating, setRating] = useState('5.0');
+  const [reviewsCount, setReviewsCount] = useState('1');
+  const [featuredReviewAuthor, setFeaturedReviewAuthor] = useState('');
   const [featuredReviewRating, setFeaturedReviewRating] = useState(5);
-  const [featuredReviewDate, setFeaturedReviewDate] = useState('12 Nov 2026');
-  const [featuredReviewComment, setFeaturedReviewComment] = useState(
-    'Ordered 60 custom corporate Diwali hampers for our fintech firm. The packaging was royal, Belgian truffles melted in mouth, and delivery in Mumbai was right on time. Highly recommended!'
-  );
+  const [featuredReviewDate, setFeaturedReviewDate] = useState('Recently');
+  const [featuredReviewComment, setFeaturedReviewComment] = useState('');
 
-  // 11. Document Verification
-  const [docType, setDocType] = useState('fssai_cert');
-  const [docNumber, setDocNumber] = useState('27AABCC8491K1Z8');
+  // 11. Document Verification Proof
+  const [docType, setDocType] = useState('gst_certificate');
+  const [docNumber, setDocNumber] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -396,6 +375,126 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
   const [submitted, setSubmitted] = useState(false);
   const [claimTicket, setClaimTicket] = useState('');
   const [createdSlug, setCreatedSlug] = useState('');
+
+  // ==========================================
+  // INITIALIZATION & EDIT DETECTION
+  // ==========================================
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Check if an owner session is active
+    try {
+      const storedSession = localStorage.getItem('bharatbn_owner_session');
+      if (storedSession) {
+        setActiveSession(JSON.parse(storedSession));
+      }
+    } catch {}
+
+    // If ID is specified and not 'new', or if an existing business is targeted
+    if (id && id !== 'new') {
+      try {
+        const storedClaims = localStorage.getItem('bharatbn_claims_store');
+        if (storedClaims) {
+          const claims = JSON.parse(storedClaims);
+          const found = claims.find((c: any) => c.id === id || c.businessSlug === id);
+          if (found) {
+            setIsEditing(true);
+            setExistingId(found.id);
+            setExistingStatus(found.status || 'pending');
+            setBusinessName(found.businessName || '');
+            setCategory(found.category || 'Food, Bakeries & Confectionery');
+            setSubCategories(
+              Array.isArray(found.categoryHierarchy)
+                ? found.categoryHierarchy.join(', ')
+                : found.subCategories || ''
+            );
+            setEstablishedYear(found.establishedYear ? String(found.establishedYear) : '');
+            setLogoPreview(found.logoBase64 || found.logoUrl || '');
+            setLogoFileName(found.logoFileName || 'logo.png');
+            setAddressLine(found.addressLine || '');
+            setLandmark(found.landmark || '');
+            setCity(found.city || '');
+            setState(found.state || '');
+            setPincode(found.pincode || '');
+            setWhatsapp(found.whatsapp || '');
+            setPhone(found.phone || '');
+            setEmail(found.workEmail || found.email || '');
+            setWebsite(found.website || '');
+            setFullName(found.claimantName || found.fullName || '');
+            setOwnerRole(found.ownerRole || '');
+            setMemberSince(found.memberSince || '');
+            setResponseRate(found.responseRate || '< 15 mins');
+            setCityRank(found.cityRank || 'Top-3 Verified');
+            setDescription(found.description || '');
+            setAboutStory(found.aboutStory || '');
+            if (found.gallery && found.gallery.length > 0) setGallery(found.gallery);
+            if (found.services && found.services.length > 0) setServices(found.services);
+            if (found.amenities && found.amenities.length > 0) setAmenities(found.amenities);
+            if (found.workingHours && found.workingHours.length > 0) {
+              setMonFriHours(found.workingHours[0]?.time || '');
+              setSatHours(found.workingHours[1]?.time || '');
+              setSunHours(found.workingHours[2]?.time || '');
+            }
+            setRating(found.rating ? String(found.rating) : '5.0');
+            setReviewsCount(found.reviewsCount ? String(found.reviewsCount) : '1');
+            if (found.reviews && found.reviews[0]) {
+              setFeaturedReviewAuthor(found.reviews[0].author || '');
+              setFeaturedReviewRating(found.reviews[0].rating || 5);
+              setFeaturedReviewDate(found.reviews[0].date || 'Recently');
+              setFeaturedReviewComment(found.reviews[0].comment || '');
+            }
+            setDocType(found.docType || 'gst_certificate');
+            setDocNumber(found.gstin || found.docNumber || '');
+          }
+        }
+      } catch (err) {
+        console.error('Error loading existing business:', err);
+      }
+    }
+  }, [id]);
+
+  // ==========================================
+  // RESET / CLEAR FORM TO EMPTY SLATE
+  // ==========================================
+  const clearForm = () => {
+    setIsEditing(false);
+    setExistingId(null);
+    setBusinessName('');
+    setCategory('Food, Bakeries & Confectionery');
+    setSubCategories('');
+    setEstablishedYear('');
+    setLogoPreview('');
+    setLogoFileName('');
+    setAddressLine('');
+    setLandmark('');
+    setCity('');
+    setState('');
+    setPincode('');
+    setWhatsapp('');
+    setPhone('');
+    setEmail('');
+    setWebsite('');
+    setFullName('');
+    setOwnerRole('');
+    setMemberSince('');
+    setResponseRate('< 15 mins');
+    setCityRank('Top-3 Verified');
+    setDescription('');
+    setAboutStory('');
+    setGallery([]);
+    setServices([]);
+    setAmenities([]);
+    setMonFriHours('');
+    setSatHours('');
+    setSunHours('');
+    setRating('5.0');
+    setReviewsCount('1');
+    setFeaturedReviewAuthor('');
+    setFeaturedReviewComment('');
+    setDocType('gst_certificate');
+    setDocNumber('');
+    setFile(null);
+  };
 
   // ==========================================
   // PRESET SWITCHER FUNCTION
@@ -442,7 +541,19 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
   };
 
   // ==========================================
-  // HANDLERS
+  // LOGOUT HANDLER
+  // ==========================================
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem('bharatbn_owner_session');
+      window.dispatchEvent(new Event('bharatbn_auth_changed'));
+      setActiveSession(null);
+      clearForm();
+    } catch {}
+  };
+
+  // ==========================================
+  // FILE & TAG HANDLERS
   // ==========================================
   // Logo Upload with Base64 Preview
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -464,13 +575,55 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
     reader.readAsDataURL(selected);
   };
 
-  // Slide Image Upload (converts to base64)
-  const handleSlideImageUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files?.[0];
-    if (!selected) return;
+  // Add new photos (Min 1, Max 5)
+  const handleAddNewPhotos = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    if (selected.size > 5 * 1024 * 1024) {
-      alert('Slide image exceeds 5MB limit.');
+    const remainingSlots = 5 - gallery.length;
+    if (remainingSlots <= 0) {
+      alert('Maximum 5 showcase photos can be uploaded.');
+      return;
+    }
+
+    const filesToProcess = Array.from(files).slice(0, remainingSlots);
+    if (files.length > remainingSlots) {
+      alert(`Only ${remainingSlots} photo(s) added (Maximum limit of 5 reached).`);
+    }
+
+    filesToProcess.forEach((file) => {
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`File "${file.name}" exceeds 5MB limit and was skipped.`);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          setGallery((prev) => {
+            if (prev.length >= 5) return prev;
+            return [
+              ...prev,
+              {
+                url: reader.result as string,
+                caption: `Showcase Photo ${prev.length + 1}`,
+              },
+            ];
+          });
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    e.target.value = '';
+  };
+
+  // Replace single photo
+  const handleReplacePhoto = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Photo size exceeds 5MB limit.');
       return;
     }
 
@@ -482,7 +635,13 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
         setGallery(updated);
       }
     };
-    reader.readAsDataURL(selected);
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  // Remove photo
+  const handleRemovePhoto = (indexToRemove: number) => {
+    setGallery((prev) => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
   // Handle Tag Addition
@@ -541,24 +700,35 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
     }
   };
 
-  // Handle Form Submission
+  // ==========================================
+  // FORM SUBMISSION (QUEUED FOR ADMIN APPROVAL)
+  // ==========================================
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (gallery.length < 1) {
+      alert('Please upload at least 1 showcase photo for your business profile (Maximum 5).');
+      return;
+    }
+    if (gallery.length > 5) {
+      alert('You can upload a maximum of 5 showcase photos.');
+      return;
+    }
 
     setIsSubmitting(true);
     setFileError(null);
 
     try {
-      const ticketId = `BBN-CLM-${Math.floor(100000 + Math.random() * 900000)}`;
+      const ticketId = existingId || `BBN-CLM-${Math.floor(100000 + Math.random() * 900000)}`;
 
-      // Generate consistent slug
-      let generatedSlug = (businessName + '-' + city)
+      // Generate clean slug
+      let generatedSlug = (businessName + '-' + (city || 'local'))
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '');
 
-      if (!generatedSlug || generatedSlug === 'choco-delights-confectionery-cadboury-mumbai') {
-        generatedSlug = 'choco-delights-confectionery-andheri-mumbai';
+      if (!generatedSlug) {
+        generatedSlug = `business-${ticketId.toLowerCase()}`;
       }
 
       const docTypeLabels: Record<string, string> = {
@@ -568,7 +738,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
         fssai_cert: 'FSSAI Food Safety Certificate',
       };
 
-      // Construct live rich listing object with ALL profile attributes
+      // Construct live listing object (Status is 'pending' until Admin Approves!)
       const claimItem = {
         id: ticketId,
         businessName: businessName.trim(),
@@ -582,59 +752,75 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
         pincode: pincode.trim(),
         category: category,
         categoryHierarchy: subCategories
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean),
-        claimantName: fullName || 'Authorized Owner / Manager',
+          ? subCategories.split(',').map((s) => s.trim()).filter(Boolean)
+          : [category, businessName.trim()],
+        claimantName: fullName || 'Authorized Business Manager',
         ownerRole: ownerRole || 'Verified Business Owner',
         memberSince: memberSince || 'Nov 2024',
         responseRate: responseRate || '< 15 mins',
         cityRank: cityRank || 'Top-3 Verified',
         workEmail: email,
         phone: phone,
-        whatsapp: whatsapp.replace(/[^0-9]/g, ''),
+        whatsapp: whatsapp ? whatsapp.replace(/[^0-9]/g, '') : phone.replace(/[^0-9]/g, ''),
         website: website,
         description: description,
         aboutStory: aboutStory,
-        establishedYear: Number(establishedYear) || 2018,
+        establishedYear: Number(establishedYear) || 2024,
         services: services,
         amenities: amenities,
         gallery: gallery,
         workingHours: [
-          { days: 'Monday – Friday', time: monFriHours, isOpenNow: true },
-          { days: 'Saturday', time: satHours, isOpenNow: true },
-          { days: 'Sunday', time: sunHours, isOpenNow: true },
+          { days: 'Monday – Friday', time: monFriHours || '09:30 AM – 08:30 PM', isOpenNow: true },
+          { days: 'Saturday', time: satHours || '09:30 AM – 08:30 PM', isOpenNow: true },
+          { days: 'Sunday', time: sunHours || 'Closed', isOpenNow: false },
         ],
-        rating: Number(rating) || 4.9,
-        reviewsCount: Number(reviewsCount) || 48,
-        reviews: [
-          {
-            id: `rev-${Date.now()}-1`,
-            author: featuredReviewAuthor || 'Rohan Mehra',
-            rating: Number(featuredReviewRating) || 5,
-            date: featuredReviewDate || 'Recently',
-            comment:
-              featuredReviewComment ||
-              'Excellent experience with this verified business. Prompt communication and high quality.',
-            verified: true,
-          },
-        ],
+        rating: Number(rating) || 5.0,
+        reviewsCount: Number(reviewsCount) || 1,
+        reviews: featuredReviewAuthor
+          ? [
+              {
+                id: `rev-${Date.now()}-1`,
+                author: featuredReviewAuthor,
+                rating: Number(featuredReviewRating) || 5,
+                date: featuredReviewDate || 'Recently',
+                comment:
+                  featuredReviewComment ||
+                  'Prompt response, authentic service, and verified business standards.',
+                verified: true,
+              },
+            ]
+          : [],
         gstin: docNumber || '27AABCC' + Math.floor(1000 + Math.random() * 9000) + 'K1Z8',
         gstinMatch: 98,
         docType: docTypeLabels[docType] || 'Official Proof Document',
         fileName: file ? file.name : 'Registration_Proof_Certificate.pdf',
         fileSize: file ? (file.size / (1024 * 1024)).toFixed(1) + ' MB' : '1.2 MB',
         submittedAt: 'Just now (Recently Submitted)',
-        status: 'approved',
+        status: isEditing ? existingStatus : 'pending', // PENDING ADMIN APPROVAL
       };
 
-      // Persist to localStorage so both Admin Console & Profile Page pick it up immediately
+      // Persist to localStorage claims store
       if (typeof window !== 'undefined') {
         const stored = localStorage.getItem('bharatbn_claims_store');
         const existing = stored ? JSON.parse(stored) : [];
-        const filtered = existing.filter((c: any) => c.businessSlug !== generatedSlug);
+        const filtered = existing.filter((c: any) => c.id !== ticketId && c.businessSlug !== generatedSlug);
         localStorage.setItem('bharatbn_claims_store', JSON.stringify([claimItem, ...filtered]));
+
+        // Persist Owner Session so user stays logged in to manage this business
+        const ownerSession = {
+          businessId: ticketId,
+          businessName: claimItem.businessName,
+          businessSlug: claimItem.businessSlug,
+          ownerName: claimItem.claimantName,
+          ownerEmail: claimItem.workEmail,
+          logoUrl: claimItem.logoUrl || claimItem.logoBase64,
+          status: claimItem.status,
+        };
+        localStorage.setItem('bharatbn_owner_session', JSON.stringify(ownerSession));
+
+        // Notify entire app of auth & listings update
         window.dispatchEvent(new Event('bharatbn_claims_updated'));
+        window.dispatchEvent(new Event('bharatbn_auth_changed'));
       }
 
       await new Promise((resolve) => setTimeout(resolve, 800));
@@ -656,19 +842,19 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
     return (
       <div className="max-w-3xl mx-auto px-4 py-16 space-y-8">
         <div className="text-center space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
-            <CheckCircle2 className="w-9 h-9" />
+          <div className="w-16 h-16 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto shadow-sm">
+            <Clock className="w-9 h-9" />
           </div>
 
-          <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-            ✦ Ticket: {claimTicket} &bull; Audited &amp; Active
+          <div className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-800 border border-amber-200 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+            ✦ Ticket: {claimTicket} &bull; ⏳ Pending Admin Verification
           </div>
 
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-navy-900 tracking-tight">
-            Business Profile Successfully Listed!
+            {isEditing ? 'Business Profile Updated!' : 'Business Profile Submitted for Review!'}
           </h1>
           <p className="text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
-            Your real brand logo, showcase image gallery, NAP location, owner credentials, and verified amenities have been published to BharatBN™.
+            Your real brand identity, address, contact numbers, and verification documents have been received. Your profile is queued in the admin moderation desk.
           </p>
         </div>
 
@@ -681,14 +867,14 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
               </div>
             ) : (
               <div className="w-20 h-20 rounded-2xl bg-[#07213A] text-white font-mono font-bold text-2xl flex items-center justify-center flex-shrink-0">
-                {businessName.slice(0, 2).toUpperCase()}
+                {businessName ? businessName.slice(0, 2).toUpperCase() : 'BN'}
               </div>
             )}
 
             <div className="space-y-1 min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  VERIFIED PROFILE ✓
+                <span className="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                  ⏳ UNDER AUDIT &bull; PENDING ADMIN APPROVAL
                 </span>
                 <span className="text-xs text-slate-400 font-mono">ID: {claimTicket}</span>
               </div>
@@ -704,24 +890,21 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div className="bg-slate-50 rounded-xl p-3.5 space-y-1">
+              <span className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Owner Account</span>
+              <div className="font-bold text-slate-800">{fullName} ({ownerRole || 'Owner'})</div>
+            </div>
+
+            <div className="bg-slate-50 rounded-xl p-3.5 space-y-1">
               <span className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Direct WhatsApp Channel</span>
               <div className="font-bold text-slate-800 flex items-center gap-1.5">
                 <MessageCircle className="w-4 h-4 text-emerald-500" />
-                <span>{whatsapp}</span>
+                <span>{whatsapp || phone}</span>
               </div>
             </div>
 
             <div className="bg-slate-50 rounded-xl p-3.5 space-y-1">
-              <span className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Official Phone (Reveal Protected)</span>
-              <div className="font-bold text-slate-800 flex items-center gap-1.5">
-                <Phone className="w-4 h-4 text-[#F95700]" />
-                <span>{phone}</span>
-              </div>
-            </div>
-
-            <div className="bg-slate-50 rounded-xl p-3.5 space-y-1">
-              <span className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Operator / Owner Profile</span>
-              <div className="font-bold text-slate-800">{fullName} ({ownerRole})</div>
+              <span className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Core Category</span>
+              <div className="font-bold text-slate-800">{category}</div>
             </div>
 
             <div className="bg-slate-50 rounded-xl p-3.5 space-y-1">
@@ -737,25 +920,28 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
           <div className="pt-4 flex flex-col sm:flex-row items-center gap-3">
             <Link
               href={`/biz/${createdSlug}`}
-              className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2 bg-[#F95700] hover:bg-[#e04e00] text-white font-bold text-sm px-6 py-3.5 rounded-xl shadow-md shadow-[#F95700]/25 transition"
+              className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2 bg-[#F95700] hover:bg-[#e04e00] text-white font-bold text-sm px-6 py-3.5 rounded-xl shadow-md shadow-[#F95700]/25 transition cursor-pointer"
             >
-              <span>👉 View Live Business Profile</span>
+              <span>👉 View Profile (Under Review)</span>
               <ExternalLink className="w-4 h-4" />
             </Link>
 
             <Link
               href="/admin/claims"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#07213A] hover:bg-[#0C2D4E] text-white font-semibold text-xs px-5 py-3.5 rounded-xl transition"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#07213A] hover:bg-[#0C2D4E] text-white font-semibold text-xs px-5 py-3.5 rounded-xl transition cursor-pointer"
             >
-              <span>View in Admin Desk</span>
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>Open Admin Approval Desk</span>
             </Link>
 
-            <Link
-              href="/"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs px-5 py-3.5 rounded-xl transition"
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs px-5 py-3.5 rounded-xl transition cursor-pointer"
             >
-              <span>Return to Home</span>
-            </Link>
+              <LogOut className="w-4 h-4" />
+              <span>Logout &amp; List New Business</span>
+            </button>
           </div>
         </div>
       </div>
@@ -768,6 +954,36 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
   return (
     <div className="bg-[#FAF8F5] min-h-screen py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-6">
+        {/* Active Owner Session Bar (If logged in) */}
+        {activeSession && (
+          <div className="bg-white border border-slate-200 rounded-2xl p-3 px-4 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-2.5 text-xs text-slate-700">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Currently logged in as:</span>
+              <span className="font-extrabold text-slate-900">{activeSession.businessName}</span>
+              <span className="text-[11px] text-slate-400">({activeSession.ownerName})</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Link
+                href={`/biz/${activeSession.businessSlug}`}
+                className="text-xs font-semibold text-[#F95700] hover:underline"
+              >
+                View Profile ↗
+              </Link>
+              <span className="text-slate-300">|</span>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-700 cursor-pointer"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Logout (List New Business)</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Header Breadcrumbs */}
         <div className="space-y-3">
           <Link
@@ -778,16 +994,31 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
             <span>Back to Directory</span>
           </Link>
 
-          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#F95700] bg-orange-50 border border-orange-200/80 px-3 py-1 rounded-full uppercase tracking-wider">
-            ✦ Onboard Business Profile (BharatBN™ Verification Engine)
-          </div>
+          {/* <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#F95700] bg-orange-50 border border-orange-200/80 px-3 py-1 rounded-full uppercase tracking-wider">
+            {isEditing ? '✦ Edit Business Profile' : '✦ List Business (Admin Moderation Desk)'}
+          </div> */}
 
-          <h1 className="text-2xl sm:text-4xl font-black text-navy-900 tracking-tight">
-            List Your Business &amp; Build Complete Profile
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-2xl">
-            Configure every detail that displays on your public BharatBN profile: brand logo, 4-photo image slider, NAP address, owner credentials, operating hours, amenities, and customer testimonials.
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h1 className="text-2xl sm:text-4xl font-black text-navy-900 tracking-tight">
+                {isEditing ? `Edit Profile: ${businessName || 'Your Business'}` : 'List Your Business & Build Profile'}
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-2xl mt-1">
+                Enter your business details below. Once submitted, your profile will be queued for admin verification before appearing as verified on the directory.
+              </p>
+            </div>
+
+            {/* Clear Form / Reset Button */}
+            <button
+              type="button"
+              onClick={clearForm}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold transition self-start sm:self-auto cursor-pointer shadow-xs"
+              title="Clear all fields to start fresh"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Clear Form</span>
+            </button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -838,14 +1069,14 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                 </div>
               </div>
 
-              {/* Compact Quick Preset Logos Inline */}
+              {/* Optional Quick Preset Templates */}
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 mr-0.5">Quick Presets:</span>
                 <button
                   type="button"
                   onClick={() => applyPreset('choco')}
                   className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/90 rounded-lg text-[11px] font-semibold transition cursor-pointer"
-                  title="Load full Choco Delights preset profile"
+                  title="1-Click template: Choco Delights"
                 >
                   🍫 Choco Seal
                 </button>
@@ -853,7 +1084,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   type="button"
                   onClick={() => applyPreset('apex')}
                   className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200/90 rounded-lg text-[11px] font-semibold transition cursor-pointer"
-                  title="Load full Apex Dental Clinic preset profile"
+                  title="1-Click template: Apex Dental Clinic"
                 >
                   🏥 Apex Shield
                 </button>
@@ -861,7 +1092,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   type="button"
                   onClick={() => applyPreset('little_elly')}
                   className="px-2.5 py-1 bg-orange-50 hover:bg-orange-100 text-orange-900 border border-orange-200/90 rounded-lg text-[11px] font-semibold transition cursor-pointer"
-                  title="Load full Little Elly Preschool preset profile"
+                  title="1-Click template: Little Elly Preschool"
                 >
                   🎓 Little Elly
                 </button>
@@ -879,8 +1110,8 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   required
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
-                  placeholder="e.g. Choco Delights & Confectionery (Cadboury)"
-                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] focus:ring-2 focus:ring-[#F95700]/10 transition"
+                  placeholder="Enter business name (e.g. Metro Multispeciality Clinic)"
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] focus:ring-2 focus:ring-[#F95700]/10 transition bg-white"
                 />
               </div>
 
@@ -910,24 +1141,24 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   type="number"
                   value={establishedYear}
                   onChange={(e) => setEstablishedYear(e.target.value)}
-                  placeholder="e.g. 2018"
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition"
+                  placeholder="e.g. 2020"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                 />
               </div>
 
               <div className="sm:col-span-2">
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Taxonomy Sub-Categories (Hierarchy Breadcrumbs)
+                  Taxonomy Sub-Categories (Comma-Separated Tags)
                 </label>
                 <input
                   type="text"
                   value={subCategories}
                   onChange={(e) => setSubCategories(e.target.value)}
-                  placeholder="e.g. Food & Dining, Bakeries, Artisan Chocolates, Hampers"
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition"
+                  placeholder="e.g. Healthcare, Dental Clinics, Orthodontics, Emergency Care"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                 />
                 <p className="text-[10px] text-slate-400 mt-1">
-                  These appear as breadcrumb hierarchy tags directly below the business title.
+                  These appear as breadcrumb hierarchy tags directly below your business title on the profile.
                 </p>
               </div>
             </div>
@@ -954,8 +1185,8 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   required
                   value={addressLine}
                   onChange={(e) => setAddressLine(e.target.value)}
-                  placeholder="e.g. Shop 12, Crystal Plaza, New Link Road, Andheri West"
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition"
+                  placeholder="e.g. Shop 4, Ground Floor, Central Commercial Complex"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                 />
               </div>
 
@@ -968,8 +1199,8 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                     type="text"
                     value={landmark}
                     onChange={(e) => setLandmark(e.target.value)}
-                    placeholder="e.g. Opposite Infiniti Mall"
-                    className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition"
+                    placeholder="e.g. Near Metro Station"
+                    className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                   />
                 </div>
 
@@ -983,7 +1214,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     placeholder="e.g. Mumbai"
-                    className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition"
+                    className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                   />
                 </div>
 
@@ -997,7 +1228,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                     value={state}
                     onChange={(e) => setState(e.target.value)}
                     placeholder="e.g. Maharashtra"
-                    className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition"
+                    className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                   />
                 </div>
 
@@ -1011,7 +1242,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                     value={pincode}
                     onChange={(e) => setPincode(e.target.value)}
                     placeholder="e.g. 400053"
-                    className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition"
+                    className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                   />
                 </div>
               </div>
@@ -1039,11 +1270,11 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   required
                   value={whatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
-                  placeholder="e.g. +91 89653 26578"
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition"
+                  placeholder="e.g. +91 98200 12345"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                 />
                 <p className="text-[10px] text-slate-400 mt-1">
-                  Powers the one-click green WhatsApp inquiry button on the profile page.
+                  Powers the one-click green WhatsApp inquiry button on your live profile.
                 </p>
               </div>
 
@@ -1056,11 +1287,11 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="e.g. +91 89653 26578"
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition"
+                  placeholder="e.g. +91 98200 12345"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                 />
                 <p className="text-[10px] text-slate-400 mt-1">
-                  Shown with [Reveal] button protection to prevent spam harvesting.
+                  Shown with [Reveal] button protection to prevent spam harvesting bots.
                 </p>
               </div>
 
@@ -1073,8 +1304,8 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="e.g. contact@chocodelights.in"
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition"
+                  placeholder="e.g. contact@yourbusiness.in"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                 />
               </div>
 
@@ -1086,8 +1317,8 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   type="url"
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
-                  placeholder="e.g. https://chocodelights.in"
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition"
+                  placeholder="e.g. https://yourbusiness.in"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                 />
               </div>
             </div>
@@ -1114,8 +1345,8 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="e.g. Choco Delights HQ Operations / Dr. Rajesh Sharma"
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition"
+                  placeholder="e.g. Rajesh Sharma"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                 />
               </div>
 
@@ -1127,8 +1358,8 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   type="text"
                   value={ownerRole}
                   onChange={(e) => setOwnerRole(e.target.value)}
-                  placeholder="e.g. Founder & Master Chocolatier"
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition"
+                  placeholder="e.g. Clinical Director / Founder"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                 />
               </div>
 
@@ -1141,7 +1372,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   value={memberSince}
                   onChange={(e) => setMemberSince(e.target.value)}
                   placeholder="e.g. Nov 2024"
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                 />
               </div>
 
@@ -1171,85 +1402,159 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   value={cityRank}
                   onChange={(e) => setCityRank(e.target.value)}
                   placeholder="e.g. Top-3 Verified"
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                 />
               </div>
             </div>
           </div>
 
           {/* ======================================================== */}
-          {/* SECTION 5: Showcase Photography Gallery (4-Slide Carousel) */}
+          {/* SECTION 5: Showcase Photography Gallery (Min 1, Max 5)   */}
           {/* ======================================================== */}
           <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
               <div className="flex items-center gap-2">
                 <ImageIcon className="w-5 h-5 text-blue-600" />
                 <h2 className="text-base font-black text-navy-900">
-                  5. Showcase Photography (4-Slide Interactive Carousel)
+                  5. Showcase Photography (Min 1, Max 5 Photos)
                 </h2>
               </div>
-              <span className="text-xs text-slate-400 font-mono">{gallery.length} Slides</span>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${
+                    gallery.length >= 1
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      : 'bg-amber-50 text-amber-700 border-amber-200'
+                  }`}
+                >
+                  {gallery.length >= 1 ? `✓ ${gallery.length} of 5 Photos` : 'Min 1 Photo Required'}
+                </span>
+              </div>
             </div>
 
             <p className="text-xs text-slate-500">
-              Upload custom photography or customize captions. These 4 slides form the full-width interactive slider on your business profile.
+              Upload between 1 and 5 real photos of your business (storefront, clinic, interiors, products, or service setups). These photos form the full-width interactive slider on your live profile.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              {gallery.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="border border-slate-200 rounded-xl p-3 bg-slate-50/60 space-y-2.5"
+            {/* Hidden file input for adding new photos */}
+            <input
+              ref={galleryUploadInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              multiple
+              className="hidden"
+              onChange={handleAddNewPhotos}
+            />
+
+            {/* Empty State: Only shown when no photos have been uploaded */}
+            {gallery.length === 0 ? (
+              <div
+                onClick={() => galleryUploadInputRef.current?.click()}
+                className="border-2 border-dashed border-slate-300 hover:border-[#F95700] hover:bg-orange-50/30 rounded-2xl p-8 text-center space-y-3 cursor-pointer transition group"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-orange-50 text-[#F95700] flex items-center justify-center mx-auto group-hover:scale-105 transition shadow-xs">
+                  <Camera className="w-7 h-7" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-slate-800">
+                    Upload Your Showcase Photos
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Click to browse and upload photos from your device (Minimum 1, Maximum 5).
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#07213A] hover:bg-[#0c2a49] text-white text-xs font-bold rounded-xl transition shadow-xs cursor-pointer"
                 >
-                  <div className="aspect-video w-full rounded-lg overflow-hidden bg-slate-200 relative group">
-                    <img
-                      src={item.url}
-                      alt={item.caption}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                    />
-                    <span className="absolute top-2 left-2 bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
-                      Slide {idx + 1}
-                    </span>
+                  <Plus className="w-4 h-4" />
+                  <span>Choose Photos (Min 1, Max 5)</span>
+                </button>
+                <p className="text-[10px] text-slate-400">PNG, JPG, WEBP up to 5MB each</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                  {gallery.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="border border-slate-200 rounded-xl p-3 bg-slate-50/60 space-y-2.5 relative group"
+                    >
+                      <div className="aspect-video w-full rounded-lg overflow-hidden bg-slate-200 relative">
+                        <img
+                          src={item.url}
+                          alt={item.caption}
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute top-2 left-2 bg-black/75 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
+                          Photo {idx + 1}
+                        </span>
 
-                    {/* Hidden file input for slide image */}
-                    <input
-                      ref={galleryInputRefs[idx]}
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp"
-                      className="hidden"
-                      onChange={(e) => handleSlideImageUpload(idx, e)}
-                    />
+                        {/* Remove / Delete Photo Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePhoto(idx)}
+                          className="absolute top-2 right-2 w-7 h-7 bg-red-600/90 hover:bg-red-700 text-white rounded-lg flex items-center justify-center transition shadow-xs cursor-pointer"
+                          title="Remove photo"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
 
-                    {/* Change Photo Overlay Button */}
+                      <div className="space-y-1">
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                          Photo {idx + 1} Caption
+                        </label>
+                        <input
+                          type="text"
+                          value={item.caption}
+                          onChange={(e) => {
+                            const updated = [...gallery];
+                            updated[idx].caption = e.target.value;
+                            setGallery(updated);
+                          }}
+                          placeholder={`Caption for Photo ${idx + 1}`}
+                          className="w-full text-xs px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-[#F95700]"
+                        />
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Add Another Photo Button (if < 5) */}
+                  {gallery.length < 5 && (
+                    <div
+                      onClick={() => galleryUploadInputRef.current?.click()}
+                      className="border-2 border-dashed border-slate-300 hover:border-[#F95700] hover:bg-orange-50/40 rounded-xl p-6 flex flex-col items-center justify-center text-center space-y-2 cursor-pointer transition min-h-[190px] group"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-orange-50 text-[#F95700] flex items-center justify-center group-hover:scale-105 transition">
+                        <Plus className="w-5 h-5" />
+                      </div>
+                      <div className="text-xs font-bold text-slate-800">
+                        + Add Another Photo
+                      </div>
+                      <p className="text-[10px] text-slate-400">
+                        {gallery.length} of 5 added (up to {5 - gallery.length} more)
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
+                  <span>
+                    ✦ Uploaded photos will be presented in an interactive full-width slider on your live profile.
+                  </span>
+                  {gallery.length < 5 && (
                     <button
                       type="button"
-                      onClick={() => galleryInputRefs[idx].current?.click()}
-                      className="absolute bottom-2 right-2 bg-white/90 hover:bg-white text-slate-900 text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-sm flex items-center gap-1.5 transition cursor-pointer"
+                      onClick={() => galleryUploadInputRef.current?.click()}
+                      className="text-[#F95700] font-bold hover:underline cursor-pointer"
                     >
-                      <Camera className="w-3.5 h-3.5 text-[#F95700]" />
-                      <span>Change Photo</span>
+                      + Add Photo ({gallery.length}/5)
                     </button>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                      Slide {idx + 1} Caption
-                    </label>
-                    <input
-                      type="text"
-                      value={item.caption}
-                      onChange={(e) => {
-                        const updated = [...gallery];
-                        updated[idx].caption = e.target.value;
-                        setGallery(updated);
-                      }}
-                      placeholder={`Slide ${idx + 1} Caption`}
-                      className="w-full text-xs px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-[#F95700]"
-                    />
-                  </div>
+                  )}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* ======================================================== */}
@@ -1273,7 +1578,8 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   rows={2}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition"
+                  placeholder="e.g. Premier healthcare clinic in Andheri West providing modern dental solutions..."
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                 />
               </div>
 
@@ -1286,7 +1592,8 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   rows={4}
                   value={aboutStory}
                   onChange={(e) => setAboutStory(e.target.value)}
-                  className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition"
+                  placeholder="Share your founding story, background, values, mission, and what makes your business unique..."
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] transition bg-white"
                 />
               </div>
             </div>
@@ -1310,8 +1617,8 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   value={newServiceTag}
                   onChange={(e) => setNewServiceTag(e.target.value)}
                   onKeyDown={handleAddTag}
-                  placeholder="Type an offering (e.g. Belgian Truffles) and press Enter or Click Add"
-                  className="flex-1 text-xs px-3.5 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                  placeholder="Type an offering (e.g. Digital Consultations) and press Enter or Click Add"
+                  className="flex-1 text-xs px-3.5 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] bg-white"
                 />
                 <button
                   type="button"
@@ -1333,12 +1640,15 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                     <button
                       type="button"
                       onClick={() => handleRemoveTag(tag)}
-                      className="text-slate-400 hover:text-red-500 transition ml-0.5"
+                      className="text-slate-400 hover:text-red-500 transition ml-0.5 cursor-pointer"
                     >
                       <X className="w-3 h-3" />
                     </button>
                   </span>
                 ))}
+                {services.length === 0 && (
+                  <span className="text-xs text-slate-400 italic">No tags added yet. Type an offering above to add.</span>
+                )}
               </div>
             </div>
           </div>
@@ -1363,7 +1673,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                     className={`flex items-center gap-2.5 p-2.5 rounded-xl border cursor-pointer transition select-none ${
                       isSelected
                         ? 'border-emerald-300 bg-emerald-50/60 text-slate-900 font-semibold'
-                        : 'border-slate-200 hover:bg-slate-50 text-slate-600'
+                        : 'border-slate-200 hover:bg-slate-50 text-slate-600 bg-white'
                     }`}
                   >
                     <input
@@ -1400,7 +1710,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   value={monFriHours}
                   onChange={(e) => setMonFriHours(e.target.value)}
                   placeholder="e.g. 09:30 AM – 09:30 PM"
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] bg-white"
                 />
               </div>
 
@@ -1413,7 +1723,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   value={satHours}
                   onChange={(e) => setSatHours(e.target.value)}
                   placeholder="e.g. 09:30 AM – 10:00 PM"
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] bg-white"
                 />
               </div>
 
@@ -1425,8 +1735,8 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   type="text"
                   value={sunHours}
                   onChange={(e) => setSunHours(e.target.value)}
-                  placeholder="e.g. 10:00 AM – 08:30 PM"
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                  placeholder="e.g. 10:00 AM – 08:30 PM (or Closed)"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] bg-white"
                 />
               </div>
             </div>
@@ -1461,7 +1771,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   max="5"
                   value={rating}
                   onChange={(e) => setRating(e.target.value)}
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] bg-white"
                 />
               </div>
 
@@ -1473,7 +1783,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   type="number"
                   value={reviewsCount}
                   onChange={(e) => setReviewsCount(e.target.value)}
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] bg-white"
                 />
               </div>
 
@@ -1486,7 +1796,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   value={featuredReviewAuthor}
                   onChange={(e) => setFeaturedReviewAuthor(e.target.value)}
                   placeholder="e.g. Rohan Mehra"
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] bg-white"
                 />
               </div>
 
@@ -1498,8 +1808,8 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                   rows={2}
                   value={featuredReviewComment}
                   onChange={(e) => setFeaturedReviewComment(e.target.value)}
-                  placeholder="Enter authentic customer testimonial..."
-                  className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                  placeholder="Enter a genuine customer testimonial (e.g. Prompt service, great response on WhatsApp)..."
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] bg-white"
                 />
               </div>
             </div>
@@ -1543,7 +1853,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                     value={docNumber}
                     onChange={(e) => setDocNumber(e.target.value)}
                     placeholder="e.g. 27AABCC8491K1Z8"
-                    className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                    className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] bg-white"
                   />
                 </div>
               </div>
@@ -1567,7 +1877,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                     className={`border-2 border-dashed rounded-xl p-5 text-center space-y-2 cursor-pointer transition ${
                       isDragging
                         ? 'border-[#F95700] bg-orange-50/70 scale-[0.99]'
-                        : 'border-slate-300 hover:border-[#F95700] hover:bg-slate-50/60'
+                        : 'border-slate-300 hover:border-[#F95700] hover:bg-slate-50/60 bg-white'
                     }`}
                   >
                     <div className="w-9 h-9 rounded-full bg-orange-50 text-[#F95700] flex items-center justify-center mx-auto">
@@ -1597,7 +1907,7 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
                     <button
                       type="button"
                       onClick={() => setFile(null)}
-                      className="p-1.5 text-slate-400 hover:text-red-500 rounded-lg hover:bg-white transition"
+                      className="p-1.5 text-slate-400 hover:text-red-500 rounded-lg hover:bg-white transition cursor-pointer"
                       title="Remove file"
                     >
                       <X className="w-4 h-4" />
@@ -1625,17 +1935,17 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Submitting &amp; Generating Verified Profile...</span>
+                  <span>Submitting Listing to Admin Moderation Desk...</span>
                 </>
               ) : (
                 <>
-                  <span>Publish &amp; Claim Verified Listing</span>
+                  <span>{isEditing ? 'Save & Update Business Profile' : 'Submit Business for Admin Approval'}</span>
                   <ExternalLink className="w-4 h-4" />
                 </>
               )}
             </button>
             <p className="text-center text-[11px] text-slate-400 mt-2">
-              Listing your business is 100% free under BharatBN™ Local Network initiative.
+              Listing your business is 100% free. Admin verification typically takes less than 24 hours.
             </p>
           </div>
         </form>

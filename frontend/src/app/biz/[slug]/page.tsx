@@ -41,6 +41,7 @@ interface BusinessProfile {
   id: string;
   name: string;
   slug: string;
+  status?: 'pending' | 'approved' | 'rejected';
   logoUrl?: string;
   phone: string;
   whatsapp: string;
@@ -448,58 +449,65 @@ export default function BusinessProfilePage() {
 
   // Load custom listed business if exists in localStorage
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem('bharatbn_claims_store');
-        if (stored) {
-          const claims = JSON.parse(stored);
-          const found = claims.find((c: any) => c.businessSlug === slug || c.id === slug);
-          if (found) {
-            setBusiness((prev) => ({
-              ...prev,
-              id: found.id || prev.id,
-              name: found.businessName || prev.name,
-              logoUrl: found.logoBase64 || found.logoUrl || prev.logoUrl,
-              city: found.city || prev.city,
-              state: found.state || prev.state,
-              category: found.category || prev.category,
-              categoryHierarchy: found.categoryHierarchy && found.categoryHierarchy.length > 0
-                ? found.categoryHierarchy
-                : [found.category || 'Directory', found.businessName || prev.name],
-              phone: found.phone || prev.phone,
-              whatsapp: found.whatsapp || (found.phone ? found.phone.replace(/[^0-9]/g, '') : prev.whatsapp),
-              email: found.workEmail || prev.email,
-              website: found.website || prev.website,
-              addressLine: found.addressLine || prev.addressLine,
-              landmark: found.landmark || prev.landmark,
-              pincode: found.pincode || prev.pincode,
-              description: found.description || prev.description,
-              aboutStory: found.aboutStory || prev.aboutStory,
-              establishedYear: found.establishedYear ? Number(found.establishedYear) : prev.establishedYear,
-              services: (found.services && found.services.length > 0) ? found.services : prev.services,
-              amenities: (found.amenities && found.amenities.length > 0) ? found.amenities : prev.amenities,
-              gallery: (found.gallery && found.gallery.length > 0) ? found.gallery : prev.gallery,
-              workingHours: (found.workingHours && found.workingHours.length > 0) ? found.workingHours : prev.workingHours,
-              owner: {
-                ...prev.owner,
-                name: found.claimantName || prev.owner.name,
-                role: found.ownerRole || prev.owner.role,
-                memberSince: found.memberSince || prev.owner.memberSince,
-                verifiedDocType: found.docType || prev.owner.verifiedDocType,
-                responseRate: found.responseRate || prev.owner.responseRate,
-              },
-              rating: found.rating ? Number(found.rating) : prev.rating,
-              reviewsCount: found.reviewsCount ? Number(found.reviewsCount) : prev.reviewsCount,
-            }));
-            if (found.reviews && Array.isArray(found.reviews) && found.reviews.length > 0) {
-              setReviewsList(found.reviews);
+    const loadDynamic = () => {
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem('bharatbn_claims_store');
+          if (stored) {
+            const claims = JSON.parse(stored);
+            const found = claims.find((c: any) => c.businessSlug === slug || c.id === slug);
+            if (found) {
+              setBusiness((prev) => ({
+                ...prev,
+                id: found.id || prev.id,
+                name: found.businessName || prev.name,
+                status: found.status || 'approved',
+                logoUrl: found.logoBase64 || found.logoUrl || prev.logoUrl,
+                city: found.city || prev.city,
+                state: found.state || prev.state,
+                category: found.category || prev.category,
+                categoryHierarchy: found.categoryHierarchy && found.categoryHierarchy.length > 0
+                  ? found.categoryHierarchy
+                  : [found.category || 'Directory', found.businessName || prev.name],
+                phone: found.phone || prev.phone,
+                whatsapp: found.whatsapp || (found.phone ? found.phone.replace(/[^0-9]/g, '') : prev.whatsapp),
+                email: found.workEmail || prev.email,
+                website: found.website || prev.website,
+                addressLine: found.addressLine || prev.addressLine,
+                landmark: found.landmark || prev.landmark,
+                pincode: found.pincode || prev.pincode,
+                description: found.description || prev.description,
+                aboutStory: found.aboutStory || prev.aboutStory,
+                establishedYear: found.establishedYear ? Number(found.establishedYear) : prev.establishedYear,
+                services: (found.services && found.services.length > 0) ? found.services : prev.services,
+                amenities: (found.amenities && found.amenities.length > 0) ? found.amenities : prev.amenities,
+                gallery: (found.gallery && found.gallery.length > 0) ? found.gallery : prev.gallery,
+                workingHours: (found.workingHours && found.workingHours.length > 0) ? found.workingHours : prev.workingHours,
+                owner: {
+                  ...prev.owner,
+                  name: found.claimantName || prev.owner.name,
+                  role: found.ownerRole || prev.owner.role,
+                  memberSince: found.memberSince || prev.owner.memberSince,
+                  verifiedDocType: found.docType || prev.owner.verifiedDocType,
+                  responseRate: found.responseRate || prev.owner.responseRate,
+                },
+                rating: found.rating ? Number(found.rating) : prev.rating,
+                reviewsCount: found.reviewsCount ? Number(found.reviewsCount) : prev.reviewsCount,
+              }));
+              if (found.reviews && Array.isArray(found.reviews) && found.reviews.length > 0) {
+                setReviewsList(found.reviews);
+              }
             }
           }
+        } catch (err) {
+          console.error('Error loading dynamic listing:', err);
         }
-      } catch (err) {
-        console.error('Error loading dynamic listing:', err);
       }
-    }
+    };
+
+    loadDynamic();
+    window.addEventListener('bharatbn_claims_updated', loadDynamic);
+    return () => window.removeEventListener('bharatbn_claims_updated', loadDynamic);
   }, [slug]);
 
   const nextSlide = () => {
@@ -639,6 +647,28 @@ export default function BusinessProfilePage() {
         </div>
       </div>
 
+      {/* Pending Admin Approval Banner */}
+      {business.status === 'pending' && (
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-3 sm:px-6">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-900">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
+              <span className="font-bold">Listing Under Review (Awaiting Admin Approval):</span>
+              <span className="text-amber-800">
+                This business listing has been submitted and is currently in the verification queue. Admin approval is required before it appears on the public verified directory.
+              </span>
+            </div>
+            <Link
+              href="/admin/claims"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg transition self-start sm:self-auto cursor-pointer shadow-xs whitespace-nowrap"
+            >
+              <span>Open Admin Desk to Approve</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Main Container: 2-Column Professional Layout */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
         {/* Title Header Card */}
@@ -660,10 +690,17 @@ export default function BusinessProfilePage() {
 
             <div className="space-y-2 flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  Audited &amp; Verified Business
-                </span>
+                {business.status === 'pending' ? (
+                  <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-800 border border-amber-200/80 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                    <Clock className="w-3.5 h-3.5 text-amber-600" />
+                    Pending Admin Approval
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    Audited &amp; Verified Business
+                  </span>
+                )}
 
                 <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200/80 px-2.5 py-1 rounded-full text-xs font-semibold">
                   <BadgeCheck className="w-3.5 h-3.5 text-blue-600" />
@@ -716,85 +753,95 @@ export default function BusinessProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column (8 Cols): Image Slider, About Us, Offerings, Reviews */}
           <div className="lg:col-span-8 space-y-6">
-            {/* 1. Large Interactive Image Slider / Gallery (1 of 4) */}
-            <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden p-3 space-y-3">
-              {/* Main Image Stage */}
-              <div className="relative aspect-[16/10] sm:aspect-[16/9] w-full rounded-xl overflow-hidden bg-slate-950 group">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={currentSlide}
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="relative w-full h-full"
-                  >
-                    <Image
-                      src={business.gallery[currentSlide].url}
-                      alt={business.gallery[currentSlide].caption}
-                      fill
-                      priority
-                      quality={95}
-                      className="object-cover object-center"
-                    />
-                  </motion.div>
-                </AnimatePresence>
+            {/* 1. Interactive Image Slider / Gallery (1 to 5 Photos) */}
+            {business.gallery && business.gallery.length > 0 ? (
+              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden p-3 space-y-3">
+                {/* Main Image Stage */}
+                <div className="relative aspect-[16/10] sm:aspect-[16/9] w-full rounded-xl overflow-hidden bg-slate-950 group">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={currentSlide < business.gallery.length ? currentSlide : 0}
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="relative w-full h-full"
+                    >
+                      <img
+                        src={business.gallery[currentSlide < business.gallery.length ? currentSlide : 0]?.url}
+                        alt={business.gallery[currentSlide < business.gallery.length ? currentSlide : 0]?.caption || business.name}
+                        className="w-full h-full object-cover object-center"
+                      />
+                    </motion.div>
+                  </AnimatePresence>
 
-                {/* Counter Badge (Like Reference Image: "1 of 4") */}
-                <div className="absolute bottom-4 left-4 bg-slate-900/80 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-lg border border-white/20 flex items-center gap-1.5 shadow-md">
-                  <span>📷</span>
-                  <span>
-                    {currentSlide + 1} of {business.gallery.length}
-                  </span>
+                  {/* Counter Badge */}
+                  <div className="absolute bottom-4 left-4 bg-slate-900/80 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-lg border border-white/20 flex items-center gap-1.5 shadow-md">
+                    <span>📷</span>
+                    <span>
+                      {(currentSlide < business.gallery.length ? currentSlide : 0) + 1} of {business.gallery.length}
+                    </span>
+                  </div>
+
+                  {/* Caption Overlay */}
+                  {business.gallery[currentSlide < business.gallery.length ? currentSlide : 0]?.caption && (
+                    <div className="absolute top-4 left-4 right-4 bg-gradient-to-b from-slate-950/70 via-slate-950/30 to-transparent p-3 rounded-t-lg text-white text-xs sm:text-sm font-semibold truncate pointer-events-none">
+                      {business.gallery[currentSlide < business.gallery.length ? currentSlide : 0].caption}
+                    </div>
+                  )}
+
+                  {/* Arrow Controls (Only shown if multiple photos exist) */}
+                  {business.gallery.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={prevSlide}
+                        aria-label="Previous photo"
+                        className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white flex items-center justify-center transition border border-white/20 shadow-md cursor-pointer hover:scale-105 active:scale-95"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={nextSlide}
+                        aria-label="Next photo"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white flex items-center justify-center transition border border-white/20 shadow-md cursor-pointer hover:scale-105 active:scale-95"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </>
+                  )}
                 </div>
 
-                {/* Caption Overlay */}
-                <div className="absolute top-4 left-4 right-4 bg-gradient-to-b from-slate-950/70 via-slate-950/30 to-transparent p-3 rounded-t-lg text-white text-xs sm:text-sm font-semibold truncate pointer-events-none">
-                  {business.gallery[currentSlide].caption}
-                </div>
-
-                {/* Arrow Controls (< and >) */}
-                <button
-                  type="button"
-                  onClick={prevSlide}
-                  aria-label="Previous photo"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white flex items-center justify-center transition border border-white/20 shadow-md cursor-pointer hover:scale-105 active:scale-95"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={nextSlide}
-                  aria-label="Next photo"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/70 hover:bg-slate-900 text-white flex items-center justify-center transition border border-white/20 shadow-md cursor-pointer hover:scale-105 active:scale-95"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
+                {/* Thumbnails Row (Only shown if multiple photos exist) */}
+                {business.gallery.length > 1 && (
+                  <div className={`grid gap-2.5 pt-1 ${
+                    business.gallery.length === 2 ? 'grid-cols-2' :
+                    business.gallery.length === 3 ? 'grid-cols-3' :
+                    business.gallery.length === 4 ? 'grid-cols-4' : 'grid-cols-5'
+                  }`}>
+                    {business.gallery.map((img, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setCurrentSlide(idx)}
+                        className={`relative aspect-[16/10] rounded-lg overflow-hidden border-2 transition cursor-pointer ${
+                          currentSlide === idx
+                            ? 'border-[#F95700] ring-2 ring-[#F95700]/30 scale-[1.02]'
+                            : 'border-slate-200 opacity-70 hover:opacity-100 hover:border-slate-400'
+                        }`}
+                      >
+                        <img
+                          src={img.url}
+                          alt={img.caption || `Thumbnail ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-
-              {/* Thumbnails Row */}
-              <div className="grid grid-cols-4 gap-2.5 pt-1">
-                {business.gallery.map((img, idx) => (
-                  <button
-                    key={img.url}
-                    type="button"
-                    onClick={() => setCurrentSlide(idx)}
-                    className={`relative aspect-[16/10] rounded-lg overflow-hidden border-2 transition cursor-pointer ${
-                      currentSlide === idx
-                        ? 'border-[#F95700] ring-2 ring-[#F95700]/30 scale-[1.02]'
-                        : 'border-slate-200 opacity-70 hover:opacity-100 hover:border-slate-400'
-                    }`}
-                  >
-                    <Image
-                      src={img.url}
-                      alt={img.caption}
-                      fill
-                      className="object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
+            ) : null}
 
             {/* 2. About Us & Heritage Story */}
             <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-4">

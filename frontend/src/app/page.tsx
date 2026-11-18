@@ -144,7 +144,7 @@ export default function HomePage() {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed)) {
             const newApproved: VerifiedBusiness[] = parsed
-              .filter((c: any) => c.status === 'approved' || c.businessName?.toLowerCase().includes('choco'))
+              .filter((c: any) => c.status === 'approved')
               .map((c: any) => ({
                 id: c.id,
                 name: c.businessName,

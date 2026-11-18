@@ -235,6 +235,7 @@ export default function ClaimModerationPage() {
 
     try {
       localStorage.setItem('bharatbn_claims_store', JSON.stringify(updated));
+      window.dispatchEvent(new Event('bharatbn_claims_updated'));
     } catch {}
 
     setActionSuccess(`Claim ${selectedClaim.id} (${selectedClaim.businessName}) marked as ${decision.toUpperCase()}.`);
