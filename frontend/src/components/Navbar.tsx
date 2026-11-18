@@ -87,12 +87,13 @@ export default function Navbar() {
   ];
 
   return (
-    <motion.header
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: 'easeOut' }}
-      className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs"
-    >
+    <>
+      <motion.header
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs"
+      >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
         {/* Official Brand Logo with Hover Micro-Interaction */}
         <Link href="/" className="flex items-center group select-none flex-shrink-0">
@@ -253,12 +254,13 @@ export default function Navbar() {
           )}
         </div>
       </div>
-
-      {/* Business Login Modal */}
-      <BusinessLoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-      />
     </motion.header>
-  );
+
+    {/* Business Login Modal */}
+    <BusinessLoginModal
+      isOpen={isLoginModalOpen}
+      onClose={() => setIsLoginModalOpen(false)}
+    />
+  </>
+);
 }

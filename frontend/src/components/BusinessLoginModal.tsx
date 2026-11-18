@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -29,6 +30,7 @@ export default function BusinessLoginModal({
   onLoginSuccess,
 }: BusinessLoginModalProps) {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -36,7 +38,11 @@ export default function BusinessLoginModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -188,13 +194,17 @@ export default function BusinessLoginModal({
     setErrorMessage(null);
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+  return createPortal(
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto"
+    >
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        onClick={(e) => e.stopPropagation()}
+        initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 10 }}
-        className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden"
+        exit={{ opacity: 0, scale: 0.95, y: 15 }}
+        className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-auto"
       >
         {/* Modal Header */}
         <div className="p-5 bg-gradient-to-r from-[#07213A] to-[#0D3861] text-white flex items-center justify-between">
@@ -353,6 +363,7 @@ export default function BusinessLoginModal({
           </a>
         </div>
       </motion.div>
-    </div>
+    </div>,
+    document.body
   );
 }
