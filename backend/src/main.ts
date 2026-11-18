@@ -6,9 +6,16 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS for Next.js frontend
+  // Enable CORS for Next.js frontend and Admin console
+  const defaultOrigins = ['http://localhost:3000', 'http://localhost:3001'];
+  const configuredOrigins = [
+    process.env.FRONTEND_URL,
+    process.env.ADMIN_URL,
+    ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim()) : []),
+  ].filter(Boolean) as string[];
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: configuredOrigins.length > 0 ? configuredOrigins : defaultOrigins,
     credentials: true,
   });
 
