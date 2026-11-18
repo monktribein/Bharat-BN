@@ -399,7 +399,16 @@ export default function AdminListingsPage() {
                     </td>
                     <td className="py-2.5 px-3">
                       <div className="font-mono text-[11px] font-bold text-slate-500">{item.id}</div>
-                      <div className="font-semibold text-slate-900 text-xs mt-0.5">{item.name}</div>
+                      <Link
+                        href={`/biz/${item.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-slate-900 text-xs mt-0.5 hover:text-[#F95700] hover:underline inline-flex items-center gap-1 group transition"
+                        title="View live profile"
+                      >
+                        <span>{item.name}</span>
+                        <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-[#F95700] transition" />
+                      </Link>
                       <div className="text-[11px] text-slate-400 font-mono">{item.phone}</div>
                     </td>
                     <td className="py-2.5 px-3">

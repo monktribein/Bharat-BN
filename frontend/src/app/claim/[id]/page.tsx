@@ -529,9 +529,10 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
   const [satHours, setSatHours] = useState('');
   const [sunHours, setSunHours] = useState('');
 
-  // 10. Customer Testimonials & Verified Reviews
+  // 10. Customer Testimonials & Verified Reviews (Preserved from live customer submissions)
   const [rating, setRating] = useState('5.0');
-  const [reviewsCount, setReviewsCount] = useState('1');
+  const [reviewsCount, setReviewsCount] = useState('0');
+  const [existingReviews, setExistingReviews] = useState<any[]>([]);
   const [featuredReviewAuthor, setFeaturedReviewAuthor] = useState('');
   const [featuredReviewRating, setFeaturedReviewRating] = useState(5);
   const [featuredReviewDate, setFeaturedReviewDate] = useState('Recently');
@@ -664,18 +665,10 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
             if (found.satHours) setSatHours(found.satHours);
             if (found.sunHours) setSunHours(found.sunHours);
           }
-          setRating(found.rating ? String(found.rating) : '4.9');
-          setReviewsCount(found.reviewsCount ? String(found.reviewsCount) : '38');
-          if (found.reviews && found.reviews[0]) {
-            setFeaturedReviewAuthor(found.reviews[0].author || '');
-            setFeaturedReviewRating(found.reviews[0].rating || 5);
-            setFeaturedReviewDate(found.reviews[0].date || 'Recently');
-            setFeaturedReviewComment(found.reviews[0].comment || '');
-          } else if (found.featuredReviewAuthor) {
-            setFeaturedReviewAuthor(found.featuredReviewAuthor);
-            setFeaturedReviewRating(found.featuredReviewRating || 5);
-            setFeaturedReviewDate(found.featuredReviewDate || 'Recently');
-            setFeaturedReviewComment(found.featuredReviewComment || '');
+          setRating(found.rating ? String(found.rating) : '5.0');
+          setReviewsCount(found.reviewsCount ? String(found.reviewsCount) : '0');
+          if (Array.isArray(found.reviews)) {
+            setExistingReviews(found.reviews);
           }
           setDocType(found.docType || 'gst_certificate');
           setDocNumber(found.gstin || found.docNumber || '');
@@ -1042,21 +1035,8 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
           { days: 'Sunday', time: sunHours || 'Closed', isOpenNow: false },
         ],
         rating: Number(rating) || 5.0,
-        reviewsCount: Number(reviewsCount) || 1,
-        reviews: featuredReviewAuthor
-          ? [
-              {
-                id: `rev-${Date.now()}-1`,
-                author: featuredReviewAuthor,
-                rating: Number(featuredReviewRating) || 5,
-                date: featuredReviewDate || 'Recently',
-                comment:
-                  featuredReviewComment ||
-                  'Prompt response, authentic service, and verified business standards.',
-                verified: true,
-              },
-            ]
-          : [],
+        reviewsCount: existingReviews.length > 0 ? existingReviews.length : (Number(reviewsCount) || 0),
+        reviews: existingReviews,
         gstin: docNumber || '27AABCC' + Math.floor(1000 + Math.random() * 9000) + 'K1Z8',
         gstinMatch: 98,
         docType: docTypeLabels[docType] || 'Official Proof Document',
@@ -2142,86 +2122,13 @@ export default function ClaimBusinessPage({ params }: { params: Promise<{ id: st
           </div>
 
           {/* ======================================================== */}
-          {/* SECTION 10: Customer Reviews & Ratings */}
-          {/* ======================================================== */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-              <div className="flex items-center gap-2">
-                <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
-                <h2 className="text-base font-black text-navy-900">
-                  10. Customer Reviews &amp; Testimonials
-                </h2>
-              </div>
-              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
-                <span>★ {rating} / 5.0</span>
-                <span className="text-slate-400">({reviewsCount} reviews)</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Overall Rating
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  min="1"
-                  max="5"
-                  value={rating}
-                  onChange={(e) => setRating(e.target.value)}
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Total Reviews Count
-                </label>
-                <input
-                  type="number"
-                  value={reviewsCount}
-                  onChange={(e) => setReviewsCount(e.target.value)}
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Featured Reviewer Name
-                </label>
-                <input
-                  type="text"
-                  value={featuredReviewAuthor}
-                  onChange={(e) => setFeaturedReviewAuthor(e.target.value)}
-                  placeholder="e.g. Rohan Mehra"
-                  className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] bg-white"
-                />
-              </div>
-
-              <div className="sm:col-span-3">
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Featured Customer Review Comment
-                </label>
-                <textarea
-                  rows={2}
-                  value={featuredReviewComment}
-                  onChange={(e) => setFeaturedReviewComment(e.target.value)}
-                  placeholder="Enter a genuine customer testimonial (e.g. Prompt service, great response on WhatsApp)..."
-                  className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] bg-white"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* ======================================================== */}
-          {/* SECTION 11: Government Proof & Verification */}
+          {/* SECTION 10: Government Proof & Verification */}
           {/* ======================================================== */}
           <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
               <FileText className="w-5 h-5 text-[#F95700]" />
               <h2 className="text-base font-black text-navy-900">
-                11. Government Verification Proof (Audited Badge)
+                10. Government Verification Proof (Audited Badge)
               </h2>
             </div>
 

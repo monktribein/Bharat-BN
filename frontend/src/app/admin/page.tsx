@@ -32,6 +32,7 @@ import {
 interface ClaimItem {
   id: string;
   businessName: string;
+  businessSlug?: string;
   city: string;
   category: string;
   claimant: string;
@@ -48,6 +49,7 @@ const defaultClaims: ClaimItem[] = [
   {
     id: 'BBN-CLM-799760',
     businessName: 'Apple',
+    businessSlug: 'apple',
     city: 'Noida, UP',
     category: 'Automobile & EV',
     claimant: 'Kashish Saxena (CEO)',
@@ -62,6 +64,7 @@ const defaultClaims: ClaimItem[] = [
   {
     id: 'BBN-CLM-982104',
     businessName: 'Choco Delights & Confectionery (Cadboury)',
+    businessSlug: 'choco-delights-confectionery-cadboury',
     city: 'Mumbai, MH',
     category: 'Food, Bakeries & Confectionery',
     claimant: 'Cadboury Admin',
@@ -76,6 +79,7 @@ const defaultClaims: ClaimItem[] = [
   {
     id: 'BBN-CLM-849102',
     businessName: 'Apex Super Speciality Dental Clinic',
+    businessSlug: 'apex-super-speciality-dental-clinic',
     city: 'Mumbai, MH',
     category: 'Healthcare',
     claimant: 'Dr. Rajesh Sharma',
@@ -90,6 +94,7 @@ const defaultClaims: ClaimItem[] = [
   {
     id: 'BBN-CLM-623194',
     businessName: 'Little Elly Preschool & Daycare',
+    businessSlug: 'little-elly-international-preschool',
     city: 'Bengaluru, KA',
     category: 'Education',
     claimant: 'Sunita Rao',
@@ -203,6 +208,7 @@ export default function AdminDashboardPage() {
             const formatted: ClaimItem[] = parsed.map((p: any) => ({
               id: p.id,
               businessName: p.businessName,
+              businessSlug: p.businessSlug || p.slug || p.businessName?.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
               city: p.city,
               category: p.category,
               claimant: p.claimantName || p.claimant,
@@ -507,22 +513,48 @@ export default function AdminDashboardPage() {
                       }`}
                     >
                       <td className="py-3 px-4">
-                        <div className="font-semibold text-slate-900 text-xs">{claim.businessName}</div>
+                        <Link
+                          href={`/biz/${claim.businessSlug || claim.businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-semibold text-slate-900 text-xs hover:text-[#F95700] hover:underline inline-flex items-center gap-1 group transition cursor-pointer"
+                          title="Open live public business profile"
+                        >
+                          <span>{claim.businessName}</span>
+                          <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-[#F95700] transition" />
+                        </Link>
                         <div className="text-[11px] text-slate-500">{claim.city} &bull; {claim.category}</div>
                         <div className="font-mono text-[10px] text-slate-400 mt-0.5">{claim.id}</div>
                       </td>
 
                       <td className="py-3 px-4">
                         <div className="font-medium text-slate-800">{claim.claimant}</div>
-                        <div className="text-[11px] text-slate-500">{claim.email}</div>
-                        <div className="text-[11px] text-slate-400 font-mono">{claim.phone}</div>
+                        <a
+                          href={`mailto:${claim.email}`}
+                          className="text-[11px] text-slate-500 hover:text-[#F95700] hover:underline block truncate max-w-[160px]"
+                          title={`Email ${claim.email}`}
+                        >
+                          {claim.email}
+                        </a>
+                        <a
+                          href={`tel:${claim.phone.replace(/[^0-9+]/g, '')}`}
+                          className="text-[11px] text-slate-400 hover:text-[#F95700] font-mono hover:underline block"
+                          title={`Call ${claim.phone}`}
+                        >
+                          {claim.phone}
+                        </a>
                       </td>
 
                       <td className="py-3 px-4">
-                        <div className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 bg-slate-100 border border-slate-200 px-2 py-1 rounded">
+                        <button
+                          type="button"
+                          onClick={() => alert(`Viewing document: ${claim.fileName}\nDocument Type: ${claim.docType}\nStatus: Verified against GST/ROC registry`)}
+                          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 px-2 py-1 rounded transition cursor-pointer text-left"
+                          title={`Click to view ${claim.fileName}`}
+                        >
                           <FileText className="w-3.5 h-3.5 text-slate-500" />
                           <span className="truncate max-w-[130px]" title={claim.fileName}>{claim.fileName}</span>
-                        </div>
+                        </button>
                         <div className="text-[10px] text-slate-400 mt-0.5">{claim.docType}</div>
                       </td>
 

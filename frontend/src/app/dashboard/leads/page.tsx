@@ -1,4 +1,5 @@
-import { MessageSquare, Phone, CheckCircle, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
+import { MessageSquare, Phone, CheckCircle, ShieldCheck, ExternalLink } from 'lucide-react';
 
 const mockLeads = [
   {
@@ -57,7 +58,17 @@ export default function LeadsDashboardPage() {
                     <div className="font-bold text-slate-900">{l.name}</div>
                     <div className="text-slate-500">{l.phone}</div>
                   </td>
-                  <td className="px-6 py-4 font-medium text-slate-900">{l.businessName}</td>
+                  <td className="px-6 py-4 font-medium text-slate-900">
+                    <Link
+                      href={l.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-[#F95700] hover:underline inline-flex items-center gap-1 group transition"
+                    >
+                      <span>{l.businessName}</span>
+                      <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-[#F95700] transition" />
+                    </Link>
+                  </td>
                   <td className="px-6 py-4 max-w-xs truncate">{l.message}</td>
                   <td className="px-6 py-4">
                     <span className="font-mono text-[11px] bg-slate-100 px-2 py-0.5 rounded">
