@@ -85,6 +85,66 @@ const mockListings: DirectoryListing[] = [
     isVerified: true,
     isClaimed: false,
   },
+  {
+    id: 'BBN-DIR-003',
+    name: 'Greenfield EV Motors & Spares',
+    slug: 'greenfield-ev-motors-kothrud-pune',
+    category: 'Automobile & EV',
+    categorySlug: 'automobile-ev-showrooms',
+    city: 'Pune',
+    citySlug: 'pune',
+    address: 'Survey 42, Paud Road, Kothrud, Pune, Maharashtra - 411038',
+    phone: '+91 97654 32100',
+    whatsapp: '919765432100',
+    services: ['Electric Vehicles & Cars', 'EV Battery Diagnostics', 'Fast Charging Stations', 'Authorized EV Dealership'],
+    isVerified: true,
+    isClaimed: true,
+  },
+  {
+    id: 'BBN-DIR-005',
+    name: 'Tata EV Mobility Hub',
+    slug: 'tata-ev-mobility-hub-sector-63-noida',
+    category: 'Automobile & EV',
+    categorySlug: 'automobile-ev-showrooms',
+    city: 'Noida',
+    citySlug: 'noida',
+    address: 'Plot A-14, Sector 63, Noida, Uttar Pradesh - 201301',
+    phone: '+91 98188 44556',
+    whatsapp: '919818844556',
+    services: ['Automobile Showrooms', 'Electric Cars & Fleet', 'EV Charging Bay', 'Annual Maintenance & Servicing'],
+    isVerified: true,
+    isClaimed: true,
+  },
+  {
+    id: '55555555-5555-5555-5555-555555555003',
+    name: 'NexaByte Software & Cloud Labs',
+    slug: 'nexabyte-software-cloud-labs',
+    category: 'IT, Software & Technology',
+    categorySlug: 'it-software-technology',
+    city: 'Bengaluru',
+    citySlug: 'bengaluru',
+    address: '4th Floor, Tech Park One, Outer Ring Road, Bellandur, Bengaluru - 560103',
+    phone: '+91 98860 54321',
+    whatsapp: '919886054321',
+    services: ['Custom Software Development', 'Cloud Architecture', 'Web & Mobile Apps', 'DevOps & Cybersecurity'],
+    isVerified: true,
+    isClaimed: true,
+  },
+  {
+    id: 'BBN-DIR-004',
+    name: 'Copper Chimney Fine Dining',
+    slug: 'copper-chimney-worli-mumbai',
+    category: 'Restaurants & Cafes',
+    categorySlug: 'restaurants-cafes',
+    city: 'Mumbai',
+    citySlug: 'mumbai',
+    address: 'Lotus Court, Dr. Annie Besant Road, Worli, Mumbai - 400018',
+    phone: '+91 98210 55555',
+    whatsapp: '919821055555',
+    services: ['North Indian Fine Dining', 'Dum Biryani', 'Banquet & Catering', 'Table Reservations'],
+    isVerified: true,
+    isClaimed: true,
+  },
 ];
 
 function SearchContent() {
@@ -169,26 +229,41 @@ function SearchContent() {
   // Base list filtered by category
   let categoryFiltered = [...listings];
   if (activeCategory) {
+    const actCat = activeCategory.toLowerCase();
     categoryFiltered = categoryFiltered.filter(
       (b) =>
-        b.categorySlug.toLowerCase().includes(activeCategory.toLowerCase()) ||
-        b.category.toLowerCase().includes(activeCategory.toLowerCase())
+        b.categorySlug.toLowerCase().includes(actCat) ||
+        b.category.toLowerCase().includes(actCat) ||
+        actCat.includes(b.categorySlug.toLowerCase())
     );
   }
 
   // Filtered by search query across name, category, city, address, services, slug
   let queryFiltered = categoryFiltered;
   if (activeQuery) {
-    const query = activeQuery.toLowerCase().trim();
-    queryFiltered = queryFiltered.filter(
-      (b) =>
-        b.name.toLowerCase().includes(query) ||
-        b.category.toLowerCase().includes(query) ||
-        b.city.toLowerCase().includes(query) ||
-        b.address.toLowerCase().includes(query) ||
-        b.services.some((s) => s.toLowerCase().includes(query)) ||
-        (b.slug && b.slug.toLowerCase().includes(query))
-    );
+    const rawQuery = activeQuery.toLowerCase().trim();
+    const tokens = rawQuery
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter((t) => t.length > 2 && !['and', 'for', 'the', 'with'].includes(t));
+
+    const matches = categoryFiltered.filter((b) => {
+      const bServices = (b.services || []).map((s) => s.toLowerCase()).join(' ');
+      const bText = `${b.name} ${b.category} ${b.categorySlug} ${b.city} ${b.address} ${b.slug} ${bServices}`.toLowerCase();
+
+      // 1. Direct substring match
+      if (bText.includes(rawQuery)) return true;
+
+      // 2. Token match (if user clicked e.g. "Automobile Showrooms" or "EV Mobility")
+      if (tokens.length > 0 && tokens.some((token) => bText.includes(token))) {
+        return true;
+      }
+
+      return false;
+    });
+
+    // If query match produces results, use them; otherwise keep categoryFiltered so user always sees relevant businesses
+    queryFiltered = matches.length > 0 ? matches : categoryFiltered;
   }
 
   // Filter by city if selected

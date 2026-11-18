@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -31,6 +31,67 @@ import {
   Navigation,
 } from 'lucide-react';
 import { BusinessProfile } from './businessData';
+
+function getCategorySearchUrl(cat: string, mainCategory: string = ''): string {
+  const combined = `${cat} ${mainCategory}`.toLowerCase();
+  let categoryParam = '';
+  let queryParam = cat;
+
+  if (
+    combined.includes('auto') ||
+    combined.includes('ev') ||
+    combined.includes('vehicle') ||
+    combined.includes('car') ||
+    combined.includes('motor')
+  ) {
+    categoryParam = 'automobile-ev-showrooms';
+    queryParam = cat;
+  } else if (
+    combined.includes('food') ||
+    combined.includes('choco') ||
+    combined.includes('baker') ||
+    combined.includes('confectionery')
+  ) {
+    categoryParam = 'food-confectionery';
+    queryParam = cat;
+  } else if (
+    combined.includes('dental') ||
+    combined.includes('health') ||
+    combined.includes('clinic')
+  ) {
+    categoryParam = 'healthcare-clinics';
+    queryParam = cat;
+  } else if (
+    combined.includes('school') ||
+    combined.includes('educat') ||
+    combined.includes('daycare') ||
+    combined.includes('preschool')
+  ) {
+    categoryParam = 'education-preschools';
+    queryParam = cat;
+  } else if (
+    combined.includes('soft') ||
+    combined.includes('tech') ||
+    combined.includes('cloud') ||
+    combined.includes('it')
+  ) {
+    categoryParam = 'it-software-technology';
+    queryParam = cat;
+  } else if (
+    combined.includes('restaurant') ||
+    combined.includes('cafe') ||
+    combined.includes('dining')
+  ) {
+    categoryParam = 'restaurants-cafes';
+    queryParam = cat;
+  }
+
+  const params = new URLSearchParams();
+  if (categoryParam) params.set('category', categoryParam);
+  if (queryParam) params.set('q', queryParam);
+
+  return `/search?${params.toString()}`;
+}
 
 interface BusinessProfileClientProps {
   initialBusiness: BusinessProfile;
@@ -240,35 +301,114 @@ export default function BusinessProfileClient({
     },
   ];
 
-  const similarBusinesses = [
-    {
-      name: 'The Belgian Waffle & Chocolate Co.',
-      category: 'Food, Desserts & Confectionery',
-      city: 'Lokhandwala, Mumbai',
-      rating: 4.8,
-      reviews: 64,
-      phone: '+919820088991',
-      slug: 'choco-delights-confectionery-cadboury',
-    },
-    {
-      name: 'Cadbury Gourmet Studio',
-      category: 'Artisan Confectionery & Hampers',
-      city: 'Bandra West, Mumbai',
-      rating: 4.9,
-      reviews: 92,
-      phone: '+919819922334',
-      slug: 'choco-delights-confectionery-cadboury',
-    },
-    {
-      name: 'Le15 Patisserie & Bakery Studio',
-      category: 'Gourmet Pastries & Chocolates',
-      city: 'Andheri West, Mumbai',
-      rating: 4.7,
-      reviews: 58,
-      phone: '+919833011223',
-      slug: 'choco-delights-confectionery-cadboury',
-    },
-  ];
+  // Dynamically compute similar businesses based on current business category
+  const similarBusinesses = useMemo(() => {
+    const cat = (business.category || '').toLowerCase();
+    if (cat.includes('auto') || cat.includes('ev')) {
+      return [
+        {
+          name: 'Greenfield EV Motors & Spares',
+          category: 'Automobile & EV Solutions',
+          city: 'Pune / Noida Hub',
+          rating: 4.8,
+          reviews: 42,
+          phone: '+91 97654 32100',
+          slug: 'greenfield-ev-motors-kothrud-pune',
+        },
+        {
+          name: 'Tata EV Mobility Hub',
+          category: 'Electric Cars & Authorized Spares',
+          city: 'Sector 63, Noida',
+          rating: 4.9,
+          reviews: 58,
+          phone: '+91 98188 44556',
+          slug: 'tata-ev-mobility-hub-sector-63-noida',
+        },
+        {
+          name: 'Apple EV Mobility Pavilion',
+          category: 'EV Mobility Showrooms',
+          city: 'Khora Colony, Noida',
+          rating: 4.9,
+          reviews: 38,
+          phone: '+91 97170 56860',
+          slug: 'apple',
+        },
+      ];
+    }
+    if (cat.includes('dental') || cat.includes('health')) {
+      return [
+        {
+          name: 'Apex Super Speciality Dental Clinic',
+          category: 'Healthcare & Multispeciality Dental',
+          city: 'Andheri West, Mumbai',
+          rating: 4.9,
+          reviews: 48,
+          phone: '+91 98200 12345',
+          slug: 'apex-super-speciality-dental-clinic',
+        },
+        {
+          name: 'Dr. Smile Advanced Dental Studio',
+          category: 'Dental Implants & Smile Design',
+          city: 'Lokhandwala, Mumbai',
+          rating: 4.8,
+          reviews: 52,
+          phone: '+91 98201 54321',
+          slug: 'apex-super-speciality-dental-clinic',
+        },
+      ];
+    }
+    if (cat.includes('school') || cat.includes('educat')) {
+      return [
+        {
+          name: 'Little Elly International Preschool',
+          category: 'Preschools & Early Education',
+          city: 'Indiranagar, Bengaluru',
+          rating: 4.8,
+          reviews: 86,
+          phone: '+91 98450 67890',
+          slug: 'little-elly-international-preschool',
+        },
+        {
+          name: 'EuroKids Early Learning Centre',
+          category: 'Daycare & Kindergarten',
+          city: 'HAL 2nd Stage, Bengaluru',
+          rating: 4.9,
+          reviews: 64,
+          phone: '+91 98451 98765',
+          slug: 'little-elly-international-preschool',
+        },
+      ];
+    }
+    return [
+      {
+        name: 'The Belgian Waffle & Chocolate Co.',
+        category: 'Food, Desserts & Confectionery',
+        city: 'Lokhandwala, Mumbai',
+        rating: 4.8,
+        reviews: 64,
+        phone: '+91 98200 88991',
+        slug: 'choco-delights-confectionery-cadboury',
+      },
+      {
+        name: 'Cadbury Gourmet Studio',
+        category: 'Artisan Confectionery & Hampers',
+        city: 'Bandra West, Mumbai',
+        rating: 4.9,
+        reviews: 92,
+        phone: '+91 98199 22334',
+        slug: 'choco-delights-confectionery-cadboury',
+      },
+      {
+        name: 'Le15 Patisserie & Bakery Studio',
+        category: 'Gourmet Pastries & Chocolates',
+        city: 'Andheri West, Mumbai',
+        rating: 4.7,
+        reviews: 58,
+        phone: '+91 98330 11223',
+        slug: 'choco-delights-confectionery-cadboury',
+      },
+    ];
+  }, [business.category]);
 
   return (
     <div className="bg-[#F8FAFC] min-h-screen pb-20">
@@ -389,14 +529,23 @@ export default function BusinessProfileClient({
               {/* Category Hierarchy Tags */}
               <div className="flex flex-wrap items-center gap-1.5 pt-1 text-xs text-slate-500 font-medium">
                 <span className="font-bold text-slate-400 mr-1">Categories:</span>
-                {business.categoryHierarchy.map((cat, i) => (
-                  <span key={cat} className="inline-flex items-center gap-1">
-                    <span className="hover:text-[#F95700] cursor-pointer">{cat}</span>
-                    {i < business.categoryHierarchy.length - 1 && (
-                      <span className="text-slate-300">/</span>
-                    )}
-                  </span>
-                ))}
+                {business.categoryHierarchy.map((cat, i) => {
+                  const searchUrl = getCategorySearchUrl(cat, business.category);
+                  return (
+                    <span key={cat} className="inline-flex items-center gap-1">
+                      <Link
+                        href={searchUrl}
+                        className="text-[#F95700] hover:text-[#d94a00] hover:underline font-semibold transition cursor-pointer"
+                        title={`Discover other ${cat} businesses on BharatBN`}
+                      >
+                        {cat}
+                      </Link>
+                      {i < business.categoryHierarchy.length - 1 && (
+                        <span className="text-slate-300">/</span>
+                      )}
+                    </span>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -1050,7 +1199,10 @@ export default function BusinessProfileClient({
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
                   Similar Verified in {business.city}
                 </span>
-                <Link href="/search" className="text-[11px] font-bold text-[#F95700] hover:underline">
+                <Link
+                  href={getCategorySearchUrl(business.category, business.category)}
+                  className="text-[11px] font-bold text-[#F95700] hover:underline"
+                >
                   View All →
                 </Link>
               </div>
