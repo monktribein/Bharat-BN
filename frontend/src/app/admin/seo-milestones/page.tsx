@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   TrendingUp,
@@ -94,11 +94,85 @@ export default function AdminSeoMilestonesPage() {
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved'>('all');
   const [approvedSuccess, setApprovedSuccess] = useState<string | null>(null);
 
+  // Hydrate custom business campaigns from localStorage
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const syncMilestones = () => {
+        const stored = localStorage.getItem('bharatbn_seo_campaigns');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const dynamicMilestones: MilestoneItem[] = parsed.map((c: any) => ({
+              id: c.id,
+              businessName: c.businessName || 'Claimed Business',
+              keyword: c.keyword || 'target keyword',
+              city: c.targetCity || 'Noida, UP',
+              baselineRank: c.baselineRank || 45,
+              currentRank: c.currentRank || c.baselineRank || 45,
+              targetMilestone: 'Top-20 (25%)',
+              payoutAmount: `₹${(c.totalValue ? Math.round(c.totalValue * 0.25) : 5000).toLocaleString('en-IN')}`,
+              observations: 2,
+              lastChecked: 'Just now (Live SERP)',
+              status: c.status === 'active' ? 'approved' : 'pending_approval',
+            }));
+
+            setMilestones((prev) => {
+              const map = new Map<string, MilestoneItem>();
+              dynamicMilestones.forEach((m) => map.set(m.id, m));
+              prev.forEach((m) => {
+                if (!map.has(m.id)) map.set(m.id, m);
+              });
+              return Array.from(map.values());
+            });
+          }
+        }
+      };
+
+      syncMilestones();
+      window.addEventListener('bharatbn_seo_updated', syncMilestones);
+      return () => window.removeEventListener('bharatbn_seo_updated', syncMilestones);
+    } catch (err) {
+      console.error('Error hydrating admin SEO milestones:', err);
+    }
+  }, []);
+
   const handleApprove = (id: string) => {
-    setMilestones(
-      milestones.map((m) => (m.id === id ? { ...m, status: 'approved' } : m))
+    setMilestones((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, status: 'approved' } : m))
     );
-    setApprovedSuccess(`Milestone ${id} authorized. Dual-witness audit logged and billing invoice dispatched.`);
+
+    // Sync back to bharatbn_seo_campaigns in localStorage
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('bharatbn_seo_campaigns');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          const updated = parsed.map((c: any) => {
+            if (c.id === id) {
+              return {
+                ...c,
+                status: 'active',
+                milestones: c.milestones?.map((m: any, idx: number) =>
+                  idx === 0 ? { ...m, status: 'paid', notes: 'Approved by Admin Auditor' } : m
+                ),
+                auditLogs: [
+                  ...(c.auditLogs || []),
+                  `Audited & Approved by BharatBN Admin on ${new Date().toLocaleString()}`,
+                ],
+              };
+            }
+            return c;
+          });
+          localStorage.setItem('bharatbn_seo_campaigns', JSON.stringify(updated));
+          window.dispatchEvent(new Event('bharatbn_seo_updated'));
+        }
+      } catch (err) {
+        console.error('Error syncing SEO approval:', err);
+      }
+    }
+
+    setApprovedSuccess(`Campaign & Milestone ${id} approved! Google SERP verified & billing authorized.`);
     setTimeout(() => setApprovedSuccess(null), 4000);
   };
 
@@ -140,192 +214,112 @@ export default function AdminSeoMilestonesPage() {
       </div>
 
       {approvedSuccess && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-3.5 py-2.5 rounded-md flex items-center justify-between shadow-xs">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-            <span className="font-medium">{approvedSuccess}</span>
-          </div>
-          <button onClick={() => setApprovedSuccess(null)} className="text-emerald-600 hover:text-emerald-900">
-            &times;
-          </button>
+        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2 text-xs font-semibold text-emerald-800 animate-fade-in">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+          <span>{approvedSuccess}</span>
         </div>
       )}
 
-      {/* KPI Tiles Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-white p-3.5 rounded-lg border border-slate-200/90 shadow-xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-500">
-            <span>Active PAYR Campaigns</span>
-            <TrendingUp className="w-4 h-4 text-slate-400" />
-          </div>
-          <div className="text-2xl font-bold font-mono text-slate-900">42 Keywords</div>
-          <div className="text-[11px] text-emerald-600 font-medium">
-            35 achieving Top-10
-          </div>
-        </div>
-
-        <div className="bg-white p-3.5 rounded-lg border border-slate-200/90 shadow-xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-500">
-            <span>Pending Authorizations</span>
-            <Clock className="w-4 h-4 text-amber-500" />
-          </div>
-          <div className="text-2xl font-bold font-mono text-amber-600">₹80,000</div>
-          <div className="text-[11px] text-slate-500 font-mono">
-            2 milestones ready to bill
-          </div>
-        </div>
-
-        <div className="bg-white p-3.5 rounded-lg border border-slate-200/90 shadow-xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-500">
-            <span>Authorized YTD Settlements</span>
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-          </div>
-          <div className="text-2xl font-bold font-mono text-slate-900">₹8,45,000</div>
-          <div className="text-[11px] text-slate-500 font-mono">
-            Zero chargeback disputes
-          </div>
-        </div>
-
-        <div className="bg-white p-3.5 rounded-lg border border-slate-200/90 shadow-xs space-y-1">
-          <div className="flex items-center justify-between text-xs text-slate-500">
-            <span>Audit Verification Protocol</span>
-            <FileCheck2 className="w-4 h-4 text-brand-500" />
-          </div>
-          <div className="text-sm font-bold text-slate-900 pt-1">Dual-SERP Consensus</div>
-          <div className="text-[11px] text-slate-500 font-mono">
-            48h Rank Persistence Rule
-          </div>
-        </div>
-      </div>
-
-      {/* Filter Toolbar */}
-      <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-md border border-slate-200 text-xs w-fit">
+      {/* Tabs */}
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
         <button
           onClick={() => setFilter('all')}
-          className={`px-3 py-1 rounded text-[11px] font-medium transition ${
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
             filter === 'all'
-              ? 'bg-white text-slate-900 shadow-xs font-semibold'
-              : 'text-slate-600 hover:text-slate-900'
+              ? 'bg-[#07213A] text-white'
+              : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
           All Milestones ({milestones.length})
         </button>
         <button
           onClick={() => setFilter('pending')}
-          className={`px-3 py-1 rounded text-[11px] font-medium transition ${
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
             filter === 'pending'
-              ? 'bg-white text-slate-900 shadow-xs font-semibold'
-              : 'text-slate-600 hover:text-slate-900'
+              ? 'bg-[#F95700] text-white'
+              : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
-          Pending Authorization ({pendingCount})
+          <span>Pending Approvals</span>
+          <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20">
+            {pendingCount}
+          </span>
         </button>
         <button
           onClick={() => setFilter('approved')}
-          className={`px-3 py-1 rounded text-[11px] font-medium transition ${
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
             filter === 'approved'
-              ? 'bg-white text-slate-900 shadow-xs font-semibold'
-              : 'text-slate-600 hover:text-slate-900'
+              ? 'bg-emerald-600 text-white'
+              : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
-          Authorized ({milestones.length - pendingCount})
+          Verified &amp; Invoiced ({milestones.filter((m) => m.status === 'approved').length})
         </button>
       </div>
 
-      {/* Milestones Data Table */}
-      <div className="bg-white rounded-lg border border-slate-200/90 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-mono text-[10px]">
-              <tr>
-                <th className="py-2.5 px-4 font-semibold">Milestone ID &amp; Business</th>
-                <th className="py-2.5 px-4 font-semibold">Target Keyword &amp; City</th>
-                <th className="py-2.5 px-4 font-semibold">SERP Movement</th>
-                <th className="py-2.5 px-4 font-semibold">Milestone Target</th>
-                <th className="py-2.5 px-4 font-semibold">Persistence (48h)</th>
-                <th className="py-2.5 px-4 font-semibold">Payout Escrow</th>
-                <th className="py-2.5 px-4 text-right font-semibold">Authorization Action</th>
+      {/* Table */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <table className="w-full text-left text-xs">
+          <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider">
+            <tr>
+              <th className="px-5 py-3 font-semibold">Milestone ID</th>
+              <th className="px-5 py-3 font-semibold">Business &amp; Keyword</th>
+              <th className="px-5 py-3 font-semibold">City Hub</th>
+              <th className="px-5 py-3 font-semibold">Rank Progress</th>
+              <th className="px-5 py-3 font-semibold">Target Milestone</th>
+              <th className="px-5 py-3 font-semibold">Payout Due</th>
+              <th className="px-5 py-3 font-semibold">Status</th>
+              <th className="px-5 py-3 font-semibold text-right">Moderation Action</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 text-slate-700">
+            {filtered.map((m) => (
+              <tr key={m.id} className="hover:bg-slate-50/80 transition">
+                <td className="px-5 py-3 font-mono font-bold text-slate-500">{m.id}</td>
+                <td className="px-5 py-3">
+                  <div className="font-bold text-slate-900">{m.businessName}</div>
+                  <div className="text-[11px] text-[#F95700] font-medium pt-0.5">"{m.keyword}"</div>
+                </td>
+                <td className="px-5 py-3 text-slate-600">{m.city}</td>
+                <td className="px-5 py-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-400 line-through">#{m.baselineRank}</span>
+                    <span className="font-black text-emerald-600">#{m.currentRank}</span>
+                    <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
+                  </div>
+                  <div className="text-[10px] text-slate-400">{m.observations} verified checks</div>
+                </td>
+                <td className="px-5 py-3 font-semibold text-slate-800">{m.targetMilestone}</td>
+                <td className="px-5 py-3 font-black text-slate-900">{m.payoutAmount}</td>
+                <td className="px-5 py-3">
+                  {m.status === 'approved' ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">
+                      <Check className="w-3 h-3 text-emerald-600" /> Approved
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-[11px] bg-amber-50 text-amber-800 border border-amber-300 px-2 py-0.5 rounded-full font-bold">
+                      <Clock className="w-3 h-3 text-amber-600 animate-pulse" /> Needs Sign-Off
+                    </span>
+                  )}
+                </td>
+                <td className="px-5 py-3 text-right">
+                  {m.status === 'pending_approval' ? (
+                    <button
+                      type="button"
+                      onClick={() => handleApprove(m.id)}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-bold text-xs hover:from-emerald-700 hover:to-emerald-800 shadow-xs transition cursor-pointer active:scale-95"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Approve &amp; Release</span>
+                    </button>
+                  ) : (
+                    <span className="text-[11px] text-slate-400 font-mono">Invoice Dispatched</span>
+                  )}
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 font-sans">
-              {filtered.map((item) => {
-                const rankGain = item.baselineRank - item.currentRank;
-                return (
-                  <tr key={item.id} className="hover:bg-slate-50/80 transition">
-                    <td className="py-3 px-4">
-                      <div className="font-mono text-[11px] font-bold text-slate-500">{item.id}</div>
-                      <div className="font-semibold text-slate-900 text-xs mt-0.5">{item.businessName}</div>
-                    </td>
-
-                    <td className="py-3 px-4">
-                      <div className="font-medium text-slate-800 font-mono text-[11px]">{item.keyword}</div>
-                      <div className="text-[11px] text-slate-400">{item.city}</div>
-                    </td>
-
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-[11px] text-slate-400 line-through">#{item.baselineRank}</span>
-                        <span className="text-slate-400">&rarr;</span>
-                        <span className="font-mono text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                          #{item.currentRank}
-                        </span>
-                        <span className="text-[10px] font-mono text-emerald-700 font-semibold">
-                          (+{rankGain})
-                        </span>
-                      </div>
-                    </td>
-
-                    <td className="py-3 px-4 font-mono font-medium text-slate-700 text-[11px]">
-                      {item.targetMilestone}
-                    </td>
-
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-1.5">
-                        <div className="flex gap-1">
-                          {[1, 2, 3].map((dot) => (
-                            <span
-                              key={dot}
-                              className={`w-2 h-2 rounded-full ${
-                                dot <= item.observations
-                                  ? 'bg-emerald-500'
-                                  : 'bg-slate-200'
-                              }`}
-                              title={`Check ${dot} of 3 verified`}
-                            />
-                          ))}
-                        </div>
-                        <span className="text-[10px] font-mono text-slate-500">
-                          {item.observations}/3 Verified
-                        </span>
-                      </div>
-                    </td>
-
-                    <td className="py-3 px-4 font-mono font-bold text-slate-900 text-xs">
-                      {item.payoutAmount}
-                    </td>
-
-                    <td className="py-3 px-4 text-right">
-                      {item.status === 'pending_approval' ? (
-                        <button
-                          onClick={() => handleApprove(item.id)}
-                          className="px-3 py-1 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded transition shadow-xs inline-flex items-center gap-1"
-                        >
-                          <Check className="w-3.5 h-3.5" />
-                          <span>Authorize Settlement</span>
-                        </button>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                          Authorized
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

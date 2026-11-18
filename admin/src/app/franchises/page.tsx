@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Users,
@@ -20,7 +20,21 @@ import {
   Check,
   X,
   FileText,
+  Clock,
+  Trash2,
+  Phone,
 } from 'lucide-react';
+
+interface BranchApprovalItem {
+  id: string;
+  outletName: string;
+  outletCode: string;
+  city: string;
+  phone: string;
+  managerEmail: string;
+  addressLine?: string;
+  status?: 'active' | 'pending_approval' | 'maintenance';
+}
 
 interface BrandItem {
   id: string;
@@ -103,6 +117,52 @@ export default function AdminFranchisesPage() {
   const [query, setQuery] = useState('');
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState<BrandItem | null>(null);
+
+  // Business Submitted Outlets State
+  const [branches, setBranches] = useState<BranchApprovalItem[]>([]);
+  const [approvalMsg, setApprovalMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const syncBranches = () => {
+        const stored = localStorage.getItem('bharatbn_franchise_branches');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            setBranches(parsed);
+          }
+        }
+      };
+      syncBranches();
+      window.addEventListener('bharatbn_branches_updated', syncBranches);
+      return () => window.removeEventListener('bharatbn_branches_updated', syncBranches);
+    } catch (err) {
+      console.error('Error hydrating admin branches:', err);
+    }
+  }, []);
+
+  const handleApproveBranch = (id: string) => {
+    const updated = branches.map((b) =>
+      b.id === id ? { ...b, status: 'active' as const } : b
+    );
+    setBranches(updated);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('bharatbn_franchise_branches', JSON.stringify(updated));
+      window.dispatchEvent(new Event('bharatbn_branches_updated'));
+    }
+    setApprovalMsg('Outlet approved! Status is now Active & Verified on public discovery.');
+    setTimeout(() => setApprovalMsg(null), 4000);
+  };
+
+  const handleRejectBranch = (id: string) => {
+    const updated = branches.filter((b) => b.id !== id);
+    setBranches(updated);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('bharatbn_franchise_branches', JSON.stringify(updated));
+      window.dispatchEvent(new Event('bharatbn_branches_updated'));
+    }
+  };
 
   const filtered = brands.filter((b) => {
     if (query.trim()) {
@@ -192,6 +252,96 @@ export default function AdminFranchisesPage() {
           </div>
         </div>
       </div>
+
+      {/* Approval Alert */}
+      {approvalMsg && (
+        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2 text-xs font-semibold text-emerald-800 animate-fade-in">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+          <span>{approvalMsg}</span>
+        </div>
+      )}
+
+      {/* Outlet Moderation Desk (Business Submitted Branches) */}
+      {branches.length > 0 && (
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-3 p-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                Store &amp; Outlet Verification Desk
+              </h2>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                {branches.filter((b) => b.status === 'pending_approval').length} Pending Audits
+              </span>
+            </div>
+            <span className="text-xs text-slate-400">Submitted by Business Managers</span>
+          </div>
+
+          <div className="overflow-x-auto border border-slate-200 rounded-xl">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-semibold">
+                <tr>
+                  <th className="px-4 py-3">Outlet Code</th>
+                  <th className="px-4 py-3">Outlet Name &amp; Address</th>
+                  <th className="px-4 py-3">City Hub</th>
+                  <th className="px-4 py-3">Direct Contact</th>
+                  <th className="px-4 py-3">Manager Email</th>
+                  <th className="px-4 py-3">Verification Status</th>
+                  <th className="px-4 py-3 text-right">Moderator Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-slate-700">
+                {branches.map((b) => (
+                  <tr key={b.id} className="hover:bg-slate-50 transition">
+                    <td className="px-4 py-3 font-mono font-bold text-[#F95700]">{b.outletCode}</td>
+                    <td className="px-4 py-3">
+                      <div className="font-bold text-slate-900">{b.outletName}</div>
+                      {b.addressLine && (
+                        <div className="text-[11px] text-slate-400">{b.addressLine}</div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">{b.city}</td>
+                    <td className="px-4 py-3 font-mono">{b.phone}</td>
+                    <td className="px-4 py-3 text-slate-600">{b.managerEmail}</td>
+                    <td className="px-4 py-3">
+                      {b.status === 'pending_approval' ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] bg-amber-50 text-amber-800 border border-amber-300 px-2 py-0.5 rounded-full font-bold">
+                          <Clock className="w-3 h-3 text-amber-600 animate-pulse" /> Pending Audit
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">
+                          <Check className="w-3 h-3 text-emerald-600" /> Active &amp; Verified
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {b.status === 'pending_approval' ? (
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleApproveBranch(b.id)}
+                            className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition cursor-pointer"
+                          >
+                            Approve Outlet
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRejectBranch(b.id)}
+                            className="px-2.5 py-1 rounded bg-slate-100 hover:bg-red-50 hover:text-red-600 text-slate-600 font-bold text-[11px] transition cursor-pointer"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-[11px] text-slate-400">Published Live</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Filter Toolbar */}
       <div className="bg-white p-3 rounded-lg border border-slate-200/90 shadow-xs flex items-center justify-between gap-3 text-xs">

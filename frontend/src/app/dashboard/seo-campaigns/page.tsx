@@ -120,22 +120,27 @@ export default function SeoCampaignsDashboardPage() {
         }
       }
 
-      // Load custom campaigns from localStorage
-      const storedCampaigns = localStorage.getItem('bharatbn_seo_campaigns');
-      if (storedCampaigns) {
-        const parsed = JSON.parse(storedCampaigns);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setCampaigns((prev) => {
-            const map = new Map<string, SeoCampaign>();
-            parsed.forEach((c) => map.set(c.id, c));
-            prev.forEach((c) => {
-              if (!map.has(c.id)) map.set(c.id, c);
+      const syncCampaigns = () => {
+        const storedCampaigns = localStorage.getItem('bharatbn_seo_campaigns');
+        if (storedCampaigns) {
+          const parsed = JSON.parse(storedCampaigns);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setCampaigns((prev) => {
+              const map = new Map<string, SeoCampaign>();
+              parsed.forEach((c) => map.set(c.id, c));
+              prev.forEach((c) => {
+                if (!map.has(c.id)) map.set(c.id, c);
+              });
+              return Array.from(map.values());
             });
-            return Array.from(map.values());
-          });
-          setSelectedId(parsed[0].id);
+            setSelectedId(parsed[0].id);
+          }
         }
-      }
+      };
+
+      syncCampaigns();
+      window.addEventListener('bharatbn_seo_updated', syncCampaigns);
+      return () => window.removeEventListener('bharatbn_seo_updated', syncCampaigns);
     } catch (err) {
       console.error('Error hydrating SEO campaigns:', err);
     }
@@ -169,15 +174,15 @@ export default function SeoCampaignsDashboardPage() {
       baselineRank: randomBaseline,
       totalValue: formBudget,
       provider: 'DataForSEO SERP Bot',
-      status: 'active',
+      status: 'in_review',
       milestones: [
         {
           type: 'advance',
           name: '1. Advance (25%)',
           percentage: 25,
           amount: advanceAmount,
-          status: 'paid',
-          notes: 'Settled on campaign launch & SERP crawler queueing',
+          status: 'eligible',
+          notes: 'Pending Admin Sign-off: Awaiting baseline SERP audit verification',
         },
         {
           type: 'top_20',
@@ -198,8 +203,8 @@ export default function SeoCampaignsDashboardPage() {
       ],
       auditLogs: [
         `Campaign registered on ${new Date().toISOString().split('T')[0]}`,
-        `Baseline SERP crawl complete: initial position #${randomBaseline} recorded`,
-        'Crawler cycle scheduled: checks run every 12 hours with automated screenshot proof',
+        `Baseline SERP crawl queued: initial position #${randomBaseline} detected`,
+        'Pending admin moderator approval to release advance invoice and activate crawler cycle',
       ],
       createdAt: new Date().toISOString().split('T')[0],
     };
@@ -210,6 +215,7 @@ export default function SeoCampaignsDashboardPage() {
 
     if (typeof window !== 'undefined') {
       localStorage.setItem('bharatbn_seo_campaigns', JSON.stringify(updated));
+      window.dispatchEvent(new Event('bharatbn_seo_updated'));
     }
 
     setIsSubmitting(false);
@@ -271,15 +277,39 @@ export default function SeoCampaignsDashboardPage() {
       {/* Active Campaign Card */}
       {activeCampaign && (
         <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-8">
+          {/* Pending Approval Admin Banner */}
+          {activeCampaign.status === 'in_review' && (
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-amber-900">
+              <div className="text-xs sm:text-sm">
+                <span className="font-bold">Campaign Awaiting Admin Moderation:</span> Your target keyword is queued in the BharatBN Admin Desk for baseline SERP check.
+              </div>
+              <a
+                href="/admin/seo-milestones"
+                className="inline-flex items-center gap-1 px-3.5 py-1.5 bg-[#07213A] hover:bg-[#0c2a49] text-white rounded-lg text-xs font-bold transition whitespace-nowrap self-start sm:self-auto cursor-pointer"
+              >
+                <span>Open Admin Review Desk</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          )}
+
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-slate-100 pb-6">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="text-xs text-[#F95700] font-bold uppercase tracking-wider">
                   Campaign ID: {activeCampaign.id} • {activeCampaign.businessName}
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                  {activeCampaign.status.toUpperCase()}
-                </span>
+                {activeCampaign.status === 'in_review' ? (
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-amber-700 animate-pulse" />
+                    PENDING ADMIN APPROVAL
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    AUDITED &amp; ACTIVE
+                  </span>
+                )}
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                 "{activeCampaign.keyword}"

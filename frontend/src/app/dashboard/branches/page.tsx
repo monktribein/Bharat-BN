@@ -14,6 +14,8 @@ import {
   Mail,
   FileSpreadsheet,
   Check,
+  Clock,
+  ArrowRight,
 } from 'lucide-react';
 
 interface BranchItem {
@@ -24,7 +26,7 @@ interface BranchItem {
   phone: string;
   managerEmail: string;
   addressLine?: string;
-  status?: 'active' | 'maintenance';
+  status?: 'active' | 'pending_approval' | 'maintenance';
 }
 
 const defaultBranches: BranchItem[] = [
@@ -94,13 +96,19 @@ export default function BranchesDashboardPage() {
         }
       }
 
-      const stored = localStorage.getItem('bharatbn_franchise_branches');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setBranches(parsed);
+      const syncBranches = () => {
+        const stored = localStorage.getItem('bharatbn_franchise_branches');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setBranches(parsed);
+          }
         }
-      }
+      };
+
+      syncBranches();
+      window.addEventListener('bharatbn_branches_updated', syncBranches);
+      return () => window.removeEventListener('bharatbn_branches_updated', syncBranches);
     } catch (err) {
       console.error('Error loading branches:', err);
     }
@@ -110,6 +118,7 @@ export default function BranchesDashboardPage() {
     setBranches(newBranches);
     if (typeof window !== 'undefined') {
       localStorage.setItem('bharatbn_franchise_branches', JSON.stringify(newBranches));
+      window.dispatchEvent(new Event('bharatbn_branches_updated'));
     }
   };
 
@@ -127,14 +136,14 @@ export default function BranchesDashboardPage() {
       phone: formPhone.trim() || '+91 97170 56860',
       managerEmail: formEmail.trim() || 'store@branch.com',
       addressLine: formAddress.trim(),
-      status: 'active',
+      status: 'pending_approval',
     };
 
     const updated = [newBranch, ...branches];
     saveBranches(updated);
 
-    setImportNotice(`Added outlet "${newBranch.outletName}" (${newBranch.outletCode}) successfully.`);
-    setTimeout(() => setImportNotice(null), 3500);
+    setImportNotice(`Added outlet "${newBranch.outletName}" (${newBranch.outletCode}). Queued for Admin Verification.`);
+    setTimeout(() => setImportNotice(null), 4000);
 
     // Reset Form
     setFormName('');
@@ -161,7 +170,7 @@ export default function BranchesDashboardPage() {
           city: parts[2] || 'Delhi NCR',
           phone: parts[3] || '+91 98000 00000',
           managerEmail: parts[4] || 'manager@franchise.com',
-          status: 'active',
+          status: 'pending_approval',
         });
       }
     });
@@ -169,7 +178,7 @@ export default function BranchesDashboardPage() {
     if (imported.length > 0) {
       const updated = [...imported, ...branches];
       saveBranches(updated);
-      setImportNotice(`Bulk imported ${imported.length} new outlets with 0 duplicates.`);
+      setImportNotice(`Bulk submitted ${imported.length} new outlets for Admin Verification.`);
       setTimeout(() => setImportNotice(null), 4000);
       setIsCsvModalOpen(false);
     }
@@ -219,6 +228,25 @@ export default function BranchesDashboardPage() {
         </div>
       </div>
 
+      {/* Pending Admin Audit Banner */}
+      {branches.some((b) => b.status === 'pending_approval') && (
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-amber-900 text-xs">
+          <div>
+            <span className="font-bold">
+              {branches.filter((b) => b.status === 'pending_approval').length} Outlet(s) Awaiting Admin Verification.
+            </span>{' '}
+            Outlets are queued for physical address and shop license check.
+          </div>
+          <a
+            href="/admin/franchises"
+            className="inline-flex items-center gap-1 px-3.5 py-1.5 bg-[#07213A] hover:bg-[#0c2a49] text-white rounded-lg font-bold transition whitespace-nowrap self-start sm:self-auto cursor-pointer"
+          >
+            <span>Open Admin Franchise Desk</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </a>
+        </div>
+      )}
+
       {/* Notice Banner */}
       {importNotice && (
         <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-2 text-xs font-semibold text-emerald-800 animate-fade-in">
@@ -263,10 +291,17 @@ export default function BranchesDashboardPage() {
                     <td className="px-6 py-4 font-mono">{b.phone}</td>
                     <td className="px-6 py-4 text-slate-600">{b.managerEmail}</td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center gap-1 text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">
-                        <Check className="w-3 h-3 text-emerald-600" />
-                        Active
-                      </span>
+                      {b.status === 'pending_approval' ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] bg-amber-50 text-amber-800 border border-amber-300 px-2 py-0.5 rounded-full font-bold">
+                          <Clock className="w-3 h-3 text-amber-600 animate-pulse" />
+                          Pending Admin Audit
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">
+                          <Check className="w-3 h-3 text-emerald-600" />
+                          Active &amp; Verified
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <button

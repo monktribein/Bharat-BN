@@ -94,11 +94,85 @@ export default function AdminSeoMilestonesPage() {
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved'>('all');
   const [approvedSuccess, setApprovedSuccess] = useState<string | null>(null);
 
+  // Hydrate custom business campaigns from localStorage
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const syncMilestones = () => {
+        const stored = localStorage.getItem('bharatbn_seo_campaigns');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const dynamicMilestones: MilestoneItem[] = parsed.map((c: any) => ({
+              id: c.id,
+              businessName: c.businessName || 'Claimed Business',
+              keyword: c.keyword || 'target keyword',
+              city: c.targetCity || 'Noida, UP',
+              baselineRank: c.baselineRank || 45,
+              currentRank: c.currentRank || c.baselineRank || 45,
+              targetMilestone: 'Top-20 (25%)',
+              payoutAmount: `₹${(c.totalValue ? Math.round(c.totalValue * 0.25) : 5000).toLocaleString('en-IN')}`,
+              observations: 2,
+              lastChecked: 'Just now (Live SERP)',
+              status: c.status === 'active' ? 'approved' : 'pending_approval',
+            }));
+
+            setMilestones((prev) => {
+              const map = new Map<string, MilestoneItem>();
+              dynamicMilestones.forEach((m) => map.set(m.id, m));
+              prev.forEach((m) => {
+                if (!map.has(m.id)) map.set(m.id, m);
+              });
+              return Array.from(map.values());
+            });
+          }
+        }
+      };
+
+      syncMilestones();
+      window.addEventListener('bharatbn_seo_updated', syncMilestones);
+      return () => window.removeEventListener('bharatbn_seo_updated', syncMilestones);
+    } catch (err) {
+      console.error('Error hydrating admin SEO milestones:', err);
+    }
+  }, []);
+
   const handleApprove = (id: string) => {
-    setMilestones(
-      milestones.map((m) => (m.id === id ? { ...m, status: 'approved' } : m))
+    setMilestones((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, status: 'approved' } : m))
     );
-    setApprovedSuccess(`Milestone ${id} authorized. Dual-witness audit logged and billing invoice dispatched.`);
+
+    // Sync back to bharatbn_seo_campaigns in localStorage
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('bharatbn_seo_campaigns');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          const updated = parsed.map((c: any) => {
+            if (c.id === id) {
+              return {
+                ...c,
+                status: 'active',
+                milestones: c.milestones?.map((m: any, idx: number) =>
+                  idx === 0 ? { ...m, status: 'paid', notes: 'Approved by Admin Auditor' } : m
+                ),
+                auditLogs: [
+                  ...(c.auditLogs || []),
+                  `Audited & Approved by BharatBN Admin on ${new Date().toLocaleString()}`,
+                ],
+              };
+            }
+            return c;
+          });
+          localStorage.setItem('bharatbn_seo_campaigns', JSON.stringify(updated));
+          window.dispatchEvent(new Event('bharatbn_seo_updated'));
+        }
+      } catch (err) {
+        console.error('Error syncing SEO approval:', err);
+      }
+    }
+
+    setApprovedSuccess(`Campaign & Milestone ${id} approved! Google SERP verified & billing authorized.`);
     setTimeout(() => setApprovedSuccess(null), 4000);
   };
 
