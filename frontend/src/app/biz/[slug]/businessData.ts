@@ -19,6 +19,8 @@ export interface BusinessProfile {
   amenities: string[];
   description: string;
   aboutStory: string;
+  seoTitle?: string;
+  seoDescription?: string;
   establishedYear: number;
   rating: number;
   reviewsCount: number;

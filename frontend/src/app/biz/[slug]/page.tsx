@@ -10,13 +10,17 @@ export async function generateMetadata({
   const { slug } = await params;
   const business = getBusinessBySlug(slug);
 
-  // Exact SEO Title as requested in audit: Primary keyword at beginning followed by city
-  const title = `${business.name} | ${business.city}`;
+  // Exact SEO Title: Primary keyword (business name) at beginning, followed by city
+  const title =
+    business.seoTitle ||
+    (business.city ? `${business.name} | ${business.city}` : business.name);
 
-  // Tailored description matching exact audit recommendations
-  const description = business.name.toLowerCase().includes('choco')
-    ? 'Explore Choco Delights & Confectionery (Cadboury) in Andheri West, Mumbai. Discover artisan chocolates, gift hampers, reviews, timings and contact details.'
-    : `Explore ${business.name} in ${business.landmark || business.city}. Discover verified services, authentic customer reviews, operating hours and contact details on BharatBN™ Business Network.`;
+  // Business About / Description directly used in meta description as requested
+  const description =
+    business.seoDescription ||
+    business.description ||
+    business.aboutStory ||
+    `Explore ${business.name} in ${business.landmark || business.city || 'India'}. Discover verified services, authentic customer reviews, operating hours and contact details on BharatBN™ Business Network.`;
 
   const canonicalUrl = `https://bharat-bn.vercel.app/biz/${business.slug}`;
 
@@ -83,6 +87,7 @@ export default async function BusinessProfilePage({
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: business.name,
+    description: business.seoDescription || business.description || business.aboutStory,
     image: business.gallery?.[0]?.url || 'https://bharat-bn.vercel.app/icon.png',
     telephone: business.phone,
     email: business.email,

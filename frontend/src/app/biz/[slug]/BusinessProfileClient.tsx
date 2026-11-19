@@ -215,6 +215,38 @@ export default function BusinessProfileClient({
     };
   }, [slug]);
 
+  // Synchronize document title & meta description in the DOM
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      const pageTitle =
+        business.seoTitle ||
+        (business.city ? `${business.name} | ${business.city}` : business.name);
+      document.title = pageTitle;
+
+      const desc =
+        business.seoDescription ||
+        business.description ||
+        business.aboutStory;
+
+      if (desc) {
+        let metaDesc = document.querySelector('meta[name="description"]');
+        if (!metaDesc) {
+          metaDesc = document.createElement('meta');
+          metaDesc.setAttribute('name', 'description');
+          document.head.appendChild(metaDesc);
+        }
+        metaDesc.setAttribute('content', desc);
+      }
+    }
+  }, [
+    business.name,
+    business.city,
+    business.description,
+    business.aboutStory,
+    business.seoTitle,
+    business.seoDescription,
+  ]);
+
   // Auto-advance slideshow every 3.5 seconds (pauses when hovered)
   const [isSliderHovered, setIsSliderHovered] = useState(false);
 
