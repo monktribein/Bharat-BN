@@ -486,6 +486,25 @@ export default function DashboardOverviewPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Switcher Banner if Logged In as Person */}
+      {session && (session as any).accountType === 'person' && (
+        <div className="p-4 rounded-2xl bg-orange-50 border border-orange-200 text-orange-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm shadow-xs">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[#F95700] flex-shrink-0" />
+            <span>
+              You are currently logged in with a <strong>Personal / Creator Profile</strong>. Visit your Personal Dashboard to manage your bio, posts, and followers feed.
+            </span>
+          </div>
+          <Link
+            href="/dashboard/person"
+            className="px-3.5 py-1.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white font-bold text-xs flex items-center gap-1.5 self-start sm:self-auto"
+          >
+            <span>Personal Dashboard</span>
+            <span>&rarr;</span>
+          </Link>
+        </div>
+      )}
+
       {/* ========================================================================= */}
       {/* 1. GUEST HERO BANNER (When Not Logged In)                                 */}
       {/* ========================================================================= */}
