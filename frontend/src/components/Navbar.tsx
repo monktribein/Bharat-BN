@@ -111,7 +111,7 @@ export default function Navbar() {
     },
     {
       name: 'People',
-      href: '/people/anand-sahu',
+      href: '/people',
       icon: Users,
       isActive: pathname?.startsWith('/people'),
       isHighlight: true,

@@ -29,6 +29,7 @@ import {
   Clock,
   Sparkles,
   X,
+  UserCheck,
 } from 'lucide-react';
 
 interface NavSection {
@@ -88,6 +89,13 @@ const navSections: NavSection[] = [
         badge: '38 Brands',
         badgeVariant: 'blue',
       },
+      {
+        name: 'People Profiles',
+        href: '/admin/claims?tab=people',
+        icon: UserCheck,
+        badge: '1 New',
+        badgeVariant: 'amber',
+      },
     ],
   },
   {
@@ -105,6 +113,16 @@ const navSections: NavSection[] = [
 ];
 
 const initialNotifications: AdminNotification[] = [
+  {
+    id: 'notif-kashish-ppl',
+    title: 'New Public Figure Verification: Kashish Saxena',
+    description: 'Kashish Saxena (@kashish) submitted creator profile for verification.',
+    time: '2m ago',
+    type: 'claim',
+    isRead: false,
+    link: '/admin/claims?tab=people',
+    badge: 'Pending',
+  },
   {
     id: 'notif-apple',
     title: 'New Ownership Claim: Apple',

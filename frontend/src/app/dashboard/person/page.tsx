@@ -52,6 +52,8 @@ interface PersonSession {
   viewsCount?: string | number;
   engagementsCount?: string | number;
   storiesCount?: string | number;
+  status?: string;
+  isVerified?: boolean;
 }
 
 export default function PersonDashboardPage() {
@@ -463,6 +465,44 @@ export default function PersonDashboardPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Verification Status Banner for Logged-In Person */}
+      {session && session.accountType === 'person' && (
+        session.isVerified ? (
+          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 flex items-center justify-between text-xs sm:text-sm">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+              <span>
+                <strong>Profile Verified &amp; Approved!</strong> You have received the Official BharatBN™ Blue Checkmark.
+              </span>
+            </div>
+            <Link
+              href={`/people/${slug}`}
+              target="_blank"
+              className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs inline-flex items-center gap-1"
+            >
+              <span>View Live Profile</span>
+              <ExternalLink className="w-3 h-3" />
+            </Link>
+          </div>
+        ) : (
+          <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-950 flex items-center justify-between text-xs sm:text-sm">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-amber-600 flex-shrink-0" />
+              <span>
+                <strong>Profile Under Review:</strong> Your account is submitted for verification in the Admin Console. Once approved, your Official Blue Checkmark will appear across BharatBN.
+              </span>
+            </div>
+            <Link
+              href="/admin/claims?tab=people"
+              className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs inline-flex items-center gap-1"
+            >
+              <span>Check Admin Queue</span>
+              <ExternalLink className="w-3 h-3" />
+            </Link>
+          </div>
+        )
+      )}
+
       {/* Switcher Banner if Logged In as Business */}
       {session && session.accountType === 'business' && (
         <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center justify-between text-xs sm:text-sm">
@@ -575,10 +615,17 @@ export default function PersonDashboardPage() {
                   <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight drop-shadow-md">
                     {name || 'Your Name'}
                   </h1>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-sky-300 bg-sky-950/70 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-sky-500/40">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />
-                    <span>{badge}</span>
-                  </span>
+                  {session?.isVerified ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-sky-300 bg-sky-950/70 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-sky-500/40">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />
+                      <span>{badge} &bull; Verified</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-300 bg-amber-950/80 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-amber-500/40">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                      <span>{badge} &bull; Pending Verification</span>
+                    </span>
+                  )}
                   {handle && <span className="text-xs font-mono text-slate-300 font-semibold">{handle}</span>}
                 </div>
 

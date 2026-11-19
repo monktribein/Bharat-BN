@@ -38,20 +38,22 @@ interface Props {
   person: PersonProfile;
 }
 
-export default function PeopleProfileClient({ person }: Props) {
+export default function PeopleProfileClient({ person: initialPerson }: Props) {
+  const [person, setPerson] = useState<PersonProfile>(initialPerson);
+
   // Navigation active tab
   const [activeTab, setActiveTab] = useState('overview');
   const [feedFilter, setFeedFilter] = useState<'All' | 'Posts' | 'News' | 'Events'>('All');
 
   // Follow state
   const [isFollowing, setIsFollowing] = useState(false);
-  const [followersCount, setFollowersCount] = useState(person.followersCount);
+  const [followersCount, setFollowersCount] = useState(initialPerson.followersCount);
   const [followToast, setFollowToast] = useState('');
 
   // Floating Bar Interaction states
-  const [likesCount, setLikesCount] = useState(person.likesCount);
+  const [likesCount, setLikesCount] = useState(initialPerson.likesCount);
   const [hasLiked, setHasLiked] = useState(false);
-  const [dislikesCount, setDislikesCount] = useState(person.dislikesCount);
+  const [dislikesCount, setDislikesCount] = useState(initialPerson.dislikesCount);
   const [hasDisliked, setHasDisliked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -67,6 +69,44 @@ export default function PeopleProfileClient({ person }: Props) {
   const [storySubmitted, setStorySubmitted] = useState(false);
 
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+
+  // Dynamically resolve custom registered person from localStorage if visited
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('bharatbn_people_store');
+      if (stored) {
+        const people = JSON.parse(stored);
+        const cleanSlug = initialPerson.slug.toLowerCase();
+        const found = people.find(
+          (p: any) =>
+            p.slug?.toLowerCase() === cleanSlug ||
+            p.handle?.toLowerCase().replace(/^@/, '') === cleanSlug
+        );
+        if (found) {
+          setPerson({
+            ...initialPerson,
+            id: found.id || initialPerson.id,
+            name: found.name || initialPerson.name,
+            slug: found.slug || initialPerson.slug,
+            role: found.role || initialPerson.role,
+            badge: found.badge || initialPerson.badge,
+            location: found.location || initialPerson.location,
+            quote: found.quote || '',
+            avatarUrl: found.avatarUrl || '',
+            coverUrl: found.coverUrl || initialPerson.coverUrl,
+            aboutText: found.aboutText || `${found.name} is a verified profile on BharatBN™ People Network.`,
+            website: found.website || '',
+            socialLinks: found.socialLinks || {},
+            updates: found.updates || [],
+            followersCount: found.followersCount || 0,
+            viewsCount: found.viewsCount || '0',
+            isVerified: found.isVerified ?? (found.status === 'approved'),
+          });
+          setFollowersCount(found.followersCount || 0);
+        }
+      }
+    } catch {}
+  }, [initialPerson.slug]);
 
   // Sync follow state from localStorage
   useEffect(() => {
@@ -189,12 +229,18 @@ export default function PeopleProfileClient({ person }: Props) {
             {/* Cutout Portrait Avatar & Name Info */}
             <div className="flex flex-col sm:flex-row items-center sm:items-end gap-5 text-center sm:text-left">
               {/* Avatar Cutout with thick white border */}
-              <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-white border-4 border-white shadow-2xl overflow-hidden flex-shrink-0 z-10">
-                <img
-                  src={person.avatarUrl}
-                  alt={person.name}
-                  className="w-full h-full object-cover"
-                />
+              <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-white border-4 border-white shadow-2xl overflow-hidden flex-shrink-0 z-10 flex items-center justify-center">
+                {person.avatarUrl ? (
+                  <img
+                    src={person.avatarUrl}
+                    alt={person.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-tr from-amber-600 to-orange-500 text-white font-black text-4xl sm:text-5xl flex items-center justify-center">
+                    {(person.name || 'P').slice(0, 1).toUpperCase()}
+                  </div>
+                )}
               </div>
 
               {/* Name, Verified Badge, Role & Location */}
@@ -203,6 +249,11 @@ export default function PeopleProfileClient({ person }: Props) {
                   <span className="px-3 py-0.5 rounded-full text-[11px] font-bold text-[#F95700] bg-orange-50 border border-orange-200 uppercase tracking-wide">
                     {person.badge}
                   </span>
+                  {!person.isVerified && (
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200">
+                      Pending Verification
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
@@ -210,9 +261,11 @@ export default function PeopleProfileClient({ person }: Props) {
                     {person.name}
                   </h1>
                   {/* Verified Blue Checkmark */}
-                  <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs">
-                    <Check className="w-3 h-3 stroke-[3.5]" />
-                  </div>
+                  {person.isVerified && (
+                    <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs" title="Official Verified Profile">
+                      <Check className="w-3 h-3 stroke-[3.5]" />
+                    </div>
+                  )}
                 </div>
 
                 <p className="text-xs sm:text-sm font-semibold text-slate-700">

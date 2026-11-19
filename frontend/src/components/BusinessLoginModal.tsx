@@ -440,7 +440,9 @@ export default function BusinessLoginModal({
         storiesCount: '0',
         updates: [],
         socialLinks: { youtube: '', instagram: '', twitter: '', facebook: '', linkedin: '' },
-        isVerified: true,
+        isVerified: false,
+        status: 'pending',
+        submittedAt: 'Today, 13:00 IST (New)',
         createdAt: new Date().toISOString(),
       };
 
@@ -449,6 +451,7 @@ export default function BusinessLoginModal({
         let people = stored ? JSON.parse(stored) : [];
         people.unshift(newPerson);
         localStorage.setItem('bharatbn_people_store', JSON.stringify(people));
+        window.dispatchEvent(new Event('bharatbn_people_updated'));
       } catch (err) {
         console.error(err);
       }
@@ -469,6 +472,8 @@ export default function BusinessLoginModal({
         aboutText: '',
         avatarUrl: newPerson.avatarUrl,
         coverUrl: newPerson.coverUrl,
+        status: 'pending',
+        isVerified: false,
       };
 
       localStorage.setItem('bharatbn_owner_session', JSON.stringify(personSession));
