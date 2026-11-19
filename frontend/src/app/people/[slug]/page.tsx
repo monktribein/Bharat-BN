@@ -95,7 +95,7 @@ export default async function PersonPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
       />
-      <PeopleProfileClient person={person} />
+      <PeopleProfileClient person={person} slug={slug} />
     </>
   );
 }

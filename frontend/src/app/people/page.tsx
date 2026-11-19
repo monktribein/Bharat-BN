@@ -68,7 +68,7 @@ const defaultPeopleList: PersonCard[] = [
     followersCount: '1.2K',
     postsCount: 14,
     category: 'Creators & Influencers',
-    isVerified: false,
+    isVerified: true,
   },
   {
     id: 'BBN-PPL-RAJESH-002',
@@ -191,7 +191,7 @@ export default function PeopleDirectoryPage() {
     try {
       const stored = localStorage.getItem('bharatbn_people_follows');
       if (stored) setFollowedSlugs(JSON.parse(stored));
-    } catch {}
+    } catch { }
   }, []);
 
   const handleToggleFollow = (person: PersonCard) => {
@@ -210,7 +210,7 @@ export default function PeopleDirectoryPage() {
       localStorage.setItem('bharatbn_people_follows', JSON.stringify(follows));
       setFollowedSlugs(follows);
       setTimeout(() => setFollowToast(''), 3000);
-    } catch {}
+    } catch { }
   };
 
   const filteredPeople = people.filter((p) => {
@@ -292,11 +292,10 @@ export default function PeopleDirectoryPage() {
               key={cat}
               type="button"
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
-                selectedCategory === cat
-                  ? 'bg-[#07213A] text-white shadow-xs'
-                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-              }`}
+              className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${selectedCategory === cat
+                ? 'bg-[#07213A] text-white shadow-xs'
+                : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                }`}
             >
               {cat}
             </button>
@@ -423,11 +422,10 @@ export default function PeopleDirectoryPage() {
                         <button
                           type="button"
                           onClick={() => handleToggleFollow(person)}
-                          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs ${
-                            isFollowed
-                              ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                              : 'bg-[#07213A] text-white hover:bg-[#0C2D4E]'
-                          }`}
+                          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs ${isFollowed
+                            ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                            : 'bg-[#07213A] text-white hover:bg-[#0C2D4E]'
+                            }`}
                         >
                           {isFollowed ? (
                             <>

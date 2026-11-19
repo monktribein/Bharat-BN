@@ -36,9 +36,11 @@ import type { PersonProfile } from './peopleData';
 
 interface Props {
   person: PersonProfile;
+  slug?: string;
 }
 
-export default function PeopleProfileClient({ person: initialPerson }: Props) {
+export default function PeopleProfileClient({ person: initialPerson, slug: propSlug }: Props) {
+  const targetSlug = (propSlug || initialPerson.slug || '').toLowerCase().trim();
   const [person, setPerson] = useState<PersonProfile>(initialPerson);
 
   // Navigation active tab
@@ -74,39 +76,61 @@ export default function PeopleProfileClient({ person: initialPerson }: Props) {
   useEffect(() => {
     try {
       const stored = localStorage.getItem('bharatbn_people_store');
+      let found: any = null;
       if (stored) {
         const people = JSON.parse(stored);
-        const cleanSlug = initialPerson.slug.toLowerCase();
-        const found = people.find(
-          (p: any) =>
-            p.slug?.toLowerCase() === cleanSlug ||
-            p.handle?.toLowerCase().replace(/^@/, '') === cleanSlug
-        );
-        if (found) {
-          setPerson({
-            ...initialPerson,
-            id: found.id || initialPerson.id,
-            name: found.name || initialPerson.name,
-            slug: found.slug || initialPerson.slug,
-            role: found.role || initialPerson.role,
-            badge: found.badge || initialPerson.badge,
-            location: found.location || initialPerson.location,
-            quote: found.quote || '',
-            avatarUrl: found.avatarUrl || '',
-            coverUrl: found.coverUrl || initialPerson.coverUrl,
-            aboutText: found.aboutText || `${found.name} is a verified profile on BharatBN™ People Network.`,
-            website: found.website || '',
-            socialLinks: found.socialLinks || {},
-            updates: found.updates || [],
-            followersCount: found.followersCount || 0,
-            viewsCount: found.viewsCount || '0',
-            isVerified: found.isVerified ?? (found.status === 'approved'),
-          });
-          setFollowersCount(found.followersCount || 0);
+        if (Array.isArray(people)) {
+          found = people.find(
+            (p: any) =>
+              p.slug?.toLowerCase() === targetSlug ||
+              p.handle?.toLowerCase().replace(/^@/, '') === targetSlug
+          );
         }
       }
-    } catch {}
-  }, [initialPerson.slug]);
+
+      // Also check active owner session if matching
+      if (!found) {
+        const sessionStr = localStorage.getItem('bharatbn_owner_session');
+        if (sessionStr) {
+          const sess = JSON.parse(sessionStr);
+          if (
+            sess.accountType === 'person' &&
+            (sess.slug?.toLowerCase() === targetSlug || sess.handle?.toLowerCase().replace(/^@/, '') === targetSlug)
+          ) {
+            found = sess;
+          }
+        }
+      }
+
+      if (found) {
+        setPerson((prev) => ({
+          ...prev,
+          id: found.id || prev.id,
+          name: found.name || prev.name,
+          slug: found.slug || targetSlug,
+          role: found.role || prev.role,
+          badge: found.badge || prev.badge,
+          location: found.location || prev.location,
+          quote: found.quote ?? prev.quote,
+          avatarUrl: found.avatarUrl ?? prev.avatarUrl,
+          coverUrl: found.coverUrl || prev.coverUrl,
+          aboutText: found.aboutText || prev.aboutText,
+          website: found.website || prev.website,
+          socialLinks: found.socialLinks || prev.socialLinks || {},
+          updates: Array.isArray(found.updates) && found.updates.length > 0 ? found.updates : prev.updates,
+          followersCount: found.followersCount !== undefined ? Number(found.followersCount) || prev.followersCount : prev.followersCount,
+          viewsCount: found.viewsCount || prev.viewsCount,
+          isVerified: found.isVerified ?? (found.status === 'approved'),
+        }));
+        if (found.followersCount !== undefined) {
+          setFollowersCount(Number(found.followersCount) || initialPerson.followersCount);
+        }
+      } else {
+        setPerson(initialPerson);
+        setFollowersCount(initialPerson.followersCount);
+      }
+    } catch { }
+  }, [targetSlug, initialPerson]);
 
   // Sync follow state from localStorage
   useEffect(() => {
@@ -118,7 +142,7 @@ export default function PeopleProfileClient({ person: initialPerson }: Props) {
           setIsFollowing(true);
         }
       }
-    } catch {}
+    } catch { }
   }, [person.slug]);
 
   // Handle Follow / Unfollow
@@ -142,7 +166,7 @@ export default function PeopleProfileClient({ person: initialPerson }: Props) {
       localStorage.setItem('bharatbn_people_follows', JSON.stringify(follows));
       window.dispatchEvent(new Event('bharatbn_follow_changed'));
       setTimeout(() => setFollowToast(''), 3500);
-    } catch {}
+    } catch { }
   };
 
   // Handle Likes
@@ -287,11 +311,10 @@ export default function PeopleProfileClient({ person: initialPerson }: Props) {
                 <button
                   type="button"
                   onClick={handleToggleFollow}
-                  className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-xs cursor-pointer ${
-                    isFollowing
-                      ? 'bg-slate-900 text-white hover:bg-slate-800'
-                      : 'bg-[#F95700] hover:bg-[#d94a00] text-white shadow-[#F95700]/25'
-                  }`}
+                  className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-xs cursor-pointer ${isFollowing
+                    ? 'bg-slate-900 text-white hover:bg-slate-800'
+                    : 'bg-[#F95700] hover:bg-[#d94a00] text-white shadow-[#F95700]/25'
+                    }`}
                 >
                   {isFollowing ? (
                     <>
@@ -328,15 +351,17 @@ export default function PeopleProfileClient({ person: initialPerson }: Props) {
                 </button>
 
                 {/* Visit Website Button */}
-                <a
-                  href={person.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-2xs"
-                >
-                  <span>Visit Website</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-                </a>
+                {person.website && (
+                  <a
+                    href={person.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-2xs"
+                  >
+                    <span>Visit Website</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                  </a>
+                )}
               </div>
 
               {/* Social Media Circular Icons Row */}
@@ -492,11 +517,10 @@ export default function PeopleProfileClient({ person: initialPerson }: Props) {
                     key={item.id}
                     type="button"
                     onClick={() => setActiveTab(item.id)}
-                    className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-left cursor-pointer ${
-                      active
-                        ? 'bg-[#07213A] text-white shadow-xs'
-                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                    }`}
+                    className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-left cursor-pointer ${active
+                      ? 'bg-[#07213A] text-white shadow-xs'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      }`}
                   >
                     <Icon className={`w-4 h-4 ${active ? 'text-[#F95700]' : 'text-slate-400'}`} />
                     <span>{item.label}</span>
@@ -621,11 +645,10 @@ export default function PeopleProfileClient({ person: initialPerson }: Props) {
                       key={tab}
                       type="button"
                       onClick={() => setFeedFilter(tab)}
-                      className={`px-3 py-1 rounded-lg transition cursor-pointer ${
-                        feedFilter === tab
-                          ? 'bg-white text-slate-900 shadow-2xs'
-                          : 'text-slate-500 hover:text-slate-800'
-                      }`}
+                      className={`px-3 py-1 rounded-lg transition cursor-pointer ${feedFilter === tab
+                        ? 'bg-white text-slate-900 shadow-2xs'
+                        : 'text-slate-500 hover:text-slate-800'
+                        }`}
                     >
                       {tab}
                     </button>
@@ -747,7 +770,7 @@ export default function PeopleProfileClient({ person: initialPerson }: Props) {
                   <span>Follow {person.name}</span>
                 </div>
                 <p className="text-[11px] text-blue-800 leading-relaxed">
-                  Get notified about his latest updates, events, videos and stories directly in your BharatBN feed.
+                  Get notified about their latest updates, events, videos and stories directly in your BharatBN feed.
                 </p>
                 <button
                   type="button"
@@ -767,21 +790,25 @@ export default function PeopleProfileClient({ person: initialPerson }: Props) {
 
               <div className="space-y-2 text-xs">
                 {/* Website */}
-                <a
-                  href={person.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 hover:bg-slate-50 transition"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-400">🌐</span>
-                    <div>
-                      <div className="font-bold text-slate-900">Website</div>
-                      <div className="text-[10px] text-slate-500 font-mono">{person.website}</div>
+                {person.website && (
+                  <a
+                    href={person.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 hover:bg-slate-50 transition"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-400">🌐</span>
+                      <div>
+                        <div className="font-bold text-slate-900">Website</div>
+                        <div className="text-[10px] text-slate-500 font-mono truncate max-w-[150px]">
+                          {person.website.replace(/^https?:\/\/(www\.)?/, '')}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-                </a>
+                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                  </a>
+                )}
 
                 {/* Facebook */}
                 {person.socialLinks.facebook && (
@@ -795,7 +822,9 @@ export default function PeopleProfileClient({ person: initialPerson }: Props) {
                       <span className="text-blue-600 font-bold">f</span>
                       <div>
                         <div className="font-bold text-slate-900">Facebook</div>
-                        <div className="text-[10px] text-slate-500 font-mono">/anandsahubjpgpage/</div>
+                        <div className="text-[10px] text-slate-500 font-mono truncate max-w-[150px]">
+                          {person.socialLinks.facebook.replace(/^https?:\/\/(www\.)?facebook\.com\/?/, '/')}
+                        </div>
                       </div>
                     </div>
                     <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
@@ -814,7 +843,9 @@ export default function PeopleProfileClient({ person: initialPerson }: Props) {
                       <span>📸</span>
                       <div>
                         <div className="font-bold text-slate-900">Instagram</div>
-                        <div className="text-[10px] text-slate-500 font-mono">/anandsahuindia/</div>
+                        <div className="text-[10px] text-slate-500 font-mono truncate max-w-[150px]">
+                          {person.socialLinks.instagram.replace(/^https?:\/\/(www\.)?instagram\.com\/?/, '/')}
+                        </div>
                       </div>
                     </div>
                     <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
@@ -883,11 +914,10 @@ export default function PeopleProfileClient({ person: initialPerson }: Props) {
             <button
               type="button"
               onClick={handleToggleLike}
-              className={`px-3.5 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs ${
-                hasLiked
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white/10 hover:bg-white/20 text-white'
-              }`}
+              className={`px-3.5 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs ${hasLiked
+                ? 'bg-blue-600 text-white'
+                : 'bg-white/10 hover:bg-white/20 text-white'
+                }`}
             >
               <ThumbsUp className="w-3.5 h-3.5" />
               <span>Like {(likesCount / 1000).toFixed(1)}K</span>
@@ -897,11 +927,10 @@ export default function PeopleProfileClient({ person: initialPerson }: Props) {
             <button
               type="button"
               onClick={handleToggleDislike}
-              className={`px-3.5 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs ${
-                hasDisliked
-                  ? 'bg-red-600 text-white'
-                  : 'bg-white/10 hover:bg-white/20 text-white'
-              }`}
+              className={`px-3.5 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs ${hasDisliked
+                ? 'bg-red-600 text-white'
+                : 'bg-white/10 hover:bg-white/20 text-white'
+                }`}
             >
               <ThumbsDown className="w-3.5 h-3.5" />
               <span>Dislike {dislikesCount}</span>
@@ -922,9 +951,8 @@ export default function PeopleProfileClient({ person: initialPerson }: Props) {
             <button
               type="button"
               onClick={() => setIsSaved(!isSaved)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                isSaved ? 'bg-amber-500 text-slate-900' : 'bg-white/10 hover:bg-white/20 text-white'
-              }`}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${isSaved ? 'bg-amber-500 text-slate-900' : 'bg-white/10 hover:bg-white/20 text-white'
+                }`}
             >
               <Bookmark className="w-3.5 h-3.5" />
               <span>{isSaved ? 'Saved' : 'Save'}</span>
