@@ -189,6 +189,11 @@ export default function BusinessLoginModal({
         city: matchedBusiness.city || 'Noida, UP',
         category: matchedBusiness.category || 'Automobile & EV',
         status: matchedBusiness.status || 'approved',
+        logoUrl:
+          matchedBusiness.logoUrl ||
+          matchedBusiness.logoBase64 ||
+          matchedBusiness.logo ||
+          (matchedBusiness.businessName?.toLowerCase() === 'apple' ? '/apple-logo.svg' : undefined),
       };
 
       localStorage.setItem('bharatbn_owner_session', JSON.stringify(ownerSession));
