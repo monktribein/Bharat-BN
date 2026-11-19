@@ -315,13 +315,37 @@ export default function DashboardOverviewPage() {
     setAmenities(amenities.filter((a) => a !== tag));
   };
 
-  // Add Gallery Photo
+  // Add Gallery Photo (Handles URLs, local paths, or web images)
   const handleAddPhoto = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPhotoUrl.trim()) return;
-    setGallery([...gallery, { url: newPhotoUrl.trim(), caption: newPhotoCaption.trim() || businessName }]);
+    let url = newPhotoUrl.trim();
+    if (!url) return;
+    if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('data:') && !url.startsWith('/')) {
+      url = `https://${url}`;
+    }
+    const caption = newPhotoCaption.trim() || `${businessName} Showcase Photo ${gallery.length + 1}`;
+    setGallery([...gallery, { url, caption }]);
     setNewPhotoUrl('');
     setNewPhotoCaption('');
+  };
+
+  // Upload Photo File directly from Computer/Mobile
+  const handleGalleryFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64Url = event.target?.result as string;
+        if (base64Url) {
+          const cleanCaption = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') || `${businessName} Photo`;
+          setGallery((prev) => [...prev, { url: base64Url, caption: cleanCaption }]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
   };
 
   const handleRemovePhoto = (index: number) => {
@@ -1472,85 +1496,133 @@ export default function DashboardOverviewPage() {
                 </button>
 
                 {openSections.offerings && (
-                  <div className="p-6 pt-3 border-t border-slate-100 space-y-5 animate-in fade-in duration-150">
-                    {/* Services */}
-                    <div className="space-y-3">
-                      <label className="block text-xs font-bold text-slate-700">
-                        Products &amp; Speciality Offerings
-                      </label>
-                      <div className="flex flex-wrap items-center gap-2">
-                        {services.map((tag) => (
-                          <span
-                            key={tag}
-                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-50 text-[#F95700] border border-orange-200"
-                          >
-                            <span>{tag}</span>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveService(tag)}
-                              className="hover:text-red-600 cursor-pointer"
-                            >
-                              &times;
-                            </button>
+                  <div className="p-6 pt-4 border-t border-slate-100 space-y-6 animate-in fade-in duration-150">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                      {/* Column 1: Products & Speciality Offerings */}
+                      <div className="p-5 rounded-2xl border border-slate-200/90 bg-slate-50/50 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg bg-orange-100 text-[#F95700] flex items-center justify-center">
+                              <Sparkles className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+                                Products &amp; Speciality Offerings
+                              </h4>
+                              <p className="text-[11px] text-slate-500">
+                                Add key products, vehicles, equipment, or services you offer
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-orange-100 text-[#F95700] border border-orange-200">
+                            {services.length} items
                           </span>
-                        ))}
+                        </div>
+
+                        {/* Tags display */}
+                        <div className="flex flex-wrap items-center gap-2 min-h-[52px] p-3 rounded-xl bg-white border border-slate-200">
+                          {services.length === 0 ? (
+                            <span className="text-xs text-slate-400 italic">No products added yet. Type below and click + Add.</span>
+                          ) : (
+                            services.map((tag) => (
+                              <span
+                                key={tag}
+                                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-50 text-[#F95700] border border-orange-200 shadow-2xs"
+                              >
+                                <span>{tag}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveService(tag)}
+                                  className="hover:text-red-600 cursor-pointer text-sm font-bold leading-none"
+                                  title="Remove"
+                                >
+                                  &times;
+                                </button>
+                              </span>
+                            ))
+                          )}
+                        </div>
+
+                        {/* Input form - Full Width */}
+                        <form onSubmit={handleAddService} className="flex gap-2 w-full">
+                          <input
+                            type="text"
+                            value={newService}
+                            onChange={(e) => setNewService(e.target.value)}
+                            placeholder="Add a product or service (Electric SUV, Battery Pack...)"
+                            className="flex-1 text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#F95700]"
+                          />
+                          <button
+                            type="submit"
+                            className="px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition cursor-pointer flex-shrink-0"
+                          >
+                            + Add Product
+                          </button>
+                        </form>
                       </div>
 
-                      <form onSubmit={handleAddService} className="flex gap-2 max-w-md">
-                        <input
-                          type="text"
-                          value={newService}
-                          onChange={(e) => setNewService(e.target.value)}
-                          placeholder="Add a new service/product..."
-                          className="flex-1 text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
-                        />
-                        <button
-                          type="submit"
-                          className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 cursor-pointer"
-                        >
-                          + Add
-                        </button>
-                      </form>
-                    </div>
-
-                    {/* Amenities */}
-                    <div className="space-y-3 pt-4 border-t border-slate-100">
-                      <label className="block text-xs font-bold text-slate-700">
-                        Business Amenities &amp; Facilities
-                      </label>
-                      <div className="flex flex-wrap items-center gap-2">
-                        {amenities.map((amenity) => (
-                          <span
-                            key={amenity}
-                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200"
-                          >
-                            <span>{amenity}</span>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveAmenity(amenity)}
-                              className="hover:text-red-600 cursor-pointer"
-                            >
-                              &times;
-                            </button>
+                      {/* Column 2: Business Amenities & Facilities */}
+                      <div className="p-5 rounded-2xl border border-slate-200/90 bg-slate-50/50 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                              <Building2 className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+                                Business Amenities &amp; Facilities
+                              </h4>
+                              <p className="text-[11px] text-slate-500">
+                                Customer conveniences, payment modes, and infrastructure
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 border border-blue-200">
+                            {amenities.length} items
                           </span>
-                        ))}
-                      </div>
+                        </div>
 
-                      <form onSubmit={handleAddAmenity} className="flex gap-2 max-w-md">
-                        <input
-                          type="text"
-                          value={newAmenity}
-                          onChange={(e) => setNewAmenity(e.target.value)}
-                          placeholder="Add an amenity (e.g. WiFi, AC Lounge)..."
-                          className="flex-1 text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
-                        />
-                        <button
-                          type="submit"
-                          className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 cursor-pointer"
-                        >
-                          + Add
-                        </button>
-                      </form>
+                        {/* Tags display */}
+                        <div className="flex flex-wrap items-center gap-2 min-h-[52px] p-3 rounded-xl bg-white border border-slate-200">
+                          {amenities.length === 0 ? (
+                            <span className="text-xs text-slate-400 italic">No amenities added yet. Type below and click + Add.</span>
+                          ) : (
+                            amenities.map((amenity) => (
+                              <span
+                                key={amenity}
+                                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200 shadow-2xs"
+                              >
+                                <span>{amenity}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveAmenity(amenity)}
+                                  className="hover:text-red-600 cursor-pointer text-sm font-bold leading-none"
+                                  title="Remove"
+                                >
+                                  &times;
+                                </button>
+                              </span>
+                            ))
+                          )}
+                        </div>
+
+                        {/* Input form - Full Width */}
+                        <form onSubmit={handleAddAmenity} className="flex gap-2 w-full">
+                          <input
+                            type="text"
+                            value={newAmenity}
+                            onChange={(e) => setNewAmenity(e.target.value)}
+                            placeholder="Add an amenity (WiFi, AC Lounge, Card Payments...)"
+                            className="flex-1 text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#F95700]"
+                          />
+                          <button
+                            type="submit"
+                            className="px-4 py-2.5 rounded-xl bg-[#07213A] text-white text-xs font-bold hover:bg-[#0C2D4E] transition cursor-pointer flex-shrink-0"
+                          >
+                            + Add Amenity
+                          </button>
+                        </form>
+                      </div>
                     </div>
 
                     <div className="flex justify-end pt-2">
@@ -1561,7 +1633,7 @@ export default function DashboardOverviewPage() {
                         className="px-5 py-2 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                       >
                         <Save className="w-3.5 h-3.5" />
-                        <span>Save Offerings</span>
+                        <span>{isSaving ? 'Saving...' : 'Save Offerings & Amenities'}</span>
                       </button>
                     </div>
                   </div>
@@ -1602,56 +1674,107 @@ export default function DashboardOverviewPage() {
                 </button>
 
                 {openSections.gallery && (
-                  <div className="p-6 pt-3 border-t border-slate-100 space-y-4 animate-in fade-in duration-150">
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {gallery.map((photo, i) => (
-                        <div
-                          key={i}
-                          className="relative aspect-video rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group shadow-2xs"
-                        >
-                          <img
-                            src={photo.url}
-                            alt={photo.caption}
-                            className="w-full h-full object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleRemovePhoto(i)}
-                            className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-600/80 hover:bg-red-600 text-white opacity-0 group-hover:opacity-100 transition cursor-pointer"
-                            title="Remove Photo"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                          <div className="absolute bottom-0 inset-x-0 bg-slate-950/70 p-1.5 text-[10px] text-white font-medium truncate">
-                            {photo.caption}
-                          </div>
+                  <div className="p-6 pt-3 border-t border-slate-100 space-y-6 animate-in fade-in duration-150">
+                    {/* Existing Gallery Photos */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-700">
+                          Current Gallery Photos ({gallery.length})
+                        </span>
+                        <span className="text-[11px] text-slate-400">
+                          Hover a photo to delete it
+                        </span>
+                      </div>
+
+                      {gallery.length === 0 ? (
+                        <div className="p-8 rounded-2xl border-2 border-dashed border-slate-200 text-center text-xs text-slate-400">
+                          No photos in gallery yet. Upload from device or paste image URLs below.
                         </div>
-                      ))}
+                      ) : (
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          {gallery.map((photo, i) => (
+                            <div
+                              key={i}
+                              className="relative aspect-video rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group shadow-2xs"
+                            >
+                              <img
+                                src={photo.url}
+                                alt={photo.caption}
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => handleRemovePhoto(i)}
+                                className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-600/80 hover:bg-red-600 text-white opacity-0 group-hover:opacity-100 transition cursor-pointer"
+                                title="Remove Photo"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                              <div className="absolute bottom-0 inset-x-0 bg-slate-950/70 p-1.5 text-[10px] text-white font-medium truncate">
+                                {photo.caption}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
-                    {/* Add Photo Form */}
-                    <form onSubmit={handleAddPhoto} className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
-                      <input
-                        type="url"
-                        value={newPhotoUrl}
-                        onChange={(e) => setNewPhotoUrl(e.target.value)}
-                        placeholder="Image URL (https://...)"
-                        className="text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
-                      />
-                      <input
-                        type="text"
-                        value={newPhotoCaption}
-                        onChange={(e) => setNewPhotoCaption(e.target.value)}
-                        placeholder="Caption / Description..."
-                        className="text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
-                      />
-                      <button
-                        type="submit"
-                        className="px-4 py-2 rounded-xl bg-[#07213A] text-white text-xs font-bold hover:bg-[#0C2D4E] cursor-pointer"
-                      >
-                        + Add Photo to Gallery
-                      </button>
-                    </form>
+                    {/* Dual Add Methods: Device File Upload + URL Input */}
+                    <div className="p-5 rounded-2xl border border-slate-200/90 bg-slate-50/50 space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/80">
+                        <div>
+                          <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+                            Add New Photos to Showcase
+                          </h4>
+                          <p className="text-[11px] text-slate-500">
+                            Upload high-res photos from your device or paste web image links
+                          </p>
+                        </div>
+
+                        {/* Direct File Upload from Device Button */}
+                        <label className="px-4 py-2.5 rounded-xl bg-[#07213A] hover:bg-[#0C2D4E] text-white text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-xs flex-shrink-0">
+                          <Camera className="w-4 h-4 text-[#F95700]" />
+                          <span>Upload Photo(s) from Device</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleGalleryFileUpload}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+
+                      {/* Or Add by URL / Link Form */}
+                      <form onSubmit={handleAddPhoto} className="space-y-2">
+                        <span className="text-[11px] font-bold text-slate-600">
+                          Or add photo using Image URL / Path:
+                        </span>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input
+                            type="text"
+                            value={newPhotoUrl}
+                            onChange={(e) => setNewPhotoUrl(e.target.value)}
+                            placeholder="Image URL (https://images.unsplash.com/... or relative path)"
+                            className="flex-1 text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#F95700]"
+                          />
+                          <input
+                            type="text"
+                            value={newPhotoCaption}
+                            onChange={(e) => setNewPhotoCaption(e.target.value)}
+                            placeholder="Caption / Description (e.g. Showroom Floor)..."
+                            className="sm:w-64 text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#F95700]"
+                          />
+                          <button
+                            type="submit"
+                            className="px-5 py-2.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer flex-shrink-0 shadow-2xs"
+                          >
+                            <Plus className="w-4 h-4" />
+                            <span>Add Photo</span>
+                          </button>
+                        </div>
+                      </form>
+                    </div>
 
                     <div className="flex justify-end pt-2">
                       <button
@@ -1661,7 +1784,7 @@ export default function DashboardOverviewPage() {
                         className="px-5 py-2 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                       >
                         <Save className="w-3.5 h-3.5" />
-                        <span>Save Gallery</span>
+                        <span>{isSaving ? 'Saving...' : 'Save Gallery Changes'}</span>
                       </button>
                     </div>
                   </div>
