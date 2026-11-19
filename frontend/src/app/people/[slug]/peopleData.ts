@@ -742,6 +742,232 @@ export const vikramSinghaniaProfile: PersonProfile = {
   dislikesCount: 120,
 };
 
+// ============================================================================
+// DR. PRIYA SHARMA PROFILE (Doctor & Healthcare)
+// ============================================================================
+export const drPriyaSharmaProfile: PersonProfile = {
+  id: 'BBN-PPL-PRIYA-DOC-005',
+  name: 'Dr. Priya Sharma',
+  slug: 'dr-priya-sharma',
+  role: 'Senior Consultant Cardiologist & Medical Researcher',
+  badge: 'Senior Doctor',
+  location: 'New Delhi, India',
+  quote: 'Preventive cardiology and sovereign clinical trials for affordable Indian heart care.',
+  avatarUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80',
+  coverUrl: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=1200&q=80',
+  followersCount: 19400,
+  followingCount: 14,
+  postsCount: 88,
+  viewsCount: '520K+',
+  isVerified: true,
+  website: 'https://aiims.edu',
+  socialLinks: {
+    linkedin: 'https://linkedin.com/in/dr-priya-sharma',
+  },
+  aboutText: 'Dr. Priya Sharma is an acclaimed interventional cardiologist dedicated to indigenous cardiac devices, community pulse camps, and medical outreach across rural and urban Bharat.',
+  highlights: [
+    {
+      key: 'education',
+      icon: 'GraduationCap',
+      title: 'M.D. Cardiology, AIIMS',
+      description: 'Gold Medalist & Fellow in Advanced Interventional Cardiology',
+    },
+  ],
+  educationList: [
+    {
+      id: 'p-doc-1',
+      degree: 'M.D. Cardiology',
+      institution: 'AIIMS New Delhi',
+      year: '2016',
+      description: 'First rank gold medalist with specialized focus on preventive coronary care.',
+    },
+    {
+      id: 'p-doc-2',
+      degree: 'M.B.B.S.',
+      institution: 'Maulana Azad Medical College',
+      year: '2012',
+      description: 'Distinction in Pathology, Medicine, and Clinical Surgery.',
+    },
+  ],
+  experienceList: [
+    {
+      id: 'p-exp-1',
+      role: 'Senior Consultant Cardiologist',
+      organization: 'Apex Heart & Vascular Institute',
+      period: '2020 - Present',
+      description: 'Leading catheterization lab operations and over 1,200 successful coronary angioplasties.',
+    },
+  ],
+  achievementsList: [
+    {
+      id: 'p-ach-1',
+      title: 'National Healthcare Excellence Award',
+      organization: 'Ministry of Health & Family Welfare',
+      year: '2024',
+      description: 'Honored for spearheading early detection screenings in 50+ rural clinics.',
+    },
+  ],
+  newsList: [],
+  featuredVideo: {
+    title: 'Preventing Cardiac Arrest: What Every Indian Family Must Know',
+    subtitle: 'National Health Conclave 2026',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=800&q=80',
+  },
+  videoList: [],
+  updates: [],
+  gallery: [],
+  communityStoriesCount: 24,
+  communityStoriesList: [],
+  likesCount: 6800,
+  dislikesCount: 22,
+};
+
+// ============================================================================
+// PROF. RAKESH VERMA PROFILE (Teacher & Educator)
+// ============================================================================
+export const profRakeshVermaProfile: PersonProfile = {
+  id: 'BBN-PPL-RAKESH-EDU-006',
+  name: 'Prof. Rakesh Verma',
+  slug: 'prof-rakesh-verma',
+  role: 'Physics Professor & National Educator',
+  badge: 'National Educator',
+  location: 'Kota / Jaipur, RJ',
+  quote: 'Conceptual clarity and scientific temper for every aspiring student in India.',
+  avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+  coverUrl: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80',
+  followersCount: 32100,
+  followingCount: 28,
+  postsCount: 164,
+  viewsCount: '890K+',
+  isVerified: true,
+  website: 'https://rakeshphysics.edu.in',
+  socialLinks: {
+    youtube: 'https://youtube.com/@ProfRakeshPhysics',
+  },
+  aboutText: 'Prof. Rakesh Verma has mentored over 40,000 engineering and science students across India over 22 years, pioneering interactive vernacular physics pedagogy.',
+  highlights: [],
+  educationList: [
+    {
+      id: 'p-edu-1',
+      degree: 'Ph.D. in Applied Physics',
+      institution: 'IIT Roorkee',
+      year: '2004',
+      description: 'Quantum electrodynamics and laser spectroscopy applications.',
+    },
+  ],
+  experienceList: [
+    {
+      id: 'p-exp-2',
+      role: 'Dean of Sciences & Senior Physics Mentor',
+      organization: 'Vigyan Gurukul India',
+      period: '2010 - Present',
+      description: 'Created free digital lecture series accessed by students across 28 states.',
+    },
+  ],
+  achievementsList: [
+    {
+      id: 'p-ach-2',
+      title: 'Presidential Award for Teaching Excellence',
+      organization: 'Govt of India',
+      year: '2023',
+      description: 'Recognized for democratization of high-level physics for rural students.',
+    },
+  ],
+  newsList: [],
+  featuredVideo: {
+    title: 'Intuitive Mechanics & Newton’s Laws for Young Innovators',
+    subtitle: 'National Science Week Masterclass',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80',
+  },
+  videoList: [],
+  updates: [],
+  gallery: [],
+  communityStoriesCount: 42,
+  communityStoriesList: [],
+  likesCount: 12400,
+  dislikesCount: 35,
+};
+
+// ============================================================================
+// DR. MEENAKSHI IYER PROFILE (Teacher & Educator)
+// ============================================================================
+export const drMeenakshiIyerProfile: PersonProfile = {
+  id: 'BBN-PPL-MEENAKSHI-EDU-007',
+  name: 'Dr. Meenakshi Iyer',
+  slug: 'dr-meenakshi-iyer',
+  role: 'Higher Education Dean & Sanskrit Scholar',
+  badge: 'Academician',
+  location: 'Chennai, TN',
+  quote: 'Ancient wisdom combined with modern critical thinking for national resurgence.',
+  avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
+  coverUrl: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1200&q=80',
+  followersCount: 14600,
+  followingCount: 12,
+  postsCount: 76,
+  viewsCount: '340K+',
+  isVerified: true,
+  website: '',
+  socialLinks: {},
+  aboutText: 'Dr. Meenakshi Iyer is an academician, author, and researcher championing the synthesis of Indian Knowledge Systems (IKS) with modern collegiate curricula.',
+  highlights: [],
+  educationList: [],
+  experienceList: [],
+  achievementsList: [],
+  newsList: [],
+  featuredVideo: {
+    title: 'Indian Knowledge Systems in the 21st Century',
+    subtitle: 'National Education Conclave',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80',
+  },
+  videoList: [],
+  updates: [],
+  gallery: [],
+  communityStoriesCount: 16,
+  communityStoriesList: [],
+  likesCount: 4500,
+  dislikesCount: 18,
+};
+
+// ============================================================================
+// ADV. RAJESHWAR DAYAL PROFILE (Lawyer & Legal)
+// ============================================================================
+export const advRajeshwarDayalProfile: PersonProfile = {
+  id: 'BBN-PPL-RAJESHWAR-LAW-008',
+  name: 'Adv. Rajeshwar Dayal',
+  slug: 'adv-rajeshwar-dayal',
+  role: 'Senior Advocate & Constitutional Jurist',
+  badge: 'Senior Counsel',
+  location: 'Supreme Court of India, New Delhi',
+  quote: 'Defending the rule of law and constitutional justice for every citizen.',
+  avatarUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80',
+  coverUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80',
+  followersCount: 21800,
+  followingCount: 8,
+  postsCount: 112,
+  viewsCount: '620K+',
+  isVerified: true,
+  website: '',
+  socialLinks: {},
+  aboutText: 'Adv. Rajeshwar Dayal is a designated Senior Advocate with over 28 years of practice in constitutional law, corporate arbitration, and public interest jurisprudence.',
+  highlights: [],
+  educationList: [],
+  experienceList: [],
+  achievementsList: [],
+  newsList: [],
+  featuredVideo: {
+    title: 'The Constitution as India\'s Guiding Light',
+    subtitle: 'National Law Day Address',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
+  },
+  videoList: [],
+  updates: [],
+  gallery: [],
+  communityStoriesCount: 28,
+  communityStoriesList: [],
+  likesCount: 7800,
+  dislikesCount: 42,
+};
+
 export const peopleDatabase: Record<string, PersonProfile> = {
   'anand-sahu': anandSahuProfile,
   'anand': anandSahuProfile,
@@ -753,6 +979,10 @@ export const peopleDatabase: Record<string, PersonProfile> = {
   'dr-rajesh-sharma': drRajeshSharmaProfile,
   'priya-menon': priyaMenonProfile,
   'vikram-singhania': vikramSinghaniaProfile,
+  'dr-priya-sharma': drPriyaSharmaProfile,
+  'prof-rakesh-verma': profRakeshVermaProfile,
+  'dr-meenakshi-iyer': drMeenakshiIyerProfile,
+  'adv-rajeshwar-dayal': advRajeshwarDayalProfile,
 };
 
 export function createDefaultProfileForSlug(slug: string): PersonProfile {

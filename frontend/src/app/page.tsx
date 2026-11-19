@@ -21,7 +21,195 @@ import {
   Award,
   Sparkles,
   Search,
+  UserPlus,
+  UserCheck,
+  Stethoscope,
+  GraduationCap,
+  Scale,
+  Briefcase,
+  Users,
+  User,
 } from 'lucide-react';
+
+interface PersonItem {
+  id: string;
+  name: string;
+  slug: string;
+  handle: string;
+  role: string;
+  badge: string;
+  category: 'doctors' | 'teachers' | 'tech' | 'public-figures' | 'lawyers' | 'business' | 'creators';
+  location: string;
+  quote: string;
+  avatarUrl?: string;
+  coverUrl?: string;
+  followersCount: string;
+  isVerified: boolean;
+}
+
+const personCategories = [
+  { id: 'all', label: 'All Profiles', icon: Users },
+  { id: 'doctors', label: 'Doctors & Healthcare', icon: Stethoscope },
+  { id: 'teachers', label: 'Teachers & Educators', icon: GraduationCap },
+  { id: 'tech', label: 'Tech & AI Innovators', icon: Sparkles },
+  { id: 'public-figures', label: 'Public Figures & Speakers', icon: Award },
+  { id: 'lawyers', label: 'Lawyers & Legal', icon: Scale },
+  { id: 'business', label: 'Business Leaders', icon: Briefcase },
+  { id: 'creators', label: 'Creators & Artists', icon: Star },
+];
+
+const defaultPeopleList: PersonItem[] = [
+  {
+    id: 'BBN-PPL-ANAND-SAHU-001',
+    name: 'Anand Sahu',
+    slug: 'anand-sahu',
+    handle: '@anandsahu',
+    role: 'Nationalist Thinker & Speaker',
+    badge: 'Public Figure',
+    category: 'public-figures',
+    location: 'New Delhi, India',
+    quote: 'Thoughts for Nation Building and a Stronger India.',
+    avatarUrl: '/people/anand-portrait.png',
+    coverUrl: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=800&q=80',
+    followersCount: '28.4K',
+    isVerified: true,
+  },
+  {
+    id: 'BBN-PPL-PRIYA-DOC-005',
+    name: 'Dr. Priya Sharma',
+    slug: 'dr-priya-sharma',
+    handle: '@drpriya_cardio',
+    role: 'Senior Consultant Cardiologist & Medical Researcher',
+    badge: 'Senior Doctor',
+    category: 'doctors',
+    location: 'AIIMS, New Delhi',
+    quote: 'Preventive cardiology and sovereign clinical trials for affordable Indian heart care.',
+    avatarUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=800&q=80',
+    followersCount: '19.4K',
+    isVerified: true,
+  },
+  {
+    id: 'BBN-PPL-RAKESH-EDU-006',
+    name: 'Prof. Rakesh Verma',
+    slug: 'prof-rakesh-verma',
+    handle: '@prof_rakesh',
+    role: 'Physics Professor & National Educator',
+    badge: 'National Educator',
+    category: 'teachers',
+    location: 'Kota / Jaipur, RJ',
+    quote: 'Conceptual clarity and scientific temper for every aspiring student in India.',
+    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80',
+    followersCount: '32.1K',
+    isVerified: true,
+  },
+  {
+    id: 'BBN-PPL-AI-001',
+    name: 'AI',
+    slug: 'ai',
+    handle: '@ai',
+    role: 'Autonomous AI Researcher & Platform Pioneer',
+    badge: 'AI Innovator',
+    category: 'tech',
+    location: 'Bengaluru, KA',
+    quote: 'Empowering 1.4 Billion Indians with sovereign AI innovation and smart discovery.',
+    avatarUrl: '',
+    coverUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
+    followersCount: '5.8K',
+    isVerified: true,
+  },
+  {
+    id: 'BBN-PPL-RAJESH-002',
+    name: 'Dr. Rajesh Sharma',
+    slug: 'dr-rajesh-sharma',
+    handle: '@dr_rajesh',
+    role: 'Healthcare Pioneer & Dental Surgeon',
+    badge: 'Medical Leader',
+    category: 'doctors',
+    location: 'Mumbai, MH',
+    quote: 'Making world-class preventive dental healthcare accessible for every Indian.',
+    avatarUrl: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80',
+    followersCount: '18.9K',
+    isVerified: true,
+  },
+  {
+    id: 'BBN-PPL-MEENAKSHI-EDU-007',
+    name: 'Dr. Meenakshi Iyer',
+    slug: 'dr-meenakshi-iyer',
+    handle: '@meenakshi_edu',
+    role: 'Higher Education Dean & Sanskrit Scholar',
+    badge: 'Academician',
+    category: 'teachers',
+    location: 'Chennai, TN',
+    quote: 'Ancient wisdom combined with modern critical thinking for national resurgence.',
+    avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80',
+    followersCount: '14.6K',
+    isVerified: true,
+  },
+  {
+    id: 'BBN-PPL-RAJESHWAR-LAW-008',
+    name: 'Adv. Rajeshwar Dayal',
+    slug: 'adv-rajeshwar-dayal',
+    handle: '@adv_rajeshwar',
+    role: 'Senior Advocate & Constitutional Jurist',
+    badge: 'Senior Counsel',
+    category: 'lawyers',
+    location: 'Supreme Court, New Delhi',
+    quote: 'Defending the rule of law and constitutional justice for every citizen.',
+    avatarUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
+    followersCount: '21.8K',
+    isVerified: true,
+  },
+  {
+    id: 'BBN-PPL-KASHISH-001',
+    name: 'Kashish Saxena',
+    slug: 'kashish',
+    handle: '@kashish',
+    role: 'Creator & Platform Pioneer',
+    badge: 'Creator',
+    category: 'creators',
+    location: 'Noida, UP',
+    quote: 'Empowering local businesses and creators across Bharat.',
+    avatarUrl: '',
+    coverUrl: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80',
+    followersCount: '1.2K',
+    isVerified: true,
+  },
+  {
+    id: 'BBN-PPL-VIKRAM-004',
+    name: 'Vikram Singhania',
+    slug: 'vikram-singhania',
+    handle: '@vikram_singhania',
+    role: 'Franchise Enterprise Strategist',
+    badge: 'Advisor',
+    category: 'business',
+    location: 'Gurugram, HR',
+    quote: 'Scaling Bharat homegrown brands into nationwide consumer powerhouses.',
+    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80',
+    followersCount: '34.1K',
+    isVerified: true,
+  },
+  {
+    id: 'BBN-PPL-PRIYA-003',
+    name: 'Priya Menon',
+    slug: 'priya-menon',
+    handle: '@priyamenon_ev',
+    role: 'Clean Tech & EV Policy Advocate',
+    badge: 'Policy Voice',
+    category: 'business',
+    location: 'Bengaluru, KA',
+    quote: 'Sustainable green mobility and public EV infrastructure for modern India.',
+    avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1508873696983-2df5293cb32f?auto=format&fit=crop&w=800&q=80',
+    followersCount: '12.5K',
+    isVerified: true,
+  },
+];
 
 interface VerifiedBusiness {
   id: string;
@@ -306,6 +494,12 @@ export default function HomePage() {
   const [isPaused, setIsPaused] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
 
+  // People & Category Filter States
+  const [peopleList, setPeopleList] = useState<PersonItem[]>(defaultPeopleList);
+  const [selectedPersonCategory, setSelectedPersonCategory] = useState<string>('all');
+  const [followingMap, setFollowingMap] = useState<Record<string, boolean>>({});
+  const peopleSliderRef = useRef<HTMLDivElement>(null);
+
   // Sync with Admin Approvals / localStorage / Cross-Port Sync
   useEffect(() => {
     const syncApprovedClaims = () => {
@@ -376,50 +570,145 @@ export default function HomePage() {
       }
     };
 
+    const syncPeople = () => {
+      try {
+        const stored = localStorage.getItem('bharatbn_people_store');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setPeopleList((prev) => {
+              const map = new Map<string, PersonItem>();
+              parsed.forEach((p: any) => {
+                let cat: PersonItem['category'] = 'creators';
+                const lower = (p.role || p.badge || p.category || '').toLowerCase();
+                if (lower.includes('doctor') || lower.includes('health') || lower.includes('clinic') || lower.includes('dental')) {
+                  cat = 'doctors';
+                } else if (lower.includes('teach') || lower.includes('professor') || lower.includes('edu') || lower.includes('school')) {
+                  cat = 'teachers';
+                } else if (lower.includes('ai') || lower.includes('tech') || lower.includes('software') || lower.includes('cloud')) {
+                  cat = 'tech';
+                } else if (lower.includes('public') || lower.includes('speaker') || lower.includes('thinker') || lower.includes('nationalist')) {
+                  cat = 'public-figures';
+                } else if (lower.includes('law') || lower.includes('advocate') || lower.includes('legal') || lower.includes('jurist')) {
+                  cat = 'lawyers';
+                } else if (lower.includes('franchise') || lower.includes('business') || lower.includes('ceo') || lower.includes('founder')) {
+                  cat = 'business';
+                }
+
+                map.set(p.slug || p.id, {
+                  id: p.id || `PPL-${p.slug}`,
+                  name: p.name || 'Creator',
+                  slug: p.slug || 'creator',
+                  handle: p.handle || `@${p.slug}`,
+                  role: p.role || 'Verified Public Voice',
+                  badge: p.badge || 'Verified',
+                  category: cat,
+                  location: p.location || 'India',
+                  quote: p.quote || (p.aboutText ? p.aboutText.slice(0, 90) : 'Verified Profile on BharatBN.'),
+                  avatarUrl: p.avatarUrl || '',
+                  coverUrl: p.coverUrl || '',
+                  followersCount: p.followersCount ? String(p.followersCount) : '1.2K',
+                  isVerified: p.isVerified !== false,
+                });
+              });
+
+              prev.forEach((p) => {
+                if (!map.has(p.slug)) map.set(p.slug, p);
+              });
+              return Array.from(map.values());
+            });
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    const syncFollowing = () => {
+      try {
+        const stored = localStorage.getItem('bharatbn_following_people');
+        if (stored) {
+          setFollowingMap(JSON.parse(stored));
+        }
+      } catch {}
+    };
+
     syncApprovedClaims();
+    syncPeople();
+    syncFollowing();
+
     window.addEventListener('bharatbn_claims_updated', syncApprovedClaims);
+    window.addEventListener('bharatbn_people_updated', syncPeople);
     window.addEventListener('bharatbn_auth_changed', syncApprovedClaims);
+    window.addEventListener('bharatbn_auth_changed', syncPeople);
     window.addEventListener('storage', syncApprovedClaims);
+    window.addEventListener('storage', syncPeople);
+    window.addEventListener('storage', syncFollowing);
+
     return () => {
       window.removeEventListener('bharatbn_claims_updated', syncApprovedClaims);
+      window.removeEventListener('bharatbn_people_updated', syncPeople);
       window.removeEventListener('bharatbn_auth_changed', syncApprovedClaims);
+      window.removeEventListener('bharatbn_auth_changed', syncPeople);
       window.removeEventListener('storage', syncApprovedClaims);
+      window.removeEventListener('storage', syncPeople);
+      window.removeEventListener('storage', syncFollowing);
     };
   }, []);
 
-  // Butter-Smooth Auto-Sliding Carousel with Pause on Mouse Hover / Click
+  // Smooth Auto-Sliding Carousel with Interval & Pause on Hover / Touch
   useEffect(() => {
-    const slider = sliderRef.current;
-    if (!slider) return;
+    if (isPaused) return;
 
-    let animationId: number;
-    let accumulatedScroll = slider.scrollLeft;
+    const interval = setInterval(() => {
+      const slider = sliderRef.current;
+      if (!slider) return;
 
-    const autoScroll = () => {
-      if (!isPaused && slider) {
-        accumulatedScroll += 0.8;
-        if (accumulatedScroll >= slider.scrollWidth - slider.clientWidth - 1) {
-          accumulatedScroll = 0;
-          slider.scrollLeft = 0;
-        } else {
-          slider.scrollLeft = accumulatedScroll;
-        }
-      } else if (slider) {
-        accumulatedScroll = slider.scrollLeft;
+      const cardStep = 336; // 320px width + 16px gap
+      const maxScroll = slider.scrollWidth - slider.clientWidth;
+
+      if (slider.scrollLeft >= maxScroll - 20) {
+        slider.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        slider.scrollBy({ left: cardStep, behavior: 'smooth' });
       }
-      animationId = requestAnimationFrame(autoScroll);
-    };
+    }, 3200);
 
-    animationId = requestAnimationFrame(autoScroll);
-    return () => cancelAnimationFrame(animationId);
+    return () => clearInterval(interval);
   }, [isPaused]);
 
   const scrollByAmount = (direction: 'left' | 'right') => {
     if (sliderRef.current) {
-      const amount = direction === 'left' ? -320 : 320;
+      const amount = direction === 'left' ? -340 : 340;
       sliderRef.current.scrollBy({ left: amount, behavior: 'smooth' });
+      setIsPaused(true);
+      setTimeout(() => setIsPaused(false), 4500);
     }
   };
+
+  const scrollPeopleByAmount = (direction: 'left' | 'right') => {
+    if (peopleSliderRef.current) {
+      const amount = direction === 'left' ? -340 : 340;
+      peopleSliderRef.current.scrollBy({ left: amount, behavior: 'smooth' });
+    }
+  };
+
+  const handleToggleFollow = (id: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setFollowingMap((prev) => {
+      const next = { ...prev, [id]: !prev[id] };
+      try {
+        localStorage.setItem('bharatbn_following_people', JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  };
+
+  const filteredPeople =
+    selectedPersonCategory === 'all'
+      ? peopleList
+      : peopleList.filter((p) => p.category === selectedPersonCategory);
 
   return (
     <div className="space-y-12 pb-16">
@@ -676,6 +965,233 @@ export default function HomePage() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 3.5 SECTION: People on BharatBN (Verified Voices, Filter by Categories)   */}
+      {/* ========================================================================= */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-1 border-b border-slate-100">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                People on BharatBN
+              </h2>
+              <span className="inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+                Verified Voices
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-2xl">
+              Connect directly with verified doctors, educators, AI innovators, advocates, and public figures building India.
+            </p>
+            <div className="w-14 h-1 bg-[#F95700] rounded-full" />
+          </div>
+
+          <div className="flex items-center gap-2 self-end md:self-auto">
+            <button
+              type="button"
+              onClick={() => scrollPeopleByAmount('left')}
+              className="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition shadow-xs cursor-pointer text-slate-600 hover:text-slate-900"
+              title="Slide Left"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollPeopleByAmount('right')}
+              className="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition shadow-xs cursor-pointer text-slate-600 hover:text-slate-900"
+              title="Slide Right"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+            <Link
+              href="/people"
+              className="text-xs sm:text-sm font-bold text-[#F95700] hover:underline ml-2 hidden sm:inline-flex items-center gap-1"
+            >
+              <span>Explore All People</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Category Filter Pills (Doctors, Teachers, Tech/AI, Public Figures, Legal, Business, Creators) */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar" style={{ scrollbarWidth: 'none' }}>
+          {personCategories.map((cat) => {
+            const Icon = cat.icon;
+            const count =
+              cat.id === 'all'
+                ? peopleList.length
+                : peopleList.filter((p) => p.category === cat.id).length;
+            const isSelected = selectedPersonCategory === cat.id;
+
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setSelectedPersonCategory(cat.id)}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition whitespace-nowrap cursor-pointer shadow-xs ${
+                  isSelected
+                    ? 'bg-[#07213A] text-white shadow-md shadow-[#07213A]/20 scale-[1.02]'
+                    : 'bg-white border border-slate-200 text-slate-700 hover:border-[#F95700]/50 hover:text-[#F95700]'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-[#F95700]' : 'text-slate-500'}`} />
+                <span>{cat.label}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                    isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* People Slider Horizontal Carousel with DP, Role, Follow & View Profile */}
+        <div
+          ref={peopleSliderRef}
+          className="flex items-stretch gap-4 overflow-x-auto py-2 px-1 no-scrollbar scroll-smooth"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {filteredPeople.map((person) => {
+            const isFollowed = !!followingMap[person.id];
+
+            return (
+              <div
+                key={person.id}
+                className="w-72 sm:w-80 flex-shrink-0 bg-white rounded-2xl border border-slate-200/90 shadow-xs hover:border-[#F95700] hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group"
+              >
+                {/* Top Cover Banner */}
+                <div>
+                  <div className="relative h-20 bg-gradient-to-r from-slate-900 via-[#07213A] to-slate-800 overflow-hidden">
+                    {person.coverUrl && (
+                      <img
+                        src={person.coverUrl}
+                        alt={`${person.name} Cover`}
+                        className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-500"
+                      />
+                    )}
+                    <div className="absolute top-2 right-2">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/60 text-white backdrop-blur-xs border border-white/20">
+                        {person.badge}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Profile DP Avatar & Info */}
+                  <div className="px-4 pb-3 pt-0 relative">
+                    <div className="relative -mt-10 mb-2.5 flex items-end justify-between">
+                      <div className="relative w-16 h-16 rounded-full ring-4 ring-white bg-slate-100 shadow-md overflow-hidden flex-shrink-0">
+                        {person.avatarUrl ? (
+                          <img
+                            src={person.avatarUrl}
+                            alt={person.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-tr from-orange-500 to-amber-600 text-white font-extrabold flex items-center justify-center text-xl">
+                            {person.name.slice(0, 1).toUpperCase()}
+                          </div>
+                        )}
+                        {person.isVerified && (
+                          <div
+                            className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center ring-2 ring-white"
+                            title="Official BharatBN Verified Blue Badge"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5 stroke-[3]" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Follow Button on Card Header */}
+                      <button
+                        type="button"
+                        onClick={(e) => handleToggleFollow(person.id, e)}
+                        className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition shadow-xs cursor-pointer ${
+                          isFollowed
+                            ? 'bg-slate-900 text-white hover:bg-slate-800'
+                            : 'bg-[#F95700] hover:bg-[#D94F00] text-white'
+                        }`}
+                        title={isFollowed ? 'Unfollow' : 'Follow this person'}
+                      >
+                        {isFollowed ? (
+                          <>
+                            <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Following</span>
+                          </>
+                        ) : (
+                          <>
+                            <UserPlus className="w-3.5 h-3.5" />
+                            <span>Follow</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Name & Handle */}
+                    <div className="space-y-0.5">
+                      <Link
+                        href={`/people/${person.slug}`}
+                        className="font-black text-base text-slate-900 group-hover:text-[#F95700] transition line-clamp-1 flex items-center gap-1.5"
+                        title={person.name}
+                      >
+                        <span>{person.name}</span>
+                        {person.isVerified && (
+                          <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                        )}
+                      </Link>
+                      <div className="text-[11px] font-mono font-medium text-slate-400">
+                        {person.handle}
+                      </div>
+                    </div>
+
+                    {/* Role & Location */}
+                    <div className="mt-2 space-y-1">
+                      <p className="text-xs font-semibold text-slate-700 line-clamp-1">
+                        {person.role}
+                      </p>
+                      <div className="flex items-center gap-1 text-[11px] text-slate-500">
+                        <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                        <span className="truncate">{person.location}</span>
+                      </div>
+                    </div>
+
+                    {/* Quote / Headline */}
+                    {person.quote && (
+                      <div className="mt-2.5 p-2 rounded-xl bg-slate-50 border border-slate-100 text-[11px] text-slate-600 italic line-clamp-2 leading-relaxed">
+                        &ldquo;{person.quote}&rdquo;
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Footer: Followers & View Profile */}
+                <div className="px-4 py-2.5 bg-slate-50/70 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1 text-slate-500 font-medium text-[11px]">
+                    <Users className="w-3 h-3 text-slate-400" />
+                    <span>
+                      <strong className="text-slate-800 font-bold">
+                        {person.followersCount}
+                      </strong>{' '}
+                      followers
+                    </span>
+                  </div>
+
+                  <Link
+                    href={`/people/${person.slug}`}
+                    className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-[#F95700] hover:border-[#F95700] hover:text-white transition font-bold text-[11px] shadow-xs"
+                  >
+                    <span>View Profile</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </Link>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 

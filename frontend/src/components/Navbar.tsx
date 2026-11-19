@@ -331,18 +331,14 @@ export default function Navbar() {
                   </Link>
 
                   {/* List Business Button (Visible AFTER business signs in!) */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAuthModalMode('signup');
-                      setIsLoginModalOpen(true);
-                    }}
-                    className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-[#C94A00] hover:bg-[#A83800] transition cursor-pointer shadow-xs"
+                  <Link
+                    href="/claim/new"
+                    className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-white bg-[#C94A00] hover:bg-[#A83800] transition cursor-pointer shadow-xs"
                     title="List another branch or new business"
                   >
                     <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                     <span>List Business</span>
-                  </button>
+                  </Link>
                 </>
               )}
 
