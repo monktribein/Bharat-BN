@@ -30,6 +30,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const [ownerSession, setOwnerSession] = useState<OwnerSession | null>(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
 
   // Sync Owner Session from localStorage
   useEffect(() => {
@@ -213,28 +214,36 @@ export default function Navbar() {
               >
                 <button
                   type="button"
-                  onClick={() => setIsLoginModalOpen(true)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-[#F95700] bg-[#F95700]/10 hover:bg-[#F95700]/15 border border-[#F95700]/30 transition cursor-pointer"
+                  onClick={() => {
+                    setAuthModalMode('login');
+                    setIsLoginModalOpen(true);
+                  }}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition cursor-pointer shadow-xs"
                   title="Log in to manage your listed business"
                 >
-                  <LogIn className="w-3.5 h-3.5" />
+                  <LogIn className="w-3.5 h-3.5 text-slate-500" />
                   <span>Login</span>
                 </button>
               </motion.div>
 
-              {/* List Business Button */}
+              {/* List Business / Sign Up Button */}
               <motion.div
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               >
-                <Link
-                  href="/claim/new"
-                  className="flex items-center gap-1.5 px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#C94A00] bg-gradient-to-r from-[#D94F00] to-[#C24100] hover:from-[#C24100] hover:to-[#A83800] shadow-md shadow-[#D94F00]/25 transition"
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthModalMode('signup');
+                    setIsLoginModalOpen(true);
+                  }}
+                  className="flex items-center gap-1.5 px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#C94A00] bg-gradient-to-r from-[#D94F00] to-[#C24100] hover:from-[#C24100] hover:to-[#A83800] shadow-md shadow-[#D94F00]/25 transition cursor-pointer"
+                  title="Register your business with email OTP"
                 >
                   <Plus className="w-4 h-4 stroke-[2.5]" />
                   <span>List Business</span>
-                </Link>
+                </button>
               </motion.div>
             </>
           )}
@@ -242,10 +251,11 @@ export default function Navbar() {
       </div>
     </motion.header>
 
-    {/* Business Login Modal */}
+    {/* Business Auth Modal (Login & OTP-based Signup) */}
     <BusinessLoginModal
       isOpen={isLoginModalOpen}
       onClose={() => setIsLoginModalOpen(false)}
+      initialMode={authModalMode}
     />
   </>
 );

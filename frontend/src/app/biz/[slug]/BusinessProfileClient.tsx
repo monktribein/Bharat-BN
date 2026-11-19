@@ -172,6 +172,8 @@ export default function BusinessProfileClient({
                 aboutStory: found.aboutStory || found.businessDescription || found.description || prev.aboutStory,
                 seoTitle: found.seoTitle || prev.seoTitle,
                 seoDescription: found.seoDescription || found.businessDescription || found.description || prev.seoDescription,
+                coverUrl: found.coverUrl || prev.coverUrl,
+                socialLinks: found.socialLinks || prev.socialLinks,
                 establishedYear: found.establishedYear
                   ? Number(found.establishedYear)
                   : prev.establishedYear,
@@ -1016,6 +1018,100 @@ export default function BusinessProfileClient({
                 <ExternalLink className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
               </a>
             </div>
+
+            {/* Official Social Media Channels */}
+            {business.socialLinks && Object.values(business.socialLinks).some((v) => !!v) && (
+              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 space-y-3">
+                <div className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono border-b border-slate-100 pb-2 flex items-center justify-between">
+                  <span>Official Social Channels</span>
+                  <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    Verified Handles
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
+                  {business.socialLinks.instagram && (
+                    <a
+                      href={
+                        business.socialLinks.instagram.startsWith('http')
+                          ? business.socialLinks.instagram
+                          : `https://instagram.com/${business.socialLinks.instagram.replace('@', '')}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 p-2.5 rounded-xl border border-pink-200 bg-pink-50/50 hover:bg-pink-100/60 text-pink-700 transition cursor-pointer"
+                      title="Follow on Instagram"
+                    >
+                      <span className="text-sm">📸</span>
+                      <span className="truncate">Instagram</span>
+                    </a>
+                  )}
+                  {business.socialLinks.youtube && (
+                    <a
+                      href={
+                        business.socialLinks.youtube.startsWith('http')
+                          ? business.socialLinks.youtube
+                          : `https://youtube.com/@${business.socialLinks.youtube.replace('@', '')}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 p-2.5 rounded-xl border border-red-200 bg-red-50/50 hover:bg-red-100/60 text-red-700 transition cursor-pointer"
+                      title="Watch on YouTube"
+                    >
+                      <span className="text-sm">▶️</span>
+                      <span className="truncate">YouTube</span>
+                    </a>
+                  )}
+                  {business.socialLinks.facebook && (
+                    <a
+                      href={
+                        business.socialLinks.facebook.startsWith('http')
+                          ? business.socialLinks.facebook
+                          : `https://facebook.com/${business.socialLinks.facebook}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 p-2.5 rounded-xl border border-blue-200 bg-blue-50/50 hover:bg-blue-100/60 text-blue-700 transition cursor-pointer"
+                      title="Follow on Facebook"
+                    >
+                      <span className="text-sm">📘</span>
+                      <span className="truncate">Facebook</span>
+                    </a>
+                  )}
+                  {business.socialLinks.linkedin && (
+                    <a
+                      href={
+                        business.socialLinks.linkedin.startsWith('http')
+                          ? business.socialLinks.linkedin
+                          : `https://linkedin.com/company/${business.socialLinks.linkedin}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 p-2.5 rounded-xl border border-sky-200 bg-sky-50/50 hover:bg-sky-100/60 text-sky-700 transition cursor-pointer"
+                      title="Connect on LinkedIn"
+                    >
+                      <span className="text-sm">💼</span>
+                      <span className="truncate">LinkedIn</span>
+                    </a>
+                  )}
+                  {business.socialLinks.twitter && (
+                    <a
+                      href={
+                        business.socialLinks.twitter.startsWith('http')
+                          ? business.socialLinks.twitter
+                          : `https://x.com/${business.socialLinks.twitter.replace('@', '')}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-800 transition cursor-pointer"
+                      title="Follow on X / Twitter"
+                    >
+                      <span className="text-sm">𝕏</span>
+                      <span className="truncate">Twitter / X</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* 3. Send Email / Direct Inquiry Form */}
             <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">

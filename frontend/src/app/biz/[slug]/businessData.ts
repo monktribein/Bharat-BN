@@ -21,6 +21,14 @@ export interface BusinessProfile {
   aboutStory: string;
   seoTitle?: string;
   seoDescription?: string;
+  coverUrl?: string;
+  socialLinks?: {
+    instagram?: string;
+    youtube?: string;
+    facebook?: string;
+    linkedin?: string;
+    twitter?: string;
+  };
   establishedYear: number;
   rating: number;
   reviewsCount: number;
@@ -80,6 +88,12 @@ const chocoBusiness: BusinessProfile = {
   ],
   description:
     'Choco Delights & Confectionery (Cadboury) is an audited premier confectionery brand in Andheri West, Mumbai. Certified for food safety standards, direct Belgian cocoa imports, and same-day temperature-controlled gift delivery across Mumbai.',
+  coverUrl: 'https://images.unsplash.com/photo-1511381939415-e44015466834?auto=format&fit=crop&w=1600&q=80',
+  socialLinks: {
+    instagram: 'https://instagram.com/chocodelights_mumbai',
+    facebook: 'https://facebook.com/chocodelights',
+    youtube: 'https://youtube.com/@chocodelights',
+  },
   aboutStory:
     'Founded in 2018 in Andheri West, Choco Delights & Confectionery (Cadboury) is a boutique chocolate studio in Mumbai specializing in artisan chocolates, handcrafted truffles, customized corporate gift hampers and confectionery products. We combine artisanal European chocolate tempering techniques with the freshest Indian ingredients. Each batch of truffles, pralines, and custom corporate hampers is handcrafted fresh daily under strict temperature and hygiene controls. Having delivered over 10,000+ gift boxes for corporate clients, weddings, and chocolate connoisseurs, our mission is to deliver pure, unadulterated confectionery perfection with 100% verified provenance.',
   establishedYear: 2018,
@@ -182,6 +196,13 @@ const appleBusiness: BusinessProfile = {
   ],
   description:
     'Apple (Noida Hub) is an audited enterprise business listed on BharatBN™ Business Network. Specializing in next-gen Automobile & EV solutions, verified ROC & GST registration certificates, and direct customer inquiry channels across Noida / NCR.',
+  coverUrl: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=80',
+  socialLinks: {
+    instagram: 'https://instagram.com/apple',
+    youtube: 'https://youtube.com/@apple',
+    twitter: 'https://x.com/apple',
+    linkedin: 'https://linkedin.com/company/apple',
+  },
   aboutStory:
     'Established in Khora Colony, Ghaziabad / Noida, Apple is driven by innovation and excellence in EV mobility and modern automobile engineering. With customer-first support and verified credential auditing by BharatBN, we provide authentic vehicles, spares, and rapid service turnaround.',
   establishedYear: 2021,
