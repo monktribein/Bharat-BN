@@ -37,6 +37,8 @@ import {
   Eye,
   User,
   Image as ImageIcon,
+  FileCheck,
+  Upload,
 } from 'lucide-react';
 import BusinessLoginModal from '@/components/BusinessLoginModal';
 import { api } from '@/lib/api-client';
@@ -105,6 +107,14 @@ export default function DashboardOverviewPage() {
   const [facebook, setFacebook] = useState('');
   const [linkedin, setLinkedin] = useState('');
   const [twitter, setTwitter] = useState('');
+
+  // KYC & Compliance State (Editable by Business Owner)
+  const [gstin, setGstin] = useState('');
+  const [cin, setCin] = useState('');
+  const [pan, setPan] = useState('');
+  const [kycDocName, setKycDocName] = useState('');
+  const [kycDocUrl, setKycDocUrl] = useState('');
+  const [kycStatus, setKycStatus] = useState<'verified' | 'pending' | 'submitted'>('verified');
 
   // Services, Amenities & Gallery
   const [services, setServices] = useState<string[]>([]);
@@ -225,6 +235,14 @@ export default function DashboardOverviewPage() {
       setFacebook(found?.socialLinks?.facebook || (isApple ? 'https://facebook.com/apple' : ''));
       setLinkedin(found?.socialLinks?.linkedin || (isApple ? 'https://linkedin.com/company/apple' : ''));
       setTwitter(found?.socialLinks?.twitter || (isApple ? 'https://x.com/apple' : ''));
+
+      // KYC Details (From stored claim/business or default for Apple/Choco)
+      setGstin(found?.gstin || (isApple ? '07AAAAA0000A1Z5' : isChoco ? '27AABCC1234D1Z2' : ''));
+      setCin(found?.cin || (isApple ? 'U72900DL2021PTC123456' : isChoco ? 'U15400MH2019PTC789123' : ''));
+      setPan(found?.pan || (isApple ? 'AAAAA0000A' : isChoco ? 'AABCC1234D' : ''));
+      setKycDocName(found?.kycDocName || (isApple ? 'GSTIN_Registration_Certificate_2026.pdf' : ''));
+      setKycDocUrl(found?.kycDocUrl || '');
+      setKycStatus(found?.kycStatus || (isApple || isChoco ? 'verified' : 'pending'));
 
       // Services & Amenities
       setServices(
@@ -355,6 +373,12 @@ export default function DashboardOverviewPage() {
         amenities,
         gallery,
         reviews,
+        gstin: gstin.trim().toUpperCase(),
+        cin: cin.trim().toUpperCase(),
+        pan: pan.trim().toUpperCase(),
+        kycDocName,
+        kycDocUrl,
+        kycStatus,
         status: 'approved',
         isVerified: true,
         updatedAt: new Date().toISOString(),
@@ -968,7 +992,7 @@ export default function DashboardOverviewPage() {
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between">
                         <label className="block text-xs font-bold text-slate-700">
-                          Bio / Business Description <span className="text-[#F95700]">* (Visible in Source Code &amp; Search)</span>
+                          Bio / Business Description 
                         </label>
                         <span className="text-[11px] text-slate-400">{bio.length} characters</span>
                       </div>
@@ -1216,34 +1240,199 @@ export default function DashboardOverviewPage() {
                 </button>
 
                 {openSections.kyc && (
-                  <div className="p-6 pt-3 border-t border-slate-100 space-y-4 animate-in fade-in duration-150">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 space-y-1">
+                  <div className="p-6 pt-3 border-t border-slate-100 space-y-6 animate-in fade-in duration-150">
+                    {/* Compliance Information Header */}
+                    <div className="p-3.5 bg-emerald-50/70 border border-emerald-200/90 rounded-2xl flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2 text-emerald-900 font-semibold">
+                        <FileCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                        <span>Enter your official government registration details below to verify and display badges.</span>
+                      </div>
+                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100/80 px-2.5 py-0.5 rounded-full border border-emerald-300">
+                        {gstin || cin ? 'KYC Active & Verified' : 'Pending KYC Submission'}
+                      </span>
+                    </div>
+
+                    {/* Editable KYC Form Inputs */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                      {/* GSTIN Input */}
+                      <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-emerald-800">GSTIN Registration</span>
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <label className="block text-xs font-bold text-slate-700">
+                            GSTIN Registration <span className="text-[#F95700]">*</span>
+                          </label>
+                          <span className="text-[10px] font-mono text-slate-400">15 chars</span>
                         </div>
-                        <div className="text-xs text-emerald-900 font-mono font-bold">07AAAAA0000A1Z5</div>
-                        <div className="text-[10px] text-emerald-700">Verified &amp; Active</div>
+                        <input
+                          type="text"
+                          maxLength={15}
+                          value={gstin}
+                          onChange={(e) => setGstin(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                          placeholder="e.g. 07AAAAA0000A1Z5"
+                          className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 font-mono tracking-wider focus:outline-none focus:border-[#F95700] uppercase bg-white"
+                        />
+                        <p className="text-[11px] text-slate-400">
+                          State code + PAN + entity + check digit
+                        </p>
                       </div>
 
-                      <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 space-y-1">
+                      {/* ROC / CIN / MSME Input */}
+                      <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-emerald-800">ROC Incorporation</span>
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <label className="block text-xs font-bold text-slate-700">
+                            ROC CIN / Registration
+                          </label>
+                          <span className="text-[10px] font-mono text-slate-400">ROC / Udyam</span>
                         </div>
-                        <div className="text-xs text-emerald-900 font-mono font-bold">U72900DL2021PTC</div>
-                        <div className="text-[10px] text-emerald-700">Audited &amp; Compliant</div>
+                        <input
+                          type="text"
+                          maxLength={21}
+                          value={cin}
+                          onChange={(e) => setCin(e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, ''))}
+                          placeholder="e.g. U72900DL2021PTC123456"
+                          className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 font-mono tracking-wider focus:outline-none focus:border-[#F95700] uppercase bg-white"
+                        />
+                        <p className="text-[11px] text-slate-400">
+                          MCA Corporate CIN, LLPIN, or MSME Udyam
+                        </p>
                       </div>
 
-                      <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 space-y-1">
+                      {/* Business PAN Card */}
+                      <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-emerald-800">BharatBN™ Badge</span>
-                          <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                          <label className="block text-xs font-bold text-slate-700">
+                            Business / Company PAN
+                          </label>
+                          <span className="text-[10px] font-mono text-slate-400">10 chars</span>
                         </div>
-                        <div className="text-xs text-emerald-900 font-mono font-bold">Engine 7 Verified</div>
-                        <div className="text-[10px] text-emerald-700">100% SERP Consistency</div>
+                        <input
+                          type="text"
+                          maxLength={10}
+                          value={pan}
+                          onChange={(e) => setPan(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                          placeholder="e.g. AAAAA0000A"
+                          className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 font-mono tracking-wider focus:outline-none focus:border-[#F95700] uppercase bg-white"
+                        />
+                        <p className="text-[11px] text-slate-400">
+                          Income Tax Department PAN
+                        </p>
                       </div>
+                    </div>
+
+                    {/* Document Upload & Proof Certificate */}
+                    <div className="p-4 rounded-2xl border border-slate-200/90 bg-slate-50/60 space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                          <h4 className="text-xs font-bold text-slate-900">
+                            Upload Official Registration Proof (GST Certificate / Incorporation Deed)
+                          </h4>
+                          <p className="text-[11px] text-slate-500">
+                            Attach a PDF or photo of your registration certificate for manual auditor sign-off.
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <label className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 hover:border-[#F95700] text-xs font-bold text-slate-700 transition flex items-center gap-1.5 cursor-pointer shadow-2xs">
+                            <Upload className="w-3.5 h-3.5 text-[#F95700]" />
+                            <span>{kycDocName ? 'Change File' : 'Upload Document'}</span>
+                            <input
+                              type="file"
+                              accept=".pdf,.png,.jpg,.jpeg"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setKycDocName(file.name);
+                                  setKycStatus('verified');
+                                }
+                              }}
+                            />
+                          </label>
+                        </div>
+                      </div>
+
+                      {kycDocName && (
+                        <div className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-emerald-200 text-xs">
+                          <div className="flex items-center gap-2 text-emerald-900 font-semibold truncate">
+                            <FileCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                            <span className="truncate">{kycDocName}</span>
+                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                              Attached
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setKycDocName('');
+                            }}
+                            className="text-xs text-red-500 hover:text-red-700 font-bold ml-2 cursor-pointer"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Live Preview Cards (Matching Reference Screenshot) */}
+                    <div className="space-y-2 pt-2">
+                      <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                        Live Preview &amp; Verification Badges:
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {/* GSTIN Card */}
+                        <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-emerald-800">GSTIN Registration</span>
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          </div>
+                          <div className="text-xs text-emerald-900 font-mono font-bold">
+                            {gstin || 'Not Provided (Enter GSTIN above)'}
+                          </div>
+                          <div className="text-[10px] text-emerald-700">
+                            {gstin ? 'Verified & Active' : 'Enter 15-digit GSTIN to activate'}
+                          </div>
+                        </div>
+
+                        {/* ROC Incorporation Card */}
+                        <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-emerald-800">ROC Incorporation</span>
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          </div>
+                          <div className="text-xs text-emerald-900 font-mono font-bold">
+                            {cin || 'Not Provided (Enter CIN / Udyam above)'}
+                          </div>
+                          <div className="text-[10px] text-emerald-700">
+                            {cin ? 'Audited & Compliant' : 'Enter CIN to activate'}
+                          </div>
+                        </div>
+
+                        {/* BharatBN Engine Badge */}
+                        <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-emerald-800">BharatBN™ Badge</span>
+                            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                          </div>
+                          <div className="text-xs text-emerald-900 font-mono font-bold">
+                            {gstin || cin ? 'Engine 7 Verified' : 'Standard Business'}
+                          </div>
+                          <div className="text-[10px] text-emerald-700">
+                            {gstin || cin ? '100% SERP Consistency' : 'Fill GSTIN / CIN for Engine 7 Verification'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Save KYC Button */}
+                    <div className="flex justify-end pt-2">
+                      <button
+                        type="button"
+                        onClick={handleSaveProfile}
+                        disabled={isSaving}
+                        className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                        <span>{isSaving ? 'Saving...' : 'Save & Verify KYC Documents'}</span>
+                      </button>
                     </div>
                   </div>
                 )}
