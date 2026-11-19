@@ -532,145 +532,145 @@ export default function DashboardOverviewPage() {
         </div>
       ) : (
         /* ========================================================================= */
-        /* 2. SIDE-BY-SIDE HERO: BUSINESS IDENTITY (Image 1) + COVER BANNER (Image 2) */
         /* ========================================================================= */
-        <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-7 space-y-6">
-          {/* Top Row: Business Identity (Image 1) on Left + Cover Banner (Image 2) on Right */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            {/* LEFT SIDE (Image 1): Business Identity Block */}
-            <div className="lg:col-span-7 flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
-              {/* Apple / Business Logo Box with soft shadow */}
-              <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white border border-slate-200 shadow-md p-2 flex-shrink-0 flex items-center justify-center group overflow-hidden">
-                {logoUrl ? (
-                  <img
-                    src={logoUrl}
-                    alt={businessName}
-                    className="w-full h-full object-contain"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-[#07213A] text-white font-mono font-bold text-2xl flex items-center justify-center rounded-xl">
-                    {businessName.slice(0, 2).toUpperCase()}
-                  </div>
-                )}
-                <button
-                  type="button"
-                  onClick={() => {
-                    const newLogo = prompt('Enter image URL for Business Logo / Avatar:', logoUrl);
-                    if (newLogo) setLogoUrl(newLogo.trim());
-                  }}
-                  className="absolute inset-0 bg-slate-950/65 text-white text-[11px] font-bold flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer"
-                  title="Change Logo"
-                >
-                  <Camera className="w-4 h-4 mb-0.5" />
-                  <span>Edit</span>
-                </button>
-              </div>
+        /* 2. PANORAMIC BANNER HERO: PROFILE DETAILS SHIFTED TO LEFT BOTTOM (Image 1 & 2) */
+        /* ========================================================================= */
+        <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden space-y-4">
+          {/* Panoramic Cover Banner with Embedded Left-Bottom Profile Info */}
+          <div className="relative h-64 sm:h-72 lg:h-80 w-full bg-slate-900 group overflow-hidden">
+            <img
+              src={coverUrl}
+              alt="Business Banner Cover"
+              className="w-full h-full object-cover object-center transition duration-500 group-hover:scale-102"
+            />
+            {/* Dark gradient overlay on bottom and sides for crystal clear text readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/45 to-transparent pointer-events-none" />
 
-              {/* Business Info: Name, Badge, Metadata, Slug & Actions */}
-              <div className="space-y-2 flex-1 min-w-0">
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
-                  <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                    {businessName}
-                  </h1>
-                  {/* Verified Partner Badge */}
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    Verified Partner
-                  </span>
-                </div>
+            {/* Top-Right Banner Actions (Edit Cover & Switch Account) */}
+            <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const newCover = prompt('Enter image URL for banner cover:', coverUrl);
+                  if (newCover) setCoverUrl(newCover.trim());
+                }}
+                className="px-3.5 py-1.5 rounded-xl bg-slate-950/70 hover:bg-slate-900 text-white text-xs font-semibold backdrop-blur-md border border-white/20 flex items-center gap-1.5 shadow-md transition cursor-pointer"
+                title="Change Cover Banner"
+              >
+                <Camera className="w-3.5 h-3.5 text-white" />
+                <span>Edit Cover</span>
+              </button>
 
-                <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                  {category} &bull; {city} &bull; Managed by <strong>{ownerName}</strong>
-                </p>
-
-                {/* Live Public Link & Copy Link */}
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-0.5">
-                  <Link
-                    href={`/biz/${businessSlug}`}
-                    target="_blank"
-                    className="text-xs font-semibold text-[#F95700] hover:underline inline-flex items-center gap-1 font-mono"
-                  >
-                    <span>/biz/{businessSlug}</span>
-                    <ExternalLink className="w-3 h-3 text-[#F95700]" />
-                  </Link>
-
-                  <button
-                    type="button"
-                    onClick={handleCopyPublicLink}
-                    className="text-[11px] text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition cursor-pointer font-medium"
-                  >
-                    {copiedLink ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                    <span>{copiedLink ? 'Copied' : 'Copy Link'}</span>
-                  </button>
-                </div>
-
-                {/* Quick Action Buttons */}
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-2">
-                  <Link
-                    href={`/biz/${businessSlug}`}
-                    target="_blank"
-                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                  >
-                    <span>View Public Profile</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </Link>
-
-                  <button
-                    type="button"
-                    onClick={handleSaveProfile}
-                    disabled={isSaving}
-                    className="px-4 py-1.5 rounded-xl text-xs font-bold text-white bg-[#07213A] hover:bg-[#0C2D4E] transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                  >
-                    <Save className="w-3.5 h-3.5 text-[#F95700]" />
-                    <span>{isSaving ? 'Saving...' : 'Save Profile Changes'}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginModalMode('login');
-                      setIsLoginModalOpen(true);
-                    }}
-                    className="w-8 h-8 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-600 cursor-pointer shadow-2xs"
-                    title="Switch Business or Account Options"
-                  >
-                    <MoreVertical className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginModalMode('login');
+                  setIsLoginModalOpen(true);
+                }}
+                className="w-8 h-8 rounded-xl bg-slate-950/70 hover:bg-slate-900 text-white flex items-center justify-center backdrop-blur-md border border-white/20 cursor-pointer shadow-md"
+                title="Account Options"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </button>
             </div>
 
-            {/* RIGHT SIDE (Image 2): Banner Cover Photo with Edit Cover button */}
-            <div className="lg:col-span-5">
-              <div className="relative h-44 sm:h-48 lg:h-52 w-full rounded-2xl overflow-hidden bg-slate-900 group shadow-md border border-slate-200/70">
-                <img
-                  src={coverUrl}
-                  alt="Business Banner Cover"
-                  className="w-full h-full object-cover object-center transition duration-300 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none" />
-
-                {/* Edit Cover Action at bottom-right */}
-                <div className="absolute bottom-3 right-3 z-10 flex items-center gap-2">
+            {/* Bottom-Left: Profile Photo, Apple Name, Badge, Metadata & Public Links (SHIFTED TO LEFT BOTTOM) */}
+            <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 right-4 sm:right-6 z-20 flex flex-col md:flex-row md:items-end justify-between gap-4">
+              {/* Left Identity: Avatar + Details */}
+              <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 text-center sm:text-left">
+                {/* Profile Photo / Avatar with White Ring */}
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white border-3 sm:border-4 border-white shadow-2xl p-1.5 flex-shrink-0 flex items-center justify-center group/logo overflow-hidden">
+                  {logoUrl ? (
+                    <img
+                      src={logoUrl}
+                      alt={businessName}
+                      className="w-full h-full object-contain rounded-full"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-[#07213A] text-white font-mono font-bold text-xl flex items-center justify-center rounded-full">
+                      {businessName.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={() => {
-                      const newCover = prompt('Enter image URL for banner cover:', coverUrl);
-                      if (newCover) setCoverUrl(newCover.trim());
+                      const newLogo = prompt('Enter image URL for Business Logo / Avatar:', logoUrl);
+                      if (newLogo) setLogoUrl(newLogo.trim());
                     }}
-                    className="px-3 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-900 text-white text-xs font-semibold backdrop-blur-md border border-white/20 flex items-center gap-1.5 shadow-md transition cursor-pointer"
-                    title="Change Cover Banner"
+                    className="absolute inset-0 bg-slate-950/75 text-white text-[10px] font-bold flex flex-col items-center justify-center opacity-0 group-hover/logo:opacity-100 transition cursor-pointer rounded-full"
+                    title="Change Logo"
                   >
-                    <Camera className="w-3.5 h-3.5 text-white" />
-                    <span>Edit Cover</span>
+                    <Camera className="w-4 h-4 mb-0.5" />
+                    <span>Edit</span>
                   </button>
                 </div>
+
+                {/* Details from Image 1: Name, Verified Partner Badge, Category, City, Managed By, /biz link, Copy Link */}
+                <div className="space-y-1 drop-shadow-md min-w-0">
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight drop-shadow-md">
+                      {businessName}
+                    </h1>
+                    {/* Verified Partner Badge */}
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-300 bg-emerald-950/70 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-emerald-500/40 shadow-xs">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Verified Partner</span>
+                    </span>
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-slate-200 font-medium drop-shadow-sm">
+                    {category} &bull; {city} &bull; Managed by <strong className="text-white">{ownerName}</strong>
+                  </p>
+
+                  {/* Public Link + Copy Link */}
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-0.5">
+                    <Link
+                      href={`/biz/${businessSlug}`}
+                      target="_blank"
+                      className="text-xs font-bold text-orange-400 hover:text-orange-300 hover:underline inline-flex items-center gap-1 font-mono drop-shadow-xs"
+                    >
+                      <span>/biz/{businessSlug}</span>
+                      <ExternalLink className="w-3 h-3 text-orange-400" />
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={handleCopyPublicLink}
+                      className="text-[11px] text-white hover:text-white bg-white/20 hover:bg-white/30 backdrop-blur-md px-2.5 py-0.5 rounded-lg flex items-center gap-1.5 transition cursor-pointer font-medium border border-white/20"
+                    >
+                      {copiedLink ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                      <span>{copiedLink ? 'Copied' : 'Copy Link'}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons on Right */}
+              <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 self-center sm:self-end flex-shrink-0">
+                <Link
+                  href={`/biz/${businessSlug}`}
+                  target="_blank"
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/20 transition flex items-center gap-1.5 shadow-sm"
+                >
+                  <span>View Public Page</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={handleSaveProfile}
+                  disabled={isSaving}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#F95700] hover:bg-[#d94a00] transition shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>{isSaving ? 'Saving...' : 'Save Profile Changes'}</span>
+                </button>
               </div>
             </div>
           </div>
 
-          {/* BOTTOM ROW: Pravixo 4 Metric Stat Cards */}
-          <div className="pt-4 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
+          {/* Pravixo 4 Metric Stat Cards */}
+          <div className="px-6 sm:px-8 pb-5 grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
             {/* Card 1: REACH */}
             <div className="p-4 bg-slate-50/70 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0">
