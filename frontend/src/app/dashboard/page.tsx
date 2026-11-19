@@ -30,16 +30,12 @@ import {
   SlidersHorizontal,
   FileText,
   BadgeCheck,
-  Instagram,
-  Youtube,
-  Facebook,
-  Linkedin,
-  Twitter,
   LayoutDashboard,
   Check,
   ChevronDown,
-  ChevronRight,
-  Award,
+  MoreVertical,
+  Eye,
+  User,
   Image as ImageIcon,
 } from 'lucide-react';
 import BusinessLoginModal from '@/components/BusinessLoginModal';
@@ -63,6 +59,24 @@ export default function DashboardOverviewPage() {
   const [session, setSession] = useState<OwnerSession | null>(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [loginModalMode, setLoginModalMode] = useState<'login' | 'signup'>('login');
+  const [activeTab, setActiveTab] = useState<'profile' | 'overview'>('profile');
+
+  // Accordion Sections Open/Close State (Requirement: open on clicking orange chevron icon)
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    basicInfo: true, // open first section by default
+    socialChannels: false,
+    kyc: false,
+    offerings: false,
+    gallery: false,
+    reviews: false,
+  });
+
+  const toggleSection = (sectionKey: string) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey],
+    }));
+  };
 
   // Pravixo-Style Profile Editor Form State
   const [businessName, setBusinessName] = useState('');
@@ -103,22 +117,6 @@ export default function DashboardOverviewPage() {
 
   // Customer Reviews
   const [reviews, setReviews] = useState<any[]>([]);
-
-  // Accordion open/close state ("me open kru then show hoye")
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    basicInfo: false,
-    socialChannels: false,
-    kyc: false,
-    showcase: false,
-    reviews: false,
-  });
-
-  const toggleSection = (key: string) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
-  };
 
   // UI Feedback
   const [isSaving, setIsSaving] = useState(false);
@@ -169,14 +167,13 @@ export default function DashboardOverviewPage() {
         );
       }
 
-      // Default presets if not in claims store
       const isApple = currSession.businessName?.toLowerCase() === 'apple';
       const isChoco = currSession.businessName?.toLowerCase().includes('choco');
       const isApex = currSession.businessName?.toLowerCase().includes('apex');
 
-      setBusinessName(found?.businessName || found?.name || currSession.businessName || 'Business Profile');
-      setBusinessSlug(found?.businessSlug || found?.slug || currSession.businessSlug || (isApple ? 'apple' : 'business'));
-      setOwnerName(found?.claimantName || found?.ownerName || currSession.ownerName || 'Kashish Saxena');
+      setBusinessName(found?.businessName || found?.name || currSession.businessName || 'Apple');
+      setBusinessSlug(found?.businessSlug || found?.slug || currSession.businessSlug || (isApple ? 'apple-noida' : 'business'));
+      setOwnerName(found?.claimantName || found?.ownerName || currSession.ownerName || (isApple ? 'Kashish Saxena' : 'Verified Owner'));
       setCategory(found?.category || currSession.category || (isApple ? 'Automobile & EV' : 'Retail'));
       setCity(found?.city || currSession.city || 'Noida, UP');
       setState(found?.state || (isApple ? 'Uttar Pradesh' : 'Maharashtra'));
@@ -188,11 +185,11 @@ export default function DashboardOverviewPage() {
             ? 'Shop 12, Crystal Plaza, New Link Road, Andheri West'
             : 'Commercial Centre, Central Market')
       );
-      setLandmark(found?.landmark || (isApple ? 'Near Master Park' : 'Opposite Metro Station'));
+      setLandmark(found?.landmark || (isApple ? 'Near Master Park Main Market' : 'Opposite Metro Station'));
       setPincode(found?.pincode || (isApple ? '102010' : '400053'));
       setPhone(found?.phone || currSession.phone || (isApple ? '+91 97170 56860' : '+91 98200 12345'));
       setWhatsapp(found?.whatsapp || (isApple ? '919717056860' : '919820012345'));
-      setEmail(found?.workEmail || found?.email || currSession.ownerEmail || currSession.email || 'contact@business.in');
+      setEmail(found?.workEmail || found?.email || currSession.ownerEmail || currSession.email || 'apple@business.in');
       setWebsite(found?.website || (isApple ? 'https://apple.com' : isChoco ? 'https://chocodelights.in' : 'https://bharatbn.com'));
       setBio(
         found?.businessDescription ||
@@ -442,20 +439,20 @@ export default function DashboardOverviewPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* ========================================================================= */}
-      {/* 1. GUEST BANNER (When Not Logged In)                                      */}
+      {/* 1. GUEST HERO BANNER (When Not Logged In)                                 */}
       {/* ========================================================================= */}
       {!session ? (
         <div className="p-8 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-transparent border border-amber-200/90 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
           <div className="space-y-2 max-w-2xl">
             <span className="text-xs font-bold text-[#F95700] uppercase tracking-wider bg-orange-100/70 border border-orange-200 px-3 py-1 rounded-full inline-flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-[#F95700]" />
-              Business Owner Access
+              Business Owner &amp; Enterprise Access
             </span>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
               Manage Your Business Profile, Social Channels &amp; Customer Leads
             </h1>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Log in to your business account (e.g. <strong>Apple</strong>, <strong>Choco Delights</strong>) or register a new business with verified email OTP.
+              Log in to your business account (e.g. <strong>Apple</strong>, <strong>Choco Delights</strong>) or register a new business with verified email OTP. Edit basic info, add official social media links, and track rankings.
             </p>
           </div>
 
@@ -487,149 +484,186 @@ export default function DashboardOverviewPage() {
         </div>
       ) : (
         /* ========================================================================= */
-        /* 2. TOP DETAILS BANNER (ALL BUSINESS DETAILS INSIDE THE TOP BANNER)        */
+        /* 2. PRAVIXO-STYLE PROFILE HERO BANNER (Image 3 Reference)                  */
         /* ========================================================================= */
-        <div className="relative rounded-3xl overflow-hidden shadow-lg border border-slate-800 bg-[#07213A] text-white">
-          {/* Panoramic background with subtle overlay */}
-          <div className="absolute inset-0 z-0">
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden space-y-4">
+          {/* Panoramic Cover Image with Edit Cover button (exact Image 3 positioning) */}
+          <div className="relative h-48 sm:h-64 w-full bg-slate-900 group overflow-hidden">
             <img
               src={coverUrl}
               alt="Business Banner Cover"
-              className="w-full h-full object-cover object-center opacity-25"
+              className="w-full h-full object-cover object-center transition duration-300 group-hover:scale-102"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#07213A] via-[#07213A]/95 to-[#0C2D4E]/85" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
+
+            {/* Edit Cover Action at bottom-right of cover image */}
+            <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const newCover = prompt('Enter image URL for banner cover:', coverUrl);
+                  if (newCover) setCoverUrl(newCover.trim());
+                }}
+                className="px-3.5 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-900 text-white text-xs font-semibold backdrop-blur-md border border-white/20 flex items-center gap-1.5 shadow-md transition cursor-pointer"
+                title="Change Cover Banner"
+              >
+                <Camera className="w-3.5 h-3.5 text-white" />
+                <span>Edit Cover</span>
+              </button>
+            </div>
           </div>
 
-          {/* Details Content directly inside banner as requested */}
-          <div className="relative z-10 p-6 sm:p-8 space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              {/* Left Identity: Logo + Name + Verified Badge + Category & Managed by + Live Link */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-                {/* Business Logo / Profile Avatar */}
-                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white border-2 border-white/20 shadow-xl overflow-hidden flex-shrink-0 group p-1 flex items-center justify-center">
-                  {logoUrl ? (
-                    <img
-                      src={logoUrl}
-                      alt={businessName}
-                      className="w-full h-full object-contain rounded-xl"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-[#07213A] text-white font-mono font-bold text-2xl flex items-center justify-center rounded-xl">
-                      {businessName.slice(0, 2).toUpperCase()}
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newLogo = prompt('Enter image URL for Business Logo / Avatar:', logoUrl);
-                      if (newLogo) setLogoUrl(newLogo.trim());
-                    }}
-                    className="absolute inset-0 bg-slate-950/70 text-white text-[11px] font-bold flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer rounded-xl"
-                    title="Change Logo"
-                  >
-                    <Camera className="w-4 h-4 mb-0.5" />
-                    <span>Edit</span>
-                  </button>
-                </div>
-
-                {/* Identity Metadata Text */}
-                <div className="space-y-1.5">
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                      {businessName}
-                    </h1>
-                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-300 bg-emerald-500/20 px-3 py-1 rounded-full border border-emerald-500/30">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      Verified Partner
-                    </span>
+          {/* Profile Identity Row: Circular Avatar + Name + Check Badge + Details (Image 3) */}
+          <div className="px-6 sm:px-8 pb-4 pt-0 relative flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-14 sm:-mt-16">
+            {/* Circular Avatar & Details in banner */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 text-center sm:text-left">
+              {/* Circular Avatar (rounded-full with thick white border) */}
+              <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white border-4 border-white shadow-xl overflow-hidden flex-shrink-0 group z-10">
+                {logoUrl ? (
+                  <img
+                    src={logoUrl}
+                    alt={businessName}
+                    className="w-full h-full object-contain p-2 rounded-full"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-[#07213A] text-white font-mono font-bold text-2xl flex items-center justify-center rounded-full">
+                    {businessName.slice(0, 2).toUpperCase()}
                   </div>
-
-                  <p className="text-xs sm:text-sm text-slate-300 font-medium">
-                    {category} &bull; {city} &bull; Managed by <strong className="text-white">{ownerName}</strong>
-                  </p>
-
-                  {/* Public Link & Copy Button inside Banner */}
-                  <div className="flex flex-wrap items-center gap-2 pt-1">
-                    <Link
-                      href={`/biz/${businessSlug}`}
-                      target="_blank"
-                      className="text-xs sm:text-sm font-semibold text-[#F95700] hover:text-orange-400 transition inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-xl border border-white/15 cursor-pointer"
-                    >
-                      <span>/biz/{businessSlug}</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </Link>
-
-                    <button
-                      type="button"
-                      onClick={handleCopyPublicLink}
-                      className="text-xs text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-xl border border-white/15 flex items-center gap-1.5 transition cursor-pointer"
-                    >
-                      {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span>{copiedLink ? 'Copied' : 'Copy Link'}</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right: Quick Action Controls */}
-              <div className="flex flex-wrap items-center gap-2.5 sm:self-start md:self-center">
+                )}
                 <button
                   type="button"
                   onClick={() => {
-                    const newCover = prompt('Enter image URL for banner cover:', coverUrl);
-                    if (newCover) setCoverUrl(newCover.trim());
+                    const newLogo = prompt('Enter image URL for Business Logo / Avatar:', logoUrl);
+                    if (newLogo) setLogoUrl(newLogo.trim());
                   }}
-                  className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur-md border border-white/20 flex items-center gap-1.5 transition cursor-pointer"
+                  className="absolute inset-0 bg-slate-950/60 text-white text-[10px] font-bold flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer rounded-full"
                 >
-                  <Camera className="w-3.5 h-3.5" />
-                  <span>Edit Cover</span>
+                  <Camera className="w-4 h-4 mb-0.5" />
+                  <span>Edit Logo</span>
                 </button>
+              </div>
 
-                <Link
-                  href={`/biz/${businessSlug}`}
-                  target="_blank"
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-900 bg-white hover:bg-slate-100 transition shadow-sm flex items-center gap-1.5 cursor-pointer"
-                >
-                  <span>View Live</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </Link>
+              {/* Title, Verified Badge, Subtitle & Live Link (Image 1 & 3 Reference) */}
+              <div className="space-y-1.5 pt-2">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                  <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                    {businessName}
+                  </h1>
+                  {/* Verified Partner Badge */}
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    Verified Partner
+                  </span>
+                </div>
 
-                <button
-                  type="button"
-                  onClick={handleSaveProfile}
-                  disabled={isSaving}
-                  className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#F95700] hover:bg-[#d94a00] transition shadow-md shadow-[#F95700]/30 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                >
-                  <Save className="w-3.5 h-3.5" />
-                  <span>{isSaving ? 'Saving...' : 'Save Profile'}</span>
-                </button>
+                <p className="text-xs sm:text-sm text-slate-500 font-medium">
+                  {category} &bull; {city} &bull; Managed by <strong>{ownerName}</strong>
+                </p>
+
+                {/* Live Public Link & Copy Link */}
+                <div className="flex items-center justify-center sm:justify-start gap-2 pt-0.5">
+                  <Link
+                    href={`/biz/${businessSlug}`}
+                    target="_blank"
+                    className="text-xs font-semibold text-[#F95700] hover:underline inline-flex items-center gap-1 font-mono"
+                  >
+                    <span>/biz/{businessSlug}</span>
+                    <ExternalLink className="w-3 h-3 text-[#F95700]" />
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={handleCopyPublicLink}
+                    className="text-[11px] text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition cursor-pointer font-medium"
+                  >
+                    {copiedLink ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedLink ? 'Copied' : 'Copy Link'}</span>
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Metric Stat Pills inside Banner */}
-            <div className="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center sm:text-left">
-              <div className="p-3 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-xs">
-                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Directory Views</div>
-                <div className="text-xl font-black text-white mt-0.5">1.4k+</div>
-                <div className="text-[10px] text-emerald-400 font-semibold">+22% high intent</div>
-              </div>
+            {/* Quick Actions (View Live + Three Dots Menu from Image 3) */}
+            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2.5">
+              <Link
+                href={`/biz/${businessSlug}`}
+                target="_blank"
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              >
+                <span>View Public Profile</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
 
-              <div className="p-3 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-xs">
-                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">WhatsApp Leads</div>
-                <div className="text-xl font-black text-[#F95700] mt-0.5">128</div>
-                <div className="text-[10px] text-slate-300 font-semibold">Direct customer inquiries</div>
-              </div>
+              <button
+                type="button"
+                onClick={handleSaveProfile}
+                disabled={isSaving}
+                className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#07213A] hover:bg-[#0C2D4E] transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                <Save className="w-3.5 h-3.5 text-[#F95700]" />
+                <span>{isSaving ? 'Saving...' : 'Save Profile Changes'}</span>
+              </button>
 
-              <div className="p-3 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-xs">
-                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">NAP / SERP Parity</div>
-                <div className="text-xl font-black text-emerald-400 mt-0.5">100%</div>
-                <div className="text-[10px] text-emerald-400 font-semibold">Dual verified on Google</div>
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginModalMode('login');
+                  setIsLoginModalOpen(true);
+                }}
+                className="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-600 cursor-pointer shadow-2xs"
+                title="Switch Business or Account Options"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
 
-              <div className="p-3 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-xs">
-                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">KYC Status</div>
-                <div className="text-xl font-black text-white mt-0.5">ROC Audited</div>
-                <div className="text-[10px] text-slate-300 font-semibold">GSTIN verified</div>
+          {/* Pravixo 4 Metric Stat Cards (Image 3 exact layout) */}
+          <div className="px-6 sm:px-8 pb-6 grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
+            {/* Card 1: REACH */}
+            <div className="p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-base sm:text-lg font-black text-slate-900">1.2K</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                </div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">REACH</div>
+              </div>
+            </div>
+
+            {/* Card 2: VIEWS */}
+            <div className="p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-orange-100 text-[#F95700] flex items-center justify-center flex-shrink-0">
+                <Eye className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-base sm:text-lg font-black text-slate-900">184</div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">VIEWS</div>
+              </div>
+            </div>
+
+            {/* Card 3: CLICKS / INQUIRIES */}
+            <div className="p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-base sm:text-lg font-black text-slate-900">42</div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">CLICKS</div>
+              </div>
+            </div>
+
+            {/* Card 4: DEALS / COLLABS */}
+            <div className="p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-base sm:text-lg font-black text-slate-900">8 Deals</div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">COLLABS</div>
               </div>
             </div>
           </div>
@@ -655,771 +689,953 @@ export default function DashboardOverviewPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* 3. COLLAPSIBLE ACCORDION SECTIONS ("me open kru then show hoye")          */}
+      {/* 3. DASHBOARD MAIN TABS                                                    */}
       {/* ========================================================================= */}
       {session && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between pb-1">
-            <div>
-              <h2 className="text-lg font-bold text-slate-900">
-                Business Details &amp; Pravixo Profile Sections
-              </h2>
-              <p className="text-xs text-slate-500">
-                Click any section below to open, edit and customize its details
-              </p>
-            </div>
+        <div className="space-y-6">
+          {/* Navigation Pill Tabs */}
+          <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
+            <button
+              type="button"
+              onClick={() => setActiveTab('profile')}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 cursor-pointer ${
+                activeTab === 'profile'
+                  ? 'bg-[#07213A] text-white shadow-xs'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              <Edit className="w-4 h-4 text-[#F95700]" />
+              <span>Edit Profile (Pravixo Style)</span>
+            </button>
 
-            {/* Quick Toggle All Button */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  const anyOpen = Object.values(openSections).some(Boolean);
-                  const nextState = !anyOpen;
-                  setOpenSections({
-                    basicInfo: nextState,
-                    socialChannels: nextState,
-                    kyc: nextState,
-                    showcase: nextState,
-                    reviews: nextState,
-                  });
-                }}
-                className="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-xl hover:bg-slate-50 transition cursor-pointer"
-              >
-                {Object.values(openSections).some(Boolean) ? 'Collapse All' : 'Expand All'}
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setActiveTab('overview')}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 cursor-pointer ${
+                activeTab === 'overview'
+                  ? 'bg-[#07213A] text-white shadow-xs'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span>Operations &amp; Analytics</span>
+            </button>
+
+            <Link
+              href="/dashboard/branches"
+              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition flex items-center gap-1.5"
+            >
+              <Building2 className="w-4 h-4 text-slate-500" />
+              <span>Branches</span>
+            </Link>
+
+            <Link
+              href="/dashboard/leads"
+              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition flex items-center gap-1.5"
+            >
+              <MessageSquare className="w-4 h-4 text-[#F95700]" />
+              <span>Customer Leads</span>
+            </Link>
+
+            <Link
+              href="/dashboard/seo-campaigns"
+              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition flex items-center gap-1.5"
+            >
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              <span>Pay-As-You-Rank™</span>
+            </Link>
           </div>
 
           {/* ===================================================================== */}
-          {/* ACCORDION 1: Basic Information                                        */}
+          {/* TAB 1: PRAVIXO-STYLE ACCORDION EDIT PROFILE                           */}
           {/* ===================================================================== */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden transition">
-            {/* Clickable Header Bar */}
-            <button
-              type="button"
-              onClick={() => toggleSection('basicInfo')}
-              className="w-full p-5 sm:p-6 text-left flex items-center justify-between hover:bg-slate-50/80 transition cursor-pointer"
-            >
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-200 text-[#F95700] flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-5 h-5" />
+          {activeTab === 'profile' && (
+            <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-8 space-y-6">
+              {/* Edit Profile Top Bar (Image 3) */}
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl font-black text-slate-900">
+                    Edit Profile
+                  </h2>
+                  <span className="text-xs text-slate-400 font-medium">
+                    (Click any section below to open &amp; edit details)
+                  </span>
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-slate-900">
-                      Basic Information
-                    </h3>
-                    <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                      Active
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    {businessName} &bull; {category} &bull; {city}
-                  </p>
+
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-blue-600 bg-blue-50 border border-blue-200 shadow-2xs">
+                  <Check className="w-3.5 h-3.5 text-blue-600 stroke-[3]" />
+                  <span>Verified Account</span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-[#F95700] hidden sm:inline">
-                  {openSections.basicInfo ? 'Close Details' : 'Open Details'}
-                </span>
-                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
-                  {openSections.basicInfo ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                </div>
-              </div>
-            </button>
-
-            {/* Expandable Body */}
-            {openSections.basicInfo && (
-              <div className="p-6 sm:p-8 pt-0 border-t border-slate-100 space-y-6 animate-in slide-in-from-top-2 duration-200">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-4">
-                  {/* Display Name */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">
-                      Display / Business Name <span className="text-[#F95700]">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={businessName}
-                      onChange={(e) => setBusinessName(e.target.value)}
-                      className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
-                      required
-                    />
-                  </div>
-
-                  {/* Public Slug */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">
-                      Public Profile URL Slug (/biz/[slug]) <span className="text-[#F95700]">*</span>
-                    </label>
-                    <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50 focus-within:border-[#F95700] overflow-hidden">
-                      <span className="text-[11px] font-mono text-slate-400 pl-3">/biz/</span>
-                      <input
-                        type="text"
-                        value={businessSlug}
-                        onChange={(e) => setBusinessSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
-                        className="w-full text-xs px-1.5 py-2.5 bg-transparent focus:outline-none font-mono"
-                        required
-                      />
+              {/* Photo & Banner Switcher (Image 3) */}
+              <div className="flex items-center gap-4 pb-2">
+                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-slate-200 bg-white p-0.5 flex-shrink-0 shadow-xs">
+                  {logoUrl ? (
+                    <img src={logoUrl} alt={businessName} className="w-full h-full object-contain rounded-full" />
+                  ) : (
+                    <div className="w-full h-full bg-[#07213A] text-white font-bold flex items-center justify-center text-sm rounded-full">
+                      {businessName.slice(0, 1).toUpperCase()}
                     </div>
-                  </div>
-
-                  {/* Category */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">Industry Category</label>
-                    <input
-                      type="text"
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
-                    />
-                  </div>
-
-                  {/* Owner Full Name */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">Authorized Representative</label>
-                    <input
-                      type="text"
-                      value={ownerName}
-                      onChange={(e) => setOwnerName(e.target.value)}
-                      className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
-                    />
-                  </div>
-
-                  {/* Phone & WhatsApp */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">Primary Calling Number</label>
-                    <input
-                      type="text"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">WhatsApp Inquiry Number</label>
-                    <input
-                      type="text"
-                      value={whatsapp}
-                      onChange={(e) => setWhatsapp(e.target.value)}
-                      className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
-                    />
-                  </div>
-
-                  {/* Work Email & Website */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">Official Work Email</label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">Official Website URL</label>
-                    <div className="relative">
-                      <Globe className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                      <input
-                        type="url"
-                        value={website}
-                        onChange={(e) => setWebsite(e.target.value)}
-                        placeholder="https://example.com"
-                        className="w-full text-xs pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Address & City */}
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">City / District, State</label>
-                    <input
-                      type="text"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">Street Address Line</label>
-                    <input
-                      type="text"
-                      value={addressLine}
-                      onChange={(e) => setAddressLine(e.target.value)}
-                      className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
-                    />
-                  </div>
+                  )}
                 </div>
 
-                {/* Bio / Description */}
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold text-slate-700">
-                      Bio / Business Description <span className="text-[#F95700]">* (Visible in Source Code &amp; Search)</span>
-                    </label>
-                    <span className="text-[11px] text-slate-400">{bio.length} characters</span>
-                  </div>
-                  <textarea
-                    rows={3}
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    placeholder="Enter short description of your business, services, products, and location..."
-                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] leading-relaxed"
-                  />
-                </div>
-
-                {/* Detailed Story */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
-                    Founding Story / Detailed Background
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={aboutStory}
-                    onChange={(e) => setAboutStory(e.target.value)}
-                    placeholder="Describe your brand's heritage, founding journey, client trust, and quality certifications..."
-                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] leading-relaxed"
-                  />
-                </div>
-
-                {/* Save Button inside card */}
-                <div className="flex justify-end pt-2">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={handleSaveProfile}
-                    disabled={isSaving}
-                    className="px-5 py-2 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    onClick={() => {
+                      const newLogo = prompt('Enter image URL for Business Photo / Logo:', logoUrl);
+                      if (newLogo) setLogoUrl(newLogo.trim());
+                    }}
+                    className="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
                   >
-                    <Save className="w-3.5 h-3.5" />
-                    <span>{isSaving ? 'Saving...' : 'Save Basic Info'}</span>
+                    <Camera className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Photo</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newCover = prompt('Enter banner cover image URL:', coverUrl);
+                      if (newCover) setCoverUrl(newCover.trim());
+                    }}
+                    className="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Banner</span>
                   </button>
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* ===================================================================== */}
-          {/* ACCORDION 2: Social Presence / Channels (Requirement 3)               */}
-          {/* ===================================================================== */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden transition">
-            {/* Clickable Header Bar */}
-            <button
-              type="button"
-              onClick={() => toggleSection('socialChannels')}
-              className="w-full p-5 sm:p-6 text-left flex items-center justify-between hover:bg-slate-50/80 transition cursor-pointer"
-            >
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-pink-50 border border-pink-200 text-pink-600 flex items-center justify-center flex-shrink-0">
-                  <Share2 className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-slate-900">
-                      Social Presence / Channels
-                    </h3>
-                    <span className="text-[10px] font-semibold text-pink-700 bg-pink-50 px-2 py-0.5 rounded-full border border-pink-200">
-                      5 Handles Supported
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Instagram, YouTube, Facebook, LinkedIn, Twitter/X
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-[#F95700] hidden sm:inline">
-                  {openSections.socialChannels ? 'Close Details' : 'Open Details'}
-                </span>
-                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
-                  {openSections.socialChannels ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                </div>
-              </div>
-            </button>
-
-            {/* Expandable Body */}
-            {openSections.socialChannels && (
-              <div className="p-6 sm:p-8 pt-0 border-t border-slate-100 space-y-5 animate-in slide-in-from-top-2 duration-200">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-                  {/* Instagram */}
-                  <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-pink-700 flex items-center gap-1.5">
-                        <span className="text-sm">📸</span>
-                        <span>Instagram Handle / URL</span>
-                      </span>
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          instagram ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500'
-                        }`}
-                      >
-                        {instagram ? 'Connected' : 'Not Linked'}
-                      </span>
+              {/* =================================================================== */}
+              {/* ACCORDION 1: Basic Information (Image 4 Orange Chevron)             */}
+              {/* =================================================================== */}
+              <div className="rounded-2xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs transition">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('basicInfo')}
+                  className="w-full p-5 flex items-center justify-between text-left hover:bg-slate-50/70 transition cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-orange-100/80 text-[#F95700] flex items-center justify-center flex-shrink-0">
+                      <User className="w-5 h-5" />
                     </div>
-                    <input
-                      type="text"
-                      value={instagram}
-                      onChange={(e) => setInstagram(e.target.value)}
-                      placeholder="e.g. @apple or https://instagram.com/apple"
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-pink-500"
+                    <div>
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                        Basic Information
+                      </h3>
+                      <p className="text-xs text-slate-400">
+                        Display name, handle, category, location, phone, and starting bio
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Orange Chevron Icon from Image 4 */}
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center">
+                    <ChevronDown
+                      className={`w-5 h-5 text-[#F95700] stroke-[2.5] transition-transform duration-200 ${
+                        openSections.basicInfo ? 'rotate-180' : 'rotate-0'
+                      }`}
                     />
                   </div>
+                </button>
 
-                  {/* YouTube */}
-                  <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-red-700 flex items-center gap-1.5">
-                        <span className="text-sm">▶️</span>
-                        <span>YouTube Channel</span>
-                      </span>
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          youtube ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500'
-                        }`}
+                {openSections.basicInfo && (
+                  <div className="p-6 pt-3 border-t border-slate-100 space-y-5 animate-in fade-in duration-150">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      {/* Display Name */}
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-700">
+                          Display / Business Name <span className="text-[#F95700]">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={businessName}
+                          onChange={(e) => setBusinessName(e.target.value)}
+                          className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                          required
+                        />
+                      </div>
+
+                      {/* Public Slug */}
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-700">
+                          Handle / Public Slug (/biz/[slug]) <span className="text-[#F95700]">*</span>
+                        </label>
+                        <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50 focus-within:border-[#F95700] overflow-hidden">
+                          <span className="text-[11px] font-mono text-slate-400 pl-3">/biz/</span>
+                          <input
+                            type="text"
+                            value={businessSlug}
+                            onChange={(e) => setBusinessSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                            className="w-full text-xs px-1.5 py-2.5 bg-transparent focus:outline-none font-mono"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      {/* Category */}
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-700">Industry Category</label>
+                        <input
+                          type="text"
+                          value={category}
+                          onChange={(e) => setCategory(e.target.value)}
+                          className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                        />
+                      </div>
+
+                      {/* Owner Full Name */}
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-700">Authorized Representative</label>
+                        <input
+                          type="text"
+                          value={ownerName}
+                          onChange={(e) => setOwnerName(e.target.value)}
+                          className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                        />
+                      </div>
+
+                      {/* Phone & WhatsApp */}
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-700">Primary Calling Number</label>
+                        <input
+                          type="text"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-700">WhatsApp Inquiry Number</label>
+                        <input
+                          type="text"
+                          value={whatsapp}
+                          onChange={(e) => setWhatsapp(e.target.value)}
+                          className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                        />
+                      </div>
+
+                      {/* Work Email & Website */}
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-700">Official Work Email</label>
+                        <input
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-700">Official Website URL</label>
+                        <div className="relative">
+                          <Globe className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                          <input
+                            type="url"
+                            value={website}
+                            onChange={(e) => setWebsite(e.target.value)}
+                            placeholder="https://example.com"
+                            className="w-full text-xs pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Address & City */}
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-700">City / District, State</label>
+                        <input
+                          type="text"
+                          value={city}
+                          onChange={(e) => setCity(e.target.value)}
+                          className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-700">Street Address Line</label>
+                        <input
+                          type="text"
+                          value={addressLine}
+                          onChange={(e) => setAddressLine(e.target.value)}
+                          className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Bio / Description */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-bold text-slate-700">
+                          Bio / Business Description <span className="text-[#F95700]">* (Visible in Source Code &amp; Search)</span>
+                        </label>
+                        <span className="text-[11px] text-slate-400">{bio.length} characters</span>
+                      </div>
+                      <textarea
+                        rows={3}
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                        placeholder="Enter short description of your business, services, products, and location..."
+                        className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] leading-relaxed"
+                      />
+                    </div>
+
+                    {/* Detailed Story */}
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-slate-700">
+                        Founding Story / Detailed Background
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={aboutStory}
+                        onChange={(e) => setAboutStory(e.target.value)}
+                        placeholder="Describe your brand's heritage, founding journey, client trust, and quality certifications..."
+                        className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] leading-relaxed"
+                      />
+                    </div>
+
+                    <div className="flex justify-end pt-2">
+                      <button
+                        type="button"
+                        onClick={handleSaveProfile}
+                        disabled={isSaving}
+                        className="px-5 py-2 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                       >
-                        {youtube ? 'Connected' : 'Not Linked'}
-                      </span>
+                        <Save className="w-3.5 h-3.5" />
+                        <span>{isSaving ? 'Saving...' : 'Save Basic Info'}</span>
+                      </button>
                     </div>
-                    <input
-                      type="text"
-                      value={youtube}
-                      onChange={(e) => setYoutube(e.target.value)}
-                      placeholder="e.g. @apple or https://youtube.com/@apple"
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-red-500"
-                    />
                   </div>
-
-                  {/* Facebook */}
-                  <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-blue-700 flex items-center gap-1.5">
-                        <span className="text-sm">📘</span>
-                        <span>Facebook Page</span>
-                      </span>
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          facebook ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500'
-                        }`}
-                      >
-                        {facebook ? 'Connected' : 'Not Linked'}
-                      </span>
-                    </div>
-                    <input
-                      type="text"
-                      value={facebook}
-                      onChange={(e) => setFacebook(e.target.value)}
-                      placeholder="e.g. https://facebook.com/applestore"
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-blue-500"
-                    />
-                  </div>
-
-                  {/* LinkedIn */}
-                  <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-sky-700 flex items-center gap-1.5">
-                        <span className="text-sm">💼</span>
-                        <span>LinkedIn Company Profile</span>
-                      </span>
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          linkedin ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500'
-                        }`}
-                      >
-                        {linkedin ? 'Connected' : 'Not Linked'}
-                      </span>
-                    </div>
-                    <input
-                      type="text"
-                      value={linkedin}
-                      onChange={(e) => setLinkedin(e.target.value)}
-                      placeholder="e.g. https://linkedin.com/company/apple"
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-sky-500"
-                    />
-                  </div>
-
-                  {/* Twitter / X */}
-                  <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2 sm:col-span-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                        <span className="text-sm">𝕏</span>
-                        <span>Twitter / X Handle</span>
-                      </span>
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          twitter ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500'
-                        }`}
-                      >
-                        {twitter ? 'Connected' : 'Not Linked'}
-                      </span>
-                    </div>
-                    <input
-                      type="text"
-                      value={twitter}
-                      onChange={(e) => setTwitter(e.target.value)}
-                      placeholder="e.g. @apple or https://x.com/apple"
-                      className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-slate-800"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end pt-2">
-                  <button
-                    type="button"
-                    onClick={handleSaveProfile}
-                    disabled={isSaving}
-                    className="px-5 py-2 rounded-xl bg-[#07213A] hover:bg-[#0C2D4E] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                  >
-                    <Save className="w-3.5 h-3.5 text-[#F95700]" />
-                    <span>Save Social Channels</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* ===================================================================== */}
-          {/* ACCORDION 3: KYC & Official Documents                                 */}
-          {/* ===================================================================== */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden transition">
-            {/* Clickable Header Bar */}
-            <button
-              type="button"
-              onClick={() => toggleSection('kyc')}
-              className="w-full p-5 sm:p-6 text-left flex items-center justify-between hover:bg-slate-50/80 transition cursor-pointer"
-            >
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                  <ShieldCheck className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-slate-900">
-                      KYC Documents &amp; Government Verification
-                    </h3>
-                    <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                      3 Audited
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    GSTIN Certificate, ROC Registration, BharatBN Engine 7
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-[#F95700] hidden sm:inline">
-                  {openSections.kyc ? 'Close Details' : 'Open Details'}
-                </span>
-                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
-                  {openSections.kyc ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                </div>
-              </div>
-            </button>
-
-            {/* Expandable Body */}
-            {openSections.kyc && (
-              <div className="p-6 sm:p-8 pt-0 border-t border-slate-100 space-y-4 animate-in slide-in-from-top-2 duration-200">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-                  <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-emerald-800">GSTIN Registration</span>
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    </div>
-                    <div className="text-xs text-emerald-900 font-mono font-bold">07AAAAA0000A1Z5</div>
-                    <div className="text-[10px] text-emerald-700">Verified &amp; Active</div>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-emerald-800">ROC Incorporation</span>
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    </div>
-                    <div className="text-xs text-emerald-900 font-mono font-bold">U72900DL2021PTC</div>
-                    <div className="text-[10px] text-emerald-700">Audited &amp; Compliant</div>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-emerald-800">BharatBN™ Badge</span>
-                      <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                    </div>
-                    <div className="text-xs text-emerald-900 font-mono font-bold">Engine 7 Verified</div>
-                    <div className="text-[10px] text-emerald-700">100% SERP Consistency</div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* ===================================================================== */}
-          {/* ACCORDION 4: Live Offerings & Showcase Gallery                         */}
-          {/* ===================================================================== */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden transition">
-            {/* Clickable Header Bar */}
-            <button
-              type="button"
-              onClick={() => toggleSection('showcase')}
-              className="w-full p-5 sm:p-6 text-left flex items-center justify-between hover:bg-slate-50/80 transition cursor-pointer"
-            >
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center flex-shrink-0">
-                  <ImageIcon className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-slate-900">
-                      Live Offerings &amp; Photo Showcase
-                    </h3>
-                    <span className="text-[10px] font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">
-                      {services.length} Services &bull; {gallery.length} Photos
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Manage service chips, amenities, and photo pavilion
-                  </p>
-                </div>
+                )}
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-[#F95700] hidden sm:inline">
-                  {openSections.showcase ? 'Close Details' : 'Open Details'}
-                </span>
-                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
-                  {openSections.showcase ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                </div>
+              {/* =================================================================== */}
+              {/* ACCORDION 2: Social Presence / Channels (Requirement 3)             */}
+              {/* =================================================================== */}
+              <div className="rounded-2xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs transition">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('socialChannels')}
+                  className="w-full p-5 flex items-center justify-between text-left hover:bg-slate-50/70 transition cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-pink-100/80 text-pink-600 flex items-center justify-center flex-shrink-0">
+                      <Share2 className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                        Social Presence / Channels
+                      </h3>
+                      <p className="text-xs text-slate-400">
+                        Connect Instagram, YouTube, Facebook, LinkedIn, Twitter/X
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Orange Chevron Icon from Image 4 */}
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center">
+                    <ChevronDown
+                      className={`w-5 h-5 text-[#F95700] stroke-[2.5] transition-transform duration-200 ${
+                        openSections.socialChannels ? 'rotate-180' : 'rotate-0'
+                      }`}
+                    />
+                  </div>
+                </button>
+
+                {openSections.socialChannels && (
+                  <div className="p-6 pt-3 border-t border-slate-100 space-y-5 animate-in fade-in duration-150">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Instagram */}
+                      <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-pink-700 flex items-center gap-1.5">
+                            <span className="text-sm">📸</span>
+                            <span>Instagram Handle / URL</span>
+                          </span>
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              instagram ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500'
+                            }`}
+                          >
+                            {instagram ? 'Connected' : 'Not Linked'}
+                          </span>
+                        </div>
+                        <input
+                          type="text"
+                          value={instagram}
+                          onChange={(e) => setInstagram(e.target.value)}
+                          placeholder="e.g. @apple or https://instagram.com/apple"
+                          className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-pink-500"
+                        />
+                      </div>
+
+                      {/* YouTube */}
+                      <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-red-700 flex items-center gap-1.5">
+                            <span className="text-sm">▶️</span>
+                            <span>YouTube Channel</span>
+                          </span>
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              youtube ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500'
+                            }`}
+                          >
+                            {youtube ? 'Connected' : 'Not Linked'}
+                          </span>
+                        </div>
+                        <input
+                          type="text"
+                          value={youtube}
+                          onChange={(e) => setYoutube(e.target.value)}
+                          placeholder="e.g. @apple or https://youtube.com/@apple"
+                          className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-red-500"
+                        />
+                      </div>
+
+                      {/* Facebook */}
+                      <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-blue-700 flex items-center gap-1.5">
+                            <span className="text-sm">📘</span>
+                            <span>Facebook Page</span>
+                          </span>
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              facebook ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500'
+                            }`}
+                          >
+                            {facebook ? 'Connected' : 'Not Linked'}
+                          </span>
+                        </div>
+                        <input
+                          type="text"
+                          value={facebook}
+                          onChange={(e) => setFacebook(e.target.value)}
+                          placeholder="e.g. https://facebook.com/applestore"
+                          className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-blue-500"
+                        />
+                      </div>
+
+                      {/* LinkedIn */}
+                      <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-sky-700 flex items-center gap-1.5">
+                            <span className="text-sm">💼</span>
+                            <span>LinkedIn Company Profile</span>
+                          </span>
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              linkedin ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500'
+                            }`}
+                          >
+                            {linkedin ? 'Connected' : 'Not Linked'}
+                          </span>
+                        </div>
+                        <input
+                          type="text"
+                          value={linkedin}
+                          onChange={(e) => setLinkedin(e.target.value)}
+                          placeholder="e.g. https://linkedin.com/company/apple"
+                          className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-sky-500"
+                        />
+                      </div>
+
+                      {/* Twitter / X */}
+                      <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2 sm:col-span-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                            <span className="text-sm">𝕏</span>
+                            <span>Twitter / X Handle</span>
+                          </span>
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              twitter ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500'
+                            }`}
+                          >
+                            {twitter ? 'Connected' : 'Not Linked'}
+                          </span>
+                        </div>
+                        <input
+                          type="text"
+                          value={twitter}
+                          onChange={(e) => setTwitter(e.target.value)}
+                          placeholder="e.g. @apple or https://x.com/apple"
+                          className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-slate-800"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end pt-2">
+                      <button
+                        type="button"
+                        onClick={handleSaveProfile}
+                        disabled={isSaving}
+                        className="px-5 py-2 rounded-xl bg-[#07213A] hover:bg-[#0C2D4E] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      >
+                        <Save className="w-3.5 h-3.5 text-[#F95700]" />
+                        <span>Save Social Channels</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-            </button>
 
-            {/* Expandable Body */}
-            {openSections.showcase && (
-              <div className="p-6 sm:p-8 pt-0 border-t border-slate-100 space-y-6 animate-in slide-in-from-top-2 duration-200">
-                {/* Services / Offerings */}
-                <div className="space-y-3 pt-4">
-                  <label className="block text-xs font-bold text-slate-700">
-                    Products &amp; Speciality Offerings
-                  </label>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {services.map((tag) => (
-                      <span
-                        key={tag}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-50 text-[#F95700] border border-orange-200"
-                      >
-                        <span>{tag}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveService(tag)}
-                          className="hover:text-red-600 cursor-pointer"
-                        >
-                          &times;
-                        </button>
-                      </span>
-                    ))}
+              {/* =================================================================== */}
+              {/* ACCORDION 3: KYC Documents (Image 4 Orange Chevron)                 */}
+              {/* =================================================================== */}
+              <div className="rounded-2xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs transition">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('kyc')}
+                  className="w-full p-5 flex items-center justify-between text-left hover:bg-slate-50/70 transition cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-100/80 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                      <ShieldCheck className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                        KYC Documents &amp; Verification
+                      </h3>
+                      <p className="text-xs text-slate-400">
+                        GSTIN registration, ROC incorporation, and verified badges
+                      </p>
+                    </div>
                   </div>
 
-                  <form onSubmit={handleAddService} className="flex gap-2 max-w-md">
-                    <input
-                      type="text"
-                      value={newService}
-                      onChange={(e) => setNewService(e.target.value)}
-                      placeholder="Add a new service/product..."
-                      className="flex-1 text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                  {/* Orange Chevron Icon from Image 4 */}
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center">
+                    <ChevronDown
+                      className={`w-5 h-5 text-[#F95700] stroke-[2.5] transition-transform duration-200 ${
+                        openSections.kyc ? 'rotate-180' : 'rotate-0'
+                      }`}
                     />
-                    <button
-                      type="submit"
-                      className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 cursor-pointer"
-                    >
-                      + Add
-                    </button>
-                  </form>
-                </div>
+                  </div>
+                </button>
 
-                {/* Amenities */}
-                <div className="space-y-3 pt-4 border-t border-slate-100">
-                  <label className="block text-xs font-bold text-slate-700">
-                    Business Amenities &amp; Facilities
-                  </label>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {amenities.map((amenity) => (
-                      <span
-                        key={amenity}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200"
-                      >
-                        <span>{amenity}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveAmenity(amenity)}
-                          className="hover:text-red-600 cursor-pointer"
-                        >
-                          &times;
-                        </button>
-                      </span>
-                    ))}
+                {openSections.kyc && (
+                  <div className="p-6 pt-3 border-t border-slate-100 space-y-4 animate-in fade-in duration-150">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-emerald-800">GSTIN Registration</span>
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        </div>
+                        <div className="text-xs text-emerald-900 font-mono font-bold">07AAAAA0000A1Z5</div>
+                        <div className="text-[10px] text-emerald-700">Verified &amp; Active</div>
+                      </div>
+
+                      <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-emerald-800">ROC Incorporation</span>
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        </div>
+                        <div className="text-xs text-emerald-900 font-mono font-bold">U72900DL2021PTC</div>
+                        <div className="text-[10px] text-emerald-700">Audited &amp; Compliant</div>
+                      </div>
+
+                      <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-emerald-800">BharatBN™ Badge</span>
+                          <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                        </div>
+                        <div className="text-xs text-emerald-900 font-mono font-bold">Engine 7 Verified</div>
+                        <div className="text-[10px] text-emerald-700">100% SERP Consistency</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* =================================================================== */}
+              {/* ACCORDION 4: Products, Services & Amenities (Image 4 Chevron)       */}
+              {/* =================================================================== */}
+              <div className="rounded-2xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs transition">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('offerings')}
+                  className="w-full p-5 flex items-center justify-between text-left hover:bg-slate-50/70 transition cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-100/80 text-amber-600 flex items-center justify-center flex-shrink-0">
+                      <Sparkles className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                        Products, Services &amp; Amenities
+                      </h3>
+                      <p className="text-xs text-slate-400">
+                        Manage service offerings catalog and customer amenities
+                      </p>
+                    </div>
                   </div>
 
-                  <form onSubmit={handleAddAmenity} className="flex gap-2 max-w-md">
-                    <input
-                      type="text"
-                      value={newAmenity}
-                      onChange={(e) => setNewAmenity(e.target.value)}
-                      placeholder="Add an amenity (e.g. WiFi, AC Lounge)..."
-                      className="flex-1 text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                  {/* Orange Chevron Icon from Image 4 */}
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center">
+                    <ChevronDown
+                      className={`w-5 h-5 text-[#F95700] stroke-[2.5] transition-transform duration-200 ${
+                        openSections.offerings ? 'rotate-180' : 'rotate-0'
+                      }`}
                     />
-                    <button
-                      type="submit"
-                      className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 cursor-pointer"
-                    >
-                      + Add
-                    </button>
-                  </form>
-                </div>
+                  </div>
+                </button>
 
-                {/* Photo Gallery */}
-                <div className="space-y-3 pt-4 border-t border-slate-100">
-                  <label className="block text-xs font-bold text-slate-700">
-                    Showcase Photo Gallery ({gallery.length} photos)
-                  </label>
+                {openSections.offerings && (
+                  <div className="p-6 pt-3 border-t border-slate-100 space-y-5 animate-in fade-in duration-150">
+                    {/* Services */}
+                    <div className="space-y-3">
+                      <label className="block text-xs font-bold text-slate-700">
+                        Products &amp; Speciality Offerings
+                      </label>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {services.map((tag) => (
+                          <span
+                            key={tag}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-50 text-[#F95700] border border-orange-200"
+                          >
+                            <span>{tag}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveService(tag)}
+                              className="hover:text-red-600 cursor-pointer"
+                            >
+                              &times;
+                            </button>
+                          </span>
+                        ))}
+                      </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {gallery.map((photo, i) => (
-                      <div
-                        key={i}
-                        className="relative aspect-video rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group shadow-2xs"
-                      >
-                        <img
-                          src={photo.url}
-                          alt={photo.caption}
-                          className="w-full h-full object-cover"
+                      <form onSubmit={handleAddService} className="flex gap-2 max-w-md">
+                        <input
+                          type="text"
+                          value={newService}
+                          onChange={(e) => setNewService(e.target.value)}
+                          placeholder="Add a new service/product..."
+                          className="flex-1 text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
                         />
                         <button
-                          type="button"
-                          onClick={() => handleRemovePhoto(i)}
-                          className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-600/80 hover:bg-red-600 text-white opacity-0 group-hover:opacity-100 transition cursor-pointer"
-                          title="Remove Photo"
+                          type="submit"
+                          className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 cursor-pointer"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          + Add
                         </button>
-                        <div className="absolute bottom-0 inset-x-0 bg-slate-950/70 p-1.5 text-[10px] text-white font-medium truncate">
-                          {photo.caption}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Add Photo Form */}
-                  <form onSubmit={handleAddPhoto} className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
-                    <input
-                      type="url"
-                      value={newPhotoUrl}
-                      onChange={(e) => setNewPhotoUrl(e.target.value)}
-                      placeholder="Image URL (https://...)"
-                      className="text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
-                    />
-                    <input
-                      type="text"
-                      value={newPhotoCaption}
-                      onChange={(e) => setNewPhotoCaption(e.target.value)}
-                      placeholder="Caption / Description..."
-                      className="text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
-                    />
-                    <button
-                      type="submit"
-                      className="px-4 py-2 rounded-xl bg-[#07213A] text-white text-xs font-bold hover:bg-[#0C2D4E] cursor-pointer"
-                    >
-                      + Add Photo
-                    </button>
-                  </form>
-                </div>
-
-                <div className="flex justify-end pt-2">
-                  <button
-                    type="button"
-                    onClick={handleSaveProfile}
-                    disabled={isSaving}
-                    className="px-5 py-2 rounded-xl bg-[#07213A] hover:bg-[#0C2D4E] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                  >
-                    <Save className="w-3.5 h-3.5 text-[#F95700]" />
-                    <span>Save Showcase &amp; Gallery</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* ===================================================================== */}
-          {/* ACCORDION 5: Customer Reviews & Ratings                               */}
-          {/* ===================================================================== */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden transition">
-            {/* Clickable Header Bar */}
-            <button
-              type="button"
-              onClick={() => toggleSection('reviews')}
-              className="w-full p-5 sm:p-6 text-left flex items-center justify-between hover:bg-slate-50/80 transition cursor-pointer"
-            >
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-500 flex items-center justify-center flex-shrink-0">
-                  <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-slate-900">
-                      Audience Feedback &amp; Reviews
-                    </h3>
-                    <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-                      4.9 / 5.0 Rating
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    {reviews.length} Verified Customer Testimonials
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-[#F95700] hidden sm:inline">
-                  {openSections.reviews ? 'Close Details' : 'Open Details'}
-                </span>
-                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
-                  {openSections.reviews ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                </div>
-              </div>
-            </button>
-
-            {/* Expandable Body */}
-            {openSections.reviews && (
-              <div className="p-6 sm:p-8 pt-0 border-t border-slate-100 space-y-4 animate-in slide-in-from-top-2 duration-200">
-                <div className="space-y-3 pt-4">
-                  {reviews.map((rev) => (
-                    <div
-                      key={rev.id}
-                      className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-full bg-[#07213A] text-white font-bold text-xs flex items-center justify-center">
-                            {rev.author[0]}
-                          </div>
-                          <div>
-                            <span className="text-xs font-bold text-slate-900">{rev.author}</span>
-                            <span className="text-[10px] text-slate-400 ml-2">{rev.date}</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-0.5">
-                          {[...Array(rev.rating || 5)].map((_, i) => (
-                            <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-xs text-slate-600 leading-relaxed">{rev.comment}</p>
+                      </form>
                     </div>
-                  ))}
+
+                    {/* Amenities */}
+                    <div className="space-y-3 pt-4 border-t border-slate-100">
+                      <label className="block text-xs font-bold text-slate-700">
+                        Business Amenities &amp; Facilities
+                      </label>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {amenities.map((amenity) => (
+                          <span
+                            key={amenity}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200"
+                          >
+                            <span>{amenity}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveAmenity(amenity)}
+                              className="hover:text-red-600 cursor-pointer"
+                            >
+                              &times;
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+
+                      <form onSubmit={handleAddAmenity} className="flex gap-2 max-w-md">
+                        <input
+                          type="text"
+                          value={newAmenity}
+                          onChange={(e) => setNewAmenity(e.target.value)}
+                          placeholder="Add an amenity (e.g. WiFi, AC Lounge)..."
+                          className="flex-1 text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                        />
+                        <button
+                          type="submit"
+                          className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 cursor-pointer"
+                        >
+                          + Add
+                        </button>
+                      </form>
+                    </div>
+
+                    <div className="flex justify-end pt-2">
+                      <button
+                        type="button"
+                        onClick={handleSaveProfile}
+                        disabled={isSaving}
+                        className="px-5 py-2 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                        <span>Save Offerings</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* =================================================================== */}
+              {/* ACCORDION 5: Photo Gallery Showcase (Image 4 Orange Chevron)        */}
+              {/* =================================================================== */}
+              <div className="rounded-2xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs transition">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('gallery')}
+                  className="w-full p-5 flex items-center justify-between text-left hover:bg-slate-50/70 transition cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-100/80 text-blue-600 flex items-center justify-center flex-shrink-0">
+                      <Camera className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                        Showcase Photo Gallery ({gallery.length} photos)
+                      </h3>
+                      <p className="text-xs text-slate-400">
+                        Add and manage high-res showroom &amp; facility photos
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Orange Chevron Icon from Image 4 */}
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center">
+                    <ChevronDown
+                      className={`w-5 h-5 text-[#F95700] stroke-[2.5] transition-transform duration-200 ${
+                        openSections.gallery ? 'rotate-180' : 'rotate-0'
+                      }`}
+                    />
+                  </div>
+                </button>
+
+                {openSections.gallery && (
+                  <div className="p-6 pt-3 border-t border-slate-100 space-y-4 animate-in fade-in duration-150">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {gallery.map((photo, i) => (
+                        <div
+                          key={i}
+                          className="relative aspect-video rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group shadow-2xs"
+                        >
+                          <img
+                            src={photo.url}
+                            alt={photo.caption}
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePhoto(i)}
+                            className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-600/80 hover:bg-red-600 text-white opacity-0 group-hover:opacity-100 transition cursor-pointer"
+                            title="Remove Photo"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                          <div className="absolute bottom-0 inset-x-0 bg-slate-950/70 p-1.5 text-[10px] text-white font-medium truncate">
+                            {photo.caption}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add Photo Form */}
+                    <form onSubmit={handleAddPhoto} className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
+                      <input
+                        type="url"
+                        value={newPhotoUrl}
+                        onChange={(e) => setNewPhotoUrl(e.target.value)}
+                        placeholder="Image URL (https://...)"
+                        className="text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                      />
+                      <input
+                        type="text"
+                        value={newPhotoCaption}
+                        onChange={(e) => setNewPhotoCaption(e.target.value)}
+                        placeholder="Caption / Description..."
+                        className="text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
+                      />
+                      <button
+                        type="submit"
+                        className="px-4 py-2 rounded-xl bg-[#07213A] text-white text-xs font-bold hover:bg-[#0C2D4E] cursor-pointer"
+                      >
+                        + Add Photo to Gallery
+                      </button>
+                    </form>
+
+                    <div className="flex justify-end pt-2">
+                      <button
+                        type="button"
+                        onClick={handleSaveProfile}
+                        disabled={isSaving}
+                        className="px-5 py-2 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                        <span>Save Gallery</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* =================================================================== */}
+              {/* ACCORDION 6: Audience Feedback & Reviews (Image 4 Orange Chevron)   */}
+              {/* =================================================================== */}
+              <div className="rounded-2xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs transition">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('reviews')}
+                  className="w-full p-5 flex items-center justify-between text-left hover:bg-slate-50/70 transition cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-100/80 text-amber-500 flex items-center justify-center flex-shrink-0">
+                      <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                        Audience Feedback &amp; Reviews ({reviews.length})
+                      </h3>
+                      <p className="text-xs text-slate-400">
+                        View verified customer feedback, star ratings, and testimonials
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Orange Chevron Icon from Image 4 */}
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center">
+                    <ChevronDown
+                      className={`w-5 h-5 text-[#F95700] stroke-[2.5] transition-transform duration-200 ${
+                        openSections.reviews ? 'rotate-180' : 'rotate-0'
+                      }`}
+                    />
+                  </div>
+                </button>
+
+                {openSections.reviews && (
+                  <div className="p-6 pt-3 border-t border-slate-100 space-y-4 animate-in fade-in duration-150">
+                    <div className="space-y-3">
+                      {reviews.map((rev) => (
+                        <div
+                          key={rev.id}
+                          className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-7 h-7 rounded-full bg-[#07213A] text-white font-bold text-xs flex items-center justify-center">
+                                {rev.author[0]}
+                              </div>
+                              <div>
+                                <span className="text-xs font-bold text-slate-900">{rev.author}</span>
+                                <span className="text-[10px] text-slate-400 ml-2">{rev.date}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-0.5">
+                              {[...Array(rev.rating || 5)].map((_, i) => (
+                                <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                              ))}
+                            </div>
+                          </div>
+                          <p className="text-xs text-slate-600 leading-relaxed">{rev.comment}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ===================================================================== */}
+          {/* TAB 2: OVERVIEW & ANALYTICS                                           */}
+          {/* ===================================================================== */}
+          {activeTab === 'overview' && (
+            <div className="space-y-6">
+              {/* KPI Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                  <div className="flex items-center justify-between text-slate-500 text-xs">
+                    <span>Verified Inquiries</span>
+                    <MessageSquare className="w-4 h-4 text-[#F95700]" />
+                  </div>
+                  <div className="text-2xl font-bold text-slate-900">128</div>
+                  <div className="text-[11px] text-emerald-600 font-medium">+18% from last week</div>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                  <div className="flex items-center justify-between text-slate-500 text-xs">
+                    <span>Active Outlets</span>
+                    <Building2 className="w-4 h-4 text-indigo-600" />
+                  </div>
+                  <div className="text-2xl font-bold text-slate-900">185</div>
+                  <div className="text-[11px] text-slate-500">Across 14 Tier-1/2 cities</div>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                  <div className="flex items-center justify-between text-slate-500 text-xs">
+                    <span>Top-10 Keywords</span>
+                    <TrendingUp className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <div className="text-2xl font-bold text-slate-900">14</div>
+                  <div className="text-[11px] text-emerald-600 font-medium">Dual-verified milestones</div>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                  <div className="flex items-center justify-between text-slate-500 text-xs">
+                    <span>Ownership Status</span>
+                    <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                  </div>
+                  <div className="text-2xl font-bold text-emerald-600">Verified</div>
+                  <div className="text-[11px] text-slate-500">Admin Audited &amp; Verified</div>
                 </div>
               </div>
-            )}
-          </div>
+
+              {/* Quick Navigation Panels */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Link
+                  href="/dashboard/branches"
+                  className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-[#F95700] transition space-y-3 shadow-xs hover:shadow-md"
+                >
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-slate-900 text-base">Franchise Network</h3>
+                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#F95700] transition" />
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Bulk import branch master records, assign outlet managers, and track geographic branch distribution.
+                  </p>
+                </Link>
+
+                <Link
+                  href="/dashboard/leads"
+                  className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-[#F95700] transition space-y-3 shadow-xs hover:shadow-md"
+                >
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-slate-900 text-base">Leads &amp; Inquiries</h3>
+                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#F95700] transition" />
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Real-time lead log with verified consent timestamps, source URL, UTM parameters, and WhatsApp delivery.
+                  </p>
+                </Link>
+
+                <Link
+                  href="/dashboard/seo-campaigns"
+                  className="group bg-white p-6 rounded-2xl border border-[#F95700]/40 bg-gradient-to-br from-white to-[#F95700]/5 hover:border-[#F95700] transition space-y-3 shadow-xs hover:shadow-md"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="font-bold text-slate-900 text-base">Pay-As-You-Rank™ Tracker</h3>
+                      <Sparkles className="w-4 h-4 text-[#F95700]" />
+                    </div>
+                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#F95700] transition" />
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Inspect live Google SERP rankings, dual-proof validation records, and milestone payout escrow invoices.
+                  </p>
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
