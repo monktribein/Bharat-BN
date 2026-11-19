@@ -22,6 +22,7 @@ import {
   X,
   Sparkles,
   Command,
+  UserCheck,
 } from 'lucide-react';
 
 interface NavItem {
@@ -73,8 +74,15 @@ const navSections: NavSection[] = [
         name: 'All Businesses',
         href: '/listings',
         icon: Building2,
-        badge: '7',
+        badge: '12',
         badgeVariant: 'slate',
+      },
+      {
+        name: 'Personal Approvals',
+        href: '/claims?tab=people',
+        icon: UserCheck,
+        badge: '1 Pending',
+        badgeVariant: 'amber',
       },
       {
         name: 'Franchises & Chains',
@@ -158,8 +166,9 @@ export default function RootLayout({
   const notifRef = useRef<HTMLDivElement>(null);
 
   // Dynamic directory counts
-  const [totalBusinessesCount, setTotalBusinessesCount] = useState<number>(8);
-  const [pendingApprovalsCount, setPendingApprovalsCount] = useState<number>(5);
+  const [totalBusinessesCount, setTotalBusinessesCount] = useState<number>(12);
+  const [pendingApprovalsCount, setPendingApprovalsCount] = useState<number>(4);
+  const [pendingPeopleCount, setPendingPeopleCount] = useState<number>(1);
 
   // Close notifications on outside click
   useEffect(() => {
@@ -351,6 +360,8 @@ export default function RootLayout({
                                 ? String(pendingApprovalsCount)
                                 : item.name === 'All Businesses'
                                 ? String(totalBusinessesCount)
+                                : item.name === 'Personal Approvals'
+                                ? (pendingPeopleCount > 0 ? `${pendingPeopleCount} Pending` : 'Verified')
                                 : item.badge}
                             </span>
                           )}

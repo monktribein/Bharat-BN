@@ -79,8 +79,15 @@ const navSections: NavSection[] = [
         name: 'All Businesses',
         href: '/admin/listings',
         icon: Building2,
-        badge: '184k',
+        badge: '12',
         badgeVariant: 'slate',
+      },
+      {
+        name: 'Personal Approvals',
+        href: '/admin/claims?tab=people',
+        icon: UserCheck,
+        badge: '1 Pending',
+        badgeVariant: 'amber',
       },
       {
         name: 'Franchises & Chains',
@@ -88,13 +95,6 @@ const navSections: NavSection[] = [
         icon: Users,
         badge: '38 Brands',
         badgeVariant: 'blue',
-      },
-      {
-        name: 'People Profiles',
-        href: '/admin/claims?tab=people',
-        icon: UserCheck,
-        badge: '1 New',
-        badgeVariant: 'amber',
       },
     ],
   },
@@ -190,8 +190,9 @@ export default function AdminLayout({
   const notifRef = useRef<HTMLDivElement>(null);
 
   // Dynamic directory counts
-  const [totalBusinessesCount, setTotalBusinessesCount] = useState<number>(8);
-  const [pendingApprovalsCount, setPendingApprovalsCount] = useState<number>(5);
+  const [totalBusinessesCount, setTotalBusinessesCount] = useState<number>(12);
+  const [pendingApprovalsCount, setPendingApprovalsCount] = useState<number>(4);
+  const [pendingPeopleCount, setPendingPeopleCount] = useState<number>(1);
 
   // Close notifications on outside click
   useEffect(() => {
@@ -372,6 +373,8 @@ export default function AdminLayout({
                             ? String(pendingApprovalsCount)
                             : item.name === 'All Businesses'
                             ? String(totalBusinessesCount)
+                            : item.name === 'Personal Approvals'
+                            ? (pendingPeopleCount > 0 ? `${pendingPeopleCount} Pending` : 'Verified')
                             : item.badge}
                         </span>
                       )}
