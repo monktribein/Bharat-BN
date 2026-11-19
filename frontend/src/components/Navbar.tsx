@@ -13,6 +13,7 @@ import {
   Plus,
   LogOut,
   LogIn,
+  UserPlus,
   LayoutDashboard,
   Bell,
   Users,
@@ -183,74 +184,75 @@ export default function Navbar() {
 
         {/* Action Buttons: Logged In as Business Owner vs Visitor */}
         <div className="flex items-center gap-2.5 flex-shrink-0 relative">
-          {/* In-App Notifications Bell (from Mockup with badge 12) */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-              className="w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 transition relative cursor-pointer shadow-xs"
-              title="Notifications"
-            >
-              <Bell className="w-4 h-4 text-slate-600" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-black leading-none shadow-xs">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
-
-            {/* Notifications Dropdown Panel */}
-            {isNotificationOpen && (
-              <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white border border-slate-200 shadow-xl p-4 space-y-3 z-50 animate-in fade-in duration-150">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                  <div className="flex items-center gap-1.5">
-                    <Bell className="w-4 h-4 text-[#F95700]" />
-                    <span className="font-extrabold text-xs text-slate-900">Notifications ({unreadCount})</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUnreadCount(0);
-                      setIsNotificationOpen(false);
-                    }}
-                    className="text-[10px] font-bold text-blue-600 hover:underline cursor-pointer"
-                  >
-                    Mark all read
-                  </button>
-                </div>
-
-                <div className="space-y-2 max-h-72 overflow-y-auto">
-                  {notifications.map((n) => (
-                    <Link
-                      key={n.id}
-                      href={n.link}
-                      onClick={() => setIsNotificationOpen(false)}
-                      className="block p-2.5 rounded-xl hover:bg-slate-50 border border-slate-100 transition space-y-0.5"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-xs text-slate-900 line-clamp-1">{n.title}</span>
-                        <span className="text-[10px] text-slate-400 flex-shrink-0">{n.time}</span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 line-clamp-2">{n.desc}</p>
-                    </Link>
-                  ))}
-                </div>
-
-                <div className="pt-1 text-center border-t border-slate-100">
-                  <Link
-                    href="/people/anand-sahu"
-                    onClick={() => setIsNotificationOpen(false)}
-                    className="text-[11px] font-bold text-[#F95700] hover:underline"
-                  >
-                    View People &amp; Following Feed &rarr;
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
           {ownerSession ? (
             <div className="flex items-center gap-2">
-              {/* Business Account Logo (Only Logo Shown) */}
+              {/* In-App Notifications Bell (Only Shown for Logged-In Users) */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                  className="w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 transition relative cursor-pointer shadow-xs"
+                  title="Notifications"
+                >
+                  <Bell className="w-4 h-4 text-slate-600" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-black leading-none shadow-xs">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Notifications Dropdown Panel */}
+                {isNotificationOpen && (
+                  <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white border border-slate-200 shadow-xl p-4 space-y-3 z-50 animate-in fade-in duration-150">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                      <div className="flex items-center gap-1.5">
+                        <Bell className="w-4 h-4 text-[#F95700]" />
+                        <span className="font-extrabold text-xs text-slate-900">Notifications ({unreadCount})</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUnreadCount(0);
+                          setIsNotificationOpen(false);
+                        }}
+                        className="text-[10px] font-bold text-blue-600 hover:underline cursor-pointer"
+                      >
+                        Mark all read
+                      </button>
+                    </div>
+
+                    <div className="space-y-2 max-h-72 overflow-y-auto">
+                      {notifications.map((n) => (
+                        <Link
+                          key={n.id}
+                          href={n.link}
+                          onClick={() => setIsNotificationOpen(false)}
+                          className="block p-2.5 rounded-xl hover:bg-slate-50 border border-slate-100 transition space-y-0.5"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-xs text-slate-900 line-clamp-1">{n.title}</span>
+                            <span className="text-[10px] text-slate-400 flex-shrink-0">{n.time}</span>
+                          </div>
+                          <p className="text-[11px] text-slate-500 line-clamp-2">{n.desc}</p>
+                        </Link>
+                      ))}
+                    </div>
+
+                    <div className="pt-1 text-center border-t border-slate-100">
+                      <Link
+                        href="/people/anand-sahu"
+                        onClick={() => setIsNotificationOpen(false)}
+                        className="text-[11px] font-bold text-[#F95700] hover:underline"
+                      >
+                        View People &amp; Following Feed &rarr;
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Business Account Logo */}
               <Link
                 href="/dashboard"
                 className="w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center justify-center transition shadow-xs overflow-hidden cursor-pointer flex-shrink-0"
@@ -279,7 +281,7 @@ export default function Navbar() {
                 <span>Dashboard</span>
               </Link>
 
-              {/* Logout Button (Only Icon Shown) */}
+              {/* Logout Button */}
               <button
                 type="button"
                 onClick={handleLogout}
@@ -290,23 +292,8 @@ export default function Navbar() {
               </button>
             </div>
           ) : (
-            <>
-              {/* Portal Button */}
-              <motion.div
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              >
-                <Link
-                  href="/dashboard"
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs"
-                >
-                  <User className="w-4 h-4 text-slate-500" />
-                  <span>Portal</span>
-                </Link>
-              </motion.div>
-
-              {/* Business Login Button */}
+            <div className="flex items-center gap-2">
+              {/* Login Button (Direct Login Modal) */}
               <motion.div
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
@@ -319,14 +306,34 @@ export default function Navbar() {
                     setIsLoginModalOpen(true);
                   }}
                   className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition cursor-pointer shadow-xs"
-                  title="Log in to manage your listed business"
+                  title="Log in to your account"
                 >
                   <LogIn className="w-3.5 h-3.5 text-slate-500" />
                   <span>Login</span>
                 </button>
               </motion.div>
 
-              {/* List Business / Sign Up Button */}
+              {/* Sign Up Button (Replaces Confusing 'Portal' Link) */}
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthModalMode('signup');
+                    setIsLoginModalOpen(true);
+                  }}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition cursor-pointer shadow-xs"
+                  title="Create a new account / Sign up"
+                >
+                  <UserPlus className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Sign Up</span>
+                </button>
+              </motion.div>
+
+              {/* List Business Button */}
               <motion.div
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
@@ -345,7 +352,7 @@ export default function Navbar() {
                   <span>List Business</span>
                 </button>
               </motion.div>
-            </>
+            </div>
           )}
         </div>
       </div>
