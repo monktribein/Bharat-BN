@@ -37,6 +37,10 @@ import {
   Twitter,
   LayoutDashboard,
   Check,
+  ChevronDown,
+  ChevronRight,
+  Award,
+  Image as ImageIcon,
 } from 'lucide-react';
 import BusinessLoginModal from '@/components/BusinessLoginModal';
 import { api } from '@/lib/api-client';
@@ -59,7 +63,6 @@ export default function DashboardOverviewPage() {
   const [session, setSession] = useState<OwnerSession | null>(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [loginModalMode, setLoginModalMode] = useState<'login' | 'signup'>('login');
-  const [activeTab, setActiveTab] = useState<'profile' | 'overview'>('profile');
 
   // Pravixo-Style Profile Editor Form State
   const [businessName, setBusinessName] = useState('');
@@ -100,6 +103,22 @@ export default function DashboardOverviewPage() {
 
   // Customer Reviews
   const [reviews, setReviews] = useState<any[]>([]);
+
+  // Accordion open/close state ("me open kru then show hoye")
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    basicInfo: false,
+    socialChannels: false,
+    kyc: false,
+    showcase: false,
+    reviews: false,
+  });
+
+  const toggleSection = (key: string) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
 
   // UI Feedback
   const [isSaving, setIsSaving] = useState(false);
@@ -156,8 +175,8 @@ export default function DashboardOverviewPage() {
       const isApex = currSession.businessName?.toLowerCase().includes('apex');
 
       setBusinessName(found?.businessName || found?.name || currSession.businessName || 'Business Profile');
-      setBusinessSlug(found?.businessSlug || found?.slug || currSession.businessSlug || 'business');
-      setOwnerName(found?.claimantName || found?.ownerName || currSession.ownerName || 'Verified Owner');
+      setBusinessSlug(found?.businessSlug || found?.slug || currSession.businessSlug || (isApple ? 'apple' : 'business'));
+      setOwnerName(found?.claimantName || found?.ownerName || currSession.ownerName || 'Kashish Saxena');
       setCategory(found?.category || currSession.category || (isApple ? 'Automobile & EV' : 'Retail'));
       setCity(found?.city || currSession.city || 'Noida, UP');
       setState(found?.state || (isApple ? 'Uttar Pradesh' : 'Maharashtra'));
@@ -423,20 +442,20 @@ export default function DashboardOverviewPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* ========================================================================= */}
-      {/* 1. GUEST HERO BANNER (When Not Logged In)                                 */}
+      {/* 1. GUEST BANNER (When Not Logged In)                                      */}
       {/* ========================================================================= */}
       {!session ? (
         <div className="p-8 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-transparent border border-amber-200/90 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
           <div className="space-y-2 max-w-2xl">
             <span className="text-xs font-bold text-[#F95700] uppercase tracking-wider bg-orange-100/70 border border-orange-200 px-3 py-1 rounded-full inline-flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-[#F95700]" />
-              Business Owner &amp; Enterprise Access
+              Business Owner Access
             </span>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
               Manage Your Business Profile, Social Channels &amp; Customer Leads
             </h1>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Log in to your business account (e.g. <strong>Apple</strong>, <strong>Choco Delights</strong>) or register a new business with verified email OTP. Edit basic info, add official social media links, and track rankings.
+              Log in to your business account (e.g. <strong>Apple</strong>, <strong>Choco Delights</strong>) or register a new business with verified email OTP.
             </p>
           </div>
 
@@ -468,149 +487,150 @@ export default function DashboardOverviewPage() {
         </div>
       ) : (
         /* ========================================================================= */
-        /* 2. PRAVIXO-STYLE PROFILE HERO BANNER (When Logged In)                     */
+        /* 2. TOP DETAILS BANNER (ALL BUSINESS DETAILS INSIDE THE TOP BANNER)        */
         /* ========================================================================= */
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden space-y-4">
-          {/* Panoramic Cover Image with Edit Cover button */}
-          <div className="relative h-48 sm:h-64 w-full bg-slate-900 group overflow-hidden">
+        <div className="relative rounded-3xl overflow-hidden shadow-lg border border-slate-800 bg-[#07213A] text-white">
+          {/* Panoramic background with subtle overlay */}
+          <div className="absolute inset-0 z-0">
             <img
               src={coverUrl}
               alt="Business Banner Cover"
-              className="w-full h-full object-cover object-center transition duration-300 group-hover:scale-102"
+              className="w-full h-full object-cover object-center opacity-25"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
-
-            {/* Edit Cover Action */}
-            <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  const newCover = prompt('Enter image URL for banner cover:', coverUrl);
-                  if (newCover) setCoverUrl(newCover.trim());
-                }}
-                className="px-3.5 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-900 text-white text-xs font-semibold backdrop-blur-md border border-white/20 flex items-center gap-1.5 shadow-md transition cursor-pointer"
-                title="Change Cover Banner"
-              >
-                <Camera className="w-3.5 h-3.5 text-white" />
-                <span>Edit Cover</span>
-              </button>
-            </div>
+            <div className="absolute inset-0 bg-gradient-to-r from-[#07213A] via-[#07213A]/95 to-[#0C2D4E]/85" />
           </div>
 
-          {/* Profile Identity Row (Avatar + Name + Stats) */}
-          <div className="px-6 pb-6 pt-0 relative flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-16 sm:-mt-20">
-            {/* Avatar & Brand Title */}
-            <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 text-center sm:text-left">
-              <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white border-4 border-white shadow-xl overflow-hidden flex-shrink-0 group">
-                {logoUrl ? (
-                  <img
-                    src={logoUrl}
-                    alt={businessName}
-                    className="w-full h-full object-contain p-1"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-[#07213A] text-white font-mono font-bold text-2xl flex items-center justify-center">
-                    {businessName.slice(0, 2).toUpperCase()}
+          {/* Details Content directly inside banner as requested */}
+          <div className="relative z-10 p-6 sm:p-8 space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              {/* Left Identity: Logo + Name + Verified Badge + Category & Managed by + Live Link */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+                {/* Business Logo / Profile Avatar */}
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white border-2 border-white/20 shadow-xl overflow-hidden flex-shrink-0 group p-1 flex items-center justify-center">
+                  {logoUrl ? (
+                    <img
+                      src={logoUrl}
+                      alt={businessName}
+                      className="w-full h-full object-contain rounded-xl"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-[#07213A] text-white font-mono font-bold text-2xl flex items-center justify-center rounded-xl">
+                      {businessName.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newLogo = prompt('Enter image URL for Business Logo / Avatar:', logoUrl);
+                      if (newLogo) setLogoUrl(newLogo.trim());
+                    }}
+                    className="absolute inset-0 bg-slate-950/70 text-white text-[11px] font-bold flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer rounded-xl"
+                    title="Change Logo"
+                  >
+                    <Camera className="w-4 h-4 mb-0.5" />
+                    <span>Edit</span>
+                  </button>
+                </div>
+
+                {/* Identity Metadata Text */}
+                <div className="space-y-1.5">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                      {businessName}
+                    </h1>
+                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-300 bg-emerald-500/20 px-3 py-1 rounded-full border border-emerald-500/30">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      Verified Partner
+                    </span>
                   </div>
-                )}
+
+                  <p className="text-xs sm:text-sm text-slate-300 font-medium">
+                    {category} &bull; {city} &bull; Managed by <strong className="text-white">{ownerName}</strong>
+                  </p>
+
+                  {/* Public Link & Copy Button inside Banner */}
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <Link
+                      href={`/biz/${businessSlug}`}
+                      target="_blank"
+                      className="text-xs sm:text-sm font-semibold text-[#F95700] hover:text-orange-400 transition inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-xl border border-white/15 cursor-pointer"
+                    >
+                      <span>/biz/{businessSlug}</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={handleCopyPublicLink}
+                      className="text-xs text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-xl border border-white/15 flex items-center gap-1.5 transition cursor-pointer"
+                    >
+                      {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedLink ? 'Copied' : 'Copy Link'}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: Quick Action Controls */}
+              <div className="flex flex-wrap items-center gap-2.5 sm:self-start md:self-center">
                 <button
                   type="button"
                   onClick={() => {
-                    const newLogo = prompt('Enter image URL for Business Logo / Avatar:', logoUrl);
-                    if (newLogo) setLogoUrl(newLogo.trim());
+                    const newCover = prompt('Enter image URL for banner cover:', coverUrl);
+                    if (newCover) setCoverUrl(newCover.trim());
                   }}
-                  className="absolute inset-0 bg-slate-950/60 text-white text-[11px] font-bold flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur-md border border-white/20 flex items-center gap-1.5 transition cursor-pointer"
                 >
-                  <Camera className="w-4 h-4 mb-0.5" />
-                  <span>Edit Logo</span>
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>Edit Cover</span>
+                </button>
+
+                <Link
+                  href={`/biz/${businessSlug}`}
+                  target="_blank"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-900 bg-white hover:bg-slate-100 transition shadow-sm flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span>View Live</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={handleSaveProfile}
+                  disabled={isSaving}
+                  className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#F95700] hover:bg-[#d94a00] transition shadow-md shadow-[#F95700]/30 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>{isSaving ? 'Saving...' : 'Save Profile'}</span>
                 </button>
               </div>
+            </div>
 
-              <div className="space-y-1">
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                  <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                    {businessName}
-                  </h1>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    Verified Partner
-                  </span>
-                </div>
-
-                <p className="text-xs text-slate-500 font-medium">
-                  {category} &bull; {city} &bull; Managed by <strong>{ownerName}</strong>
-                </p>
-
-                {/* Live Public Link */}
-                <div className="flex items-center justify-center sm:justify-start gap-2 pt-1">
-                  <Link
-                    href={`/biz/${businessSlug}`}
-                    target="_blank"
-                    className="text-xs font-semibold text-[#F95700] hover:underline inline-flex items-center gap-1"
-                  >
-                    <span>/biz/{businessSlug}</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </Link>
-
-                  <button
-                    type="button"
-                    onClick={handleCopyPublicLink}
-                    className="text-[11px] text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-md flex items-center gap-1 transition cursor-pointer"
-                  >
-                    {copiedLink ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                    <span>{copiedLink ? 'Copied' : 'Copy Link'}</span>
-                  </button>
-                </div>
+            {/* Metric Stat Pills inside Banner */}
+            <div className="pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center sm:text-left">
+              <div className="p-3 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-xs">
+                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Directory Views</div>
+                <div className="text-xl font-black text-white mt-0.5">1.4k+</div>
+                <div className="text-[10px] text-emerald-400 font-semibold">+22% high intent</div>
               </div>
-            </div>
 
-            {/* Quick Actions */}
-            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2.5">
-              <Link
-                href={`/biz/${businessSlug}`}
-                target="_blank"
-                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition flex items-center gap-1.5 cursor-pointer"
-              >
-                <span>View Public Profile</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </Link>
+              <div className="p-3 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-xs">
+                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">WhatsApp Leads</div>
+                <div className="text-xl font-black text-[#F95700] mt-0.5">128</div>
+                <div className="text-[10px] text-slate-300 font-semibold">Direct customer inquiries</div>
+              </div>
 
-              <button
-                type="button"
-                onClick={handleSaveProfile}
-                disabled={isSaving}
-                className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#07213A] hover:bg-[#0C2D4E] transition shadow-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-              >
-                <Save className="w-3.5 h-3.5 text-[#F95700]" />
-                <span>{isSaving ? 'Saving...' : 'Save Profile Changes'}</span>
-              </button>
-            </div>
-          </div>
+              <div className="p-3 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-xs">
+                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">NAP / SERP Parity</div>
+                <div className="text-xl font-black text-emerald-400 mt-0.5">100%</div>
+                <div className="text-[10px] text-emerald-400 font-semibold">Dual verified on Google</div>
+              </div>
 
-          {/* Pravixo Metric Stat Pills Bar */}
-          <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center sm:text-left">
-            <div className="p-3 bg-white rounded-xl border border-slate-200/80 shadow-2xs">
-              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Directory Views</div>
-              <div className="text-lg font-black text-slate-900 mt-0.5">1.4k+</div>
-              <div className="text-[10px] text-emerald-600 font-semibold">+22% high intent</div>
-            </div>
-
-            <div className="p-3 bg-white rounded-xl border border-slate-200/80 shadow-2xs">
-              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">WhatsApp Leads</div>
-              <div className="text-lg font-black text-[#F95700] mt-0.5">128</div>
-              <div className="text-[10px] text-slate-500 font-semibold">Direct customer inquiries</div>
-            </div>
-
-            <div className="p-3 bg-white rounded-xl border border-slate-200/80 shadow-2xs">
-              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">NAP / SERP Parity</div>
-              <div className="text-lg font-black text-emerald-600 mt-0.5">100%</div>
-              <div className="text-[10px] text-emerald-600 font-semibold">Dual verified on Google</div>
-            </div>
-
-            <div className="p-3 bg-white rounded-xl border border-slate-200/80 shadow-2xs">
-              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">KYC &amp; Status</div>
-              <div className="text-lg font-black text-slate-900 mt-0.5">ROC Audited</div>
-              <div className="text-[10px] text-slate-500 font-semibold">GSTIN verified</div>
+              <div className="p-3 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-xs">
+                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">KYC Status</div>
+                <div className="text-xl font-black text-white mt-0.5">ROC Audited</div>
+                <div className="text-[10px] text-slate-300 font-semibold">GSTIN verified</div>
+              </div>
             </div>
           </div>
         </div>
@@ -635,91 +655,85 @@ export default function DashboardOverviewPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* 3. DASHBOARD MAIN TABS                                                    */}
+      {/* 3. COLLAPSIBLE ACCORDION SECTIONS ("me open kru then show hoye")          */}
       {/* ========================================================================= */}
       {session && (
-        <div className="space-y-6">
-          {/* Navigation Pill Tabs */}
-          <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
-            <button
-              type="button"
-              onClick={() => setActiveTab('profile')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 cursor-pointer ${
-                activeTab === 'profile'
-                  ? 'bg-[#07213A] text-white shadow-xs'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-              }`}
-            >
-              <Edit className="w-4 h-4 text-[#F95700]" />
-              <span>Edit Profile (Pravixo Style)</span>
-            </button>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between pb-1">
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">
+                Business Details &amp; Pravixo Profile Sections
+              </h2>
+              <p className="text-xs text-slate-500">
+                Click any section below to open, edit and customize its details
+              </p>
+            </div>
 
-            <button
-              type="button"
-              onClick={() => setActiveTab('overview')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 cursor-pointer ${
-                activeTab === 'overview'
-                  ? 'bg-[#07213A] text-white shadow-xs'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-              }`}
-            >
-              <LayoutDashboard className="w-4 h-4" />
-              <span>Operations &amp; Analytics</span>
-            </button>
-
-            <Link
-              href="/dashboard/branches"
-              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition flex items-center gap-1.5"
-            >
-              <Building2 className="w-4 h-4 text-slate-500" />
-              <span>Branches</span>
-            </Link>
-
-            <Link
-              href="/dashboard/leads"
-              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition flex items-center gap-1.5"
-            >
-              <MessageSquare className="w-4 h-4 text-[#F95700]" />
-              <span>Customer Leads</span>
-            </Link>
-
-            <Link
-              href="/dashboard/seo-campaigns"
-              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition flex items-center gap-1.5"
-            >
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              <span>Pay-As-You-Rank™</span>
-            </Link>
+            {/* Quick Toggle All Button */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const anyOpen = Object.values(openSections).some(Boolean);
+                  const nextState = !anyOpen;
+                  setOpenSections({
+                    basicInfo: nextState,
+                    socialChannels: nextState,
+                    kyc: nextState,
+                    showcase: nextState,
+                    reviews: nextState,
+                  });
+                }}
+                className="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-xl hover:bg-slate-50 transition cursor-pointer"
+              >
+                {Object.values(openSections).some(Boolean) ? 'Collapse All' : 'Expand All'}
+              </button>
+            </div>
           </div>
 
           {/* ===================================================================== */}
-          {/* TAB 1: PRAVIXO-STYLE EDIT PROFILE                                     */}
+          {/* ACCORDION 1: Basic Information                                        */}
           {/* ===================================================================== */}
-          {activeTab === 'profile' && (
-            <div className="space-y-6">
-              {/* CARD 1: Basic Information */}
-              <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-6 shadow-xs">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                  <div>
-                    <h3 className="text-base sm:text-lg font-bold text-slate-900">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden transition">
+            {/* Clickable Header Bar */}
+            <button
+              type="button"
+              onClick={() => toggleSection('basicInfo')}
+              className="w-full p-5 sm:p-6 text-left flex items-center justify-between hover:bg-slate-50/80 transition cursor-pointer"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-200 text-[#F95700] flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-slate-900">
                       Basic Information
                     </h3>
-                    <p className="text-xs text-slate-500">
-                      Primary business identity, official link, location, and about description
-                    </p>
+                    <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      Active
+                    </span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleSaveProfile}
-                    disabled={isSaving}
-                    className="px-4 py-2 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                  >
-                    <Save className="w-3.5 h-3.5" />
-                    <span>{isSaving ? 'Saving...' : 'Save Basic Info'}</span>
-                  </button>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {businessName} &bull; {category} &bull; {city}
+                  </p>
                 </div>
+              </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-[#F95700] hidden sm:inline">
+                  {openSections.basicInfo ? 'Close Details' : 'Open Details'}
+                </span>
+                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                  {openSections.basicInfo ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                </div>
+              </div>
+            </button>
+
+            {/* Expandable Body */}
+            {openSections.basicInfo && (
+              <div className="p-6 sm:p-8 pt-0 border-t border-slate-100 space-y-6 animate-in slide-in-from-top-2 duration-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-4">
                   {/* Display Name */}
                   <div className="space-y-1.5">
                     <label className="block text-xs font-bold text-slate-700">
@@ -871,36 +885,66 @@ export default function DashboardOverviewPage() {
                     className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700] leading-relaxed"
                   />
                 </div>
-              </div>
 
-              {/* CARD 2: Social Presence / Channels (Requirement 3) */}
-              <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-6 shadow-xs">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center">
-                      <Share2 className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-base sm:text-lg font-bold text-slate-900">
-                        Social Presence / Channels
-                      </h3>
-                      <p className="text-xs text-slate-500">
-                        Connect your official social media handles to display on your public profile
-                      </p>
-                    </div>
-                  </div>
+                {/* Save Button inside card */}
+                <div className="flex justify-end pt-2">
                   <button
                     type="button"
                     onClick={handleSaveProfile}
                     disabled={isSaving}
-                    className="px-4 py-2 rounded-xl bg-[#07213A] hover:bg-[#0C2D4E] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    className="px-5 py-2 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                   >
-                    <Save className="w-3.5 h-3.5 text-[#F95700]" />
-                    <span>Save Social Channels</span>
+                    <Save className="w-3.5 h-3.5" />
+                    <span>{isSaving ? 'Saving...' : 'Save Basic Info'}</span>
                   </button>
                 </div>
+              </div>
+            )}
+          </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* ===================================================================== */}
+          {/* ACCORDION 2: Social Presence / Channels (Requirement 3)               */}
+          {/* ===================================================================== */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden transition">
+            {/* Clickable Header Bar */}
+            <button
+              type="button"
+              onClick={() => toggleSection('socialChannels')}
+              className="w-full p-5 sm:p-6 text-left flex items-center justify-between hover:bg-slate-50/80 transition cursor-pointer"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-pink-50 border border-pink-200 text-pink-600 flex items-center justify-center flex-shrink-0">
+                  <Share2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-slate-900">
+                      Social Presence / Channels
+                    </h3>
+                    <span className="text-[10px] font-semibold text-pink-700 bg-pink-50 px-2 py-0.5 rounded-full border border-pink-200">
+                      5 Handles Supported
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Instagram, YouTube, Facebook, LinkedIn, Twitter/X
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-[#F95700] hidden sm:inline">
+                  {openSections.socialChannels ? 'Close Details' : 'Open Details'}
+                </span>
+                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                  {openSections.socialChannels ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                </div>
+              </div>
+            </button>
+
+            {/* Expandable Body */}
+            {openSections.socialChannels && (
+              <div className="p-6 sm:p-8 pt-0 border-t border-slate-100 space-y-5 animate-in slide-in-from-top-2 duration-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
                   {/* Instagram */}
                   <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2">
                     <div className="flex items-center justify-between">
@@ -1021,20 +1065,65 @@ export default function DashboardOverviewPage() {
                     />
                   </div>
                 </div>
-              </div>
 
-              {/* CARD 3: KYC & Official Audited Documents (Pravixo layout) */}
-              <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-4 shadow-xs">
-                <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-bold text-slate-900">
-                    KYC &amp; Government Verification Documents
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Verified business credentials checked against government ROC and GSTIN records
+                <div className="flex justify-end pt-2">
+                  <button
+                    type="button"
+                    onClick={handleSaveProfile}
+                    disabled={isSaving}
+                    className="px-5 py-2 rounded-xl bg-[#07213A] hover:bg-[#0C2D4E] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  >
+                    <Save className="w-3.5 h-3.5 text-[#F95700]" />
+                    <span>Save Social Channels</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ===================================================================== */}
+          {/* ACCORDION 3: KYC & Official Documents                                 */}
+          {/* ===================================================================== */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden transition">
+            {/* Clickable Header Bar */}
+            <button
+              type="button"
+              onClick={() => toggleSection('kyc')}
+              className="w-full p-5 sm:p-6 text-left flex items-center justify-between hover:bg-slate-50/80 transition cursor-pointer"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-slate-900">
+                      KYC Documents &amp; Government Verification
+                    </h3>
+                    <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      3 Audited
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    GSTIN Certificate, ROC Registration, BharatBN Engine 7
                   </p>
                 </div>
+              </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-[#F95700] hidden sm:inline">
+                  {openSections.kyc ? 'Close Details' : 'Open Details'}
+                </span>
+                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                  {openSections.kyc ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                </div>
+              </div>
+            </button>
+
+            {/* Expandable Body */}
+            {openSections.kyc && (
+              <div className="p-6 sm:p-8 pt-0 border-t border-slate-100 space-y-4 animate-in slide-in-from-top-2 duration-200">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
                   <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-emerald-800">GSTIN Registration</span>
@@ -1063,20 +1152,53 @@ export default function DashboardOverviewPage() {
                   </div>
                 </div>
               </div>
+            )}
+          </div>
 
-              {/* CARD 4: Products, Services & Gallery Showcase */}
-              <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-6 shadow-xs">
-                <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-bold text-slate-900">
-                    Live Business Offerings &amp; Photo Showcase
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Add tags for products, services, amenities, and photo pavilion
+          {/* ===================================================================== */}
+          {/* ACCORDION 4: Live Offerings & Showcase Gallery                         */}
+          {/* ===================================================================== */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden transition">
+            {/* Clickable Header Bar */}
+            <button
+              type="button"
+              onClick={() => toggleSection('showcase')}
+              className="w-full p-5 sm:p-6 text-left flex items-center justify-between hover:bg-slate-50/80 transition cursor-pointer"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center flex-shrink-0">
+                  <ImageIcon className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-slate-900">
+                      Live Offerings &amp; Photo Showcase
+                    </h3>
+                    <span className="text-[10px] font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">
+                      {services.length} Services &bull; {gallery.length} Photos
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Manage service chips, amenities, and photo pavilion
                   </p>
                 </div>
+              </div>
 
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-[#F95700] hidden sm:inline">
+                  {openSections.showcase ? 'Close Details' : 'Open Details'}
+                </span>
+                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                  {openSections.showcase ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                </div>
+              </div>
+            </button>
+
+            {/* Expandable Body */}
+            {openSections.showcase && (
+              <div className="p-6 sm:p-8 pt-0 border-t border-slate-100 space-y-6 animate-in slide-in-from-top-2 duration-200">
                 {/* Services / Offerings */}
-                <div className="space-y-3">
+                <div className="space-y-3 pt-4">
                   <label className="block text-xs font-bold text-slate-700">
                     Products &amp; Speciality Offerings
                   </label>
@@ -1207,30 +1329,69 @@ export default function DashboardOverviewPage() {
                       type="submit"
                       className="px-4 py-2 rounded-xl bg-[#07213A] text-white text-xs font-bold hover:bg-[#0C2D4E] cursor-pointer"
                     >
-                      + Add Photo to Gallery
+                      + Add Photo
                     </button>
                   </form>
                 </div>
+
+                <div className="flex justify-end pt-2">
+                  <button
+                    type="button"
+                    onClick={handleSaveProfile}
+                    disabled={isSaving}
+                    className="px-5 py-2 rounded-xl bg-[#07213A] hover:bg-[#0C2D4E] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  >
+                    <Save className="w-3.5 h-3.5 text-[#F95700]" />
+                    <span>Save Showcase &amp; Gallery</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ===================================================================== */}
+          {/* ACCORDION 5: Customer Reviews & Ratings                               */}
+          {/* ===================================================================== */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden transition">
+            {/* Clickable Header Bar */}
+            <button
+              type="button"
+              onClick={() => toggleSection('reviews')}
+              className="w-full p-5 sm:p-6 text-left flex items-center justify-between hover:bg-slate-50/80 transition cursor-pointer"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-500 flex items-center justify-center flex-shrink-0">
+                  <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-slate-900">
+                      Audience Feedback &amp; Reviews
+                    </h3>
+                    <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                      4.9 / 5.0 Rating
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {reviews.length} Verified Customer Testimonials
+                  </p>
+                </div>
               </div>
 
-              {/* CARD 5: Customer Reviews & Ratings */}
-              <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-4 shadow-xs">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900">
-                      Audience Feedback &amp; Reviews ({reviews.length})
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      Ratings and customer testimonials submitted by verified users
-                    </p>
-                  </div>
-                  <div className="text-sm font-bold text-amber-700 flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                    <span>4.9 / 5.0 Rating</span>
-                  </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-[#F95700] hidden sm:inline">
+                  {openSections.reviews ? 'Close Details' : 'Open Details'}
+                </span>
+                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                  {openSections.reviews ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                 </div>
+              </div>
+            </button>
 
-                <div className="space-y-3">
+            {/* Expandable Body */}
+            {openSections.reviews && (
+              <div className="p-6 sm:p-8 pt-0 border-t border-slate-100 space-y-4 animate-in slide-in-from-top-2 duration-200">
+                <div className="space-y-3 pt-4">
                   {reviews.map((rev) => (
                     <div
                       key={rev.id}
@@ -1257,99 +1418,8 @@ export default function DashboardOverviewPage() {
                   ))}
                 </div>
               </div>
-            </div>
-          )}
-
-          {/* ===================================================================== */}
-          {/* TAB 2: OVERVIEW & ANALYTICS                                           */}
-          {/* ===================================================================== */}
-          {activeTab === 'overview' && (
-            <div className="space-y-6">
-              {/* KPI Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                  <div className="flex items-center justify-between text-slate-500 text-xs">
-                    <span>Verified Inquiries</span>
-                    <MessageSquare className="w-4 h-4 text-[#F95700]" />
-                  </div>
-                  <div className="text-2xl font-bold text-slate-900">128</div>
-                  <div className="text-[11px] text-emerald-600 font-medium">+18% from last week</div>
-                </div>
-
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                  <div className="flex items-center justify-between text-slate-500 text-xs">
-                    <span>Active Outlets</span>
-                    <Building2 className="w-4 h-4 text-indigo-600" />
-                  </div>
-                  <div className="text-2xl font-bold text-slate-900">185</div>
-                  <div className="text-[11px] text-slate-500">Across 14 Tier-1/2 cities</div>
-                </div>
-
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                  <div className="flex items-center justify-between text-slate-500 text-xs">
-                    <span>Top-10 Keywords</span>
-                    <TrendingUp className="w-4 h-4 text-emerald-600" />
-                  </div>
-                  <div className="text-2xl font-bold text-slate-900">14</div>
-                  <div className="text-[11px] text-emerald-600 font-medium">Dual-verified milestones</div>
-                </div>
-
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                  <div className="flex items-center justify-between text-slate-500 text-xs">
-                    <span>Ownership Status</span>
-                    <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                  </div>
-                  <div className="text-2xl font-bold text-emerald-600">Verified</div>
-                  <div className="text-[11px] text-slate-500">Admin Audited &amp; Verified</div>
-                </div>
-              </div>
-
-              {/* Quick Navigation Panels */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Link
-                  href="/dashboard/branches"
-                  className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-[#F95700] transition space-y-3 shadow-xs hover:shadow-md"
-                >
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-slate-900 text-base">Franchise Network</h3>
-                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#F95700] transition" />
-                  </div>
-                  <p className="text-xs text-slate-500 leading-relaxed">
-                    Bulk import branch master records, assign outlet managers, and track geographic branch distribution.
-                  </p>
-                </Link>
-
-                <Link
-                  href="/dashboard/leads"
-                  className="group bg-white p-6 rounded-2xl border border-slate-200 hover:border-[#F95700] transition space-y-3 shadow-xs hover:shadow-md"
-                >
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-slate-900 text-base">Leads &amp; Inquiries</h3>
-                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#F95700] transition" />
-                  </div>
-                  <p className="text-xs text-slate-500 leading-relaxed">
-                    Real-time lead log with verified consent timestamps, source URL, UTM parameters, and WhatsApp delivery.
-                  </p>
-                </Link>
-
-                <Link
-                  href="/dashboard/seo-campaigns"
-                  className="group bg-white p-6 rounded-2xl border border-[#F95700]/40 bg-gradient-to-br from-white to-[#F95700]/5 hover:border-[#F95700] transition space-y-3 shadow-xs hover:shadow-md"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <h3 className="font-bold text-slate-900 text-base">Pay-As-You-Rank™ Tracker</h3>
-                      <Sparkles className="w-4 h-4 text-[#F95700]" />
-                    </div>
-                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#F95700] transition" />
-                  </div>
-                  <p className="text-xs text-slate-500 leading-relaxed">
-                    Inspect live Google SERP rankings, dual-proof validation records, and milestone payout escrow invoices.
-                  </p>
-                </Link>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
 
