@@ -835,8 +835,12 @@ export default function PersonDashboardPage() {
       <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden space-y-4">
         <div className="relative h-64 sm:h-72 lg:h-80 w-full bg-slate-900 group overflow-hidden">
           <img
-            src={coverUrl}
+            src={coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80'}
             alt="Personal Cover Banner"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80';
+            }}
             className="w-full h-full object-cover object-center transition duration-500 group-hover:scale-102"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/45 to-transparent pointer-events-none" />
@@ -867,13 +871,24 @@ export default function PersonDashboardPage() {
                   <img
                     src={avatarUrl}
                     alt={name || 'Profile'}
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const parent = e.currentTarget.parentElement;
+                      if (parent) {
+                        const fb = parent.querySelector('.dash-avatar-fallback');
+                        if (fb) (fb as HTMLElement).style.display = 'flex';
+                      }
+                    }}
                     className="w-full h-full object-cover rounded-full"
                   />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-tr from-amber-600 to-orange-500 text-white font-black text-2xl sm:text-3xl flex items-center justify-center rounded-full shadow-inner">
-                    {(name || 'U').slice(0, 1).toUpperCase()}
-                  </div>
-                )}
+                ) : null}
+                <div
+                  className={`w-full h-full bg-gradient-to-tr from-[#07213A] to-[#F95700] text-white font-black text-2xl sm:text-3xl flex items-center justify-center rounded-full shadow-inner dash-avatar-fallback ${
+                    avatarUrl ? 'hidden' : 'flex'
+                  }`}
+                >
+                  {(name || 'U').slice(0, 1).toUpperCase()}
+                </div>
                 <label
                   className="absolute inset-0 bg-slate-950/75 text-white text-[10px] font-bold flex flex-col items-center justify-center opacity-0 group-hover/logo:opacity-100 transition cursor-pointer rounded-full"
                   title="Upload Profile Photo from Device"

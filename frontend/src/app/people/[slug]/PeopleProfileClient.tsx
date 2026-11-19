@@ -308,8 +308,12 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
           {/* Panoramic Cover Art */}
           <div className="relative h-44 sm:h-56 md:h-64 w-full bg-slate-900 overflow-hidden">
             <img
-              src={person.coverUrl}
+              src={person.coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1600&q=80'}
               alt={`${person.name} Cover`}
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1600&q=80';
+              }}
               className="w-full h-full object-cover object-center"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-slate-950/40 via-transparent to-slate-950/20 pointer-events-none" />
@@ -333,13 +337,24 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                   <img
                     src={person.avatarUrl}
                     alt={person.name}
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const parent = e.currentTarget.parentElement;
+                      if (parent) {
+                        const fb = parent.querySelector('.profile-avatar-fallback');
+                        if (fb) (fb as HTMLElement).style.display = 'flex';
+                      }
+                    }}
                     className="w-full h-full object-cover"
                   />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-tr from-amber-600 to-orange-500 text-white font-black text-4xl sm:text-5xl flex items-center justify-center">
-                    {(person.name || 'P').slice(0, 1).toUpperCase()}
-                  </div>
-                )}
+                ) : null}
+                <div
+                  className={`w-full h-full bg-gradient-to-tr from-[#07213A] to-[#F95700] text-white font-black text-4xl sm:text-5xl flex items-center justify-center profile-avatar-fallback ${
+                    person.avatarUrl ? 'hidden' : 'flex'
+                  }`}
+                >
+                  {(person.name || 'P').slice(0, 1).toUpperCase()}
+                </div>
               </div>
 
               {/* Name, Verified Badge, Role & Location */}

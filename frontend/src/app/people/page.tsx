@@ -47,7 +47,7 @@ const defaultPeopleList: PersonCard[] = [
     badge: 'Public Figure',
     location: 'New Delhi, India',
     quote: 'Thoughts for Nation Building and a Stronger India.',
-    avatarUrl: '/people/anand-portrait.png',
+    avatarUrl: '/people/anand-sahu-avatar.jpg',
     coverUrl: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80',
     followersCount: '28.4K',
     postsCount: 286,
@@ -63,8 +63,8 @@ const defaultPeopleList: PersonCard[] = [
     badge: 'Creator',
     location: 'Noida, UP',
     quote: 'Empowering local businesses and creators across Bharat.',
-    avatarUrl: '',
-    coverUrl: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1200&q=80',
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1200&q=80',
     followersCount: '1.2K',
     postsCount: 14,
     category: 'Creators & Influencers',
@@ -79,8 +79,8 @@ const defaultPeopleList: PersonCard[] = [
     badge: 'AI Innovator',
     location: 'Bengaluru, KA',
     quote: 'Empowering 1.4 Billion Indians with sovereign AI innovation and smart discovery.',
-    avatarUrl: '',
-    coverUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
+    avatarUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80',
     followersCount: '5.8K',
     postsCount: 18,
     category: 'Creators & Influencers',
@@ -112,7 +112,7 @@ const defaultPeopleList: PersonCard[] = [
     location: 'Bengaluru, KA',
     quote: 'Sustainable green mobility and public EV infrastructure for modern India.',
     avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
-    coverUrl: 'https://images.unsplash.com/photo-1508873696983-2df5293cb32f?auto=format&fit=crop&w=1200&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1200&q=80',
     followersCount: '12.5K',
     postsCount: 68,
     category: 'Community & Thinkers',
@@ -151,11 +151,12 @@ export default function PeopleDirectoryPage() {
   const [followedSlugs, setFollowedSlugs] = useState<string[]>([]);
   const [followToast, setFollowToast] = useState('');
 
-  // Sync dynamically registered people from localStorage
+  // Sync dynamically registered people from localStorage & active session
   useEffect(() => {
     const loadStoredPeople = () => {
       try {
         const stored = localStorage.getItem('bharatbn_people_store');
+        const sessionStr = localStorage.getItem('bharatbn_owner_session');
         const map = new Map<string, PersonCard>();
 
         // Load custom registered profiles first
@@ -174,7 +175,7 @@ export default function PeopleDirectoryPage() {
                 location: p.location || 'India',
                 quote: p.quote || 'Building a stronger connected community across India.',
                 avatarUrl: p.avatarUrl || '',
-                coverUrl: p.coverUrl || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1200&q=80',
+                coverUrl: p.coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80',
                 followersCount: p.followersCount || '1',
                 postsCount: p.updates?.length || 1,
                 category: p.role?.toLowerCase().includes('creator') ? 'Creators & Influencers' : 'Public Figures & Speakers',
@@ -182,6 +183,33 @@ export default function PeopleDirectoryPage() {
               });
             });
           }
+        }
+
+        // Also merge active person session if present
+        if (sessionStr) {
+          try {
+            const sess = JSON.parse(sessionStr);
+            if (sess && sess.accountType === 'person' && sess.name) {
+              const sessSlug = sess.slug || sess.handle?.replace(/^@/, '') || 'profile';
+              const existing = map.get(sessSlug);
+              map.set(sessSlug, {
+                id: sess.personId || existing?.id || `BBN-PPL-${Date.now()}`,
+                name: sess.name,
+                slug: sessSlug,
+                handle: sess.handle?.startsWith('@') ? sess.handle : `@${sess.handle || sessSlug}`,
+                role: sess.role || existing?.role || 'Creator & Platform Pioneer',
+                badge: sess.badge || existing?.badge || 'Creator',
+                location: sess.location || existing?.location || 'India',
+                quote: sess.quote || existing?.quote || 'Building a stronger connected community across India.',
+                avatarUrl: sess.avatarUrl || existing?.avatarUrl || '',
+                coverUrl: sess.coverUrl || existing?.coverUrl || 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1200&q=80',
+                followersCount: sess.followersCount || existing?.followersCount || '1.2K',
+                postsCount: sess.postsCount || existing?.postsCount || 1,
+                category: existing?.category || (sess.role?.toLowerCase().includes('creator') ? 'Creators & Influencers' : 'Public Figures & Speakers'),
+                isVerified: sess.isVerified !== undefined ? sess.isVerified : (existing?.isVerified || false),
+              });
+            }
+          } catch { }
         }
 
         // Add default curated figures if not overwritten
@@ -199,7 +227,13 @@ export default function PeopleDirectoryPage() {
 
     loadStoredPeople();
     window.addEventListener('bharatbn_people_updated', loadStoredPeople);
-    return () => window.removeEventListener('bharatbn_people_updated', loadStoredPeople);
+    window.addEventListener('bharatbn_auth_changed', loadStoredPeople);
+    window.addEventListener('storage', loadStoredPeople);
+    return () => {
+      window.removeEventListener('bharatbn_people_updated', loadStoredPeople);
+      window.removeEventListener('bharatbn_auth_changed', loadStoredPeople);
+      window.removeEventListener('storage', loadStoredPeople);
+    };
   }, []);
 
   // Sync follow state
@@ -362,8 +396,12 @@ export default function PeopleDirectoryPage() {
                   {/* Top Cover Banner */}
                   <div className="relative h-28 w-full bg-slate-900 overflow-hidden">
                     <img
-                      src={person.coverUrl}
+                      src={person.coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80'}
                       alt={person.name}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80';
+                      }}
                       className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
@@ -383,13 +421,24 @@ export default function PeopleDirectoryPage() {
                           <img
                             src={person.avatarUrl}
                             alt={person.name}
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              const parent = e.currentTarget.parentElement;
+                              if (parent) {
+                                const fb = parent.querySelector('.avatar-fallback');
+                                if (fb) (fb as HTMLElement).style.display = 'flex';
+                              }
+                            }}
                             className="w-full h-full object-cover"
                           />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-tr from-amber-600 to-orange-500 text-white font-black text-xl flex items-center justify-center">
-                            {person.name.slice(0, 1).toUpperCase()}
-                          </div>
-                        )}
+                        ) : null}
+                        <div
+                          className={`w-full h-full bg-gradient-to-tr from-[#07213A] to-[#F95700] text-white font-black text-xl flex items-center justify-center avatar-fallback ${
+                            person.avatarUrl ? 'hidden' : 'flex'
+                          }`}
+                        >
+                          {person.name.slice(0, 1).toUpperCase()}
+                        </div>
                       </div>
 
                       {/* Name & Handle */}

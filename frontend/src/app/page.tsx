@@ -69,7 +69,7 @@ const defaultPeopleList: PersonItem[] = [
     category: 'public-figures',
     location: 'New Delhi, India',
     quote: 'Thoughts for Nation Building and a Stronger India.',
-    avatarUrl: '/people/anand-portrait.png',
+    avatarUrl: '/people/anand-sahu-avatar.jpg',
     coverUrl: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=800&q=80',
     followersCount: '28.4K',
     isVerified: true,
@@ -114,8 +114,8 @@ const defaultPeopleList: PersonItem[] = [
     category: 'tech',
     location: 'Bengaluru, KA',
     quote: 'Empowering 1.4 Billion Indians with sovereign AI innovation and smart discovery.',
-    avatarUrl: '',
-    coverUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
+    avatarUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=800&q=80',
     followersCount: '5.8K',
     isVerified: true,
   },
@@ -174,8 +174,8 @@ const defaultPeopleList: PersonItem[] = [
     category: 'creators',
     location: 'Noida, UP',
     quote: 'Empowering local businesses and creators across Bharat.',
-    avatarUrl: '',
-    coverUrl: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80',
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=800&q=80',
     followersCount: '1.2K',
     isVerified: true,
   },
@@ -205,7 +205,7 @@ const defaultPeopleList: PersonItem[] = [
     location: 'Bengaluru, KA',
     quote: 'Sustainable green mobility and public EV infrastructure for modern India.',
     avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
-    coverUrl: 'https://images.unsplash.com/photo-1508873696983-2df5293cb32f?auto=format&fit=crop&w=800&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=800&q=80',
     followersCount: '12.5K',
     isVerified: true,
   },
@@ -1072,6 +1072,10 @@ export default function HomePage() {
                       <img
                         src={person.coverUrl}
                         alt={`${person.name} Cover`}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=800&q=80';
+                        }}
                         className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-500"
                       />
                     )}
@@ -1085,18 +1089,29 @@ export default function HomePage() {
                   {/* Profile DP Avatar & Info */}
                   <div className="px-4 pb-3 pt-0 relative">
                     <div className="relative -mt-10 mb-2.5 flex items-end justify-between">
-                      <div className="relative w-16 h-16 rounded-full ring-4 ring-white bg-slate-100 shadow-md overflow-hidden flex-shrink-0">
+                      <div className="relative w-16 h-16 rounded-full ring-4 ring-white bg-slate-100 shadow-md overflow-hidden flex-shrink-0 flex items-center justify-center">
                         {person.avatarUrl ? (
                           <img
                             src={person.avatarUrl}
                             alt={person.name}
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              const parent = e.currentTarget.parentElement;
+                              if (parent) {
+                                const fb = parent.querySelector('.home-avatar-fallback');
+                                if (fb) (fb as HTMLElement).style.display = 'flex';
+                              }
+                            }}
                             className="w-full h-full object-cover"
                           />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-tr from-orange-500 to-amber-600 text-white font-extrabold flex items-center justify-center text-xl">
-                            {person.name.slice(0, 1).toUpperCase()}
-                          </div>
-                        )}
+                        ) : null}
+                        <div
+                          className={`w-full h-full bg-gradient-to-tr from-orange-500 to-amber-600 text-white font-extrabold flex items-center justify-center text-xl home-avatar-fallback ${
+                            person.avatarUrl ? 'hidden' : 'flex'
+                          }`}
+                        >
+                          {person.name.slice(0, 1).toUpperCase()}
+                        </div>
                         {person.isVerified && (
                           <div
                             className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center ring-2 ring-white"
