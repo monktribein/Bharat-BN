@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   User,
@@ -14,7 +13,6 @@ import {
   Trash2,
   ChevronDown,
   Sparkles,
-  Share2,
   Eye,
   Users,
   MessageSquare,
@@ -23,14 +21,11 @@ import {
   Phone,
   MapPin,
   AtSign,
-  Video,
-  Image as ImageIcon,
   Award,
   GraduationCap,
   Briefcase,
   Heart,
   Send,
-  MoreVertical,
   Check,
   Copy,
   LogIn,
@@ -49,8 +44,14 @@ interface PersonSession {
   phone?: string;
   location?: string;
   quote?: string;
+  website?: string;
+  aboutText?: string;
   avatarUrl?: string;
   coverUrl?: string;
+  followersCount?: string | number;
+  viewsCount?: string | number;
+  engagementsCount?: string | number;
+  storiesCount?: string | number;
 }
 
 export default function PersonDashboardPage() {
@@ -60,60 +61,43 @@ export default function PersonDashboardPage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  // Profile Form States
-  const [name, setName] = useState('Anand Sahu');
-  const [handle, setHandle] = useState('@anandsahu');
-  const [slug, setSlug] = useState('anand-sahu');
-  const [role, setRole] = useState('Nationalist Thinker & Speaker');
+  // Profile Form States (Default to neutral empty/user-friendly values)
+  const [name, setName] = useState('');
+  const [handle, setHandle] = useState('');
+  const [slug, setSlug] = useState('');
+  const [role, setRole] = useState('Public Figure & Speaker');
   const [badge, setBadge] = useState('Public Figure');
-  const [location, setLocation] = useState('New Delhi, India');
-  const [quote, setQuote] = useState('Thoughts for Nation Building and a Stronger India.');
-  const [website, setWebsite] = useState('https://anandsahu.com');
-  const [email, setEmail] = useState('anand@bharatbn.com');
-  const [phone, setPhone] = useState('+91 98110 00000');
-  const [aboutText, setAboutText] = useState(
-    'Anand Sahu publishes commentary, event updates, and photographs related to public life, social work, and political activities. He is known for his nationalist perspective and active engagement in public discourse and youth initiatives.'
-  );
-  const [avatarUrl, setAvatarUrl] = useState(
-    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80'
-  );
+  const [location, setLocation] = useState('');
+  const [quote, setQuote] = useState('');
+  const [website, setWebsite] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [aboutText, setAboutText] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [coverUrl, setCoverUrl] = useState(
-    'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80'
+    'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1600&q=80'
   );
+
+  // Creator Stats
+  const [followersCount, setFollowersCount] = useState('0');
+  const [viewsCount, setViewsCount] = useState('0');
+  const [engagementsCount, setEngagementsCount] = useState('0');
+  const [storiesCount, setStoriesCount] = useState('0');
 
   // Social Links
-  const [socialYoutube, setSocialYoutube] = useState('https://youtube.com/@anandsahu');
-  const [socialInstagram, setSocialInstagram] = useState('https://instagram.com/anandsahuindia');
-  const [socialTwitter, setSocialTwitter] = useState('https://twitter.com/anandsahu');
-  const [socialFacebook, setSocialFacebook] = useState('https://facebook.com/anandsahubppage');
-  const [socialLinkedin, setSocialLinkedin] = useState('https://linkedin.com/in/anandsahu');
+  const [socialYoutube, setSocialYoutube] = useState('');
+  const [socialInstagram, setSocialInstagram] = useState('');
+  const [socialTwitter, setSocialTwitter] = useState('');
+  const [socialFacebook, setSocialFacebook] = useState('');
+  const [socialLinkedin, setSocialLinkedin] = useState('');
 
   // Highlights
-  const [education, setEducation] = useState('Master of Arts (Political Science) & Public Administration');
-  const [experience, setExperience] = useState('Social Work, Policy Thinker & BJP Youth Organization Leadership');
-  const [achievements, setAchievements] = useState('Key State-Level Leadership Awards & Social Service Recognitions');
+  const [education, setEducation] = useState('');
+  const [experience, setExperience] = useState('');
+  const [achievements, setAchievements] = useState('');
 
   // Posts & Updates Feed
-  const [updates, setUpdates] = useState<any[]>([
-    {
-      id: 'post-1',
-      type: 'News',
-      title: 'Guest of Honour at infrastructure awards event in New Delhi',
-      desc: 'Addressed the event and shared thoughts on infrastructure and economic development.',
-      date: 'June 2026',
-      likes: 1840,
-      comments: 142,
-    },
-    {
-      id: 'post-2',
-      type: 'Events',
-      title: 'Visit and meetings in Tashkent on India-Central Asia Cooperation',
-      desc: 'Participated in key bilateral dialogues and discussed youth engagement across Eurasia.',
-      date: 'May 2026',
-      likes: 980,
-      comments: 67,
-    },
-  ]);
+  const [updates, setUpdates] = useState<any[]>([]);
 
   // New Post Form State
   const [newPostTitle, setNewPostTitle] = useState('');
@@ -133,6 +117,135 @@ export default function PersonDashboardPage() {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+  // Load Person Details dynamically based on who is logged in
+  const loadPersonDetails = (currSession: PersonSession) => {
+    const isAnand =
+      currSession.slug === 'anand-sahu' ||
+      currSession.email?.toLowerCase().includes('anand@') ||
+      currSession.name?.trim().toLowerCase() === 'anand sahu';
+
+    // 1. Check custom stored record in bharatbn_people_store
+    let found: any = null;
+    try {
+      const stored = localStorage.getItem('bharatbn_people_store');
+      if (stored) {
+        const people = JSON.parse(stored);
+        if (Array.isArray(people)) {
+          found = people.find(
+            (p: any) =>
+              p.id === currSession.personId ||
+              p.slug === currSession.slug ||
+              (p.email && p.email.toLowerCase() === currSession.email?.toLowerCase()) ||
+              (p.handle && p.handle.toLowerCase() === currSession.handle?.toLowerCase())
+          );
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+
+    // Set Profile Identity
+    const resolvedName = found?.name || currSession.name || (isAnand ? 'Anand Sahu' : 'Profile Member');
+    setName(resolvedName);
+
+    const cleanHandle = (found?.handle || currSession.handle || (isAnand ? '@anandsahu' : `@${resolvedName.toLowerCase().replace(/[^a-z0-9]+/g, '')}`)).trim();
+    setHandle(cleanHandle.startsWith('@') ? cleanHandle : `@${cleanHandle}`);
+
+    setSlug(found?.slug || currSession.slug || (isAnand ? 'anand-sahu' : resolvedName.toLowerCase().replace(/[^a-z0-9]+/g, '-')));
+    setRole(found?.role || currSession.role || (isAnand ? 'Nationalist Thinker & Speaker' : 'Public Figure & Speaker'));
+    setBadge(found?.badge || currSession.badge || 'Public Figure');
+    setLocation(found?.location || currSession.location || (isAnand ? 'New Delhi, India' : ''));
+    setQuote(found?.quote !== undefined ? found.quote : (currSession.quote !== undefined ? currSession.quote : (isAnand ? 'Thoughts for Nation Building and a Stronger India.' : '')));
+    setEmail(found?.email || currSession.email || '');
+    setPhone(found?.phone || currSession.phone || '');
+
+    // Website & Bio (Strictly isolate Anand Sahu data from any other user!)
+    if (isAnand) {
+      setWebsite(found?.website || 'https://anandsahu.com');
+      setAboutText(
+        found?.aboutText ||
+          'Anand Sahu publishes commentary, event updates, and photographs related to public life, social work, and political activities. He is known for his nationalist perspective and active engagement in public discourse and youth initiatives.'
+      );
+      setAvatarUrl(found?.avatarUrl || currSession.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80');
+      setCoverUrl(found?.coverUrl || currSession.coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80');
+      setSocialYoutube(found?.socialLinks?.youtube || 'https://youtube.com/@anandsahu');
+      setSocialInstagram(found?.socialLinks?.instagram || 'https://instagram.com/anandsahuindia');
+      setSocialTwitter(found?.socialLinks?.twitter || 'https://twitter.com/anandsahu');
+      setSocialFacebook(found?.socialLinks?.facebook || 'https://facebook.com/anandsahubppage');
+      setSocialLinkedin(found?.socialLinks?.linkedin || 'https://linkedin.com/in/anandsahu');
+      setEducation(found?.education || found?.highlights?.education || 'Master of Arts (Political Science) & Public Administration');
+      setExperience(found?.experience || found?.highlights?.experience || 'Social Work, Policy Thinker & BJP Youth Organization Leadership');
+      setAchievements(found?.achievements || found?.highlights?.achievements || 'Key State-Level Leadership Awards & Social Service Recognitions');
+      setFollowersCount('28.4K');
+      setViewsCount('1.2M+');
+      setEngagementsCount('42.8K');
+      setStoriesCount('52');
+      setUpdates(
+        found?.updates || [
+          {
+            id: 'post-1',
+            type: 'News',
+            title: 'Guest of Honour at infrastructure awards event in New Delhi',
+            desc: 'Addressed the event and shared thoughts on infrastructure and economic development.',
+            date: 'June 2026',
+            likes: 1840,
+            comments: 142,
+          },
+          {
+            id: 'post-2',
+            type: 'Events',
+            title: 'Visit and meetings in Tashkent on India-Central Asia Cooperation',
+            desc: 'Participated in key bilateral dialogues and discussed youth engagement across Eurasia.',
+            date: 'May 2026',
+            likes: 980,
+            comments: 67,
+          },
+        ]
+      );
+    } else {
+      // FOR KASHISH SAXENA OR ANY OTHER PERSON: 100% PERSONALIZED & CLEAN
+      const userWebsite = found?.website || (currSession.website && !currSession.website.includes('anandsahu.com') ? currSession.website : '');
+      setWebsite(userWebsite);
+
+      const userAbout = found?.aboutText || (currSession.aboutText && !currSession.aboutText.includes('Anand Sahu') ? currSession.aboutText : '');
+      setAboutText(userAbout);
+
+      const userAvatar = found?.avatarUrl || (currSession.avatarUrl && !currSession.avatarUrl.includes('534528741775') ? currSession.avatarUrl : '');
+      setAvatarUrl(userAvatar);
+
+      const userCover = found?.coverUrl || currSession.coverUrl || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1600&q=80';
+      setCoverUrl(userCover);
+
+      setSocialYoutube(found?.socialLinks?.youtube || '');
+      setSocialInstagram(found?.socialLinks?.instagram || '');
+      setSocialTwitter(found?.socialLinks?.twitter || '');
+      setSocialFacebook(found?.socialLinks?.facebook || '');
+      setSocialLinkedin(found?.socialLinks?.linkedin || '');
+
+      setEducation(found?.education || found?.highlights?.education || '');
+      setExperience(found?.experience || found?.highlights?.experience || '');
+      setAchievements(found?.achievements || found?.highlights?.achievements || '');
+
+      setFollowersCount(found?.followersCount || currSession.followersCount || '0');
+      setViewsCount(found?.viewsCount || currSession.viewsCount || '0');
+      setEngagementsCount(found?.engagementsCount || currSession.engagementsCount || '0');
+      setStoriesCount(found?.storiesCount || currSession.storiesCount || '0');
+
+      setUpdates(found?.updates && Array.isArray(found.updates) ? found.updates : []);
+
+      // Clean up localStorage session if it carried contaminated Anand Sahu values
+      if (currSession.website?.includes('anandsahu.com') || currSession.aboutText?.includes('Anand Sahu')) {
+        const cleanedSession = {
+          ...currSession,
+          website: userWebsite,
+          aboutText: userAbout,
+          avatarUrl: userAvatar,
+        };
+        localStorage.setItem('bharatbn_owner_session', JSON.stringify(cleanedSession));
+      }
+    }
+  };
+
   // Sync Session on mount and storage events
   useEffect(() => {
     const sync = () => {
@@ -141,19 +254,18 @@ export default function PersonDashboardPage() {
         if (stored) {
           const parsed = JSON.parse(stored);
           setSession(parsed);
-          if (parsed.name) setName(parsed.name);
-          if (parsed.handle) setHandle(parsed.handle);
-          if (parsed.slug) setSlug(parsed.slug);
-          if (parsed.role) setRole(parsed.role);
-          if (parsed.badge) setBadge(parsed.badge);
-          if (parsed.location) setLocation(parsed.location);
-          if (parsed.quote) setQuote(parsed.quote);
-          if (parsed.avatarUrl) setAvatarUrl(parsed.avatarUrl);
-          if (parsed.coverUrl) setCoverUrl(parsed.coverUrl);
-          if (parsed.email) setEmail(parsed.email);
-          if (parsed.phone) setPhone(parsed.phone);
+          loadPersonDetails(parsed);
         } else {
           setSession(null);
+          setName('Personal Profile');
+          setHandle('@user');
+          setRole('Creator & Public Voice');
+          setLocation('India');
+          setQuote('');
+          setWebsite('');
+          setAboutText('');
+          setAvatarUrl('');
+          setUpdates([]);
         }
       } catch {
         setSession(null);
@@ -165,7 +277,7 @@ export default function PersonDashboardPage() {
     return () => window.removeEventListener('bharatbn_auth_changed', sync);
   }, []);
 
-  // Direct Person Cover Upload
+  // Direct Person Cover Upload from Device
   const handlePersonCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -199,7 +311,7 @@ export default function PersonDashboardPage() {
     e.target.value = '';
   };
 
-  // Direct Person Avatar Upload
+  // Direct Person Avatar Upload from Device
   const handlePersonAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -245,7 +357,7 @@ export default function PersonDashboardPage() {
     setTimeout(() => {
       const updatedSession: PersonSession = {
         accountType: 'person',
-        personId: session?.personId || 'BBN-PPL-ANAND-SAHU-001',
+        personId: session?.personId || `BBN-PPL-${Date.now().toString().slice(-6)}`,
         name,
         handle,
         slug,
@@ -253,24 +365,45 @@ export default function PersonDashboardPage() {
         badge,
         location,
         quote,
+        website,
         email,
         phone,
+        aboutText,
         avatarUrl,
         coverUrl,
+        followersCount,
+        viewsCount,
+        engagementsCount,
+        storiesCount,
       };
 
       try {
         localStorage.setItem('bharatbn_owner_session', JSON.stringify(updatedSession));
         window.dispatchEvent(new Event('bharatbn_auth_changed'));
 
-        // Also update people store
+        // Save into people store
         const stored = localStorage.getItem('bharatbn_people_store');
         let people = stored ? JSON.parse(stored) : [];
         const idx = people.findIndex((p: any) => p.slug === slug || p.id === updatedSession.personId);
+        const fullRecord = {
+          ...updatedSession,
+          socialLinks: {
+            youtube: socialYoutube.trim(),
+            instagram: socialInstagram.trim(),
+            twitter: socialTwitter.trim(),
+            facebook: socialFacebook.trim(),
+            linkedin: socialLinkedin.trim(),
+          },
+          education: education.trim(),
+          experience: experience.trim(),
+          achievements: achievements.trim(),
+          updates,
+        };
+
         if (idx !== -1) {
-          people[idx] = { ...people[idx], ...updatedSession, website, aboutText };
+          people[idx] = { ...people[idx], ...fullRecord };
         } else {
-          people.unshift({ ...updatedSession, website, aboutText });
+          people.unshift(fullRecord);
         }
         localStorage.setItem('bharatbn_people_store', JSON.stringify(people));
       } catch (err) {
@@ -297,13 +430,35 @@ export default function PersonDashboardPage() {
       comments: 0,
     };
 
-    setUpdates([newPost, ...updates]);
+    const nextUpdates = [newPost, ...updates];
+    setUpdates(nextUpdates);
     setNewPostTitle('');
     setNewPostDesc('');
+
+    // Persist post immediately
+    try {
+      const stored = localStorage.getItem('bharatbn_people_store');
+      let people = stored ? JSON.parse(stored) : [];
+      const idx = people.findIndex((p: any) => p.slug === slug || p.id === session?.personId);
+      if (idx !== -1) {
+        people[idx].updates = nextUpdates;
+        localStorage.setItem('bharatbn_people_store', JSON.stringify(people));
+      }
+    } catch {}
   };
 
   const handleDeletePost = (id: string) => {
-    setUpdates(updates.filter((p) => p.id !== id));
+    const nextUpdates = updates.filter((p) => p.id !== id);
+    setUpdates(nextUpdates);
+    try {
+      const stored = localStorage.getItem('bharatbn_people_store');
+      let people = stored ? JSON.parse(stored) : [];
+      const idx = people.findIndex((p: any) => p.slug === slug || p.id === session?.personId);
+      if (idx !== -1) {
+        people[idx].updates = nextUpdates;
+        localStorage.setItem('bharatbn_people_store', JSON.stringify(people));
+      }
+    } catch {}
   };
 
   return (
@@ -314,7 +469,7 @@ export default function PersonDashboardPage() {
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-amber-600 flex-shrink-0" />
             <span>
-              You are currently logged in as a <strong>Business Account</strong>. Manage business operations or switch to personal profile.
+              You are currently logged in as a <strong>Business Account</strong>. Manage your business or switch accounts.
             </span>
           </div>
           <Link
@@ -366,11 +521,11 @@ export default function PersonDashboardPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/45 to-transparent pointer-events-none" />
 
-          {/* Top-Right: Edit Cover Button */}
+          {/* Top-Right: Upload Cover Button */}
           <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
             <label
               className="px-3.5 py-1.5 rounded-xl bg-slate-950/70 hover:bg-slate-900 text-white text-xs font-semibold backdrop-blur-md border border-white/20 flex items-center gap-1.5 shadow-md transition cursor-pointer"
-              title="Upload Cover from Device"
+              title="Upload Cover Photo from Device"
             >
               <Camera className="w-3.5 h-3.5 text-white" />
               <span>Upload Cover</span>
@@ -386,13 +541,19 @@ export default function PersonDashboardPage() {
           {/* Bottom-Left: Personal Identity Overlay */}
           <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 right-4 sm:right-6 z-20 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 text-center sm:text-left">
-              {/* Profile Avatar with white ring */}
+              {/* Profile Avatar with white ring (Fallback to initial badge if no image) */}
               <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white border-3 sm:border-4 border-white shadow-2xl p-0.5 flex-shrink-0 flex items-center justify-center group/logo overflow-hidden">
-                <img
-                  src={avatarUrl}
-                  alt={name}
-                  className="w-full h-full object-cover rounded-full"
-                />
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={name || 'Profile'}
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-tr from-amber-600 to-orange-500 text-white font-black text-2xl sm:text-3xl flex items-center justify-center rounded-full shadow-inner">
+                    {(name || 'U').slice(0, 1).toUpperCase()}
+                  </div>
+                )}
                 <label
                   className="absolute inset-0 bg-slate-950/75 text-white text-[10px] font-bold flex flex-col items-center justify-center opacity-0 group-hover/logo:opacity-100 transition cursor-pointer rounded-full"
                   title="Upload Profile Photo from Device"
@@ -412,17 +573,17 @@ export default function PersonDashboardPage() {
               <div className="space-y-1 drop-shadow-md min-w-0">
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                   <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight drop-shadow-md">
-                    {name}
+                    {name || 'Your Name'}
                   </h1>
                   <span className="inline-flex items-center gap-1 text-[11px] font-bold text-sky-300 bg-sky-950/70 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-sky-500/40">
                     <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />
                     <span>{badge}</span>
                   </span>
-                  <span className="text-xs font-mono text-slate-300 font-semibold">{handle}</span>
+                  {handle && <span className="text-xs font-mono text-slate-300 font-semibold">{handle}</span>}
                 </div>
 
                 <p className="text-xs sm:text-sm text-slate-200 font-medium drop-shadow-sm">
-                  {role} &bull; {location}
+                  {role} {location ? `• ${location}` : ''}
                 </p>
 
                 {/* Public Link + Copy Link */}
@@ -432,7 +593,7 @@ export default function PersonDashboardPage() {
                     target="_blank"
                     className="text-xs font-bold text-orange-400 hover:text-orange-300 hover:underline inline-flex items-center gap-1 font-mono"
                   >
-                    <span>/people/{slug}</span>
+                    <span>/people/{slug || 'profile'}</span>
                     <ExternalLink className="w-3 h-3 text-orange-400" />
                   </Link>
 
@@ -472,14 +633,14 @@ export default function PersonDashboardPage() {
           </div>
         </div>
 
-        {/* 4 Creator Metric Stat Cards */}
+        {/* 4 Creator Metric Stat Cards (Dynamically bound) */}
         <div className="px-6 sm:px-8 pb-5 grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
           <div className="p-4 bg-slate-50/70 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0">
               <Users className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-xl font-black text-slate-900 leading-tight">28.4K</div>
+              <div className="text-xl font-black text-slate-900 leading-tight">{followersCount}</div>
               <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Followers</div>
             </div>
           </div>
@@ -489,7 +650,7 @@ export default function PersonDashboardPage() {
               <Eye className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-xl font-black text-slate-900 leading-tight">1.2M+</div>
+              <div className="text-xl font-black text-slate-900 leading-tight">{viewsCount}</div>
               <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Profile Views</div>
             </div>
           </div>
@@ -499,7 +660,7 @@ export default function PersonDashboardPage() {
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-xl font-black text-slate-900 leading-tight">42.8K</div>
+              <div className="text-xl font-black text-slate-900 leading-tight">{engagementsCount}</div>
               <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Engagements</div>
             </div>
           </div>
@@ -509,7 +670,7 @@ export default function PersonDashboardPage() {
               <MessageSquare className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-xl font-black text-slate-900 leading-tight">52</div>
+              <div className="text-xl font-black text-slate-900 leading-tight">{storiesCount}</div>
               <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Stories &amp; Collabs</div>
             </div>
           </div>
@@ -550,6 +711,7 @@ export default function PersonDashboardPage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Kashish Saxena"
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
                 />
               </div>
@@ -560,6 +722,7 @@ export default function PersonDashboardPage() {
                   type="text"
                   value={handle}
                   onChange={(e) => setHandle(e.target.value)}
+                  placeholder="e.g. @kashish"
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
                 />
               </div>
@@ -570,6 +733,7 @@ export default function PersonDashboardPage() {
                   type="text"
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
+                  placeholder="e.g. Creator & Influencer"
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
                 />
               </div>
@@ -580,6 +744,7 @@ export default function PersonDashboardPage() {
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
+                  placeholder="e.g. Noida, UP"
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
                 />
               </div>
@@ -590,6 +755,7 @@ export default function PersonDashboardPage() {
                   type="url"
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
+                  placeholder="https://yourwebsite.com"
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
                 />
               </div>
@@ -600,17 +766,19 @@ export default function PersonDashboardPage() {
                   type="text"
                   value={badge}
                   onChange={(e) => setBadge(e.target.value)}
+                  placeholder="e.g. Public Figure"
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
                 />
               </div>
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700">National Quote / Headline</label>
+              <label className="block text-xs font-bold text-slate-700">National Quote / Personal Headline</label>
               <input
                 type="text"
                 value={quote}
                 onChange={(e) => setQuote(e.target.value)}
+                placeholder="Share your personal philosophy, motto, or headline..."
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
               />
             </div>
@@ -621,6 +789,7 @@ export default function PersonDashboardPage() {
                 rows={3}
                 value={aboutText}
                 onChange={(e) => setAboutText(e.target.value)}
+                placeholder="Write your story, professional background, initiatives, or introduction..."
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
               />
             </div>
@@ -797,41 +966,47 @@ export default function PersonDashboardPage() {
 
             {/* Live Updates Timeline */}
             <div className="space-y-3">
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Live Published Posts</h4>
-              {updates.map((item) => (
-                <div
-                  key={item.id}
-                  className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                >
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-orange-100 text-[#F95700] uppercase">
-                        {item.type}
-                      </span>
-                      <span className="text-xs text-slate-400">{item.date}</span>
-                    </div>
-                    <h5 className="text-sm font-bold text-slate-900">{item.title}</h5>
-                    <p className="text-xs text-slate-600 line-clamp-2">{item.desc}</p>
-                    <div className="flex items-center gap-4 pt-1 text-xs text-slate-400">
-                      <span className="flex items-center gap-1">
-                        <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" /> {item.likes}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MessageSquare className="w-3.5 h-3.5" /> {item.comments}
-                      </span>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => handleDeletePost(item.id)}
-                    className="self-end sm:self-center p-2 rounded-xl text-red-500 hover:bg-red-50 transition cursor-pointer"
-                    title="Delete Post"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Your Published Posts</h4>
+              {updates.length === 0 ? (
+                <div className="p-8 rounded-2xl border-2 border-dashed border-slate-200 text-center text-xs text-slate-400">
+                  No posts published yet. Use the form above to share your first announcement or article!
                 </div>
-              ))}
+              ) : (
+                updates.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-orange-100 text-[#F95700] uppercase">
+                          {item.type}
+                        </span>
+                        <span className="text-xs text-slate-400">{item.date}</span>
+                      </div>
+                      <h5 className="text-sm font-bold text-slate-900">{item.title}</h5>
+                      <p className="text-xs text-slate-600 line-clamp-2">{item.desc}</p>
+                      <div className="flex items-center gap-4 pt-1 text-xs text-slate-400">
+                        <span className="flex items-center gap-1">
+                          <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" /> {item.likes}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MessageSquare className="w-3.5 h-3.5" /> {item.comments}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDeletePost(item.id)}
+                      className="self-end sm:self-center p-2 rounded-xl text-red-500 hover:bg-red-50 transition cursor-pointer"
+                      title="Delete Post"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         )}
@@ -873,6 +1048,7 @@ export default function PersonDashboardPage() {
                 type="text"
                 value={education}
                 onChange={(e) => setEducation(e.target.value)}
+                placeholder="e.g. Master of Arts / B.Tech / University..."
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
               />
             </div>
@@ -886,6 +1062,7 @@ export default function PersonDashboardPage() {
                 type="text"
                 value={experience}
                 onChange={(e) => setExperience(e.target.value)}
+                placeholder="e.g. Founder at Enterprise / Lead Designer / Consultant..."
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
               />
             </div>
@@ -899,6 +1076,7 @@ export default function PersonDashboardPage() {
                 type="text"
                 value={achievements}
                 onChange={(e) => setAchievements(e.target.value)}
+                placeholder="e.g. State-level Awards, Notable Accomplishments..."
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
               />
             </div>
@@ -913,13 +1091,13 @@ export default function PersonDashboardPage() {
             ✓
           </div>
           <span className="text-xs font-semibold text-slate-700">
-            Editing Profile: <strong>{name}</strong> ({handle})
+            Editing Profile: <strong>{name || 'Personal Profile'}</strong> ({handle || '@user'})
           </span>
         </div>
 
         <div className="flex items-center gap-2">
           <Link
-            href={`/people/${slug}`}
+            href={`/people/${slug || 'profile'}`}
             target="_blank"
             className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition"
           >
