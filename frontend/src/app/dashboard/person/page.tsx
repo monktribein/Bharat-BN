@@ -31,6 +31,7 @@ import {
   LogIn,
 } from 'lucide-react';
 import BusinessLoginModal from '@/components/BusinessLoginModal';
+import { peopleDatabase } from '@/app/people/[slug]/peopleData';
 
 interface PersonSession {
   accountType?: 'person' | 'business';
@@ -146,6 +147,14 @@ export default function PersonDashboardPage() {
       console.error(err);
     }
 
+    // 2. Fallback to pre-seeded profiles in peopleDatabase if not in localStorage store
+    if (!found) {
+      const slugKey = currSession.slug || currSession.handle?.replace(/^@/, '').toLowerCase() || '';
+      if (slugKey && peopleDatabase[slugKey]) {
+        found = peopleDatabase[slugKey];
+      }
+    }
+
     // Set Profile Identity
     const resolvedName = found?.name || currSession.name || (isAnand ? 'Anand Sahu' : 'Profile Member');
     setName(resolvedName);
@@ -205,14 +214,20 @@ export default function PersonDashboardPage() {
         ]
       );
     } else {
-      // FOR KASHISH SAXENA OR ANY OTHER PERSON: 100% PERSONALIZED & CLEAN
-      const userWebsite = found?.website || (currSession.website && !currSession.website.includes('anandsahu.com') ? currSession.website : '');
+      // FOR AI, KASHISH SAXENA OR ANY OTHER PERSON: 100% PERSONALIZED & CLEAN
+      const userWebsite = (found?.website && !found.website.includes('anandsahu.com'))
+        ? found.website
+        : (currSession.website && !currSession.website.includes('anandsahu.com') ? currSession.website : '');
       setWebsite(userWebsite);
 
-      const userAbout = found?.aboutText || (currSession.aboutText && !currSession.aboutText.includes('Anand Sahu') ? currSession.aboutText : '');
+      const userAbout = (found?.aboutText && !found.aboutText.includes('Anand Sahu'))
+        ? found.aboutText
+        : (currSession.aboutText && !currSession.aboutText.includes('Anand Sahu') ? currSession.aboutText : '');
       setAboutText(userAbout);
 
-      const userAvatar = found?.avatarUrl || (currSession.avatarUrl && !currSession.avatarUrl.includes('534528741775') ? currSession.avatarUrl : '');
+      const userAvatar = (found?.avatarUrl && !found.avatarUrl.includes('534528741775'))
+        ? found.avatarUrl
+        : (currSession.avatarUrl && !currSession.avatarUrl.includes('534528741775') ? currSession.avatarUrl : '');
       setAvatarUrl(userAvatar);
 
       const userCover = found?.coverUrl || currSession.coverUrl || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1600&q=80';
@@ -224,14 +239,17 @@ export default function PersonDashboardPage() {
       setSocialFacebook(found?.socialLinks?.facebook || '');
       setSocialLinkedin(found?.socialLinks?.linkedin || '');
 
-      setEducation(found?.education || found?.highlights?.education || '');
-      setExperience(found?.experience || found?.highlights?.experience || '');
-      setAchievements(found?.achievements || found?.highlights?.achievements || '');
+      const eduVal = found?.education || found?.highlights?.find?.((h: any) => h.key === 'education')?.description || '';
+      const expVal = found?.experience || found?.highlights?.find?.((h: any) => h.key === 'experience')?.description || '';
+      const achVal = found?.achievements || found?.highlights?.find?.((h: any) => h.key === 'achievements')?.description || '';
+      setEducation(eduVal);
+      setExperience(expVal);
+      setAchievements(achVal);
 
-      setFollowersCount(found?.followersCount || currSession.followersCount || '0');
+      setFollowersCount(found?.followersCount ? String(found.followersCount) : (currSession.followersCount ? String(currSession.followersCount) : '0'));
       setViewsCount(found?.viewsCount || currSession.viewsCount || '0');
       setEngagementsCount(found?.engagementsCount || currSession.engagementsCount || '0');
-      setStoriesCount(found?.storiesCount || currSession.storiesCount || '0');
+      setStoriesCount(found?.storiesCount ? String(found.storiesCount) : (currSession.storiesCount ? String(currSession.storiesCount) : '0'));
 
       setUpdates(found?.updates && Array.isArray(found.updates) ? found.updates : []);
 
@@ -357,12 +375,19 @@ export default function PersonDashboardPage() {
   const handleSaveProfile = () => {
     setIsSaving(true);
     setTimeout(() => {
+      const cleanSlug = (
+        slug ||
+        handle.replace(/^@/, '') ||
+        name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') ||
+        'profile'
+      ).toLowerCase().trim();
+
       const updatedSession: PersonSession = {
         accountType: 'person',
         personId: session?.personId || `BBN-PPL-${Date.now().toString().slice(-6)}`,
         name,
         handle,
-        slug,
+        slug: cleanSlug,
         role,
         badge,
         location,
@@ -377,6 +402,8 @@ export default function PersonDashboardPage() {
         viewsCount,
         engagementsCount,
         storiesCount,
+        status: session?.status || 'pending',
+        isVerified: session?.isVerified || false,
       };
 
       try {
@@ -386,9 +413,10 @@ export default function PersonDashboardPage() {
         // Save into people store
         const stored = localStorage.getItem('bharatbn_people_store');
         let people = stored ? JSON.parse(stored) : [];
-        const idx = people.findIndex((p: any) => p.slug === slug || p.id === updatedSession.personId);
+        const idx = people.findIndex((p: any) => p.slug === cleanSlug || p.id === updatedSession.personId);
         const fullRecord = {
           ...updatedSession,
+          slug: cleanSlug,
           socialLinks: {
             youtube: socialYoutube.trim(),
             instagram: socialInstagram.trim(),
@@ -400,6 +428,8 @@ export default function PersonDashboardPage() {
           experience: experience.trim(),
           achievements: achievements.trim(),
           updates,
+          status: session?.status || 'pending',
+          isVerified: session?.isVerified || false,
         };
 
         if (idx !== -1) {
@@ -408,6 +438,7 @@ export default function PersonDashboardPage() {
           people.unshift(fullRecord);
         }
         localStorage.setItem('bharatbn_people_store', JSON.stringify(people));
+        window.dispatchEvent(new Event('bharatbn_people_updated'));
       } catch (err) {
         console.error(err);
       }

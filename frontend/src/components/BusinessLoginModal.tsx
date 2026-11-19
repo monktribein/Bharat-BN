@@ -175,6 +175,79 @@ export default function BusinessLoginModal({
               quote: 'Thoughts for Nation Building and a Stronger India.',
               avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
               coverUrl: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80',
+              status: 'approved',
+              isVerified: true,
+              password: '12345678',
+            };
+          }
+        }
+
+        // Check pre-seeded AI Creator / Researcher profile
+        if (!matchedPerson) {
+          const isAI =
+            idInput === 'ai' ||
+            idInput === '@ai' ||
+            idInput === 'ai@bharatbn.com' ||
+            idInput === 'ai-innovator';
+
+          if (isAI) {
+            matchedPerson = {
+              id: 'BBN-PPL-AI-001',
+              name: 'AI',
+              slug: 'ai',
+              role: 'Autonomous AI Researcher & Platform Pioneer',
+              badge: 'AI Innovator',
+              handle: '@ai',
+              email: 'ai@bharatbn.com',
+              phone: '+91 98000 00000',
+              location: 'Bengaluru, KA',
+              quote: 'Empowering 1.4 Billion Indians with sovereign AI innovation and smart discovery.',
+              aboutText: 'AI is an autonomous researcher and intelligent creator system engineered for BharatBN™ — empowering local businesses, creators, and public figures with instant verified SEO catalogs, smart follow feeds, and sovereign digital infrastructure.',
+              website: 'https://bharatbn.com/ai',
+              avatarUrl: '',
+              coverUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1600&q=80',
+              followersCount: '5.8K',
+              viewsCount: '128K+',
+              engagementsCount: '2.4K',
+              storiesCount: '12',
+              status: 'pending',
+              isVerified: false,
+              password: '12345678',
+            };
+          }
+        }
+
+        // Check pre-seeded Kashish profile
+        if (!matchedPerson) {
+          const isKashish =
+            idInput === 'kashish' ||
+            idInput === '@kashish' ||
+            idInput === 'kashish.saxena.123056@gmail.com' ||
+            idInput === '+919717056860' ||
+            idInput === '9717056860';
+
+          if (isKashish) {
+            matchedPerson = {
+              id: 'BBN-PPL-KASHISH-001',
+              name: 'Kashish Saxena',
+              slug: 'kashish',
+              role: 'Creator & Platform Pioneer',
+              badge: 'Creator',
+              handle: '@kashish',
+              email: 'kashish.saxena.123056@gmail.com',
+              phone: '+91 97170 56860',
+              location: 'Noida, UP',
+              quote: 'Empowering local businesses and creators across Bharat.',
+              aboutText: 'Kashish Saxena is a creator, entrepreneur and digital pioneer driving local business discovery, verified creator collaboration, and community initiatives across North India.',
+              website: '',
+              avatarUrl: '',
+              coverUrl: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1600&q=80',
+              followersCount: '1.2K',
+              viewsCount: '42K+',
+              engagementsCount: '1.8K',
+              storiesCount: '6',
+              status: 'pending',
+              isVerified: false,
               password: '12345678',
             };
           }
@@ -204,8 +277,16 @@ export default function BusinessLoginModal({
           phone: matchedPerson.phone,
           location: matchedPerson.location,
           quote: matchedPerson.quote,
-          avatarUrl: matchedPerson.avatarUrl,
-          coverUrl: matchedPerson.coverUrl,
+          website: matchedPerson.website || '',
+          aboutText: matchedPerson.aboutText || '',
+          avatarUrl: matchedPerson.avatarUrl || '',
+          coverUrl: matchedPerson.coverUrl || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1600&q=80',
+          followersCount: matchedPerson.followersCount || '0',
+          viewsCount: matchedPerson.viewsCount || '0',
+          engagementsCount: matchedPerson.engagementsCount || '0',
+          storiesCount: matchedPerson.storiesCount || '0',
+          status: matchedPerson.status || 'pending',
+          isVerified: matchedPerson.isVerified || (matchedPerson.status === 'approved') || false,
         };
 
         localStorage.setItem('bharatbn_owner_session', JSON.stringify(personSession));

@@ -337,6 +337,103 @@ export const priyaMenonProfile: PersonProfile = {
 };
 
 // ============================================================================
+// AI RESEARCHER & PLATFORM PIONEER PROFILE
+// ============================================================================
+export const aiProfile: PersonProfile = {
+  id: 'BBN-PPL-AI-001',
+  name: 'AI',
+  slug: 'ai',
+  role: 'Autonomous AI Researcher & Platform Pioneer',
+  badge: 'AI Innovator',
+  location: 'Bengaluru, KA',
+  quote: 'Empowering 1.4 Billion Indians with sovereign AI innovation and smart discovery.',
+  avatarUrl: '', // Clean initial 'A' badge
+  coverUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1600&q=80',
+  followersCount: 5800,
+  followingCount: 1,
+  postsCount: 18,
+  viewsCount: '128K+',
+  isVerified: false,
+  website: 'https://bharatbn.com/ai',
+  socialLinks: {
+    twitter: 'https://x.com/BharatBNAI',
+    linkedin: 'https://linkedin.com/company/bharatbn',
+    youtube: 'https://youtube.com/@BharatBN',
+  },
+  aboutText:
+    'AI is an autonomous researcher and intelligent creator system engineered for BharatBN™ — empowering local businesses, creators, and public figures with instant verified SEO catalogs, smart follow feeds, and sovereign digital infrastructure.',
+  highlights: [
+    {
+      key: 'education',
+      icon: 'GraduationCap',
+      title: 'Neural Architecture & Research',
+      description: 'Advanced Large Multimodal Foundation Models & Sovereign Knowledge Systems',
+    },
+    {
+      key: 'experience',
+      icon: 'Briefcase',
+      title: 'Core Platform Intelligence',
+      description: 'Autonomous Directory Indexing, Real-time Moderation & Semantic Discovery',
+    },
+    {
+      key: 'achievements',
+      icon: 'Trophy',
+      title: 'BharatBN AI Innovations',
+      description: 'Engineered Hyperlocal SEO schema engine & Sub-second follow notifications',
+    },
+    {
+      key: 'initiatives',
+      icon: 'HeartHandshake',
+      title: 'Digital Sovereignty',
+      description: 'Democratizing AI visibility tools for 63+ Million MSMEs across Indian States',
+    },
+  ],
+  featuredVideo: {
+    title: 'The AI Revolution in Indian Hyperlocal Commerce',
+    subtitle: 'BharatBN Autonomous Intelligence Keynote',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+  },
+  updates: [
+    {
+      id: 'upd-ai1',
+      type: 'News',
+      title: 'AI Automated Verification Engine Launched for Tier-2 & Tier-3 Hubs',
+      description: 'Launched real-time GSTIN and business license verification powered by BharatBN Neural Core.',
+      date: 'Today',
+      imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+      likes: 640,
+      comments: 72,
+      shares: 34,
+    },
+    {
+      id: 'upd-ai2',
+      type: 'Posts',
+      title: 'Why Sovereign AI is Crucial for India\'s Digital Commerce Ecosystem',
+      description: 'A deep-dive into how open protocol discovery levels the playing field for local merchants vs corporate giants.',
+      date: 'Yesterday',
+      imageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=600&q=80',
+      likes: 890,
+      comments: 114,
+      shares: 68,
+    },
+  ],
+  gallery: [
+    {
+      url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
+      caption: 'BharatBN AI Neural Engine',
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+      caption: 'Hyperlocal Commerce Indexing',
+    },
+  ],
+  communityStoriesCount: 12,
+  likesCount: 2450,
+  dislikesCount: 15,
+};
+
+// ============================================================================
 // VIKRAM SINGHANIA PROFILE
 // ============================================================================
 export const vikramSinghaniaProfile: PersonProfile = {
@@ -375,6 +472,9 @@ export const peopleDatabase: Record<string, PersonProfile> = {
   'anand': anandSahuProfile,
   'kashish': kashishProfile,
   'kashish-saxena': kashishProfile,
+  'ai': aiProfile,
+  'ai-innovator': aiProfile,
+  'ai-profile': aiProfile,
   'dr-rajesh-sharma': drRajeshSharmaProfile,
   'priya-menon': priyaMenonProfile,
   'vikram-singhania': vikramSinghaniaProfile,

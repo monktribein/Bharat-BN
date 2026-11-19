@@ -71,6 +71,22 @@ const defaultPeopleList: PersonCard[] = [
     isVerified: true,
   },
   {
+    id: 'BBN-PPL-AI-001',
+    name: 'AI',
+    slug: 'ai',
+    handle: '@ai',
+    role: 'Autonomous AI Researcher & Platform Pioneer',
+    badge: 'AI Innovator',
+    location: 'Bengaluru, KA',
+    quote: 'Empowering 1.4 Billion Indians with sovereign AI innovation and smart discovery.',
+    avatarUrl: '',
+    coverUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
+    followersCount: '5.8K',
+    postsCount: 18,
+    category: 'Creators & Influencers',
+    isVerified: true,
+  },
+  {
     id: 'BBN-PPL-RAJESH-002',
     name: 'Dr. Rajesh Sharma',
     slug: 'dr-rajesh-sharma',
@@ -162,7 +178,7 @@ export default function PeopleDirectoryPage() {
                 followersCount: p.followersCount || '1',
                 postsCount: p.updates?.length || 1,
                 category: p.role?.toLowerCase().includes('creator') ? 'Creators & Influencers' : 'Public Figures & Speakers',
-                isVerified: p.isVerified ?? true,
+                isVerified: (p.status === 'approved') || Boolean(p.isVerified),
               });
             });
           }

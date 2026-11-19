@@ -211,6 +211,26 @@ interface PersonClaimItem {
 
 const defaultPeopleClaims: PersonClaimItem[] = [
   {
+    id: 'BBN-PPL-AI-001',
+    name: 'AI',
+    slug: 'ai',
+    handle: '@ai',
+    role: 'Autonomous AI Researcher & Platform Pioneer',
+    badge: 'AI Innovator',
+    location: 'Bengaluru, KA',
+    email: 'ai@bharatbn.com',
+    phone: '+91 98000 00000',
+    quote: 'Empowering 1.4 Billion Indians with sovereign AI innovation and smart discovery.',
+    aboutText: 'AI is an autonomous researcher and intelligent creator system engineered for BharatBN™ — empowering local businesses, creators, and public figures with instant verified SEO catalogs, smart follow feeds, and sovereign digital infrastructure.',
+    avatarUrl: '',
+    coverUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1600&q=80',
+    followersCount: '5.8K',
+    submittedAt: 'Today, 14:00 IST (New)',
+    status: 'pending',
+    isVerified: false,
+    reviewerNotes: 'Autonomous intelligence profile submission. Verified algorithmic identity, platform architecture, and sovereign digital credentials.',
+  },
+  {
     id: 'BBN-PPL-KASHISH-001',
     name: 'Kashish Saxena',
     slug: 'kashish',

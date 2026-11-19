@@ -103,25 +103,77 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
       }
 
       if (found) {
-        setPerson((prev) => ({
-          ...prev,
-          id: found.id || prev.id,
-          name: found.name || prev.name,
-          slug: found.slug || targetSlug,
-          role: found.role || prev.role,
-          badge: found.badge || prev.badge,
-          location: found.location || prev.location,
-          quote: found.quote ?? prev.quote,
-          avatarUrl: found.avatarUrl ?? prev.avatarUrl,
-          coverUrl: found.coverUrl || prev.coverUrl,
-          aboutText: found.aboutText || prev.aboutText,
-          website: found.website || prev.website,
-          socialLinks: found.socialLinks || prev.socialLinks || {},
-          updates: Array.isArray(found.updates) && found.updates.length > 0 ? found.updates : prev.updates,
-          followersCount: found.followersCount !== undefined ? Number(found.followersCount) || prev.followersCount : prev.followersCount,
-          viewsCount: found.viewsCount || prev.viewsCount,
-          isVerified: found.isVerified ?? (found.status === 'approved'),
-        }));
+        const isAnand =
+          targetSlug === 'anand-sahu' ||
+          targetSlug === 'anand' ||
+          found.name?.toLowerCase().includes('anand sahu');
+
+        const dynamicHighlights =
+          Array.isArray(found.highlights) && found.highlights.length > 0
+            ? found.highlights
+            : [
+                ...(found.education
+                  ? [
+                      {
+                        key: 'education',
+                        icon: 'GraduationCap',
+                        title: 'Education & Qualifications',
+                        description: found.education,
+                      },
+                    ]
+                  : []),
+                ...(found.experience
+                  ? [
+                      {
+                        key: 'experience',
+                        icon: 'Briefcase',
+                        title: 'Organizational Experience & Roles',
+                        description: found.experience,
+                      },
+                    ]
+                  : []),
+                ...(found.achievements
+                  ? [
+                      {
+                        key: 'achievements',
+                        icon: 'Trophy',
+                        title: 'Key Achievements & Recognitions',
+                        description: found.achievements,
+                      },
+                    ]
+                  : []),
+              ];
+
+        setPerson((prev) => {
+          const resolvedWebsite = isAnand
+            ? (found.website || prev.website)
+            : ((found.website && !found.website.includes('anandsahu.com')) ? found.website : (prev.website && !prev.website.includes('anandsahu.com') ? prev.website : ''));
+
+          const resolvedAbout = isAnand
+            ? (found.aboutText || prev.aboutText)
+            : ((found.aboutText && !found.aboutText.includes('Anand Sahu')) ? found.aboutText : (prev.aboutText && !prev.aboutText.includes('Anand Sahu') ? prev.aboutText : ''));
+
+          return {
+            ...prev,
+            id: found.id || prev.id,
+            name: found.name || prev.name,
+            slug: found.slug || targetSlug,
+            role: found.role || prev.role,
+            badge: found.badge || prev.badge,
+            location: found.location || prev.location,
+            quote: found.quote ?? prev.quote,
+            avatarUrl: found.avatarUrl ?? prev.avatarUrl,
+            coverUrl: found.coverUrl || prev.coverUrl,
+            aboutText: resolvedAbout,
+            website: resolvedWebsite,
+            socialLinks: found.socialLinks || prev.socialLinks || {},
+            highlights: dynamicHighlights.length > 0 ? dynamicHighlights : prev.highlights,
+            updates: Array.isArray(found.updates) && found.updates.length > 0 ? found.updates : prev.updates,
+            followersCount: found.followersCount !== undefined ? Number(found.followersCount) || prev.followersCount : prev.followersCount,
+            viewsCount: found.viewsCount || prev.viewsCount,
+            isVerified: (found.status === 'approved') || Boolean(found.isVerified),
+          };
+        });
         if (found.followersCount !== undefined) {
           setFollowersCount(Number(found.followersCount) || initialPerson.followersCount);
         }
