@@ -26,6 +26,8 @@ export const api = {
     },
     get: (idOrSlug: string) => fetchFromApi(`/businesses/${idOrSlug}`),
     create: (data: any) => fetchFromApi('/businesses', { method: 'POST', body: JSON.stringify(data) }),
+    update: (idOrSlug: string, data: any) =>
+      fetchFromApi(`/businesses/${idOrSlug}`, { method: 'PATCH', body: JSON.stringify(data) }),
   },
   claims: {
     submit: (data: any) => fetchFromApi('/claims', { method: 'POST', body: JSON.stringify(data) }),

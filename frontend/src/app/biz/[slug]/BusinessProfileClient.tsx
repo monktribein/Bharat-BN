@@ -168,8 +168,10 @@ export default function BusinessProfileClient({
                 addressLine: found.addressLine || prev.addressLine,
                 landmark: found.landmark || prev.landmark,
                 pincode: found.pincode || prev.pincode,
-                description: found.description || prev.description,
-                aboutStory: found.aboutStory || prev.aboutStory,
+                description: found.businessDescription || found.description || prev.description,
+                aboutStory: found.aboutStory || found.businessDescription || found.description || prev.aboutStory,
+                seoTitle: found.seoTitle || prev.seoTitle,
+                seoDescription: found.seoDescription || found.businessDescription || found.description || prev.seoDescription,
                 establishedYear: found.establishedYear
                   ? Number(found.establishedYear)
                   : prev.establishedYear,

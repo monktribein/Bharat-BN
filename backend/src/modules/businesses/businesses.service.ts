@@ -19,9 +19,12 @@ export interface BusinessEntity {
   services: string[];
   categorySlug?: string;
   description?: string;
+  seoTitle?: string;
+  seoDescription?: string;
   status: 'draft' | 'pending_review' | 'published' | 'archived';
   isClaimed: boolean;
   isVerified: boolean;
+  isSponsor?: boolean;
   verifiedAt?: string;
   viewsCount: number;
   createdAt: string;
@@ -31,6 +34,62 @@ export interface BusinessEntity {
 @Injectable()
 export class BusinessesService {
   private businesses: BusinessEntity[] = [
+    {
+      id: 'BBN-CLM-799760',
+      name: 'Apple',
+      slug: 'apple',
+      napHash: 'demo-hash-apple-001',
+      phone: '+919717056860',
+      whatsapp: '+919717056860',
+      email: 'apple@business.in',
+      website: 'https://apple.com',
+      addressLine: 'Gali Number 14, Master Park, Khora Colony, Ghaziabad, Noida',
+      citySlug: 'noida',
+      pincode: '102010',
+      latitude: 28.5355,
+      longitude: 77.391,
+      services: ['Electric Vehicles & Cars', 'Automobile Accessories & Spares', 'Authorized EV Dealership'],
+      categorySlug: 'automobile-ev-showrooms',
+      description: 'Apple (Noida Hub) is an audited enterprise business listed on BharatBN™ Business Network. Specializing in next-gen Automobile & EV solutions, verified ROC & GST registration certificates, and direct customer inquiry channels across Noida / NCR.',
+      seoTitle: 'Apple | Noida',
+      seoDescription: 'Apple (Noida Hub) is an audited enterprise business listed on BharatBN™ Business Network. Specializing in next-gen Automobile & EV solutions, verified ROC & GST registration certificates, and direct customer inquiry channels across Noida / NCR.',
+      status: 'published',
+      isClaimed: true,
+      isVerified: true,
+      isSponsor: true,
+      verifiedAt: new Date().toISOString(),
+      viewsCount: 684,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      id: 'BBN-CLM-982104',
+      name: 'Choco Delights & Confectionery (Cadboury)',
+      slug: 'choco-delights-confectionery-cadboury',
+      napHash: 'demo-hash-choco-001',
+      phone: '+918965326578',
+      whatsapp: '+918965326578',
+      email: 'contact@chocodelights.in',
+      website: 'https://chocodelights.in',
+      addressLine: 'Shop 12, Crystal Plaza, New Link Road, Andheri West',
+      citySlug: 'mumbai',
+      pincode: '400053',
+      latitude: 19.1363,
+      longitude: 72.8277,
+      services: ['Artisan Dark Chocolates', 'Belgian Cocoa Truffles', 'Custom Corporate Hampers'],
+      categorySlug: 'food-confectionery',
+      description: 'Choco Delights & Confectionery (Cadboury) is an audited premier confectionery brand in Andheri West, Mumbai. Certified for food safety standards, direct Belgian cocoa imports, and same-day temperature-controlled gift delivery across Mumbai.',
+      seoTitle: 'Choco Delights & Confectionery (Cadboury) | Mumbai',
+      seoDescription: 'Choco Delights & Confectionery (Cadboury) is an audited premier confectionery brand in Andheri West, Mumbai. Certified for food safety standards, direct Belgian cocoa imports, and same-day temperature-controlled gift delivery across Mumbai.',
+      status: 'published',
+      isClaimed: true,
+      isVerified: true,
+      isSponsor: false,
+      verifiedAt: new Date().toISOString(),
+      viewsCount: 512,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
     {
       id: '55555555-5555-5555-5555-555555555001',
       name: 'Apex Super Speciality Dental Clinic',
@@ -184,6 +243,33 @@ export class BusinessesService {
 
     this.businesses.unshift(newEntity);
     return newEntity;
+  }
+
+  update(idOrSlug: string, updates: Partial<BusinessEntity>): BusinessEntity {
+    const cleanId = (idOrSlug || '').toLowerCase().trim();
+    const index = this.businesses.findIndex(
+      (b) => b.id.toLowerCase() === cleanId || b.slug.toLowerCase() === cleanId,
+    );
+    if (index === -1) {
+      throw new NotFoundException(`Business with identifier '${idOrSlug}' not found.`);
+    }
+
+    const current = this.businesses[index];
+    const updated: BusinessEntity = {
+      ...current,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (updates.isVerified !== undefined) {
+      updated.isVerified = updates.isVerified;
+      if (updates.isVerified && !updated.verifiedAt) {
+        updated.verifiedAt = new Date().toISOString();
+      }
+    }
+
+    this.businesses[index] = updated;
+    return updated;
   }
 }
 

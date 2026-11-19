@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Param, Query, Body } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Put, Param, Query, Body } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
-import { BusinessesService } from './businesses.service';
+import { BusinessesService, BusinessEntity } from './businesses.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 
 @ApiTags('businesses')
@@ -36,6 +36,19 @@ export class BusinessesController {
   @ApiResponse({ status: 201, description: 'Business created successfully' })
   create(@Body() dto: CreateBusinessDto) {
     return this.businessesService.create(dto);
+  }
+
+  @Patch(':idOrSlug')
+  @ApiOperation({ summary: 'Update business listing details by ID or canonical slug' })
+  @ApiResponse({ status: 200, description: 'Business updated successfully' })
+  update(@Param('idOrSlug') idOrSlug: string, @Body() dto: Partial<BusinessEntity>) {
+    return this.businessesService.update(idOrSlug, dto);
+  }
+
+  @Put(':idOrSlug')
+  @ApiOperation({ summary: 'Replace/update business listing details' })
+  replace(@Param('idOrSlug') idOrSlug: string, @Body() dto: Partial<BusinessEntity>) {
+    return this.businessesService.update(idOrSlug, dto);
   }
 }
 
