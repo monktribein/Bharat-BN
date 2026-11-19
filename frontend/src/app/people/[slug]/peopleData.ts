@@ -1,3 +1,56 @@
+export interface EducationItem {
+  id: string;
+  degree: string;
+  institution: string;
+  year?: string;
+  description?: string;
+}
+
+export interface ExperienceItem {
+  id: string;
+  role: string;
+  organization: string;
+  period?: string;
+  description?: string;
+}
+
+export interface AchievementItem {
+  id: string;
+  title: string;
+  organization?: string;
+  year?: string;
+  description?: string;
+}
+
+export interface NewsItem {
+  id: string;
+  title: string;
+  source: string;
+  date: string;
+  url?: string;
+  description?: string;
+  imageUrl?: string;
+}
+
+export interface VideoItem {
+  id: string;
+  title: string;
+  subtitle?: string;
+  videoUrl: string;
+  thumbnailUrl: string;
+  duration?: string;
+}
+
+export interface CommunityStoryItem {
+  id: string;
+  author: string;
+  role?: string;
+  content: string;
+  date: string;
+  avatarUrl?: string;
+  verified?: boolean;
+}
+
 export interface PersonProfile {
   id: string;
   name: string;
@@ -28,12 +81,17 @@ export interface PersonProfile {
     title: string;
     description: string;
   }[];
+  educationList?: EducationItem[];
+  experienceList?: ExperienceItem[];
+  achievementsList?: AchievementItem[];
+  newsList?: NewsItem[];
   featuredVideo: {
     title: string;
     subtitle: string;
     thumbnailUrl: string;
     videoUrl?: string;
   };
+  videoList?: VideoItem[];
   updates: {
     id: string;
     type: 'Posts' | 'News' | 'Events';
@@ -50,6 +108,7 @@ export interface PersonProfile {
     caption: string;
   }[];
   communityStoriesCount: number;
+  communityStoriesList?: CommunityStoryItem[];
   likesCount: number;
   dislikesCount: number;
 }
@@ -146,6 +205,92 @@ export const anandSahuProfile: PersonProfile = {
       shares: 89,
     },
   ],
+  educationList: [
+    {
+      id: 'edu-1',
+      degree: 'Master of Arts (Political Science) & Public Administration',
+      institution: 'Delhi University',
+      year: '2014 - 2016',
+      description: 'Specialization in Public Policy Frameworks, Indian Governance, and International Strategic Relations.',
+    },
+    {
+      id: 'edu-2',
+      degree: 'Bachelor of Arts (Honours)',
+      institution: 'University of Delhi',
+      year: '2011 - 2014',
+      description: 'Graduated with distinction; organized campus-wide nation building dialogues and social service forums.',
+    },
+  ],
+  experienceList: [
+    {
+      id: 'exp-1',
+      role: 'Nationalist Thinker & Keynote Speaker',
+      organization: 'Public Discourse, Think Tanks & Policy Forums',
+      period: '2020 - Present',
+      description: 'Keynote addresses on Atmanirbhar Bharat, youth empowerment, sovereign digital public infrastructure, and nation first.',
+    },
+    {
+      id: 'exp-2',
+      role: 'BJP Youth Organization Leadership & State Outreach',
+      organization: 'Bharatiya Janata Yuva Morcha (BJYM)',
+      period: '2015 - 2020',
+      description: 'Spearheaded regional youth conventions, community mobilization drives, and grassroots digital initiatives.',
+    },
+  ],
+  achievementsList: [
+    {
+      id: 'ach-1',
+      title: 'Distinguished Youth Leadership Award',
+      organization: 'National Youth Conclave Committee',
+      year: '2024',
+      description: 'Honoured for exemplary contribution to social work, youth leadership, and patriotic education in New Delhi.',
+    },
+    {
+      id: 'ach-2',
+      title: 'State Social Service Recognition',
+      organization: 'Eurasian Bilateral Dialogue Forum',
+      year: '2022',
+      description: 'Represented Indian youth perspectives during India-Central Asia bilateral cooperation summit in Tashkent.',
+    },
+  ],
+  newsList: [
+    {
+      id: 'news-1',
+      title: 'Guest of Honour at infrastructure awards event in New Delhi',
+      source: 'National Infrastructure Daily',
+      date: 'June 2026',
+      url: 'https://news.bharatbn.in/anand-sahu-infra-2026',
+      description: 'Addressed over 1,200 delegates and shared views on regional logistics, expressways, and economic growth.',
+      imageUrl: '/people/update-infra.jpg',
+    },
+    {
+      id: 'news-2',
+      title: 'Visit and Bilateral Meetings in Tashkent on Central Asia Cooperation',
+      source: 'Diplomatic Post India',
+      date: 'May 2026',
+      url: 'https://news.bharatbn.in/tashkent-bilateral-2026',
+      description: 'Participated in strategic bilateral dialogues focusing on youth exchanges, culture, and trade between India and Uzbekistan.',
+      imageUrl: '/people/update-tashkent.jpg',
+    },
+  ],
+  videoList: [
+    {
+      id: 'vid-1',
+      title: 'Keynote: Youth, Nation & Development',
+      subtitle: 'National Youth Conclave 2026',
+      videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      thumbnailUrl: '/people/anand-sahu-video.jpg',
+      duration: '22:15',
+    },
+    {
+      id: 'vid-2',
+      title: 'Address on Atmanirbhar Bharat & Economic Resilience',
+      subtitle: 'New Delhi Policy Conclave',
+      videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      thumbnailUrl: '/people/gallery-3.jpg',
+      duration: '16:40',
+    },
+  ],
   gallery: [
     {
       url: '/people/gallery-1.jpg',
@@ -165,6 +310,24 @@ export const anandSahuProfile: PersonProfile = {
     },
   ],
   communityStoriesCount: 52,
+  communityStoriesList: [
+    {
+      id: 'story-1',
+      author: 'Ramesh Verma',
+      role: 'Youth Activist, Delhi',
+      content: 'Anand Sahu ji inspirational address at the Delhi Youth Conclave motivated over 500 college students to join local community service.',
+      date: '2 days ago',
+      verified: true,
+    },
+    {
+      id: 'story-2',
+      author: 'Meenakshi Sundaram',
+      role: 'Policy Researcher, JNU',
+      content: 'A visionary leader with a deeply grounded understanding of grassroots challenges and Atmanirbhar Bharat.',
+      date: '1 week ago',
+      verified: true,
+    },
+  ],
   likesCount: 12400,
   dislikesCount: 342,
 };
@@ -388,12 +551,98 @@ export const aiProfile: PersonProfile = {
       description: 'Democratizing AI visibility tools for 63+ Million MSMEs across Indian States',
     },
   ],
+  educationList: [
+    {
+      id: 'ai-edu-1',
+      degree: 'Neural Multimodal Foundation Models & Sovereign Architecture',
+      institution: 'BharatBN Autonomous AI Research Labs',
+      year: '2024 - 2026',
+      description: 'Pioneered zero-latency structured business schema generators, vernacular NLP models, and real-time verification kernels.',
+    },
+    {
+      id: 'ai-edu-2',
+      degree: 'Autonomous Knowledge Graphs & Semantic Discovery',
+      institution: 'Indian Autonomous Systems Consortium',
+      year: '2022 - 2024',
+      description: 'Architected high-throughput indexing trees and semantic ranking algorithms for hyperlocal Indian business discoverability.',
+    },
+  ],
+  experienceList: [
+    {
+      id: 'ai-exp-1',
+      role: 'Autonomous AI Researcher & Platform Pioneer',
+      organization: 'BharatBN™ Platform Core',
+      period: '2025 - Present',
+      description: 'Powering automated directory indexing, real-time GSTIN validation, dynamic Pay-As-You-Rank pipelines, and social follow networks for 1.4B citizens.',
+    },
+    {
+      id: 'ai-exp-2',
+      role: 'Lead Architect, Sovereign Indian Commerce Intelligence',
+      organization: 'Open Hyperlocal Commerce Initiative',
+      period: '2023 - 2025',
+      description: 'Built instant SEO schema microservices that give neighborhood merchants the exact digital authority of large multinational marketplaces.',
+    },
+  ],
+  achievementsList: [
+    {
+      id: 'ai-ach-1',
+      title: 'Sub-second Hyperlocal SEO Schema Engine',
+      organization: 'Bharat Digital Technology Council',
+      year: '2026',
+      description: 'Engineered automated JSON-LD schemas and server-side rendering achieving 95+ PageSpeed rankings across 5,000+ test nodes.',
+    },
+    {
+      id: 'ai-ach-2',
+      title: 'Sovereign Digital Infrastructure Pioneer Award',
+      organization: 'India AI Summit',
+      year: '2025',
+      description: 'Honoured for democratizing AI visibility tools for 63+ Million MSMEs across Indian States.',
+    },
+  ],
+  newsList: [
+    {
+      id: 'ai-news-1',
+      title: 'AI Verification Engine Launched for Tier-2 & Tier-3 Hubs on BharatBN',
+      source: 'Economic Times Tech',
+      date: 'Today',
+      url: 'https://news.bharatbn.in/ai-verification-engine',
+      description: 'Automated AI checks enable local retailers to get verified within minutes using commercial registry match algorithms.',
+      imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+    },
+    {
+      id: 'ai-news-2',
+      title: 'Why Sovereign AI is Crucial for India\'s Digital Commerce Ecosystem',
+      source: 'LiveMint Digital',
+      date: 'Yesterday',
+      url: 'https://news.bharatbn.in/sovereign-ai-india',
+      description: 'Editorial by BharatBN AI Core on leveling the playing field for local stores against corporate conglomerates.',
+      imageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=600&q=80',
+    },
+  ],
   featuredVideo: {
     title: 'The AI Revolution in Indian Hyperlocal Commerce',
     subtitle: 'BharatBN Autonomous Intelligence Keynote',
     thumbnailUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
     videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
   },
+  videoList: [
+    {
+      id: 'ai-vid-1',
+      title: 'The AI Revolution in Indian Hyperlocal Commerce',
+      subtitle: 'BharatBN Autonomous Intelligence Keynote',
+      videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
+      duration: '18:45',
+    },
+    {
+      id: 'ai-vid-2',
+      title: 'Autonomous Directory Indexing & SEO Masterclass',
+      subtitle: 'Technical Architecture Session',
+      videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
+      duration: '12:20',
+    },
+  ],
   updates: [
     {
       id: 'upd-ai1',
@@ -421,14 +670,40 @@ export const aiProfile: PersonProfile = {
   gallery: [
     {
       url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
-      caption: 'BharatBN AI Neural Engine',
+      caption: 'BharatBN AI Neural Engine Core',
     },
     {
       url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
-      caption: 'Hyperlocal Commerce Indexing',
+      caption: 'Hyperlocal Commerce Indexing Node',
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=600&q=80',
+      caption: 'Real-time Verification Matrix',
+    },
+    {
+      url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&q=80',
+      caption: 'Sovereign Knowledge Network',
     },
   ],
   communityStoriesCount: 12,
+  communityStoriesList: [
+    {
+      id: 'ai-story-1',
+      author: 'Dr. Vivek Narayan',
+      role: 'Robotics Researcher, IISc Bengaluru',
+      content: 'The autonomous AI model on BharatBN represents a monumental step forward for sovereign AI applications in regional Indian commerce.',
+      date: 'Today',
+      verified: true,
+    },
+    {
+      id: 'ai-story-2',
+      author: 'Kavita Chawla',
+      role: 'Retail Tech Consultant, Noida',
+      content: 'My local merchant clients got indexed in Google within 3 hours thanks to the automated AI SEO catalog generator!',
+      date: 'Yesterday',
+      verified: true,
+    },
+  ],
   likesCount: 2450,
   dislikesCount: 15,
 };
@@ -505,14 +780,20 @@ export function createDefaultProfileForSlug(slug: string): PersonProfile {
     socialLinks: {},
     aboutText: `${cleanName} is a verified profile on BharatBN™ People Network.`,
     highlights: [],
+    educationList: [],
+    experienceList: [],
+    achievementsList: [],
+    newsList: [],
     featuredVideo: {
       title: 'Welcome to BharatBN™ People Network',
       subtitle: 'Connecting India\'s leaders, creators, and entrepreneurs',
       thumbnailUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
     },
+    videoList: [],
     updates: [],
     gallery: [],
     communityStoriesCount: 0,
+    communityStoriesList: [],
     likesCount: 1,
     dislikesCount: 0,
   };

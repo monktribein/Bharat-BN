@@ -29,9 +29,29 @@ import {
   Check,
   Copy,
   LogIn,
+  Video,
+  Newspaper,
+  Trophy,
+  Play,
+  ThumbsUp,
+  Upload,
+  Calendar,
+  FileText,
+  HeartHandshake,
+  ShieldCheck,
+  Link as LinkIcon,
+  X,
 } from 'lucide-react';
 import BusinessLoginModal from '@/components/BusinessLoginModal';
-import { peopleDatabase } from '@/app/people/[slug]/peopleData';
+import {
+  peopleDatabase,
+  type EducationItem,
+  type ExperienceItem,
+  type AchievementItem,
+  type NewsItem,
+  type VideoItem,
+  type CommunityStoryItem,
+} from '@/app/people/[slug]/peopleData';
 
 interface PersonSession {
   accountType?: 'person' | 'business';
@@ -50,6 +70,7 @@ interface PersonSession {
   avatarUrl?: string;
   coverUrl?: string;
   followersCount?: string | number;
+  followingCount?: string | number;
   viewsCount?: string | number;
   engagementsCount?: string | number;
   storiesCount?: string | number;
@@ -64,7 +85,7 @@ export default function PersonDashboardPage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  // Profile Form States (Default to neutral empty/user-friendly values)
+  // 1. Profile Identity & Bio States
   const [name, setName] = useState('');
   const [handle, setHandle] = useState('');
   const [slug, setSlug] = useState('');
@@ -81,43 +102,100 @@ export default function PersonDashboardPage() {
     'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1600&q=80'
   );
 
-  // Creator Stats
-  const [followersCount, setFollowersCount] = useState('0');
-  const [viewsCount, setViewsCount] = useState('0');
-  const [engagementsCount, setEngagementsCount] = useState('0');
-  const [storiesCount, setStoriesCount] = useState('0');
+  // 2. Education & Academic Background
+  const [educationList, setEducationList] = useState<EducationItem[]>([]);
+  const [newDegree, setNewDegree] = useState('');
+  const [newInstitution, setNewInstitution] = useState('');
+  const [newEduYear, setNewEduYear] = useState('');
+  const [newEduDesc, setNewEduDesc] = useState('');
 
-  // Social Links
+  // 3. Professional & Public Experience
+  const [experienceList, setExperienceList] = useState<ExperienceItem[]>([]);
+  const [newExpRole, setNewExpRole] = useState('');
+  const [newExpOrg, setNewExpOrg] = useState('');
+  const [newExpPeriod, setNewExpPeriod] = useState('');
+  const [newExpDesc, setNewExpDesc] = useState('');
+
+  // 4. Key Achievements & Recognitions
+  const [achievementsList, setAchievementsList] = useState<AchievementItem[]>([]);
+  const [newAchTitle, setNewAchTitle] = useState('');
+  const [newAchOrg, setNewAchOrg] = useState('');
+  const [newAchYear, setNewAchYear] = useState('');
+  const [newAchDesc, setNewAchDesc] = useState('');
+
+  // 5. News & Media Coverage
+  const [newsList, setNewsList] = useState<NewsItem[]>([]);
+  const [newNewsTitle, setNewNewsTitle] = useState('');
+  const [newNewsSource, setNewNewsSource] = useState('');
+  const [newNewsDate, setNewNewsDate] = useState('');
+  const [newNewsUrl, setNewNewsUrl] = useState('');
+  const [newNewsDesc, setNewNewsDesc] = useState('');
+
+  // 6. Photo Gallery Manager
+  const [gallery, setGallery] = useState<{ url: string; caption: string }[]>([]);
+  const [newPhotoUrl, setNewPhotoUrl] = useState('');
+  const [newPhotoCaption, setNewPhotoCaption] = useState('');
+
+  // 7. Video Gallery & Featured Video
+  const [featuredVideoTitle, setFeaturedVideoTitle] = useState('');
+  const [featuredVideoSubtitle, setFeaturedVideoSubtitle] = useState('');
+  const [featuredVideoUrl, setFeaturedVideoUrl] = useState('');
+  const [featuredVideoThumb, setFeaturedVideoThumb] = useState('');
+  const [videoList, setVideoList] = useState<VideoItem[]>([]);
+  const [newVideoTitle, setNewVideoTitle] = useState('');
+  const [newVideoUrl, setNewVideoUrl] = useState('');
+  const [newVideoThumb, setNewVideoThumb] = useState('');
+  const [newVideoDuration, setNewVideoDuration] = useState('');
+
+  // 8. Posts & Updates Feed
+  const [updates, setUpdates] = useState<any[]>([]);
+  const [newPostTitle, setNewPostTitle] = useState('');
+  const [newPostType, setNewPostType] = useState<'Posts' | 'News' | 'Events'>('Posts');
+  const [newPostDesc, setNewPostDesc] = useState('');
+  const [newPostImage, setNewPostImage] = useState('');
+
+  // 9. Community Stories & Collabs
+  const [communityStoriesList, setCommunityStoriesList] = useState<CommunityStoryItem[]>([]);
+
+  // 10. Official Social Media Channels
   const [socialYoutube, setSocialYoutube] = useState('');
   const [socialInstagram, setSocialInstagram] = useState('');
   const [socialTwitter, setSocialTwitter] = useState('');
   const [socialFacebook, setSocialFacebook] = useState('');
   const [socialLinkedin, setSocialLinkedin] = useState('');
 
-  // Highlights
-  const [education, setEducation] = useState('');
-  const [experience, setExperience] = useState('');
-  const [achievements, setAchievements] = useState('');
+  // 11. Audience & Creator Metrics
+  const [followersCount, setFollowersCount] = useState('0');
+  const [followingCount, setFollowingCount] = useState('12');
+  const [viewsCount, setViewsCount] = useState('0');
+  const [engagementsCount, setEngagementsCount] = useState('0');
+  const [storiesCount, setStoriesCount] = useState('0');
 
-  // Posts & Updates Feed
-  const [updates, setUpdates] = useState<any[]>([]);
-
-  // New Post Form State
-  const [newPostTitle, setNewPostTitle] = useState('');
-  const [newPostType, setNewPostType] = useState<'Posts' | 'News' | 'Events'>('Posts');
-  const [newPostDesc, setNewPostDesc] = useState('');
-
-  // Accordion Expand/Collapse States
+  // Accordion Expand/Collapse States (All 11 Modules from Image 1)
   const [openSections, setOpenSections] = useState({
     basicInfo: true,
-    social: true,
+    education: true,
+    experience: true,
+    achievements: true,
+    news: false,
+    gallery: false,
+    videos: false,
     posts: true,
-    highlights: true,
-    media: false,
+    stories: false,
+    social: true,
+    stats: false,
   });
 
   const toggleSection = (key: keyof typeof openSections) => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const scrollToModule = (key: keyof typeof openSections) => {
+    setOpenSections((prev) => ({ ...prev, [key]: true }));
+    const el = document.getElementById(`section-${key}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   // Load Person Details dynamically based on who is logged in
@@ -159,14 +237,30 @@ export default function PersonDashboardPage() {
     const resolvedName = found?.name || currSession.name || (isAnand ? 'Anand Sahu' : 'Profile Member');
     setName(resolvedName);
 
-    const cleanHandle = (found?.handle || currSession.handle || (isAnand ? '@anandsahu' : `@${resolvedName.toLowerCase().replace(/[^a-z0-9]+/g, '')}`)).trim();
+    const cleanHandle = (
+      found?.handle ||
+      currSession.handle ||
+      (isAnand ? '@anandsahu' : `@${resolvedName.toLowerCase().replace(/[^a-z0-9]+/g, '')}`)
+    ).trim();
     setHandle(cleanHandle.startsWith('@') ? cleanHandle : `@${cleanHandle}`);
 
-    setSlug(found?.slug || currSession.slug || (isAnand ? 'anand-sahu' : resolvedName.toLowerCase().replace(/[^a-z0-9]+/g, '-')));
+    setSlug(
+      found?.slug ||
+        currSession.slug ||
+        (isAnand ? 'anand-sahu' : resolvedName.toLowerCase().replace(/[^a-z0-9]+/g, '-'))
+    );
     setRole(found?.role || currSession.role || (isAnand ? 'Nationalist Thinker & Speaker' : 'Public Figure & Speaker'));
     setBadge(found?.badge || currSession.badge || 'Public Figure');
     setLocation(found?.location || currSession.location || (isAnand ? 'New Delhi, India' : ''));
-    setQuote(found?.quote !== undefined ? found.quote : (currSession.quote !== undefined ? currSession.quote : (isAnand ? 'Thoughts for Nation Building and a Stronger India.' : '')));
+    setQuote(
+      found?.quote !== undefined
+        ? found.quote
+        : currSession.quote !== undefined
+        ? currSession.quote
+        : isAnand
+        ? 'Thoughts for Nation Building and a Stronger India.'
+        : ''
+    );
     setEmail(found?.email || currSession.email || '');
     setPhone(found?.phone || currSession.phone || '');
 
@@ -177,60 +271,43 @@ export default function PersonDashboardPage() {
         found?.aboutText ||
           'Anand Sahu publishes commentary, event updates, and photographs related to public life, social work, and political activities. He is known for his nationalist perspective and active engagement in public discourse and youth initiatives.'
       );
-      setAvatarUrl(found?.avatarUrl || currSession.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80');
+      setAvatarUrl(found?.avatarUrl || currSession.avatarUrl || '/people/anand-sahu-avatar.jpg');
       setCoverUrl(found?.coverUrl || currSession.coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80');
       setSocialYoutube(found?.socialLinks?.youtube || 'https://youtube.com/@anandsahu');
       setSocialInstagram(found?.socialLinks?.instagram || 'https://instagram.com/anandsahuindia');
       setSocialTwitter(found?.socialLinks?.twitter || 'https://twitter.com/anandsahu');
       setSocialFacebook(found?.socialLinks?.facebook || 'https://facebook.com/anandsahubppage');
       setSocialLinkedin(found?.socialLinks?.linkedin || 'https://linkedin.com/in/anandsahu');
-      setEducation(found?.education || found?.highlights?.education || 'Master of Arts (Political Science) & Public Administration');
-      setExperience(found?.experience || found?.highlights?.experience || 'Social Work, Policy Thinker & BJP Youth Organization Leadership');
-      setAchievements(found?.achievements || found?.highlights?.achievements || 'Key State-Level Leadership Awards & Social Service Recognitions');
-      setFollowersCount('28.4K');
-      setViewsCount('1.2M+');
-      setEngagementsCount('42.8K');
-      setStoriesCount('52');
-      setUpdates(
-        found?.updates || [
-          {
-            id: 'post-1',
-            type: 'News',
-            title: 'Guest of Honour at infrastructure awards event in New Delhi',
-            desc: 'Addressed the event and shared thoughts on infrastructure and economic development.',
-            date: 'June 2026',
-            likes: 1840,
-            comments: 142,
-          },
-          {
-            id: 'post-2',
-            type: 'Events',
-            title: 'Visit and meetings in Tashkent on India-Central Asia Cooperation',
-            desc: 'Participated in key bilateral dialogues and discussed youth engagement across Eurasia.',
-            date: 'May 2026',
-            likes: 980,
-            comments: 67,
-          },
-        ]
-      );
     } else {
-      // FOR AI, KASHISH SAXENA OR ANY OTHER PERSON: 100% PERSONALIZED & CLEAN
-      const userWebsite = (found?.website && !found.website.includes('anandsahu.com'))
-        ? found.website
-        : (currSession.website && !currSession.website.includes('anandsahu.com') ? currSession.website : '');
+      // Clean isolated attributes for AI, Kashish, or any user
+      const userWebsite =
+        found?.website && !found.website.includes('anandsahu.com')
+          ? found.website
+          : currSession.website && !currSession.website.includes('anandsahu.com')
+          ? currSession.website
+          : '';
       setWebsite(userWebsite);
 
-      const userAbout = (found?.aboutText && !found.aboutText.includes('Anand Sahu'))
-        ? found.aboutText
-        : (currSession.aboutText && !currSession.aboutText.includes('Anand Sahu') ? currSession.aboutText : '');
+      const userAbout =
+        found?.aboutText && !found.aboutText.includes('Anand Sahu')
+          ? found.aboutText
+          : currSession.aboutText && !currSession.aboutText.includes('Anand Sahu')
+          ? currSession.aboutText
+          : '';
       setAboutText(userAbout);
 
-      const userAvatar = (found?.avatarUrl && !found.avatarUrl.includes('534528741775'))
-        ? found.avatarUrl
-        : (currSession.avatarUrl && !currSession.avatarUrl.includes('534528741775') ? currSession.avatarUrl : '');
+      const userAvatar =
+        found?.avatarUrl && !found.avatarUrl.includes('534528741775')
+          ? found.avatarUrl
+          : currSession.avatarUrl && !currSession.avatarUrl.includes('534528741775')
+          ? currSession.avatarUrl
+          : '';
       setAvatarUrl(userAvatar);
 
-      const userCover = found?.coverUrl || currSession.coverUrl || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1600&q=80';
+      const userCover =
+        found?.coverUrl ||
+        currSession.coverUrl ||
+        'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1600&q=80';
       setCoverUrl(userCover);
 
       setSocialYoutube(found?.socialLinks?.youtube || '');
@@ -239,21 +316,6 @@ export default function PersonDashboardPage() {
       setSocialFacebook(found?.socialLinks?.facebook || '');
       setSocialLinkedin(found?.socialLinks?.linkedin || '');
 
-      const eduVal = found?.education || found?.highlights?.find?.((h: any) => h.key === 'education')?.description || '';
-      const expVal = found?.experience || found?.highlights?.find?.((h: any) => h.key === 'experience')?.description || '';
-      const achVal = found?.achievements || found?.highlights?.find?.((h: any) => h.key === 'achievements')?.description || '';
-      setEducation(eduVal);
-      setExperience(expVal);
-      setAchievements(achVal);
-
-      setFollowersCount(found?.followersCount ? String(found.followersCount) : (currSession.followersCount ? String(currSession.followersCount) : '0'));
-      setViewsCount(found?.viewsCount || currSession.viewsCount || '0');
-      setEngagementsCount(found?.engagementsCount || currSession.engagementsCount || '0');
-      setStoriesCount(found?.storiesCount ? String(found.storiesCount) : (currSession.storiesCount ? String(currSession.storiesCount) : '0'));
-
-      setUpdates(found?.updates && Array.isArray(found.updates) ? found.updates : []);
-
-      // Clean up localStorage session if it carried contaminated Anand Sahu values
       if (currSession.website?.includes('anandsahu.com') || currSession.aboutText?.includes('Anand Sahu')) {
         const cleanedSession = {
           ...currSession,
@@ -264,6 +326,57 @@ export default function PersonDashboardPage() {
         localStorage.setItem('bharatbn_owner_session', JSON.stringify(cleanedSession));
       }
     }
+
+    // 2. Education List
+    const loadedEdu = Array.isArray(found?.educationList) && found.educationList.length > 0
+      ? found.educationList
+      : (found?.education ? [{ id: 'edu-1', degree: found.education, institution: 'Academic Institution', year: 'Verified', description: 'Academic degree and qualification' }] : []);
+    setEducationList(loadedEdu);
+
+    // 3. Experience List
+    const loadedExp = Array.isArray(found?.experienceList) && found.experienceList.length > 0
+      ? found.experienceList
+      : (found?.experience ? [{ id: 'exp-1', role: found.experience, organization: 'Organization / Institution', period: 'Ongoing', description: 'Public initiatives & leadership responsibilities' }] : []);
+    setExperienceList(loadedExp);
+
+    // 4. Achievements List
+    const loadedAch = Array.isArray(found?.achievementsList) && found.achievementsList.length > 0
+      ? found.achievementsList
+      : (found?.achievements ? [{ id: 'ach-1', title: found.achievements, organization: 'Recognizing Committee', year: 'Awarded', description: 'Recognized achievement and contributions' }] : []);
+    setAchievementsList(loadedAch);
+
+    // 5. News & Media Coverage List
+    setNewsList(Array.isArray(found?.newsList) ? found.newsList : []);
+
+    // 6. Photo Gallery List
+    setGallery(Array.isArray(found?.gallery) ? found.gallery : []);
+
+    // 7. Video Gallery & Featured Video
+    setFeaturedVideoTitle(found?.featuredVideo?.title || 'Featured Video');
+    setFeaturedVideoSubtitle(found?.featuredVideo?.subtitle || 'Public Address & Keynote');
+    setFeaturedVideoUrl(found?.featuredVideo?.videoUrl || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+    setFeaturedVideoThumb(
+      found?.featuredVideo?.thumbnailUrl ||
+        'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80'
+    );
+    setVideoList(Array.isArray(found?.videoList) ? found.videoList : []);
+
+    // 8. Posts & Updates Feed
+    setUpdates(Array.isArray(found?.updates) ? found.updates : []);
+
+    // 9. Community Stories List
+    setCommunityStoriesList(Array.isArray(found?.communityStoriesList) ? found.communityStoriesList : []);
+
+    // 11. Audience Stats
+    setFollowersCount(found?.followersCount ? String(found.followersCount) : (currSession.followersCount ? String(currSession.followersCount) : '0'));
+    setFollowingCount(found?.followingCount ? String(found.followingCount) : (currSession.followingCount ? String(currSession.followingCount) : '12'));
+    setViewsCount(found?.viewsCount || currSession.viewsCount || '0');
+    setEngagementsCount(found?.engagementsCount || currSession.engagementsCount || '0');
+    setStoriesCount(
+      found?.communityStoriesList
+        ? String(found.communityStoriesList.length)
+        : (found?.communityStoriesCount ? String(found.communityStoriesCount) : (currSession.storiesCount ? String(currSession.storiesCount) : '0'))
+    );
   };
 
   // Sync Session on mount and storage events
@@ -365,6 +478,190 @@ export default function PersonDashboardPage() {
     e.target.value = '';
   };
 
+  // Direct Photo Gallery Upload from Device
+  const handleGalleryDeviceUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      if (dataUrl) {
+        const newPhoto = {
+          url: dataUrl,
+          caption: newPhotoCaption.trim() || 'Uploaded Photo',
+        };
+        const nextGallery = [newPhoto, ...gallery];
+        setGallery(nextGallery);
+        setNewPhotoCaption('');
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleAddPhotoUrl = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPhotoUrl.trim()) return;
+    const newPhoto = {
+      url: newPhotoUrl.trim(),
+      caption: newPhotoCaption.trim() || 'Photo',
+    };
+    setGallery([newPhoto, ...gallery]);
+    setNewPhotoUrl('');
+    setNewPhotoCaption('');
+  };
+
+  const handleDeletePhoto = (index: number) => {
+    setGallery(gallery.filter((_, i) => i !== index));
+  };
+
+  // Education Handlers
+  const handleAddEducation = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newDegree.trim() || !newInstitution.trim()) return;
+    const item: EducationItem = {
+      id: `edu-${Date.now()}`,
+      degree: newDegree.trim(),
+      institution: newInstitution.trim(),
+      year: newEduYear.trim() || undefined,
+      description: newEduDesc.trim() || undefined,
+    };
+    setEducationList([...educationList, item]);
+    setNewDegree('');
+    setNewInstitution('');
+    setNewEduYear('');
+    setNewEduDesc('');
+  };
+
+  const handleDeleteEducation = (id: string) => {
+    setEducationList(educationList.filter((item) => item.id !== id));
+  };
+
+  // Experience Handlers
+  const handleAddExperience = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newExpRole.trim() || !newExpOrg.trim()) return;
+    const item: ExperienceItem = {
+      id: `exp-${Date.now()}`,
+      role: newExpRole.trim(),
+      organization: newExpOrg.trim(),
+      period: newExpPeriod.trim() || undefined,
+      description: newExpDesc.trim() || undefined,
+    };
+    setExperienceList([...experienceList, item]);
+    setNewExpRole('');
+    setNewExpOrg('');
+    setNewExpPeriod('');
+    setNewExpDesc('');
+  };
+
+  const handleDeleteExperience = (id: string) => {
+    setExperienceList(experienceList.filter((item) => item.id !== id));
+  };
+
+  // Achievement Handlers
+  const handleAddAchievement = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newAchTitle.trim()) return;
+    const item: AchievementItem = {
+      id: `ach-${Date.now()}`,
+      title: newAchTitle.trim(),
+      organization: newAchOrg.trim() || undefined,
+      year: newAchYear.trim() || undefined,
+      description: newAchDesc.trim() || undefined,
+    };
+    setAchievementsList([...achievementsList, item]);
+    setNewAchTitle('');
+    setNewAchOrg('');
+    setNewAchYear('');
+    setNewAchDesc('');
+  };
+
+  const handleDeleteAchievement = (id: string) => {
+    setAchievementsList(achievementsList.filter((item) => item.id !== id));
+  };
+
+  // News Handlers
+  const handleAddNews = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newNewsTitle.trim() || !newNewsSource.trim()) return;
+    const item: NewsItem = {
+      id: `news-${Date.now()}`,
+      title: newNewsTitle.trim(),
+      source: newNewsSource.trim(),
+      date: newNewsDate.trim() || 'Recently',
+      url: newNewsUrl.trim() || undefined,
+      description: newNewsDesc.trim() || undefined,
+    };
+    setNewsList([...newsList, item]);
+    setNewNewsTitle('');
+    setNewNewsSource('');
+    setNewNewsDate('');
+    setNewNewsUrl('');
+    setNewNewsDesc('');
+  };
+
+  const handleDeleteNews = (id: string) => {
+    setNewsList(newsList.filter((item) => item.id !== id));
+  };
+
+  // Video Playlist Handlers
+  const handleAddVideo = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newVideoTitle.trim() || !newVideoUrl.trim()) return;
+    const item: VideoItem = {
+      id: `vid-${Date.now()}`,
+      title: newVideoTitle.trim(),
+      videoUrl: newVideoUrl.trim(),
+      thumbnailUrl:
+        newVideoThumb.trim() ||
+        'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
+      duration: newVideoDuration.trim() || undefined,
+    };
+    setVideoList([...videoList, item]);
+    setNewVideoTitle('');
+    setNewVideoUrl('');
+    setNewVideoThumb('');
+    setNewVideoDuration('');
+  };
+
+  const handleDeleteVideo = (id: string) => {
+    setVideoList(videoList.filter((item) => item.id !== id));
+  };
+
+  // Posts Handlers
+  const handleCreatePost = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPostTitle.trim()) return;
+
+    const newPost = {
+      id: `post-${Date.now()}`,
+      type: newPostType,
+      title: newPostTitle.trim(),
+      desc: newPostDesc.trim(),
+      imageUrl: newPostImage.trim() || undefined,
+      date: 'Just now',
+      likes: 1,
+      comments: 0,
+      shares: 0,
+    };
+
+    setUpdates([newPost, ...updates]);
+    setNewPostTitle('');
+    setNewPostDesc('');
+    setNewPostImage('');
+  };
+
+  const handleDeletePost = (id: string) => {
+    setUpdates(updates.filter((p) => p.id !== id));
+  };
+
+  // Story Handlers
+  const handleDeleteStory = (id: string) => {
+    setCommunityStoriesList(communityStoriesList.filter((s) => s.id !== id));
+  };
+
   const handleCopyPublicLink = () => {
     const url = `${window.location.origin}/people/${slug}`;
     navigator.clipboard.writeText(url);
@@ -372,6 +669,7 @@ export default function PersonDashboardPage() {
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
+  // Master Save: Persists all 11 modules to localStorage
   const handleSaveProfile = () => {
     setIsSaving(true);
     setTimeout(() => {
@@ -380,7 +678,9 @@ export default function PersonDashboardPage() {
         handle.replace(/^@/, '') ||
         name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') ||
         'profile'
-      ).toLowerCase().trim();
+      )
+        .toLowerCase()
+        .trim();
 
       const updatedSession: PersonSession = {
         accountType: 'person',
@@ -399,9 +699,10 @@ export default function PersonDashboardPage() {
         avatarUrl,
         coverUrl,
         followersCount,
+        followingCount,
         viewsCount,
         engagementsCount,
-        storiesCount,
+        storiesCount: String(communityStoriesList.length),
         status: session?.status || 'pending',
         isVerified: session?.isVerified || false,
       };
@@ -410,10 +711,11 @@ export default function PersonDashboardPage() {
         localStorage.setItem('bharatbn_owner_session', JSON.stringify(updatedSession));
         window.dispatchEvent(new Event('bharatbn_auth_changed'));
 
-        // Save into people store
+        // Save into people store with all 11 modules
         const stored = localStorage.getItem('bharatbn_people_store');
         let people = stored ? JSON.parse(stored) : [];
         const idx = people.findIndex((p: any) => p.slug === cleanSlug || p.id === updatedSession.personId);
+
         const fullRecord = {
           ...updatedSession,
           slug: cleanSlug,
@@ -424,10 +726,24 @@ export default function PersonDashboardPage() {
             facebook: socialFacebook.trim(),
             linkedin: socialLinkedin.trim(),
           },
-          education: education.trim(),
-          experience: experience.trim(),
-          achievements: achievements.trim(),
+          educationList,
+          experienceList,
+          achievementsList,
+          newsList,
+          gallery,
+          featuredVideo: {
+            title: featuredVideoTitle || 'Featured Video',
+            subtitle: featuredVideoSubtitle || 'Public Address & Keynote',
+            videoUrl: featuredVideoUrl || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            thumbnailUrl:
+              featuredVideoThumb ||
+              'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
+          },
+          videoList,
           updates,
+          communityStoriesList,
+          communityStoriesCount: communityStoriesList.length,
+          followingCount: Number(followingCount) || 12,
           status: session?.status || 'pending',
           isVerified: session?.isVerified || false,
         };
@@ -449,53 +765,8 @@ export default function PersonDashboardPage() {
     }, 400);
   };
 
-  const handleCreatePost = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newPostTitle.trim()) return;
-
-    const newPost = {
-      id: `post-${Date.now()}`,
-      type: newPostType,
-      title: newPostTitle.trim(),
-      desc: newPostDesc.trim(),
-      date: 'Just now',
-      likes: 1,
-      comments: 0,
-    };
-
-    const nextUpdates = [newPost, ...updates];
-    setUpdates(nextUpdates);
-    setNewPostTitle('');
-    setNewPostDesc('');
-
-    // Persist post immediately
-    try {
-      const stored = localStorage.getItem('bharatbn_people_store');
-      let people = stored ? JSON.parse(stored) : [];
-      const idx = people.findIndex((p: any) => p.slug === slug || p.id === session?.personId);
-      if (idx !== -1) {
-        people[idx].updates = nextUpdates;
-        localStorage.setItem('bharatbn_people_store', JSON.stringify(people));
-      }
-    } catch {}
-  };
-
-  const handleDeletePost = (id: string) => {
-    const nextUpdates = updates.filter((p) => p.id !== id);
-    setUpdates(nextUpdates);
-    try {
-      const stored = localStorage.getItem('bharatbn_people_store');
-      let people = stored ? JSON.parse(stored) : [];
-      const idx = people.findIndex((p: any) => p.slug === slug || p.id === session?.personId);
-      if (idx !== -1) {
-        people[idx].updates = nextUpdates;
-        localStorage.setItem('bharatbn_people_store', JSON.stringify(people));
-      }
-    } catch {}
-  };
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Verification Status Banner for Logged-In Person */}
       {session && session.accountType === 'person' && (
         session.isVerified ? (
@@ -532,24 +803,6 @@ export default function PersonDashboardPage() {
             </Link>
           </div>
         )
-      )}
-
-      {/* Switcher Banner if Logged In as Business */}
-      {session && session.accountType === 'business' && (
-        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center justify-between text-xs sm:text-sm">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-600 flex-shrink-0" />
-            <span>
-              You are currently logged in as a <strong>Business Account</strong>. Manage your business or switch accounts.
-            </span>
-          </div>
-          <Link
-            href="/dashboard"
-            className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs"
-          >
-            Go to Business Dashboard &rarr;
-          </Link>
-        </div>
       )}
 
       {/* Guest Notice if Not Logged In */}
@@ -711,7 +964,7 @@ export default function PersonDashboardPage() {
           </div>
         </div>
 
-        {/* 4 Creator Metric Stat Cards (Dynamically bound) */}
+        {/* 4 Creator Metric Stat Cards */}
         <div className="px-6 sm:px-8 pb-5 grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
           <div className="p-4 bg-slate-50/70 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0">
@@ -748,7 +1001,7 @@ export default function PersonDashboardPage() {
               <MessageSquare className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-xl font-black text-slate-900 leading-tight">{storiesCount}</div>
+              <div className="text-xl font-black text-slate-900 leading-tight">{communityStoriesList.length || storiesCount}</div>
               <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Stories &amp; Collabs</div>
             </div>
           </div>
@@ -756,9 +1009,43 @@ export default function PersonDashboardPage() {
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. MODULE 1: BASIC INFORMATION & BIO (Collapsible Accordion)              */}
+      {/* QUICK MODULE JUMP NAVIGATION (Matching Image 1's 11 Profile Modules)      */}
       {/* ========================================================================= */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-3 space-y-2">
+        <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-1">
+          Quick Jump to Profile Modules (Fill in to reflect on your live profile)
+        </div>
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          {[
+            { id: 'basicInfo' as const, label: '1. About & Bio', icon: FileText },
+            { id: 'education' as const, label: '2. Education', icon: GraduationCap },
+            { id: 'experience' as const, label: '3. Experience', icon: Briefcase },
+            { id: 'achievements' as const, label: '4. Achievements', icon: Trophy },
+            { id: 'news' as const, label: '5. News & Media', icon: Newspaper },
+            { id: 'gallery' as const, label: '6. Photo Gallery', icon: Camera },
+            { id: 'videos' as const, label: '7. Video Gallery', icon: Video },
+            { id: 'posts' as const, label: '8. Posts & Updates', icon: Send },
+            { id: 'stories' as const, label: '9. Community Stories', icon: MessageSquare },
+            { id: 'social' as const, label: '10. Social Links', icon: Globe },
+            { id: 'stats' as const, label: '11. Audience Stats', icon: Users },
+          ].map((mod) => (
+            <button
+              key={mod.id}
+              type="button"
+              onClick={() => scrollToModule(mod.id)}
+              className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-orange-50 border border-slate-200 text-slate-700 hover:text-[#F95700] text-xs font-bold whitespace-nowrap flex items-center gap-1.5 shadow-2xs transition cursor-pointer"
+            >
+              <mod.icon className="w-3.5 h-3.5 text-[#F95700]" />
+              <span>{mod.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* MODULE 1: BASIC INFORMATION & BIO (Populates 'About')                     */}
+      {/* ========================================================================= */}
+      <div id="section-basicInfo" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
         <button
           type="button"
           onClick={() => toggleSection('basicInfo')}
@@ -766,11 +1053,11 @@ export default function PersonDashboardPage() {
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-orange-100 text-[#F95700] flex items-center justify-center flex-shrink-0">
-              <User className="w-5 h-5" />
+              <FileText className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900">Basic Information &amp; Bio</h3>
-              <p className="text-xs text-slate-500">Public figure display name, handle, role, location, and thoughts</p>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900">1. Basic Information &amp; Bio Story</h3>
+              <p className="text-xs text-slate-500">Public figure display name, handle, role, location, website &amp; story</p>
             </div>
           </div>
           <ChevronDown
@@ -789,7 +1076,7 @@ export default function PersonDashboardPage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Kashish Saxena"
+                  placeholder="e.g. AI / Kashish Saxena"
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
                 />
               </div>
@@ -800,7 +1087,7 @@ export default function PersonDashboardPage() {
                   type="text"
                   value={handle}
                   onChange={(e) => setHandle(e.target.value)}
-                  placeholder="e.g. @kashish"
+                  placeholder="e.g. @ai"
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
                 />
               </div>
@@ -811,7 +1098,7 @@ export default function PersonDashboardPage() {
                   type="text"
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
-                  placeholder="e.g. Creator & Influencer"
+                  placeholder="e.g. Autonomous AI Researcher & Platform Pioneer"
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
                 />
               </div>
@@ -822,7 +1109,7 @@ export default function PersonDashboardPage() {
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  placeholder="e.g. Noida, UP"
+                  placeholder="e.g. Bengaluru, KA"
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
                 />
               </div>
@@ -833,7 +1120,7 @@ export default function PersonDashboardPage() {
                   type="url"
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
-                  placeholder="https://yourwebsite.com"
+                  placeholder="https://bharatbn.com/ai"
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
                 />
               </div>
@@ -844,7 +1131,7 @@ export default function PersonDashboardPage() {
                   type="text"
                   value={badge}
                   onChange={(e) => setBadge(e.target.value)}
-                  placeholder="e.g. Public Figure"
+                  placeholder="e.g. AI Innovator / Public Figure"
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
                 />
               </div>
@@ -856,7 +1143,7 @@ export default function PersonDashboardPage() {
                 type="text"
                 value={quote}
                 onChange={(e) => setQuote(e.target.value)}
-                placeholder="Share your personal philosophy, motto, or headline..."
+                placeholder="Share your personal philosophy, motto, or mission headline..."
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
               />
             </div>
@@ -864,10 +1151,10 @@ export default function PersonDashboardPage() {
             <div className="space-y-1">
               <label className="block text-xs font-bold text-slate-700">About Story &amp; Bio</label>
               <textarea
-                rows={3}
+                rows={4}
                 value={aboutText}
                 onChange={(e) => setAboutText(e.target.value)}
-                placeholder="Write your story, professional background, initiatives, or introduction..."
+                placeholder="Write your story, background, mission, or introduction for followers..."
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
               />
             </div>
@@ -876,9 +1163,986 @@ export default function PersonDashboardPage() {
       </div>
 
       {/* ========================================================================= */}
-      {/* 3. MODULE 2: SOCIAL MEDIA & CHANNELS (Collapsible Accordion)              */}
+      {/* MODULE 2: EDUCATION & ACADEMIC QUALIFICATIONS                             */}
       {/* ========================================================================= */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+      <div id="section-education" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+        <button
+          type="button"
+          onClick={() => toggleSection('education')}
+          className="w-full p-5 sm:p-6 flex items-center justify-between text-left hover:bg-slate-50/50 transition cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
+              <GraduationCap className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                2. Education &amp; Academic Qualifications ({educationList.length})
+              </h3>
+              <p className="text-xs text-slate-500">Add degrees, colleges, certifications, and academic background</p>
+            </div>
+          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.education ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
+
+        {openSections.education && (
+          <div className="p-5 sm:p-6 pt-0 border-t border-slate-100 space-y-6">
+            {/* Add Education Form */}
+            <form onSubmit={handleAddEducation} className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3 mt-4">
+              <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <Plus className="w-4 h-4 text-blue-600" />
+                <span>Add Education Qualification</span>
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input
+                  type="text"
+                  required
+                  value={newDegree}
+                  onChange={(e) => setNewDegree(e.target.value)}
+                  placeholder="Degree (e.g. Neural Architecture / M.A.)"
+                  className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+                <input
+                  type="text"
+                  required
+                  value={newInstitution}
+                  onChange={(e) => setNewInstitution(e.target.value)}
+                  placeholder="Institution / University (e.g. Delhi University / IIT)"
+                  className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+                <input
+                  type="text"
+                  value={newEduYear}
+                  onChange={(e) => setNewEduYear(e.target.value)}
+                  placeholder="Year / Period (e.g. 2022 - 2024)"
+                  className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+              </div>
+              <input
+                type="text"
+                value={newEduDesc}
+                onChange={(e) => setNewEduDesc(e.target.value)}
+                placeholder="Details, specialization or key achievements..."
+                className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#F95700]"
+              />
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Qualification</span>
+                </button>
+              </div>
+            </form>
+
+            {/* List of Added Education Items */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Your Qualifications</h4>
+              {educationList.length === 0 ? (
+                <div className="p-6 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
+                  No education records added yet. Use the form above to add your degrees!
+                </div>
+              ) : (
+                educationList.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-3.5 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-3 shadow-2xs"
+                  >
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h5 className="text-xs sm:text-sm font-bold text-slate-900 truncate">{item.degree}</h5>
+                        {item.year && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">
+                            {item.year}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-600">{item.institution}</p>
+                      {item.description && <p className="text-[11px] text-slate-400 line-clamp-1">{item.description}</p>}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteEducation(item.id)}
+                      className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition cursor-pointer"
+                      title="Delete Entry"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ========================================================================= */}
+      {/* MODULE 3: PROFESSIONAL & PUBLIC EXPERIENCE                                */}
+      {/* ========================================================================= */}
+      <div id="section-experience" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+        <button
+          type="button"
+          onClick={() => toggleSection('experience')}
+          className="w-full p-5 sm:p-6 flex items-center justify-between text-left hover:bg-slate-50/50 transition cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
+              <Briefcase className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                3. Professional &amp; Public Experience ({experienceList.length})
+              </h3>
+              <p className="text-xs text-slate-500">Add career roles, organizations, periods, and leadership accomplishments</p>
+            </div>
+          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.experience ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
+
+        {openSections.experience && (
+          <div className="p-5 sm:p-6 pt-0 border-t border-slate-100 space-y-6">
+            {/* Add Experience Form */}
+            <form onSubmit={handleAddExperience} className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3 mt-4">
+              <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <Plus className="w-4 h-4 text-amber-600" />
+                <span>Add Professional Role</span>
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input
+                  type="text"
+                  required
+                  value={newExpRole}
+                  onChange={(e) => setNewExpRole(e.target.value)}
+                  placeholder="Role / Title (e.g. Lead Architect / Speaker)"
+                  className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+                <input
+                  type="text"
+                  required
+                  value={newExpOrg}
+                  onChange={(e) => setNewExpOrg(e.target.value)}
+                  placeholder="Organization / Entity (e.g. BharatBN Core)"
+                  className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+                <input
+                  type="text"
+                  value={newExpPeriod}
+                  onChange={(e) => setNewExpPeriod(e.target.value)}
+                  placeholder="Duration (e.g. 2024 - Present)"
+                  className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+              </div>
+              <input
+                type="text"
+                value={newExpDesc}
+                onChange={(e) => setNewExpDesc(e.target.value)}
+                placeholder="Scope of work, key initiatives, and leadership impacts..."
+                className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#F95700]"
+              />
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Role</span>
+                </button>
+              </div>
+            </form>
+
+            {/* List of Added Experience Items */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Your Career &amp; Public Work</h4>
+              {experienceList.length === 0 ? (
+                <div className="p-6 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
+                  No experience records added yet. Add your professional roles above!
+                </div>
+              ) : (
+                experienceList.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-3.5 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-3 shadow-2xs"
+                  >
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h5 className="text-xs sm:text-sm font-bold text-slate-900 truncate">{item.role}</h5>
+                        {item.period && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
+                            {item.period}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-600">{item.organization}</p>
+                      {item.description && <p className="text-[11px] text-slate-400 line-clamp-1">{item.description}</p>}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteExperience(item.id)}
+                      className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition cursor-pointer"
+                      title="Delete Entry"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ========================================================================= */}
+      {/* MODULE 4: KEY ACHIEVEMENTS & RECOGNITIONS                                  */}
+      {/* ========================================================================= */}
+      <div id="section-achievements" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+        <button
+          type="button"
+          onClick={() => toggleSection('achievements')}
+          className="w-full p-5 sm:p-6 flex items-center justify-between text-left hover:bg-slate-50/50 transition cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0">
+              <Trophy className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                4. Key Achievements &amp; Recognitions ({achievementsList.length})
+              </h3>
+              <p className="text-xs text-slate-500">Add awards, state/national honors, milestones, and recognitions</p>
+            </div>
+          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.achievements ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
+
+        {openSections.achievements && (
+          <div className="p-5 sm:p-6 pt-0 border-t border-slate-100 space-y-6">
+            {/* Add Achievement Form */}
+            <form onSubmit={handleAddAchievement} className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3 mt-4">
+              <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <Plus className="w-4 h-4 text-purple-600" />
+                <span>Add Achievement / Award</span>
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input
+                  type="text"
+                  required
+                  value={newAchTitle}
+                  onChange={(e) => setNewAchTitle(e.target.value)}
+                  placeholder="Award / Honor Title"
+                  className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+                <input
+                  type="text"
+                  value={newAchOrg}
+                  onChange={(e) => setNewAchOrg(e.target.value)}
+                  placeholder="Conferred by / Committee"
+                  className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+                <input
+                  type="text"
+                  value={newAchYear}
+                  onChange={(e) => setNewAchYear(e.target.value)}
+                  placeholder="Year (e.g. 2026)"
+                  className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+              </div>
+              <input
+                type="text"
+                value={newAchDesc}
+                onChange={(e) => setNewAchDesc(e.target.value)}
+                placeholder="Description of the recognition or impact..."
+                className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#F95700]"
+              />
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Achievement</span>
+                </button>
+              </div>
+            </form>
+
+            {/* List of Added Achievements */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Your Recognitions</h4>
+              {achievementsList.length === 0 ? (
+                <div className="p-6 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
+                  No achievements added yet. Highlight your awards above!
+                </div>
+              ) : (
+                achievementsList.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-3.5 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-3 shadow-2xs"
+                  >
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h5 className="text-xs sm:text-sm font-bold text-slate-900 truncate">🏆 {item.title}</h5>
+                        {item.year && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200">
+                            {item.year}
+                          </span>
+                        )}
+                      </div>
+                      {item.organization && <p className="text-xs text-slate-600">By: {item.organization}</p>}
+                      {item.description && <p className="text-[11px] text-slate-400 line-clamp-1">{item.description}</p>}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteAchievement(item.id)}
+                      className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition cursor-pointer"
+                      title="Delete Entry"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ========================================================================= */}
+      {/* MODULE 5: NEWS & MEDIA COVERAGE                                           */}
+      {/* ========================================================================= */}
+      <div id="section-news" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+        <button
+          type="button"
+          onClick={() => toggleSection('news')}
+          className="w-full p-5 sm:p-6 flex items-center justify-between text-left hover:bg-slate-50/50 transition cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0">
+              <Newspaper className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                5. News &amp; Media Coverage ({newsList.length})
+              </h3>
+              <p className="text-xs text-slate-500">Add press releases, articles, interviews, and public media mentions</p>
+            </div>
+          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.news ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
+
+        {openSections.news && (
+          <div className="p-5 sm:p-6 pt-0 border-t border-slate-100 space-y-6">
+            {/* Add News Form */}
+            <form onSubmit={handleAddNews} className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3 mt-4">
+              <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <Plus className="w-4 h-4 text-rose-600" />
+                <span>Add Media Article / Press Release</span>
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input
+                  type="text"
+                  required
+                  value={newNewsTitle}
+                  onChange={(e) => setNewNewsTitle(e.target.value)}
+                  placeholder="Article Headline"
+                  className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+                <input
+                  type="text"
+                  required
+                  value={newNewsSource}
+                  onChange={(e) => setNewNewsSource(e.target.value)}
+                  placeholder="Publication Source (e.g. Economic Times)"
+                  className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+                <input
+                  type="text"
+                  value={newNewsDate}
+                  onChange={(e) => setNewNewsDate(e.target.value)}
+                  placeholder="Date (e.g. Today / June 2026)"
+                  className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <input
+                  type="url"
+                  value={newNewsUrl}
+                  onChange={(e) => setNewNewsUrl(e.target.value)}
+                  placeholder="Article Link / External URL"
+                  className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+                <input
+                  type="text"
+                  value={newNewsDesc}
+                  onChange={(e) => setNewNewsDesc(e.target.value)}
+                  placeholder="Short summary of the news story..."
+                  className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Article</span>
+                </button>
+              </div>
+            </form>
+
+            {/* List of News Items */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Your Media Coverage</h4>
+              {newsList.length === 0 ? (
+                <div className="p-6 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
+                  No press mentions added yet. Use the form above to add your articles!
+                </div>
+              ) : (
+                newsList.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-3.5 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-3 shadow-2xs"
+                  >
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200">
+                          {item.source}
+                        </span>
+                        <span className="text-[11px] text-slate-400">{item.date}</span>
+                      </div>
+                      <h5 className="text-xs sm:text-sm font-bold text-slate-900 truncate pt-1">{item.title}</h5>
+                      {item.url && (
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] text-[#F95700] hover:underline inline-flex items-center gap-1"
+                        >
+                          <span>{item.url}</span>
+                          <ExternalLink className="w-2.5 h-2.5" />
+                        </a>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteNews(item.id)}
+                      className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition cursor-pointer"
+                      title="Delete Entry"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ========================================================================= */}
+      {/* MODULE 6: PHOTO GALLERY MANAGER                                           */}
+      {/* ========================================================================= */}
+      <div id="section-gallery" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+        <button
+          type="button"
+          onClick={() => toggleSection('gallery')}
+          className="w-full p-5 sm:p-6 flex items-center justify-between text-left hover:bg-slate-50/50 transition cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-teal-100 text-teal-600 flex items-center justify-center flex-shrink-0">
+              <Camera className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                6. Photo Gallery Manager ({gallery.length})
+              </h3>
+              <p className="text-xs text-slate-500">Upload high-resolution photographs, event moments, and gallery images</p>
+            </div>
+          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.gallery ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
+
+        {openSections.gallery && (
+          <div className="p-5 sm:p-6 pt-0 border-t border-slate-100 space-y-6">
+            {/* Add Photo Form (Supports direct device file upload or URL) */}
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3 mt-4">
+              <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <Plus className="w-4 h-4 text-teal-600" />
+                <span>Add Photos to Gallery</span>
+              </span>
+
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                {/* Upload from Device */}
+                <label className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer flex-shrink-0">
+                  <Upload className="w-4 h-4" />
+                  <span>Upload from Device</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleGalleryDeviceUpload}
+                    className="hidden"
+                  />
+                </label>
+
+                <span className="text-xs text-slate-400 font-bold uppercase">or via URL</span>
+
+                {/* Photo URL */}
+                <input
+                  type="url"
+                  value={newPhotoUrl}
+                  onChange={(e) => setNewPhotoUrl(e.target.value)}
+                  placeholder="https://images.unsplash.com/photo-..."
+                  className="flex-1 w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+
+                <input
+                  type="text"
+                  value={newPhotoCaption}
+                  onChange={(e) => setNewPhotoCaption(e.target.value)}
+                  placeholder="Caption / Description"
+                  className="w-full sm:w-48 px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+
+                <button
+                  type="button"
+                  onClick={handleAddPhotoUrl}
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition cursor-pointer"
+                >
+                  Add URL
+                </button>
+              </div>
+            </div>
+
+            {/* Gallery Grid Preview */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Your Photo Gallery</h4>
+              {gallery.length === 0 ? (
+                <div className="p-8 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
+                  No photos added yet. Upload your first gallery photo above!
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {gallery.map((photo, idx) => (
+                    <div
+                      key={idx}
+                      className="relative aspect-video rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group shadow-2xs"
+                    >
+                      <img
+                        src={photo.url}
+                        alt={photo.caption}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition p-2 flex flex-col justify-between">
+                        <button
+                          type="button"
+                          onClick={() => handleDeletePhoto(idx)}
+                          className="self-end p-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition cursor-pointer"
+                          title="Delete Photo"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                        <span className="text-[10px] text-white font-medium truncate">
+                          {photo.caption}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ========================================================================= */}
+      {/* MODULE 7: VIDEO GALLERY & FEATURED VIDEO                                   */}
+      {/* ========================================================================= */}
+      <div id="section-videos" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+        <button
+          type="button"
+          onClick={() => toggleSection('videos')}
+          className="w-full p-5 sm:p-6 flex items-center justify-between text-left hover:bg-slate-50/50 transition cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0">
+              <Video className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                7. Video Gallery &amp; Featured Video ({videoList.length + 1})
+              </h3>
+              <p className="text-xs text-slate-500">Configure your primary featured video and playlist of keynote speeches</p>
+            </div>
+          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.videos ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
+
+        {openSections.videos && (
+          <div className="p-5 sm:p-6 pt-0 border-t border-slate-100 space-y-6">
+            {/* Primary Featured Video Settings */}
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3 mt-4">
+              <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <Play className="w-4 h-4 text-red-600 fill-red-600" />
+                <span>Primary Featured Video Card</span>
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700">Video Headline</label>
+                  <input
+                    type="text"
+                    value={featuredVideoTitle}
+                    onChange={(e) => setFeaturedVideoTitle(e.target.value)}
+                    placeholder="e.g. Keynote on Nation Building 2026"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#F95700]"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700">Subtitle / Event Name</label>
+                  <input
+                    type="text"
+                    value={featuredVideoSubtitle}
+                    onChange={(e) => setFeaturedVideoSubtitle(e.target.value)}
+                    placeholder="e.g. National Youth Conclave"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#F95700]"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700">Video URL (YouTube or stream)</label>
+                  <input
+                    type="url"
+                    value={featuredVideoUrl}
+                    onChange={(e) => setFeaturedVideoUrl(e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#F95700]"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700">Thumbnail Cover Image URL</label>
+                  <input
+                    type="url"
+                    value={featuredVideoThumb}
+                    onChange={(e) => setFeaturedVideoThumb(e.target.value)}
+                    placeholder="https://images.unsplash.com/..."
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#F95700]"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Add to Playlist Form */}
+            <form onSubmit={handleAddVideo} className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+              <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <Plus className="w-4 h-4 text-red-600" />
+                <span>Add Additional Video to Playlist</span>
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <input
+                  type="text"
+                  required
+                  value={newVideoTitle}
+                  onChange={(e) => setNewVideoTitle(e.target.value)}
+                  placeholder="Video Title"
+                  className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+                <input
+                  type="url"
+                  required
+                  value={newVideoUrl}
+                  onChange={(e) => setNewVideoUrl(e.target.value)}
+                  placeholder="YouTube Video URL"
+                  className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+                <input
+                  type="url"
+                  value={newVideoThumb}
+                  onChange={(e) => setNewVideoThumb(e.target.value)}
+                  placeholder="Thumbnail URL (optional)"
+                  className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+                <input
+                  type="text"
+                  value={newVideoDuration}
+                  onChange={(e) => setNewVideoDuration(e.target.value)}
+                  placeholder="Duration (e.g. 15:30)"
+                  className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#F95700]"
+                />
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Video</span>
+                </button>
+              </div>
+            </form>
+
+            {/* Video List */}
+            {videoList.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Video Playlist</h4>
+                <div className="space-y-2">
+                  {videoList.map((vid) => (
+                    <div
+                      key={vid.id}
+                      className="p-3 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-3 shadow-2xs"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-16 h-10 rounded-lg bg-slate-900 overflow-hidden relative flex-shrink-0">
+                          <img src={vid.thumbnailUrl} alt={vid.title} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="min-w-0">
+                          <h5 className="text-xs font-bold text-slate-900 truncate">{vid.title}</h5>
+                          {vid.duration && <span className="text-[10px] text-slate-400">{vid.duration}</span>}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteVideo(vid.id)}
+                        className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition cursor-pointer"
+                        title="Delete Video"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ========================================================================= */}
+      {/* MODULE 8: POSTS & UPDATES PUBLISHER                                       */}
+      {/* ========================================================================= */}
+      <div id="section-posts" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+        <button
+          type="button"
+          onClick={() => toggleSection('posts')}
+          className="w-full p-5 sm:p-6 flex items-center justify-between text-left hover:bg-slate-50/50 transition cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+              <Send className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                8. Posts &amp; Updates Publisher ({updates.length})
+              </h3>
+              <p className="text-xs text-slate-500">Publish articles, announcements, news, and event updates to your feed</p>
+            </div>
+          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.posts ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
+
+        {openSections.posts && (
+          <div className="p-5 sm:p-6 pt-0 border-t border-slate-100 space-y-6">
+            {/* Create Post Form */}
+            <form onSubmit={handleCreatePost} className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3 mt-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <Plus className="w-4 h-4 text-[#F95700]" />
+                  <span>Create New Post / Update</span>
+                </span>
+                <div className="flex items-center gap-1">
+                  {(['Posts', 'News', 'Events'] as const).map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setNewPostType(t)}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                        newPostType === t
+                          ? 'bg-[#07213A] text-white'
+                          : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <input
+                type="text"
+                required
+                value={newPostTitle}
+                onChange={(e) => setNewPostTitle(e.target.value)}
+                placeholder="Post title or headline..."
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:border-[#F95700]"
+              />
+
+              <textarea
+                rows={2}
+                value={newPostDesc}
+                onChange={(e) => setNewPostDesc(e.target.value)}
+                placeholder="Write your update description, key takeaways or announcement..."
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-[#F95700]"
+              />
+
+              <input
+                type="url"
+                value={newPostImage}
+                onChange={(e) => setNewPostImage(e.target.value)}
+                placeholder="Optional image URL for this update (https://images.unsplash.com/...)"
+                className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#F95700]"
+              />
+
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Publish Update</span>
+                </button>
+              </div>
+            </form>
+
+            {/* Live Updates Timeline */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Your Published Posts</h4>
+              {updates.length === 0 ? (
+                <div className="p-8 rounded-2xl border-2 border-dashed border-slate-200 text-center text-xs text-slate-400">
+                  No posts published yet. Use the form above to share your first announcement or article!
+                </div>
+              ) : (
+                updates.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-orange-100 text-[#F95700] uppercase">
+                          {item.type}
+                        </span>
+                        <span className="text-xs text-slate-400">{item.date}</span>
+                      </div>
+                      <h5 className="text-sm font-bold text-slate-900">{item.title}</h5>
+                      <p className="text-xs text-slate-600 line-clamp-2">{item.desc}</p>
+                      <div className="flex items-center gap-4 pt-1 text-xs text-slate-400">
+                        <span className="flex items-center gap-1">
+                          <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" /> {item.likes}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MessageSquare className="w-3.5 h-3.5" /> {item.comments}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDeletePost(item.id)}
+                      className="self-end sm:self-center p-2 rounded-xl text-red-500 hover:bg-red-50 transition cursor-pointer"
+                      title="Delete Post"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ========================================================================= */}
+      {/* MODULE 9: COMMUNITY STORIES & COLLABS                                     */}
+      {/* ========================================================================= */}
+      <div id="section-stories" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+        <button
+          type="button"
+          onClick={() => toggleSection('stories')}
+          className="w-full p-5 sm:p-6 flex items-center justify-between text-left hover:bg-slate-50/50 transition cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0">
+              <MessageSquare className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                9. Community Stories &amp; Collabs ({communityStoriesList.length})
+              </h3>
+              <p className="text-xs text-slate-500">Stories, interactions, and testimonials submitted by citizens and followers</p>
+            </div>
+          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.stories ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
+
+        {openSections.stories && (
+          <div className="p-5 sm:p-6 pt-0 border-t border-slate-100 space-y-4 pt-4">
+            {communityStoriesList.length === 0 ? (
+              <div className="p-8 rounded-2xl border-2 border-dashed border-slate-200 text-center text-xs text-slate-400">
+                No community stories received yet. When visitors submit stories on your public profile, they will appear here!
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {communityStoriesList.map((st) => (
+                  <div
+                    key={st.id}
+                    className="p-4 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-3 shadow-2xs"
+                  >
+                    <div className="min-w-0 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-extrabold text-xs text-slate-900">{st.author}</span>
+                        {st.role && <span className="text-[10px] text-slate-400">&bull; {st.role}</span>}
+                        <span className="text-[10px] text-slate-400">&bull; {st.date}</span>
+                      </div>
+                      <p className="text-xs text-slate-600 italic leading-relaxed">&ldquo;{st.content}&rdquo;</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteStory(st.id)}
+                      className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition cursor-pointer flex-shrink-0"
+                      title="Remove Story"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ========================================================================= */}
+      {/* MODULE 10: OFFICIAL SOCIAL MEDIA & CHANNELS                               */}
+      {/* ========================================================================= */}
+      <div id="section-social" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
         <button
           type="button"
           onClick={() => toggleSection('social')}
@@ -889,7 +2153,7 @@ export default function PersonDashboardPage() {
               <Globe className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900">Official Social Media &amp; Channels</h3>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900">10. Official Social Media &amp; Channels</h3>
               <p className="text-xs text-slate-500">Connect YouTube, Instagram, X (Twitter), Facebook &amp; LinkedIn</p>
             </div>
           </div>
@@ -961,201 +2225,75 @@ export default function PersonDashboardPage() {
       </div>
 
       {/* ========================================================================= */}
-      {/* 4. MODULE 3: POSTS & UPDATES PUBLISHER (Collapsible Accordion)            */}
+      {/* MODULE 11: AUDIENCE & CREATOR METRICS (Populates Followers Tab)           */}
       {/* ========================================================================= */}
-      <div id="new-post" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+      <div id="section-stats" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
         <button
           type="button"
-          onClick={() => toggleSection('posts')}
+          onClick={() => toggleSection('stats')}
           className="w-full p-5 sm:p-6 flex items-center justify-between text-left hover:bg-slate-50/50 transition cursor-pointer"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
-              <MessageSquare className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0">
+              <Users className="w-5 h-5" />
             </div>
             <div>
               <h3 className="text-base sm:text-lg font-bold text-slate-900">
-                Publish Posts &amp; Updates ({updates.length})
+                11. Followers &amp; Audience Metrics
               </h3>
-              <p className="text-xs text-slate-500">Publish articles, event commentary, and public updates to followers</p>
+              <p className="text-xs text-slate-500">Configure public display metrics for followers, following, and views</p>
             </div>
           </div>
           <ChevronDown
             className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
-              openSections.posts ? 'rotate-180' : ''
+              openSections.stats ? 'rotate-180' : ''
             }`}
           />
         </button>
 
-        {openSections.posts && (
-          <div className="p-5 sm:p-6 pt-0 border-t border-slate-100 space-y-6">
-            {/* Create Post Form */}
-            <form onSubmit={handleCreatePost} className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3 mt-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                  <Plus className="w-4 h-4 text-[#F95700]" />
-                  <span>Create New Post / Update</span>
-                </span>
-                <div className="flex items-center gap-1">
-                  {(['Posts', 'News', 'Events'] as const).map((t) => (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => setNewPostType(t)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
-                        newPostType === t
-                          ? 'bg-[#07213A] text-white'
-                          : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-                      }`}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <input
-                type="text"
-                required
-                value={newPostTitle}
-                onChange={(e) => setNewPostTitle(e.target.value)}
-                placeholder="Post title or headline..."
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none focus:border-[#F95700]"
-              />
-
-              <textarea
-                rows={2}
-                value={newPostDesc}
-                onChange={(e) => setNewPostDesc(e.target.value)}
-                placeholder="Write your update description, key takeaways or announcement..."
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-[#F95700]"
-              />
-
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Publish Update</span>
-                </button>
-              </div>
-            </form>
-
-            {/* Live Updates Timeline */}
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Your Published Posts</h4>
-              {updates.length === 0 ? (
-                <div className="p-8 rounded-2xl border-2 border-dashed border-slate-200 text-center text-xs text-slate-400">
-                  No posts published yet. Use the form above to share your first announcement or article!
-                </div>
-              ) : (
-                updates.map((item) => (
-                  <div
-                    key={item.id}
-                    className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-orange-100 text-[#F95700] uppercase">
-                          {item.type}
-                        </span>
-                        <span className="text-xs text-slate-400">{item.date}</span>
-                      </div>
-                      <h5 className="text-sm font-bold text-slate-900">{item.title}</h5>
-                      <p className="text-xs text-slate-600 line-clamp-2">{item.desc}</p>
-                      <div className="flex items-center gap-4 pt-1 text-xs text-slate-400">
-                        <span className="flex items-center gap-1">
-                          <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" /> {item.likes}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <MessageSquare className="w-3.5 h-3.5" /> {item.comments}
-                        </span>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => handleDeletePost(item.id)}
-                      className="self-end sm:self-center p-2 rounded-xl text-red-500 hover:bg-red-50 transition cursor-pointer"
-                      title="Delete Post"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* ========================================================================= */}
-      {/* 5. MODULE 4: HIGHLIGHTS & CREDENTIALS (Collapsible Accordion)             */}
-      {/* ========================================================================= */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
-        <button
-          type="button"
-          onClick={() => toggleSection('highlights')}
-          className="w-full p-5 sm:p-6 flex items-center justify-between text-left hover:bg-slate-50/50 transition cursor-pointer"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
-              <Award className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900">Highlights &amp; Key Credentials</h3>
-              <p className="text-xs text-slate-500">Education, organizational experience, and recognized achievements</p>
-            </div>
-          </div>
-          <ChevronDown
-            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
-              openSections.highlights ? 'rotate-180' : ''
-            }`}
-          />
-        </button>
-
-        {openSections.highlights && (
-          <div className="p-5 sm:p-6 pt-0 border-t border-slate-100 space-y-4 pt-4">
+        {openSections.stats && (
+          <div className="p-5 sm:p-6 pt-0 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <GraduationCap className="w-4 h-4 text-sky-600" />
-                <span>Education &amp; Qualifications</span>
-              </label>
+              <label className="block text-xs font-bold text-slate-700">Followers Count</label>
               <input
                 type="text"
-                value={education}
-                onChange={(e) => setEducation(e.target.value)}
-                placeholder="e.g. Master of Arts / B.Tech / University..."
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
+                value={followersCount}
+                onChange={(e) => setFollowersCount(e.target.value)}
+                placeholder="e.g. 5.8K"
+                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <Briefcase className="w-4 h-4 text-amber-600" />
-                <span>Organizational Experience &amp; Roles</span>
-              </label>
+              <label className="block text-xs font-bold text-slate-700">Following Count</label>
               <input
                 type="text"
-                value={experience}
-                onChange={(e) => setExperience(e.target.value)}
-                placeholder="e.g. Founder at Enterprise / Lead Designer / Consultant..."
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
+                value={followingCount}
+                onChange={(e) => setFollowingCount(e.target.value)}
+                placeholder="e.g. 12"
+                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                <Award className="w-4 h-4 text-purple-600" />
-                <span>Key Achievements &amp; Recognitions</span>
-              </label>
+              <label className="block text-xs font-bold text-slate-700">Profile Views</label>
               <input
                 type="text"
-                value={achievements}
-                onChange={(e) => setAchievements(e.target.value)}
-                placeholder="e.g. State-level Awards, Notable Accomplishments..."
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
+                value={viewsCount}
+                onChange={(e) => setViewsCount(e.target.value)}
+                placeholder="e.g. 128K+"
+                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-xs font-bold text-slate-700">Engagements Count</label>
+              <input
+                type="text"
+                value={engagementsCount}
+                onChange={(e) => setEngagementsCount(e.target.value)}
+                placeholder="e.g. 2.4K"
+                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
               />
             </div>
           </div>
@@ -1189,7 +2327,7 @@ export default function PersonDashboardPage() {
             className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#F95700] hover:bg-[#d94a00] shadow-md transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
           >
             <Save className="w-3.5 h-3.5" />
-            <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save All Changes'}</span>
+            <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved All Modules!' : 'Save All Changes'}</span>
           </button>
         </div>
       </div>
