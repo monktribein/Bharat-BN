@@ -532,49 +532,23 @@ export default function DashboardOverviewPage() {
         </div>
       ) : (
         /* ========================================================================= */
-        /* 2. PRAVIXO-STYLE PROFILE HERO BANNER (Image 3 Reference)                  */
+        /* 2. SIDE-BY-SIDE HERO: BUSINESS IDENTITY (Image 1) + COVER BANNER (Image 2) */
         /* ========================================================================= */
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden space-y-4">
-          {/* Panoramic Cover Image with Edit Cover button (exact Image 3 positioning) */}
-          <div className="relative h-48 sm:h-64 w-full bg-slate-900 group overflow-hidden">
-            <img
-              src={coverUrl}
-              alt="Business Banner Cover"
-              className="w-full h-full object-cover object-center transition duration-300 group-hover:scale-102"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
-
-            {/* Edit Cover Action at bottom-right of cover image */}
-            <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  const newCover = prompt('Enter image URL for banner cover:', coverUrl);
-                  if (newCover) setCoverUrl(newCover.trim());
-                }}
-                className="px-3.5 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-900 text-white text-xs font-semibold backdrop-blur-md border border-white/20 flex items-center gap-1.5 shadow-md transition cursor-pointer"
-                title="Change Cover Banner"
-              >
-                <Camera className="w-3.5 h-3.5 text-white" />
-                <span>Edit Cover</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Profile Identity Row: Circular Avatar + Name + Check Badge + Details (Image 3) */}
-          <div className="px-6 sm:px-8 pb-4 pt-0 relative flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-14 sm:-mt-16">
-            {/* Circular Avatar & Details in banner */}
-            <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 text-center sm:text-left">
-              {/* Circular Avatar (rounded-full with thick white border) */}
-              <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white border-4 border-white shadow-xl overflow-hidden flex-shrink-0 group z-10">
+        <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-7 space-y-6">
+          {/* Top Row: Business Identity (Image 1) on Left + Cover Banner (Image 2) on Right */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            {/* LEFT SIDE (Image 1): Business Identity Block */}
+            <div className="lg:col-span-7 flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
+              {/* Apple / Business Logo Box with soft shadow */}
+              <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white border border-slate-200 shadow-md p-2 flex-shrink-0 flex items-center justify-center group overflow-hidden">
                 {logoUrl ? (
                   <img
                     src={logoUrl}
                     alt={businessName}
-                    className="w-full h-full object-contain p-2 rounded-full"
+                    className="w-full h-full object-contain"
                   />
                 ) : (
-                  <div className="w-full h-full bg-[#07213A] text-white font-mono font-bold text-2xl flex items-center justify-center rounded-full">
+                  <div className="w-full h-full bg-[#07213A] text-white font-mono font-bold text-2xl flex items-center justify-center rounded-xl">
                     {businessName.slice(0, 2).toUpperCase()}
                   </div>
                 )}
@@ -584,16 +558,17 @@ export default function DashboardOverviewPage() {
                     const newLogo = prompt('Enter image URL for Business Logo / Avatar:', logoUrl);
                     if (newLogo) setLogoUrl(newLogo.trim());
                   }}
-                  className="absolute inset-0 bg-slate-950/60 text-white text-[10px] font-bold flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer rounded-full"
+                  className="absolute inset-0 bg-slate-950/65 text-white text-[11px] font-bold flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer"
+                  title="Change Logo"
                 >
                   <Camera className="w-4 h-4 mb-0.5" />
-                  <span>Edit Logo</span>
+                  <span>Edit</span>
                 </button>
               </div>
 
-              {/* Title, Verified Badge, Subtitle & Live Link (Image 1 & 3 Reference) */}
-              <div className="space-y-1.5 pt-2">
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              {/* Business Info: Name, Badge, Metadata, Slug & Actions */}
+              <div className="space-y-2 flex-1 min-w-0">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
                   <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                     {businessName}
                   </h1>
@@ -609,7 +584,7 @@ export default function DashboardOverviewPage() {
                 </p>
 
                 {/* Live Public Link & Copy Link */}
-                <div className="flex items-center justify-center sm:justify-start gap-2 pt-0.5">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-0.5">
                   <Link
                     href={`/biz/${businessSlug}`}
                     target="_blank"
@@ -622,54 +597,82 @@ export default function DashboardOverviewPage() {
                   <button
                     type="button"
                     onClick={handleCopyPublicLink}
-                    className="text-[11px] text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition cursor-pointer font-medium"
+                    className="text-[11px] text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition cursor-pointer font-medium"
                   >
                     {copiedLink ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
                     <span>{copiedLink ? 'Copied' : 'Copy Link'}</span>
                   </button>
                 </div>
+
+                {/* Quick Action Buttons */}
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-2">
+                  <Link
+                    href={`/biz/${businessSlug}`}
+                    target="_blank"
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                  >
+                    <span>View Public Profile</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={handleSaveProfile}
+                    disabled={isSaving}
+                    className="px-4 py-1.5 rounded-xl text-xs font-bold text-white bg-[#07213A] hover:bg-[#0C2D4E] transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  >
+                    <Save className="w-3.5 h-3.5 text-[#F95700]" />
+                    <span>{isSaving ? 'Saving...' : 'Save Profile Changes'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginModalMode('login');
+                      setIsLoginModalOpen(true);
+                    }}
+                    className="w-8 h-8 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-600 cursor-pointer shadow-2xs"
+                    title="Switch Business or Account Options"
+                  >
+                    <MoreVertical className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Quick Actions (View Live + Three Dots Menu from Image 3) */}
-            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2.5">
-              <Link
-                href={`/biz/${businessSlug}`}
-                target="_blank"
-                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
-              >
-                <span>View Public Profile</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </Link>
+            {/* RIGHT SIDE (Image 2): Banner Cover Photo with Edit Cover button */}
+            <div className="lg:col-span-5">
+              <div className="relative h-44 sm:h-48 lg:h-52 w-full rounded-2xl overflow-hidden bg-slate-900 group shadow-md border border-slate-200/70">
+                <img
+                  src={coverUrl}
+                  alt="Business Banner Cover"
+                  className="w-full h-full object-cover object-center transition duration-300 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none" />
 
-              <button
-                type="button"
-                onClick={handleSaveProfile}
-                disabled={isSaving}
-                className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#07213A] hover:bg-[#0C2D4E] transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-              >
-                <Save className="w-3.5 h-3.5 text-[#F95700]" />
-                <span>{isSaving ? 'Saving...' : 'Save Profile Changes'}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setLoginModalMode('login');
-                  setIsLoginModalOpen(true);
-                }}
-                className="w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-600 cursor-pointer shadow-2xs"
-                title="Switch Business or Account Options"
-              >
-                <MoreVertical className="w-4 h-4" />
-              </button>
+                {/* Edit Cover Action at bottom-right */}
+                <div className="absolute bottom-3 right-3 z-10 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newCover = prompt('Enter image URL for banner cover:', coverUrl);
+                      if (newCover) setCoverUrl(newCover.trim());
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-900 text-white text-xs font-semibold backdrop-blur-md border border-white/20 flex items-center gap-1.5 shadow-md transition cursor-pointer"
+                    title="Change Cover Banner"
+                  >
+                    <Camera className="w-3.5 h-3.5 text-white" />
+                    <span>Edit Cover</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Pravixo 4 Metric Stat Cards (Image 3 exact layout) */}
-          <div className="px-6 sm:px-8 pb-6 grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
+          {/* BOTTOM ROW: Pravixo 4 Metric Stat Cards */}
+          <div className="pt-4 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
             {/* Card 1: REACH */}
-            <div className="p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
+            <div className="p-4 bg-slate-50/70 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0">
                 <Users className="w-5 h-5" />
               </div>
@@ -683,7 +686,7 @@ export default function DashboardOverviewPage() {
             </div>
 
             {/* Card 2: VIEWS */}
-            <div className="p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
+            <div className="p-4 bg-slate-50/70 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-orange-100 text-[#F95700] flex items-center justify-center flex-shrink-0">
                 <Eye className="w-5 h-5" />
               </div>
@@ -694,7 +697,7 @@ export default function DashboardOverviewPage() {
             </div>
 
             {/* Card 3: CLICKS / INQUIRIES */}
-            <div className="p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
+            <div className="p-4 bg-slate-50/70 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0">
                 <Sparkles className="w-5 h-5" />
               </div>
@@ -705,7 +708,7 @@ export default function DashboardOverviewPage() {
             </div>
 
             {/* Card 4: DEALS / COLLABS */}
-            <div className="p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs flex items-center gap-3">
+            <div className="p-4 bg-slate-50/70 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center flex-shrink-0">
                 <TrendingUp className="w-5 h-5" />
               </div>
@@ -753,7 +756,7 @@ export default function DashboardOverviewPage() {
               }`}
             >
               <Edit className="w-4 h-4 text-[#F95700]" />
-              <span>Edit Profile (Pravixo Style)</span>
+              <span>Edit Profile </span>
             </button>
 
             <button
