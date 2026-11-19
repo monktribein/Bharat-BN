@@ -176,7 +176,7 @@ export default function Navbar() {
         transition={{ duration: 0.35, ease: 'easeOut' }}
         className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs"
       >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-3 lg:gap-4">
         {/* Official Brand Logo with Hover Micro-Interaction */}
         <Link href="/" className="flex items-center group select-none flex-shrink-0">
           <motion.div
@@ -190,13 +190,13 @@ export default function Navbar() {
               width={240}
               height={88}
               priority
-              className="h-12 sm:h-14 w-auto object-contain transition group-hover:opacity-95"
+              className="h-9 sm:h-11 w-auto object-contain transition group-hover:opacity-95"
             />
           </motion.div>
         </Link>
 
-        {/* Center Floating Pill Navigation with Sliding Active Indicator */}
-        <nav className="hidden md:flex items-center bg-[#F1F5F9] p-1.5 rounded-full border border-slate-200/70 shadow-inner-xs relative">
+        {/* Center Floating Pill Navigation (Single-line sleek horizontal layout) */}
+        <nav className="hidden md:flex items-center bg-[#F1F5F9] p-1 rounded-full border border-slate-200/80 shadow-inner-xs relative flex-shrink-0">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = item.isActive;
@@ -204,7 +204,9 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="relative px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition z-10 flex items-center gap-2"
+                className={`relative px-3 sm:px-3.5 py-1.5 rounded-full text-xs sm:text-[13px] font-semibold transition z-10 flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 ${
+                  active ? 'text-slate-900 font-bold' : 'text-slate-600 hover:text-slate-900'
+                }`}
               >
                 {active && (
                   <motion.div
@@ -214,13 +216,11 @@ export default function Navbar() {
                   />
                 )}
                 <Icon
-                  className={`w-4 h-4 transition-colors duration-200 ${active ? 'text-[#D94F00]' : 'text-slate-500'
-                    }`}
+                  className={`w-3.5 h-3.5 flex-shrink-0 transition-colors duration-200 ${
+                    active ? 'text-[#D94F00]' : 'text-slate-500'
+                  }`}
                 />
-                <span
-                  className={`transition-colors duration-200 ${active ? 'text-slate-900 font-bold' : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                >
+                <span className="whitespace-nowrap tracking-tight">
                   {item.name}
                 </span>
               </Link>
@@ -229,15 +229,15 @@ export default function Navbar() {
         </nav>
 
         {/* Action Buttons: Logged In as Business Owner vs Visitor */}
-        <div className="flex items-center gap-2.5 flex-shrink-0 relative">
+        <div className="flex items-center gap-2 sm:gap-2.5 flex-shrink-0 relative">
           {ownerSession ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               {/* In-App Notifications Bell (Only Shown for Logged-In Users) */}
               <div ref={notificationRef} className="relative">
                 <button
                   type="button"
                   onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                  className="w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 transition relative cursor-pointer shadow-xs"
+                  className="w-9 h-9 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 transition relative cursor-pointer shadow-xs"
                   title="Notifications"
                 >
                   <Bell className="w-4 h-4 text-slate-600" />
@@ -349,7 +349,7 @@ export default function Navbar() {
                 <>
                   <Link
                     href="/dashboard/person"
-                    className="w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center justify-center transition shadow-xs overflow-hidden cursor-pointer flex-shrink-0"
+                    className="w-9 h-9 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center justify-center transition shadow-xs overflow-hidden cursor-pointer flex-shrink-0"
                     title={`${ownerSession.name || 'Personal Profile'} - Go to Profile Dashboard`}
                   >
                     {ownerSession.avatarUrl ? (
@@ -367,7 +367,7 @@ export default function Navbar() {
 
                   <Link
                     href="/dashboard/person"
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs whitespace-nowrap"
                     title="Manage Personal / Creator Profile Dashboard"
                   >
                     <LayoutDashboard className="w-4 h-4 text-slate-600" />
@@ -376,7 +376,7 @@ export default function Navbar() {
 
                   <Link
                     href="/dashboard/person#new-post"
-                    className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-[#C94A00] hover:bg-[#A83800] transition shadow-xs"
+                    className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-[#C94A00] hover:bg-[#A83800] transition shadow-xs whitespace-nowrap flex-shrink-0"
                     title="Publish a new post or update"
                   >
                     <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -388,7 +388,7 @@ export default function Navbar() {
                 <>
                   <Link
                     href="/dashboard"
-                    className="w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center justify-center transition shadow-xs overflow-hidden cursor-pointer flex-shrink-0"
+                    className="w-9 h-9 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center justify-center transition shadow-xs overflow-hidden cursor-pointer flex-shrink-0"
                     title={`${ownerSession.businessName} (Owner Account) - Go to Dashboard`}
                   >
                     {ownerSession.logoUrl || (ownerSession.businessName?.toLowerCase() === 'apple' ? '/apple-logo.svg' : null) ? (
@@ -406,7 +406,7 @@ export default function Navbar() {
 
                   <Link
                     href="/dashboard"
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs whitespace-nowrap"
                     title="Go to Business Operations Dashboard"
                   >
                     <LayoutDashboard className="w-4 h-4 text-slate-600" />
@@ -416,7 +416,7 @@ export default function Navbar() {
                   {/* List Business Button (Visible AFTER business signs in!) */}
                   <Link
                     href="/claim/new"
-                    className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-white bg-[#C94A00] hover:bg-[#A83800] transition cursor-pointer shadow-xs"
+                    className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-[#C94A00] hover:bg-[#A83800] transition cursor-pointer shadow-xs whitespace-nowrap flex-shrink-0"
                     title="List another branch or new business"
                   >
                     <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -429,7 +429,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="w-10 h-10 rounded-xl text-red-600 bg-red-50/70 hover:bg-red-100 border border-red-200 flex items-center justify-center transition cursor-pointer shadow-xs flex-shrink-0"
+                className="w-9 h-9 rounded-xl text-red-600 bg-red-50/70 hover:bg-red-100 border border-red-200 flex items-center justify-center transition cursor-pointer shadow-xs flex-shrink-0"
                 title="Log out of account"
               >
                 <LogOut className="w-4 h-4" />
