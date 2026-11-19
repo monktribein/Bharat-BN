@@ -1056,26 +1056,11 @@ export default function PersonDashboardPage() {
               <p className="text-xs text-slate-500">Public figure display name, handle, role, location, website &amp; story</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSaveProfile();
-              }}
-              disabled={isSaving}
-              className="px-3 py-1.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-              title="Save Basic Info"
-            >
-              <Save className="w-3.5 h-3.5" />
-              <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}</span>
-            </button>
-            <ChevronDown
-              className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
-                openSections.basicInfo ? 'rotate-180' : ''
-              }`}
-            />
-          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.basicInfo ? 'rotate-180' : ''
+            }`}
+          />
         </button>
 
         {openSections.basicInfo && (
@@ -1209,26 +1194,11 @@ export default function PersonDashboardPage() {
               <p className="text-xs text-slate-500">Add degrees, colleges, certifications, and academic background</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSaveProfile();
-              }}
-              disabled={isSaving}
-              className="px-3 py-1.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-              title="Save Education"
-            >
-              <Save className="w-3.5 h-3.5" />
-              <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}</span>
-            </button>
-            <ChevronDown
-              className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
-                openSections.education ? 'rotate-180' : ''
-              }`}
-            />
-          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.education ? 'rotate-180' : ''
+            }`}
+          />
         </button>
 
         {openSections.education && (
@@ -1359,26 +1329,11 @@ export default function PersonDashboardPage() {
               <p className="text-xs text-slate-500">Add career roles, organizations, periods, and leadership accomplishments</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSaveProfile();
-              }}
-              disabled={isSaving}
-              className="px-3 py-1.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-              title="Save Experience"
-            >
-              <Save className="w-3.5 h-3.5" />
-              <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}</span>
-            </button>
-            <ChevronDown
-              className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
-                openSections.experience ? 'rotate-180' : ''
-              }`}
-            />
-          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.experience ? 'rotate-180' : ''
+            }`}
+          />
         </button>
 
         {openSections.experience && (
@@ -1509,26 +1464,11 @@ export default function PersonDashboardPage() {
               <p className="text-xs text-slate-500">Add awards, state/national honors, milestones, and recognitions</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSaveProfile();
-              }}
-              disabled={isSaving}
-              className="px-3 py-1.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-              title="Save Achievements"
-            >
-              <Save className="w-3.5 h-3.5" />
-              <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}</span>
-            </button>
-            <ChevronDown
-              className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
-                openSections.achievements ? 'rotate-180' : ''
-              }`}
-            />
-          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.achievements ? 'rotate-180' : ''
+            }`}
+          />
         </button>
 
         {openSections.achievements && (
@@ -1658,26 +1598,11 @@ export default function PersonDashboardPage() {
               <p className="text-xs text-slate-500">Add press releases, articles, interviews, and public media mentions</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSaveProfile();
-              }}
-              disabled={isSaving}
-              className="px-3 py-1.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-              title="Save News & Media"
-            >
-              <Save className="w-3.5 h-3.5" />
-              <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}</span>
-            </button>
-            <ChevronDown
-              className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
-                openSections.news ? 'rotate-180' : ''
-              }`}
-            />
-          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.news ? 'rotate-180' : ''
+            }`}
+          />
         </button>
 
         {openSections.news && (
@@ -1825,26 +1750,11 @@ export default function PersonDashboardPage() {
               <p className="text-xs text-slate-500">Upload high-resolution photographs, event moments, and gallery images</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSaveProfile();
-              }}
-              disabled={isSaving}
-              className="px-3 py-1.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-              title="Save Photo Gallery"
-            >
-              <Save className="w-3.5 h-3.5" />
-              <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}</span>
-            </button>
-            <ChevronDown
-              className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
-                openSections.gallery ? 'rotate-180' : ''
-              }`}
-            />
-          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.gallery ? 'rotate-180' : ''
+            }`}
+          />
         </button>
 
         {openSections.gallery && (
@@ -1975,26 +1885,11 @@ export default function PersonDashboardPage() {
               <p className="text-xs text-slate-500">Configure your primary featured video and playlist of keynote speeches</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSaveProfile();
-              }}
-              disabled={isSaving}
-              className="px-3 py-1.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-              title="Save Video Gallery"
-            >
-              <Save className="w-3.5 h-3.5" />
-              <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}</span>
-            </button>
-            <ChevronDown
-              className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
-                openSections.videos ? 'rotate-180' : ''
-              }`}
-            />
-          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.videos ? 'rotate-180' : ''
+            }`}
+          />
         </button>
 
         {openSections.videos && (
@@ -2170,26 +2065,11 @@ export default function PersonDashboardPage() {
               <p className="text-xs text-slate-500">Publish articles, announcements, news, and event updates to your feed</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSaveProfile();
-              }}
-              disabled={isSaving}
-              className="px-3 py-1.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-              title="Save Posts & Updates"
-            >
-              <Save className="w-3.5 h-3.5" />
-              <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}</span>
-            </button>
-            <ChevronDown
-              className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
-                openSections.posts ? 'rotate-180' : ''
-              }`}
-            />
-          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.posts ? 'rotate-180' : ''
+            }`}
+          />
         </button>
 
         {openSections.posts && (
@@ -2339,26 +2219,11 @@ export default function PersonDashboardPage() {
               <p className="text-xs text-slate-500">Stories, interactions, and testimonials submitted by citizens and followers</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSaveProfile();
-              }}
-              disabled={isSaving}
-              className="px-3 py-1.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-              title="Save Stories"
-            >
-              <Save className="w-3.5 h-3.5" />
-              <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}</span>
-            </button>
-            <ChevronDown
-              className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
-                openSections.stories ? 'rotate-180' : ''
-              }`}
-            />
-          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.stories ? 'rotate-180' : ''
+            }`}
+          />
         </button>
 
         {openSections.stories && (
@@ -2432,26 +2297,11 @@ export default function PersonDashboardPage() {
               <p className="text-xs text-slate-500">Connect YouTube, Instagram, X (Twitter), Facebook &amp; LinkedIn</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSaveProfile();
-              }}
-              disabled={isSaving}
-              className="px-3 py-1.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-              title="Save Social Media"
-            >
-              <Save className="w-3.5 h-3.5" />
-              <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}</span>
-            </button>
-            <ChevronDown
-              className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
-                openSections.social ? 'rotate-180' : ''
-              }`}
-            />
-          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.social ? 'rotate-180' : ''
+            }`}
+          />
         </button>
 
         {openSections.social && (
@@ -2550,26 +2400,11 @@ export default function PersonDashboardPage() {
               <p className="text-xs text-slate-500">Configure public display metrics for followers, following, and views</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSaveProfile();
-              }}
-              disabled={isSaving}
-              className="px-3 py-1.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-              title="Save Audience Metrics"
-            >
-              <Save className="w-3.5 h-3.5" />
-              <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save'}</span>
-            </button>
-            <ChevronDown
-              className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
-                openSections.stats ? 'rotate-180' : ''
-              }`}
-            />
-          </div>
+          <ChevronDown
+            className={`w-5 h-5 text-orange-500 transition-transform duration-200 ${
+              openSections.stats ? 'rotate-180' : ''
+            }`}
+          />
         </button>
 
         {openSections.stats && (
