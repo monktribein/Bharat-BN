@@ -22,7 +22,7 @@ export async function generateMetadata({
     business.aboutStory ||
     `Explore ${business.name} in ${business.landmark || business.city || 'India'}. Discover verified services, authentic customer reviews, operating hours and contact details on BharatBN™ Business Network.`;
 
-  const canonicalUrl = `https://bharat-bn.vercel.app/biz/${business.slug}`;
+  const canonicalUrl = `https://bharat-bn.vercel.app/biz/${slug}`;
 
   return {
     title,
@@ -91,7 +91,7 @@ export default async function BusinessProfilePage({
     image: business.gallery?.[0]?.url || 'https://bharat-bn.vercel.app/icon.png',
     telephone: business.phone,
     email: business.email,
-    url: `https://bharat-bn.vercel.app/biz/${business.slug}`,
+    url: `https://bharat-bn.vercel.app/biz/${slug}`,
     address: {
       '@type': 'PostalAddress',
       streetAddress: business.addressLine,

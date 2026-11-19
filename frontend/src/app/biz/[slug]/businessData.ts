@@ -88,6 +88,9 @@ const chocoBusiness: BusinessProfile = {
   ],
   description:
     'Choco Delights & Confectionery (Cadboury) is an audited premier confectionery brand in Andheri West, Mumbai. Certified for food safety standards, direct Belgian cocoa imports, and same-day temperature-controlled gift delivery across Mumbai.',
+  seoTitle: 'Choco Delights & Confectionery (Cadboury) | Mumbai',
+  seoDescription:
+    'Explore Choco Delights & Confectionery (Cadboury) in Andheri West, Mumbai. Discover artisan chocolates, gift hampers, reviews, timings and contact details.',
   coverUrl: 'https://images.unsplash.com/photo-1511381939415-e44015466834?auto=format&fit=crop&w=1600&q=80',
   socialLinks: {
     instagram: 'https://instagram.com/chocodelights_mumbai',

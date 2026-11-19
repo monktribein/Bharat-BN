@@ -14,6 +14,8 @@ import {
   LogOut,
   LogIn,
   LayoutDashboard,
+  Bell,
+  Users,
 } from 'lucide-react';
 import BusinessLoginModal from './BusinessLoginModal';
 
@@ -31,6 +33,32 @@ export default function Navbar() {
   const [ownerSession, setOwnerSession] = useState<OwnerSession | null>(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(12);
+
+  const notifications = [
+    {
+      id: 'notif-1',
+      title: 'Anand Sahu posted an update',
+      desc: 'Guest of Honour at infrastructure awards event in New Delhi.',
+      time: '10m ago',
+      link: '/people/anand-sahu',
+    },
+    {
+      id: 'notif-2',
+      title: 'Choco Delights updated catalog',
+      desc: 'Handcrafted Belgian truffles and corporate gift hampers updated.',
+      time: '1h ago',
+      link: '/biz/choco-delights-confectionery-andheri-mumbai',
+    },
+    {
+      id: 'notif-3',
+      title: 'BharatBN™ Following Feed',
+      desc: 'Follow public figures and verified businesses to get notified.',
+      time: '2h ago',
+      link: '/people/anand-sahu',
+    },
+  ];
 
   // Sync Owner Session from localStorage
   useEffect(() => {
@@ -71,6 +99,13 @@ export default function Navbar() {
       href: '/search',
       icon: Search,
       isActive: pathname === '/search' || pathname === '/',
+    },
+    {
+      name: 'People',
+      href: '/people/anand-sahu',
+      icon: Users,
+      isActive: pathname?.startsWith('/people'),
+      isHighlight: true,
     },
     {
       name: 'Franchise Enterprise',
@@ -147,7 +182,72 @@ export default function Navbar() {
         </nav>
 
         {/* Action Buttons: Logged In as Business Owner vs Visitor */}
-        <div className="flex items-center gap-2.5 flex-shrink-0">
+        <div className="flex items-center gap-2.5 flex-shrink-0 relative">
+          {/* In-App Notifications Bell (from Mockup with badge 12) */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+              className="w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 transition relative cursor-pointer shadow-xs"
+              title="Notifications"
+            >
+              <Bell className="w-4 h-4 text-slate-600" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-black leading-none shadow-xs">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Notifications Dropdown Panel */}
+            {isNotificationOpen && (
+              <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white border border-slate-200 shadow-xl p-4 space-y-3 z-50 animate-in fade-in duration-150">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <div className="flex items-center gap-1.5">
+                    <Bell className="w-4 h-4 text-[#F95700]" />
+                    <span className="font-extrabold text-xs text-slate-900">Notifications ({unreadCount})</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUnreadCount(0);
+                      setIsNotificationOpen(false);
+                    }}
+                    className="text-[10px] font-bold text-blue-600 hover:underline cursor-pointer"
+                  >
+                    Mark all read
+                  </button>
+                </div>
+
+                <div className="space-y-2 max-h-72 overflow-y-auto">
+                  {notifications.map((n) => (
+                    <Link
+                      key={n.id}
+                      href={n.link}
+                      onClick={() => setIsNotificationOpen(false)}
+                      className="block p-2.5 rounded-xl hover:bg-slate-50 border border-slate-100 transition space-y-0.5"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-xs text-slate-900 line-clamp-1">{n.title}</span>
+                        <span className="text-[10px] text-slate-400 flex-shrink-0">{n.time}</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 line-clamp-2">{n.desc}</p>
+                    </Link>
+                  ))}
+                </div>
+
+                <div className="pt-1 text-center border-t border-slate-100">
+                  <Link
+                    href="/people/anand-sahu"
+                    onClick={() => setIsNotificationOpen(false)}
+                    className="text-[11px] font-bold text-[#F95700] hover:underline"
+                  >
+                    View People &amp; Following Feed &rarr;
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
           {ownerSession ? (
             <div className="flex items-center gap-2">
               {/* Business Account Logo (Only Logo Shown) */}

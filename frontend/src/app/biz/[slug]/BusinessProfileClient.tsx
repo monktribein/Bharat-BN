@@ -811,7 +811,7 @@ export default function BusinessProfileClient({
                 <div className="flex items-center gap-2">
                   <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
                   <h3 className="text-base sm:text-lg font-bold text-navy-900">
-                    Verified Customer Reviews ({reviewsList.length})
+                    Verified Customer Reviews ({business.reviewsCount || 48} Total &bull; Showing {reviewsList.length} Verified)
                   </h3>
                 </div>
                 <div className="flex items-center gap-1 text-sm font-bold text-amber-700">
