@@ -782,42 +782,23 @@ export default function PersonDashboardPage() {
         )}
       </AnimatePresence>
 
-      {/* Verification Status Banner for Logged-In Person */}
-      {session && session.accountType === 'person' && (
-        session.isVerified ? (
-          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 flex items-center justify-between text-xs sm:text-sm">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-              <span>
-                <strong>Profile Verified &amp; Approved!</strong> You have received the Official BharatBN™ Blue Checkmark.
-              </span>
-            </div>
-            <Link
-              href={`/people/${slug}`}
-              target="_blank"
-              className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs inline-flex items-center gap-1"
-            >
-              <span>View Live Profile</span>
-              <ExternalLink className="w-3 h-3" />
-            </Link>
+      {/* Verification Status Banner for Logged-In Person (Approved status delivered via Notification bell) */}
+      {session && session.accountType === 'person' && !session.isVerified && (
+        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-950 flex items-center justify-between text-xs sm:text-sm">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-amber-600 flex-shrink-0" />
+            <span>
+              <strong>Profile Under Review:</strong> Your account is submitted for verification in the Admin Console. Once approved, you will receive an instant notification with your Official Blue Checkmark!
+            </span>
           </div>
-        ) : (
-          <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-950 flex items-center justify-between text-xs sm:text-sm">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-amber-600 flex-shrink-0" />
-              <span>
-                <strong>Profile Under Review:</strong> Your account is submitted for verification in the Admin Console. Once approved, your Official Blue Checkmark will appear across BharatBN.
-              </span>
-            </div>
-            <Link
-              href="/admin/claims?tab=people"
-              className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs inline-flex items-center gap-1"
-            >
-              <span>Check Admin Queue</span>
-              <ExternalLink className="w-3 h-3" />
-            </Link>
-          </div>
-        )
+          <Link
+            href="/admin/claims?tab=people"
+            className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs inline-flex items-center gap-1"
+          >
+            <span>Check Admin Queue</span>
+            <ExternalLink className="w-3 h-3" />
+          </Link>
+        </div>
       )}
 
       {/* Guest Notice if Not Logged In */}

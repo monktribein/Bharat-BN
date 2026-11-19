@@ -17,8 +17,17 @@ import {
   LayoutDashboard,
   Bell,
   Users,
+  CheckCircle2,
+  ArrowRight,
+  ExternalLink,
 } from 'lucide-react';
 import BusinessLoginModal from './BusinessLoginModal';
+import {
+  AppNotification,
+  getNotifications,
+  markAllNotificationsAsRead,
+  markNotificationAsRead,
+} from '@/lib/notifications';
 
 interface UserSession {
   accountType?: 'business' | 'person';
@@ -43,31 +52,29 @@ export default function Navbar() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(12);
+  const [notificationsList, setNotificationsList] = useState<AppNotification[]>([]);
 
-  const notifications = [
-    {
-      id: 'notif-1',
-      title: 'Anand Sahu posted an update',
-      desc: 'Guest of Honour at infrastructure awards event in New Delhi.',
-      time: '10m ago',
-      link: '/people/anand-sahu',
-    },
-    {
-      id: 'notif-2',
-      title: 'Choco Delights updated catalog',
-      desc: 'Handcrafted Belgian truffles and corporate gift hampers updated.',
-      time: '1h ago',
-      link: '/biz/choco-delights-confectionery-andheri-mumbai',
-    },
-    {
-      id: 'notif-3',
-      title: 'BharatBN™ Following Feed',
-      desc: 'Follow public figures and verified businesses to get notified.',
-      time: '2h ago',
-      link: '/people/anand-sahu',
-    },
-  ];
+  // Sync Notifications from Store / localStorage
+  useEffect(() => {
+    const syncNotifs = () => {
+      try {
+        const notifs = getNotifications();
+        setNotificationsList(notifs);
+      } catch {}
+    };
+
+    syncNotifs();
+    window.addEventListener('bharatbn_notifications_updated', syncNotifs);
+    window.addEventListener('bharatbn_auth_changed', syncNotifs);
+    window.addEventListener('storage', syncNotifs);
+    return () => {
+      window.removeEventListener('bharatbn_notifications_updated', syncNotifs);
+      window.removeEventListener('bharatbn_auth_changed', syncNotifs);
+      window.removeEventListener('storage', syncNotifs);
+    };
+  }, []);
+
+  const unreadCount = notificationsList.filter((n) => !n.isRead).length;
 
   // Sync Owner Session from localStorage
   useEffect(() => {
@@ -216,45 +223,90 @@ export default function Navbar() {
                     <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                       <div className="flex items-center gap-1.5">
                         <Bell className="w-4 h-4 text-[#F95700]" />
-                        <span className="font-extrabold text-xs text-slate-900">Notifications ({unreadCount})</span>
+                        <span className="font-extrabold text-xs text-slate-900">
+                          Notifications {unreadCount > 0 && `(${unreadCount})`}
+                        </span>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setUnreadCount(0);
-                          setIsNotificationOpen(false);
-                        }}
-                        className="text-[10px] font-bold text-blue-600 hover:underline cursor-pointer"
-                      >
-                        Mark all read
-                      </button>
+                      {unreadCount > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            markAllNotificationsAsRead(notificationsList);
+                          }}
+                          className="text-[10px] font-bold text-blue-600 hover:underline cursor-pointer"
+                        >
+                          Mark all read
+                        </button>
+                      )}
                     </div>
 
                     <div className="space-y-2 max-h-72 overflow-y-auto">
-                      {notifications.map((n) => (
-                        <Link
-                          key={n.id}
-                          href={n.link}
-                          onClick={() => setIsNotificationOpen(false)}
-                          className="block p-2.5 rounded-xl hover:bg-slate-50 border border-slate-100 transition space-y-0.5"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold text-xs text-slate-900 line-clamp-1">{n.title}</span>
-                            <span className="text-[10px] text-slate-400 flex-shrink-0">{n.time}</span>
-                          </div>
-                          <p className="text-[11px] text-slate-500 line-clamp-2">{n.desc}</p>
-                        </Link>
-                      ))}
+                      {notificationsList.length === 0 ? (
+                        <div className="py-6 text-center text-xs text-slate-400">
+                          No notifications yet.
+                        </div>
+                      ) : (
+                        notificationsList.slice(0, 5).map((n) => {
+                          const isApproval = n.type === 'approval';
+
+                          return (
+                            <Link
+                              key={n.id}
+                              href={n.link}
+                              onClick={() => {
+                                markNotificationAsRead(n.id);
+                                setIsNotificationOpen(false);
+                              }}
+                              className={`block p-2.5 rounded-xl border transition space-y-1 relative ${
+                                isApproval
+                                  ? 'bg-emerald-50/90 border-emerald-300 hover:bg-emerald-100/70 shadow-xs'
+                                  : n.isRead
+                                  ? 'bg-white hover:bg-slate-50 border-slate-100'
+                                  : 'bg-blue-50/40 hover:bg-blue-50/70 border-blue-200'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  {isApproval ? (
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                                  ) : (
+                                    !n.isRead && (
+                                      <span className="w-1.5 h-1.5 rounded-full bg-blue-600 flex-shrink-0" />
+                                    )
+                                  )}
+                                  <span className={`font-bold text-xs line-clamp-1 ${isApproval ? 'text-emerald-950 font-black' : 'text-slate-900'}`}>
+                                    {n.title}
+                                  </span>
+                                </div>
+                                <span className="text-[10px] text-slate-400 flex-shrink-0">{n.time}</span>
+                              </div>
+                              <p className="text-[11px] text-slate-600 line-clamp-2">{n.desc}</p>
+                            </Link>
+                          );
+                        })
+                      )}
                     </div>
 
-                    <div className="pt-1 text-center border-t border-slate-100">
+                    {/* View All Notifications Button & People Feed Link */}
+                    <div className="pt-2 border-t border-slate-100 space-y-2">
                       <Link
-                        href="/people/anand-sahu"
+                        href="/notifications"
                         onClick={() => setIsNotificationOpen(false)}
-                        className="text-[11px] font-bold text-[#F95700] hover:underline"
+                        className="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-[#F95700] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs"
                       >
-                        View People &amp; Following Feed &rarr;
+                        <span>View All Notifications</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
+
+                      <div className="text-center">
+                        <Link
+                          href="/people"
+                          onClick={() => setIsNotificationOpen(false)}
+                          className="text-[11px] font-bold text-slate-500 hover:text-[#F95700] hover:underline"
+                        >
+                          Explore People &amp; Following Feed &rarr;
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 )}
