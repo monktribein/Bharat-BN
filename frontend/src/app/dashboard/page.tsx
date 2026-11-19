@@ -1676,41 +1676,50 @@ export default function DashboardOverviewPage() {
                 {openSections.gallery && (
                   <div className="p-6 pt-3 border-t border-slate-100 space-y-6 animate-in fade-in duration-150">
                     {/* Existing Gallery Photos */}
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-700">
-                          Current Gallery Photos ({gallery.length})
-                        </span>
-                        <span className="text-[11px] text-slate-400">
-                          Hover a photo to delete it
+                        <div>
+                          <h4 className="text-xs font-bold text-slate-800">
+                            Showcase Photos ({gallery.length})
+                          </h4>
+                          <p className="text-[11px] text-slate-400">
+                            Click &quot;Remove&quot; on any photo to delete it from your public profile
+                          </p>
+                        </div>
+                        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                          {gallery.length} photos active
                         </span>
                       </div>
 
                       {gallery.length === 0 ? (
                         <div className="p-8 rounded-2xl border-2 border-dashed border-slate-200 text-center text-xs text-slate-400">
-                          No photos in gallery yet. Upload from device or paste image URLs below.
+                          No photos in gallery yet. Click below to upload photos from your device.
                         </div>
                       ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                           {gallery.map((photo, i) => (
                             <div
                               key={i}
-                              className="relative aspect-video rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group shadow-2xs"
+                              className="relative aspect-video rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 group shadow-xs hover:shadow-md transition"
                             >
                               <img
                                 src={photo.url}
                                 alt={photo.caption}
                                 className="w-full h-full object-cover"
                               />
+
+                              {/* Prominent Always-Visible Remove Button */}
                               <button
                                 type="button"
                                 onClick={() => handleRemovePhoto(i)}
-                                className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-600/80 hover:bg-red-600 text-white opacity-0 group-hover:opacity-100 transition cursor-pointer"
-                                title="Remove Photo"
+                                className="absolute top-2 right-2 px-2.5 py-1 rounded-lg bg-red-600/90 hover:bg-red-600 text-white text-[11px] font-bold flex items-center gap-1 shadow-md transition cursor-pointer backdrop-blur-xs"
+                                title="Remove this photo"
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
+                                <Trash2 className="w-3 h-3" />
+                                <span>Remove</span>
                               </button>
-                              <div className="absolute bottom-0 inset-x-0 bg-slate-950/70 p-1.5 text-[10px] text-white font-medium truncate">
+
+                              <div className="absolute bottom-0 inset-x-0 bg-slate-950/75 p-2 text-[11px] text-white font-medium truncate">
                                 {photo.caption}
                               </div>
                             </div>
@@ -1719,20 +1728,20 @@ export default function DashboardOverviewPage() {
                       )}
                     </div>
 
-                    {/* Dual Add Methods: Device File Upload + URL Input */}
-                    <div className="p-5 rounded-2xl border border-slate-200/90 bg-slate-50/50 space-y-4">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/80">
-                        <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-slate-900">
-                            Add New Photos to Showcase
-                          </h4>
-                          <p className="text-[11px] text-slate-500">
-                            Upload high-res photos from your device or paste web image links
-                          </p>
-                        </div>
+                    {/* Upload from Device & Save Action Bar (URL Form Removed as requested) */}
+                    <div className="p-5 rounded-2xl border border-slate-200/90 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="space-y-0.5">
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+                          Upload New Facility / Showroom Photos
+                        </h4>
+                        <p className="text-[11px] text-slate-500">
+                          Select one or multiple photos from your device (JPG, PNG, WEBP)
+                        </p>
+                      </div>
 
-                        {/* Direct File Upload from Device Button */}
-                        <label className="px-4 py-2.5 rounded-xl bg-[#07213A] hover:bg-[#0C2D4E] text-white text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-xs flex-shrink-0">
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        {/* Direct File Upload from Device */}
+                        <label className="px-4 py-2.5 rounded-xl bg-[#07213A] hover:bg-[#0C2D4E] text-white text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-xs">
                           <Camera className="w-4 h-4 text-[#F95700]" />
                           <span>Upload Photo(s) from Device</span>
                           <input
@@ -1743,49 +1752,18 @@ export default function DashboardOverviewPage() {
                             className="hidden"
                           />
                         </label>
+
+                        {/* Direct Save Gallery Button */}
+                        <button
+                          type="button"
+                          onClick={handleSaveProfile}
+                          disabled={isSaving}
+                          className="px-5 py-2.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                        >
+                          <Save className="w-3.5 h-3.5" />
+                          <span>{isSaving ? 'Saving...' : 'Save Gallery'}</span>
+                        </button>
                       </div>
-
-                      {/* Or Add by URL / Link Form */}
-                      <form onSubmit={handleAddPhoto} className="space-y-2">
-                        <span className="text-[11px] font-bold text-slate-600">
-                          Or add photo using Image URL / Path:
-                        </span>
-                        <div className="flex flex-col sm:flex-row gap-2">
-                          <input
-                            type="text"
-                            value={newPhotoUrl}
-                            onChange={(e) => setNewPhotoUrl(e.target.value)}
-                            placeholder="Image URL (https://images.unsplash.com/... or relative path)"
-                            className="flex-1 text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#F95700]"
-                          />
-                          <input
-                            type="text"
-                            value={newPhotoCaption}
-                            onChange={(e) => setNewPhotoCaption(e.target.value)}
-                            placeholder="Caption / Description (e.g. Showroom Floor)..."
-                            className="sm:w-64 text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#F95700]"
-                          />
-                          <button
-                            type="submit"
-                            className="px-5 py-2.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer flex-shrink-0 shadow-2xs"
-                          >
-                            <Plus className="w-4 h-4" />
-                            <span>Add Photo</span>
-                          </button>
-                        </div>
-                      </form>
-                    </div>
-
-                    <div className="flex justify-end pt-2">
-                      <button
-                        type="button"
-                        onClick={handleSaveProfile}
-                        disabled={isSaving}
-                        className="px-5 py-2 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                      >
-                        <Save className="w-3.5 h-3.5" />
-                        <span>{isSaving ? 'Saving...' : 'Save Gallery Changes'}</span>
-                      </button>
                     </div>
                   </div>
                 )}
