@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -75,6 +75,37 @@ export default function Navbar() {
   }, []);
 
   const unreadCount = notificationsList.filter((n) => !n.isRead).length;
+  const notificationRef = useRef<HTMLDivElement>(null);
+
+  // Close Notifications Dropdown on Click Outside or Escape Key
+  useEffect(() => {
+    if (!isNotificationOpen) return;
+
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target as Node)
+      ) {
+        setIsNotificationOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsNotificationOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isNotificationOpen]);
 
   // Sync Owner Session from localStorage
   useEffect(() => {
@@ -202,7 +233,7 @@ export default function Navbar() {
           {ownerSession ? (
             <div className="flex items-center gap-2">
               {/* In-App Notifications Bell (Only Shown for Logged-In Users) */}
-              <div className="relative">
+              <div ref={notificationRef} className="relative">
                 <button
                   type="button"
                   onClick={() => setIsNotificationOpen(!isNotificationOpen)}
