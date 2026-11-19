@@ -165,6 +165,74 @@ export default function PersonDashboardPage() {
     return () => window.removeEventListener('bharatbn_auth_changed', sync);
   }, []);
 
+  // Direct Person Cover Upload
+  const handlePersonCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      if (dataUrl) {
+        setCoverUrl(dataUrl);
+
+        try {
+          const stored = localStorage.getItem('bharatbn_people_store');
+          let people = stored ? JSON.parse(stored) : [];
+          const idx = people.findIndex((p: any) => p.slug === slug || p.id === session?.personId);
+          if (idx !== -1) {
+            people[idx].coverUrl = dataUrl;
+          }
+          localStorage.setItem('bharatbn_people_store', JSON.stringify(people));
+
+          if (session) {
+            const updated = { ...session, coverUrl: dataUrl };
+            localStorage.setItem('bharatbn_owner_session', JSON.stringify(updated));
+            window.dispatchEvent(new Event('bharatbn_auth_changed'));
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  // Direct Person Avatar Upload
+  const handlePersonAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      if (dataUrl) {
+        setAvatarUrl(dataUrl);
+
+        try {
+          const stored = localStorage.getItem('bharatbn_people_store');
+          let people = stored ? JSON.parse(stored) : [];
+          const idx = people.findIndex((p: any) => p.slug === slug || p.id === session?.personId);
+          if (idx !== -1) {
+            people[idx].avatarUrl = dataUrl;
+          }
+          localStorage.setItem('bharatbn_people_store', JSON.stringify(people));
+
+          if (session) {
+            const updated = { ...session, avatarUrl: dataUrl };
+            localStorage.setItem('bharatbn_owner_session', JSON.stringify(updated));
+            window.dispatchEvent(new Event('bharatbn_auth_changed'));
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
   const handleCopyPublicLink = () => {
     const url = `${window.location.origin}/people/${slug}`;
     navigator.clipboard.writeText(url);
@@ -300,17 +368,19 @@ export default function PersonDashboardPage() {
 
           {/* Top-Right: Edit Cover Button */}
           <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                const newCover = prompt('Enter image URL for Personal Cover Banner:', coverUrl);
-                if (newCover) setCoverUrl(newCover.trim());
-              }}
+            <label
               className="px-3.5 py-1.5 rounded-xl bg-slate-950/70 hover:bg-slate-900 text-white text-xs font-semibold backdrop-blur-md border border-white/20 flex items-center gap-1.5 shadow-md transition cursor-pointer"
+              title="Upload Cover from Device"
             >
               <Camera className="w-3.5 h-3.5 text-white" />
-              <span>Edit Cover</span>
-            </button>
+              <span>Upload Cover</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePersonCoverUpload}
+                className="hidden"
+              />
+            </label>
           </div>
 
           {/* Bottom-Left: Personal Identity Overlay */}
@@ -323,17 +393,19 @@ export default function PersonDashboardPage() {
                   alt={name}
                   className="w-full h-full object-cover rounded-full"
                 />
-                <button
-                  type="button"
-                  onClick={() => {
-                    const newAvatar = prompt('Enter image URL for Profile Photo / Avatar:', avatarUrl);
-                    if (newAvatar) setAvatarUrl(newAvatar.trim());
-                  }}
+                <label
                   className="absolute inset-0 bg-slate-950/75 text-white text-[10px] font-bold flex flex-col items-center justify-center opacity-0 group-hover/logo:opacity-100 transition cursor-pointer rounded-full"
+                  title="Upload Profile Photo from Device"
                 >
                   <Camera className="w-4 h-4 mb-0.5" />
-                  <span>Edit</span>
-                </button>
+                  <span>Upload</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePersonAvatarUpload}
+                    className="hidden"
+                  />
+                </label>
               </div>
 
               {/* Personal Details */}

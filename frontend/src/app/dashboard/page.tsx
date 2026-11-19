@@ -348,6 +348,102 @@ export default function DashboardOverviewPage() {
     e.target.value = '';
   };
 
+  // Direct Cover Banner Upload from Device
+  const handleCoverFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      if (dataUrl) {
+        setCoverUrl(dataUrl);
+
+        try {
+          const stored = localStorage.getItem('bharatbn_claims_store');
+          let claims = stored ? JSON.parse(stored) : [];
+          const cleanSlug = businessSlug.toLowerCase();
+          const idx = claims.findIndex(
+            (c: any) =>
+              c.id === session?.businessId ||
+              c.businessSlug?.toLowerCase() === cleanSlug ||
+              c.slug?.toLowerCase() === cleanSlug
+          );
+          if (idx !== -1) {
+            claims[idx].coverUrl = dataUrl;
+            claims[idx].coverImage = dataUrl;
+          } else {
+            claims.unshift({
+              id: session?.businessId || `BBN-BUS-${Date.now().toString().slice(-6)}`,
+              businessName,
+              businessSlug,
+              coverUrl: dataUrl,
+            });
+          }
+          localStorage.setItem('bharatbn_claims_store', JSON.stringify(claims));
+
+          if (session) {
+            const updated = { ...session, coverUrl: dataUrl };
+            localStorage.setItem('bharatbn_owner_session', JSON.stringify(updated));
+            window.dispatchEvent(new Event('bharatbn_auth_changed'));
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  // Direct Profile Logo / Photo Upload from Device
+  const handleLogoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      if (dataUrl) {
+        setLogoUrl(dataUrl);
+
+        try {
+          const stored = localStorage.getItem('bharatbn_claims_store');
+          let claims = stored ? JSON.parse(stored) : [];
+          const cleanSlug = businessSlug.toLowerCase();
+          const idx = claims.findIndex(
+            (c: any) =>
+              c.id === session?.businessId ||
+              c.businessSlug?.toLowerCase() === cleanSlug ||
+              c.slug?.toLowerCase() === cleanSlug
+          );
+          if (idx !== -1) {
+            claims[idx].logoUrl = dataUrl;
+            claims[idx].logoBase64 = dataUrl;
+          } else {
+            claims.unshift({
+              id: session?.businessId || `BBN-BUS-${Date.now().toString().slice(-6)}`,
+              businessName,
+              businessSlug,
+              logoUrl: dataUrl,
+            });
+          }
+          localStorage.setItem('bharatbn_claims_store', JSON.stringify(claims));
+
+          if (session) {
+            const updated = { ...session, logoUrl: dataUrl };
+            localStorage.setItem('bharatbn_owner_session', JSON.stringify(updated));
+            window.dispatchEvent(new Event('bharatbn_auth_changed'));
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
   const handleRemovePhoto = (index: number) => {
     setGallery(gallery.filter((_, i) => i !== index));
   };
@@ -567,18 +663,19 @@ export default function DashboardOverviewPage() {
 
             {/* Top-Right Banner Actions (Edit Cover & Switch Account) */}
             <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  const newCover = prompt('Enter image URL for banner cover:', coverUrl);
-                  if (newCover) setCoverUrl(newCover.trim());
-                }}
+              <label
                 className="px-3.5 py-1.5 rounded-xl bg-slate-950/70 hover:bg-slate-900 text-white text-xs font-semibold backdrop-blur-md border border-white/20 flex items-center gap-1.5 shadow-md transition cursor-pointer"
-                title="Change Cover Banner"
+                title="Upload Banner Cover from your Device"
               >
                 <Camera className="w-3.5 h-3.5 text-white" />
-                <span>Edit Cover</span>
-              </button>
+                <span>Upload Cover</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleCoverFileUpload}
+                  className="hidden"
+                />
+              </label>
 
               <button
                 type="button"
@@ -610,18 +707,19 @@ export default function DashboardOverviewPage() {
                       {businessName.slice(0, 2).toUpperCase()}
                     </div>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newLogo = prompt('Enter image URL for Business Logo / Avatar:', logoUrl);
-                      if (newLogo) setLogoUrl(newLogo.trim());
-                    }}
+                  <label
                     className="absolute inset-0 bg-slate-950/75 text-white text-[10px] font-bold flex flex-col items-center justify-center opacity-0 group-hover/logo:opacity-100 transition cursor-pointer rounded-full"
-                    title="Change Logo"
+                    title="Upload Logo / Photo from Device"
                   >
                     <Camera className="w-4 h-4 mb-0.5" />
-                    <span>Edit</span>
-                  </button>
+                    <span>Upload</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoFileUpload}
+                      className="hidden"
+                    />
+                  </label>
                 </div>
 
                 {/* Details from Image 1: Name, Verified Partner Badge, Category, City, Managed By, /biz link, Copy Link */}
@@ -851,29 +949,33 @@ export default function DashboardOverviewPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newLogo = prompt('Enter image URL for Business Photo / Logo:', logoUrl);
-                      if (newLogo) setLogoUrl(newLogo.trim());
-                    }}
+                  <label
                     className="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                    title="Upload Business Photo / Logo from Device"
                   >
                     <Camera className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Photo</span>
-                  </button>
+                    <span>Upload Photo</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoFileUpload}
+                      className="hidden"
+                    />
+                  </label>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newCover = prompt('Enter banner cover image URL:', coverUrl);
-                      if (newCover) setCoverUrl(newCover.trim());
-                    }}
+                  <label
                     className="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                    title="Upload Banner Cover from Device"
                   >
                     <ImageIcon className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Banner</span>
-                  </button>
+                    <span>Upload Banner</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleCoverFileUpload}
+                      className="hidden"
+                    />
+                  </label>
                 </div>
               </div>
 
