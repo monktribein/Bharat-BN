@@ -305,7 +305,8 @@ export default function ClaimModerationPage() {
 
   // Business Claims State
   const [claims, setClaims] = useState<ClaimItem[]>(defaultClaims);
-  const [selectedClaim, setSelectedClaim] = useState<ClaimItem | null>(defaultClaims[0]);
+  const [selectedClaimId, setSelectedClaimId] = useState<string>('BBN-CLM-799760');
+  const selectedClaim = claims.find((c) => c.id === selectedClaimId || c.businessSlug === selectedClaimId) || claims[0] || null;
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [notes, setNotes] = useState('');
@@ -314,7 +315,8 @@ export default function ClaimModerationPage() {
 
   // People Claims State
   const [peopleClaims, setPeopleClaims] = useState<PersonClaimItem[]>(defaultPeopleClaims);
-  const [selectedPerson, setSelectedPerson] = useState<PersonClaimItem | null>(defaultPeopleClaims[0]);
+  const [selectedPersonId, setSelectedPersonId] = useState<string>('BBN-PPL-AI-001');
+  const selectedPerson = peopleClaims.find((p) => p.id === selectedPersonId || p.slug === selectedPersonId) || peopleClaims[0] || null;
   const [peopleFilter, setPeopleFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [peopleSearchQuery, setPeopleSearchQuery] = useState('');
   const [peopleNotes, setPeopleNotes] = useState('');
@@ -361,10 +363,12 @@ export default function ClaimModerationPage() {
                 const k2 = (p.id || '').toLowerCase();
                 const remote = (k1 && data.people[k1]) || (k2 && data.people[k2]);
                 if (remote) {
+                  const validAvatar = (remote.avatarUrl && typeof remote.avatarUrl === 'string' && remote.avatarUrl.trim() !== '') ? remote.avatarUrl : p.avatarUrl;
+                  const validCover = (remote.coverUrl && typeof remote.coverUrl === 'string' && remote.coverUrl.trim() !== '') ? remote.coverUrl : p.coverUrl;
                   return {
                     ...p,
-                    avatarUrl: remote.avatarUrl || p.avatarUrl,
-                    coverUrl: remote.coverUrl || p.coverUrl,
+                    avatarUrl: validAvatar,
+                    coverUrl: validCover,
                     name: remote.name || p.name,
                     role: remote.role || p.role,
                     badge: remote.badge || p.badge,
@@ -383,9 +387,14 @@ export default function ClaimModerationPage() {
                 const k2 = (c.id || '').toLowerCase();
                 const remote = (k1 && data.businesses[k1]) || (k2 && data.businesses[k2]);
                 if (remote) {
+                  const validLogo = (remote.logoUrl && typeof remote.logoUrl === 'string' && remote.logoUrl.trim() !== '')
+                    ? remote.logoUrl
+                    : (remote.logoBase64 && typeof remote.logoBase64 === 'string' && remote.logoBase64.trim() !== '')
+                    ? remote.logoBase64
+                    : c.logoUrl;
                   return {
                     ...c,
-                    logoUrl: remote.logoUrl || remote.logoBase64 || c.logoUrl,
+                    logoUrl: validLogo,
                     businessName: remote.businessName || c.businessName,
                   };
                 }
@@ -406,13 +415,22 @@ export default function ClaimModerationPage() {
           if (Array.isArray(parsed) && parsed.length > 0) {
             setClaims((prev) => {
               const map = new Map<string, ClaimItem>();
-              parsed.forEach((c: any) => {
+              prev.forEach((c: any) => {
                 const k = c.id || c.businessSlug || c.slug || '';
                 if (k) map.set(k, c);
               });
-              prev.forEach((c: any) => {
+              parsed.forEach((c: any) => {
                 const k = c.id || c.businessSlug || c.slug || '';
-                if (k && !map.has(k)) map.set(k, c);
+                if (!k) return;
+                const existing = map.get(k);
+                if (existing) {
+                  map.set(k, {
+                    ...existing,
+                    ...c,
+                    logoUrl: c.logoUrl || c.logoBase64 || existing.logoUrl,
+                    businessName: c.businessName || existing.businessName,
+                  });
+                }
               });
               return Array.from(map.values());
             });
@@ -435,10 +453,12 @@ export default function ClaimModerationPage() {
                 if (!k) return;
                 const existing = map.get(k);
                 if (existing) {
+                  const validAvatar = (p.avatarUrl && typeof p.avatarUrl === 'string' && p.avatarUrl.trim() !== '') ? p.avatarUrl : existing.avatarUrl;
+                  const validCover = (p.coverUrl && typeof p.coverUrl === 'string' && p.coverUrl.trim() !== '') ? p.coverUrl : existing.coverUrl;
                   map.set(k, {
                     ...existing,
-                    avatarUrl: p.avatarUrl || existing.avatarUrl,
-                    coverUrl: p.coverUrl || existing.coverUrl,
+                    avatarUrl: validAvatar,
+                    coverUrl: validCover,
                     name: p.name || existing.name,
                   });
                 }
@@ -473,7 +493,7 @@ export default function ClaimModerationPage() {
     // Listen to iframe postMessage from http://localhost:3000/sync-bridge.html
     const handleMessage = (evt: MessageEvent) => {
       if (evt.data && evt.data.type === 'BBN_STORAGE_SYNC') {
-        const { people, claims } = evt.data;
+        const { people, claims, session } = evt.data;
         if (Array.isArray(people) && people.length > 0) {
           setPeopleClaims((prev) => {
             const map = new Map<string, PersonClaimItem>();
@@ -486,14 +506,32 @@ export default function ClaimModerationPage() {
               if (!k) return;
               const existing = map.get(k);
               if (existing) {
+                const validAvatar = (p.avatarUrl && typeof p.avatarUrl === 'string' && p.avatarUrl.trim() !== '') ? p.avatarUrl : existing.avatarUrl;
+                const validCover = (p.coverUrl && typeof p.coverUrl === 'string' && p.coverUrl.trim() !== '') ? p.coverUrl : existing.coverUrl;
                 map.set(k, {
                   ...existing,
-                  avatarUrl: p.avatarUrl || existing.avatarUrl,
-                  coverUrl: p.coverUrl || existing.coverUrl,
+                  avatarUrl: validAvatar,
+                  coverUrl: validCover,
                   name: p.name || existing.name,
                 });
               }
             });
+            if (session && session.accountType === 'person') {
+              const sk = (session.slug || session.personId || session.id || '').toLowerCase();
+              if (sk) {
+                const existing = map.get(sk);
+                if (existing) {
+                  const validAvatar = (session.avatarUrl && typeof session.avatarUrl === 'string' && session.avatarUrl.trim() !== '') ? session.avatarUrl : existing.avatarUrl;
+                  const validCover = (session.coverUrl && typeof session.coverUrl === 'string' && session.coverUrl.trim() !== '') ? session.coverUrl : existing.coverUrl;
+                  map.set(sk, {
+                    ...existing,
+                    avatarUrl: validAvatar,
+                    coverUrl: validCover,
+                    name: session.name || existing.name,
+                  });
+                }
+              }
+            }
             return Array.from(map.values());
           });
         }
@@ -509,9 +547,14 @@ export default function ClaimModerationPage() {
               if (!k) return;
               const existing = map.get(k);
               if (existing) {
+                const validLogo = (c.logoUrl && typeof c.logoUrl === 'string' && c.logoUrl.trim() !== '')
+                  ? c.logoUrl
+                  : (c.logoBase64 && typeof c.logoBase64 === 'string' && c.logoBase64.trim() !== '')
+                  ? c.logoBase64
+                  : existing.logoUrl;
                 map.set(k, {
                   ...existing,
-                  logoUrl: c.logoUrl || c.logoBase64 || existing.logoUrl,
+                  logoUrl: validLogo,
                   businessName: c.businessName || existing.businessName,
                 });
               }
@@ -589,8 +632,6 @@ export default function ClaimModerationPage() {
     });
 
     setClaims(updated);
-    const updatedSelected = updated.find((c) => c.id === selectedClaim.id) || null;
-    setSelectedClaim(updatedSelected);
     setShowRejectModal(false);
     setNotes('');
 
@@ -625,8 +666,6 @@ export default function ClaimModerationPage() {
     });
 
     setPeopleClaims(updated);
-    const updatedSelected = updated.find((p) => p.id === selectedPerson.id) || null;
-    setSelectedPerson(updatedSelected);
     setShowPeopleRejectModal(false);
     setPeopleNotes('');
 
@@ -836,7 +875,7 @@ export default function ClaimModerationPage() {
                     return (
                       <motion.div
                         key={claim.id}
-                        onClick={() => setSelectedClaim(claim)}
+                        onClick={() => setSelectedClaimId(claim.id)}
                         whileHover={{ backgroundColor: isSelected ? undefined : 'rgba(248, 250, 252, 0.8)' }}
                         className={`p-3 cursor-pointer transition text-xs space-y-1.5 ${
                           isSelected
@@ -1096,7 +1135,6 @@ export default function ClaimModerationPage() {
                               c.id === selectedClaim.id ? { ...c, status: 'pending' as const } : c
                             );
                             setClaims(updated);
-                            setSelectedClaim({ ...selectedClaim, status: 'pending' });
                           }}
                           className="text-brand-600 hover:underline cursor-pointer"
                         >
@@ -1186,7 +1224,7 @@ export default function ClaimModerationPage() {
                     return (
                       <motion.div
                         key={person.id}
-                        onClick={() => setSelectedPerson(person)}
+                        onClick={() => setSelectedPersonId(person.id)}
                         whileHover={{ backgroundColor: isSelected ? undefined : 'rgba(248, 250, 252, 0.8)' }}
                         className={`p-3.5 cursor-pointer transition text-xs space-y-2 ${
                           isSelected
@@ -1453,7 +1491,6 @@ export default function ClaimModerationPage() {
                               p.id === selectedPerson.id ? { ...p, status: 'pending' as const, isVerified: false } : p
                             );
                             setPeopleClaims(updated);
-                            setSelectedPerson({ ...selectedPerson, status: 'pending', isVerified: false });
                             try {
                               localStorage.setItem('bharatbn_people_store', JSON.stringify(updated));
                               window.dispatchEvent(new Event('bharatbn_people_updated'));

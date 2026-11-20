@@ -128,8 +128,18 @@ export default function BusinessLoginModal({
                 slug: 'kashish',
                 handle: '@kashish',
                 role: 'Creator & Platform Pioneer',
-                avatarUrl: '',
+                avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
                 isVerified: true,
+              };
+            } else if (low.includes('ai') || low === '@ai' || low === 'ai') {
+              matched = {
+                id: 'BBN-PPL-AI-001',
+                name: 'AI',
+                slug: 'ai',
+                handle: '@ai',
+                role: 'Autonomous AI Researcher & Platform Pioneer',
+                avatarUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
+                isVerified: false,
               };
             }
           }

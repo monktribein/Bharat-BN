@@ -222,8 +222,8 @@ const defaultPeopleClaims: PersonClaimItem[] = [
     phone: '+91 98000 00000',
     quote: 'Empowering 1.4 Billion Indians with sovereign AI innovation and smart discovery.',
     aboutText: 'AI is an autonomous researcher and intelligent creator system engineered for BharatBN™ — empowering local businesses, creators, and public figures with instant verified SEO catalogs, smart follow feeds, and sovereign digital infrastructure.',
-    avatarUrl: '',
-    coverUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1600&q=80',
+    avatarUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1600&q=80',
     followersCount: '5.8K',
     submittedAt: 'Today, 14:00 IST (New)',
     status: 'pending',
@@ -242,7 +242,7 @@ const defaultPeopleClaims: PersonClaimItem[] = [
     phone: '+91 97170 56860',
     quote: 'Empowering local businesses and creators across Bharat.',
     aboutText: 'Creator and digital pioneer building verified hyper-local networking and growth initiatives for North India businesses.',
-    avatarUrl: '',
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
     coverUrl: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1200&q=80',
     followersCount: '1.2K',
     submittedAt: 'Today, 13:00 IST (New)',
@@ -298,7 +298,8 @@ export default function ClaimModerationPage() {
 
   // Business Claims State
   const [claims, setClaims] = useState<ClaimItem[]>(defaultClaims);
-  const [selectedClaim, setSelectedClaim] = useState<ClaimItem | null>(defaultClaims[0]);
+  const [selectedClaimId, setSelectedClaimId] = useState<string>('BBN-CLM-799760');
+  const selectedClaim = claims.find((c) => c.id === selectedClaimId || c.businessSlug === selectedClaimId) || claims[0] || null;
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [notes, setNotes] = useState('');
@@ -307,7 +308,8 @@ export default function ClaimModerationPage() {
 
   // People Claims State
   const [peopleClaims, setPeopleClaims] = useState<PersonClaimItem[]>(defaultPeopleClaims);
-  const [selectedPerson, setSelectedPerson] = useState<PersonClaimItem | null>(defaultPeopleClaims[0]);
+  const [selectedPersonId, setSelectedPersonId] = useState<string>('BBN-PPL-AI-001');
+  const selectedPerson = peopleClaims.find((p) => p.id === selectedPersonId || p.slug === selectedPersonId) || peopleClaims[0] || null;
   const [peopleFilter, setPeopleFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [peopleSearchQuery, setPeopleSearchQuery] = useState('');
   const [peopleNotes, setPeopleNotes] = useState('');
@@ -398,9 +400,6 @@ export default function ClaimModerationPage() {
 
         const list = Array.from(map.values());
         setPeopleClaims(list);
-        if (!selectedPerson && list.length > 0) {
-          setSelectedPerson(list[0]);
-        }
       } catch (e) {
         console.error('Failed to load local people claims', e);
       }
@@ -467,8 +466,6 @@ export default function ClaimModerationPage() {
     });
 
     setClaims(updated);
-    const updatedSelected = updated.find((c) => c.id === selectedClaim.id) || null;
-    setSelectedClaim(updatedSelected);
     setShowRejectModal(false);
     setNotes('');
 
@@ -503,8 +500,6 @@ export default function ClaimModerationPage() {
     });
 
     setPeopleClaims(updated);
-    const updatedSelected = updated.find((p) => p.id === selectedPerson.id) || null;
-    setSelectedPerson(updatedSelected);
     setShowPeopleRejectModal(false);
     setPeopleNotes('');
 
@@ -714,7 +709,7 @@ export default function ClaimModerationPage() {
                     return (
                       <motion.div
                         key={claim.id}
-                        onClick={() => setSelectedClaim(claim)}
+                        onClick={() => setSelectedClaimId(claim.id)}
                         whileHover={{ backgroundColor: isSelected ? undefined : 'rgba(248, 250, 252, 0.8)' }}
                         className={`p-3 cursor-pointer transition text-xs space-y-1.5 ${
                           isSelected
@@ -926,7 +921,6 @@ export default function ClaimModerationPage() {
                               c.id === selectedClaim.id ? { ...c, status: 'pending' as const } : c
                             );
                             setClaims(updated);
-                            setSelectedClaim({ ...selectedClaim, status: 'pending' });
                           }}
                           className="text-brand-600 hover:underline cursor-pointer"
                         >
@@ -1016,7 +1010,7 @@ export default function ClaimModerationPage() {
                     return (
                       <motion.div
                         key={person.id}
-                        onClick={() => setSelectedPerson(person)}
+                        onClick={() => setSelectedPersonId(person.id)}
                         whileHover={{ backgroundColor: isSelected ? undefined : 'rgba(248, 250, 252, 0.8)' }}
                         className={`p-3.5 cursor-pointer transition text-xs space-y-2 ${
                           isSelected
@@ -1263,7 +1257,6 @@ export default function ClaimModerationPage() {
                               p.id === selectedPerson.id ? { ...p, status: 'pending' as const, isVerified: false } : p
                             );
                             setPeopleClaims(updated);
-                            setSelectedPerson({ ...selectedPerson, status: 'pending', isVerified: false });
                             try {
                               localStorage.setItem('bharatbn_people_store', JSON.stringify(updated));
                               window.dispatchEvent(new Event('bharatbn_people_updated'));

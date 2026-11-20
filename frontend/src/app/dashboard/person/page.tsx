@@ -251,8 +251,8 @@ export default function PersonDashboardPage() {
     }
 
     // 2. Fallback to pre-seeded profiles in peopleDatabase if not in localStorage store
+    const slugKey = currSession.slug || currSession.handle?.replace(/^@/, '').toLowerCase() || '';
     if (!found) {
-      const slugKey = currSession.slug || currSession.handle?.replace(/^@/, '').toLowerCase() || '';
       if (slugKey && peopleDatabase[slugKey]) {
         found = peopleDatabase[slugKey];
       }
@@ -322,11 +322,13 @@ export default function PersonDashboardPage() {
       setAboutText(userAbout);
 
       const userAvatar =
-        found?.avatarUrl && !found.avatarUrl.includes('534528741775')
+        (found?.avatarUrl && !found.avatarUrl.includes('534528741775'))
           ? found.avatarUrl
-          : currSession.avatarUrl && !currSession.avatarUrl.includes('534528741775')
+          : (currSession.avatarUrl && !currSession.avatarUrl.includes('534528741775'))
           ? currSession.avatarUrl
-          : '';
+          : (slugKey && peopleDatabase[slugKey]?.avatarUrl)
+          ? peopleDatabase[slugKey].avatarUrl
+          : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80';
       setAvatarUrl(userAvatar);
 
       const userCover =
