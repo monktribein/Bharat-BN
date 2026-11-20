@@ -10,14 +10,13 @@ import {
   ExternalLink,
   MapPin,
   Sparkles,
-  Heart,
   UserPlus,
   UserCheck,
   ArrowRight,
-  Filter,
   Flame,
-  Award,
-  MessageSquare,
+  X,
+  Lock,
+  LogIn,
 } from 'lucide-react';
 
 interface PersonCard {
@@ -150,6 +149,8 @@ export default function PeopleDirectoryPage() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [followedSlugs, setFollowedSlugs] = useState<string[]>([]);
   const [followToast, setFollowToast] = useState('');
+  const [ownerSession, setOwnerSession] = useState<any>(null);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   // Sync dynamically registered people from localStorage & active session
   useEffect(() => {
@@ -281,7 +282,27 @@ export default function PeopleDirectoryPage() {
     } catch { }
   }, []);
 
+  // Sync owner session for auth checks
+  useEffect(() => {
+    const syncSession = () => {
+      try {
+        const sess = localStorage.getItem('bharatbn_owner_session');
+        setOwnerSession(sess ? JSON.parse(sess) : null);
+      } catch {
+        setOwnerSession(null);
+      }
+    };
+    syncSession();
+    window.addEventListener('bharatbn_auth_changed', syncSession);
+    return () => window.removeEventListener('bharatbn_auth_changed', syncSession);
+  }, []);
+
   const handleToggleFollow = (person: PersonCard) => {
+    // Require login to follow
+    if (!ownerSession) {
+      setShowLoginPrompt(true);
+      return;
+    }
     try {
       const stored = localStorage.getItem('bharatbn_people_follows');
       let follows: string[] = stored ? JSON.parse(stored) : [];
@@ -313,7 +334,73 @@ export default function PeopleDirectoryPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-16">
+    <div className="min-h-screen bg-[#F4F6F9] pb-20">
+
+      {/* Login Required Modal */}
+      <AnimatePresence>
+        {showLoginPrompt && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+            onClick={() => setShowLoginPrompt(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              className="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center space-y-5 relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setShowLoginPrompt(false)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition cursor-pointer"
+              >
+                <X className="w-4 h-4 text-slate-500" />
+              </button>
+
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#07213A] to-[#F95700] flex items-center justify-center mx-auto shadow-lg">
+                <Lock className="w-8 h-8 text-white" />
+              </div>
+
+              <div>
+                <h3 className="text-xl font-black text-slate-900 mb-1">Login to Follow</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">
+                  Create a free BharatBN account or log in to follow public figures and receive their latest updates.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <Link
+                  href="/login"
+                  className="w-full py-3 px-6 rounded-xl bg-[#07213A] text-white font-bold text-sm hover:bg-[#0C2D4E] transition flex items-center justify-center gap-2 shadow-md"
+                  onClick={() => setShowLoginPrompt(false)}
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>Log In to BharatBN</span>
+                </Link>
+                <Link
+                  href="/signup"
+                  className="w-full py-3 px-6 rounded-xl bg-[#F95700] text-white font-bold text-sm hover:bg-[#d94a00] transition flex items-center justify-center gap-2 shadow-md"
+                  onClick={() => setShowLoginPrompt(false)}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>Create Free Account</span>
+                </Link>
+                <button
+                  onClick={() => setShowLoginPrompt(false)}
+                  className="text-xs text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                >
+                  Continue browsing without account
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Toast Notification */}
       <AnimatePresence>
         {followToast && (
@@ -329,64 +416,86 @@ export default function PeopleDirectoryPage() {
         )}
       </AnimatePresence>
 
-      {/* Hero Banner Section */}
-      <div className="bg-gradient-to-b from-[#07213A] to-[#0A2E52] text-white pt-12 pb-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto space-y-6 text-center sm:text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/20 border border-orange-500/30 text-orange-300 text-xs font-bold uppercase tracking-wider">
-            <Flame className="w-3.5 h-3.5 text-orange-400" />
+      {/* ===== HERO + SEARCH + CATEGORIES UNIFIED SECTION ===== */}
+      <div className="bg-gradient-to-br from-[#06192E] via-[#07213A] to-[#0A2E52] text-white relative overflow-hidden">
+        {/* Background decorative pattern */}
+        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, #F95700 0%, transparent 50%), radial-gradient(circle at 80% 20%, #0EA5E9 0%, transparent 50%)' }} />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl -translate-y-32 translate-x-32" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl translate-y-20 -translate-x-20" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-10">
+          {/* Top Label */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/20 border border-orange-400/30 text-orange-300 text-[11px] font-black uppercase tracking-widest mb-6">
+            <Flame className="w-3 h-3 text-orange-400" />
             <span>India&apos;s Business &amp; People Network</span>
           </div>
 
-          <div className="max-w-3xl space-y-2">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
-              Discover &amp; Follow Voices of Bharat
+          {/* Title + Subtitle */}
+          <div className="max-w-2xl mb-8">
+            <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-black tracking-tight leading-tight mb-3">
+              Discover &amp; Follow<br />
+              <span className="text-[#F95700]">Voices of Bharat</span>
             </h1>
-            <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-              Connect with verified public figures, leaders, creators, policy thinkers, and industry pioneers building a stronger, self-reliant nation.
+            <p className="text-sm sm:text-base text-slate-300/80 leading-relaxed">
+              Connect with verified public figures, leaders, creators, and industry pioneers building a stronger, self-reliant nation.
             </p>
           </div>
 
-          {/* Search Box */}
-          <div className="max-w-2xl bg-white rounded-2xl p-2 shadow-xl flex items-center gap-2 border border-slate-200">
-            <div className="pl-3 text-slate-400">
-              <Search className="w-5 h-5" />
+          {/* ===== UNIFIED SEARCH + CATEGORY BAR ===== */}
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden">
+            {/* Search Row */}
+            <div className="flex items-center gap-3 px-4 py-3.5 border-b border-slate-100">
+              <Search className="w-5 h-5 text-[#F95700] flex-shrink-0" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by name (e.g. Anand Sahu, Kashish), @handle, role, or location..."
+                className="w-full text-[13.5px] text-slate-800 placeholder-slate-400 bg-transparent focus:outline-none font-medium"
+              />
+              {searchQuery ? (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="flex-shrink-0 text-[11px] font-bold text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-lg transition cursor-pointer"
+                >
+                  Clear
+                </button>
+              ) : (
+                <div className="flex-shrink-0 text-[11px] font-bold text-slate-300 bg-slate-50 px-3 py-1 rounded-lg border border-slate-200">
+                  ⌘ K
+                </div>
+              )}
             </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search people by name (e.g. Anand Sahu, Kashish), handle, or role..."
-              className="w-full py-2 bg-transparent text-sm text-slate-900 placeholder-slate-400 focus:outline-none"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="text-xs text-slate-400 hover:text-slate-600 px-2"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
 
-      {/* Category Pills Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
-        <div className="bg-white rounded-2xl p-2 shadow-md border border-slate-200/80 flex items-center gap-2 overflow-x-auto no-scrollbar">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${selectedCategory === cat
-                ? 'bg-[#07213A] text-white shadow-xs'
-                : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-                }`}
-            >
-              {cat}
-            </button>
-          ))}
+            {/* Category Pills Row */}
+            <div className="flex items-center gap-1.5 px-3 py-3 overflow-x-auto no-scrollbar">
+              {[
+                { label: 'All', icon: '🌐' },
+                { label: 'Public Figures & Speakers', icon: '🎙️' },
+                { label: 'Creators & Influencers', icon: '✨' },
+                { label: 'Industry Leaders', icon: '🏆' },
+                { label: 'Community & Thinkers', icon: '💡' },
+              ].map((cat) => {
+                const isActive = selectedCategory === cat.label;
+                return (
+                  <button
+                    key={cat.label}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat.label)}
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[12px] font-bold whitespace-nowrap transition-all cursor-pointer border ${
+                      isActive
+                        ? 'bg-[#07213A] text-white border-[#07213A] shadow-md'
+                        : 'bg-transparent text-slate-600 border-slate-200 hover:border-[#07213A]/30 hover:text-[#07213A] hover:bg-slate-50'
+                    }`}
+                  >
+                    <span>{cat.icon}</span>
+                    <span>{cat.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -396,10 +505,18 @@ export default function PeopleDirectoryPage() {
           <div>
             <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
               <span>Verified Profiles</span>
-              <span className="text-xs font-bold text-slate-400 font-mono">({filteredPeople.length})</span>
+              <span className="text-xs font-bold text-slate-400 font-mono bg-slate-100 px-2 py-0.5 rounded-full">
+                {filteredPeople.length}
+              </span>
+              {!ownerSession && (
+                <span className="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <Lock className="w-2.5 h-2.5" />
+                  Login to Follow
+                </span>
+              )}
             </h2>
-            <p className="text-xs text-slate-500">
-              Click &quot;View Profile&quot; on any card to explore their full articles, speeches, and video gallery
+            <p className="text-xs text-slate-500 mt-0.5">
+              Click &quot;View Profile&quot; to explore articles, speeches, and video gallery
             </p>
           </div>
 
@@ -413,25 +530,38 @@ export default function PeopleDirectoryPage() {
         </div>
 
         {filteredPeople.length === 0 ? (
-          <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 shadow-sm space-y-3">
-            <Users className="w-10 h-10 text-slate-300 mx-auto" />
-            <h3 className="text-base font-bold text-slate-800">No profiles found</h3>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              We couldn&apos;t find anyone matching &quot;{searchQuery}&quot;. Try searching for &quot;Anand Sahu&quot; or &quot;Kashish&quot;.
-            </p>
+          <div className="p-16 text-center bg-white rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto">
+              <Users className="w-8 h-8 text-slate-300" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-800">No profiles found</h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+                We couldn&apos;t find anyone matching &quot;{searchQuery}&quot;. Try searching for &quot;Anand Sahu&quot; or &quot;Kashish&quot;.
+              </p>
+            </div>
+            <button
+              onClick={() => { setSearchQuery(''); setSelectedCategory('All'); }}
+              className="text-xs font-bold text-[#F95700] hover:underline cursor-pointer"
+            >
+              Clear filters
+            </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredPeople.map((person) => {
               const isFollowed = followedSlugs.includes(person.slug);
 
               return (
-                <div
+                <motion.div
                   key={person.id}
-                  className="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-md transition overflow-hidden flex flex-col group"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300 overflow-hidden flex flex-col group"
                 >
-                  {/* Top Cover Banner */}
-                  <div className="relative h-28 w-full bg-slate-900 overflow-hidden">
+                  {/* Cover Banner */}
+                  <div className="relative h-32 w-full bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden">
                     <img
                       src={person.coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80'}
                       alt={person.name}
@@ -439,28 +569,39 @@ export default function PeopleDirectoryPage() {
                         e.currentTarget.onerror = null;
                         e.currentTarget.src = 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80';
                       }}
-                      className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
+                    {/* Gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-                    {/* Category Tag on top-right */}
-                    <span className="absolute top-3 right-3 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-950/70 text-white backdrop-blur-md border border-white/20 shadow-xs">
-                      {person.badge}
-                    </span>
+                    {/* Badge top-right */}
+                    <div className="absolute top-3 right-3">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-black px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md text-white border border-white/25 shadow-sm">
+                        {person.badge}
+                      </span>
+                    </div>
+
+                    {/* Verified checkmark top-left */}
+                    {person.isVerified && (
+                      <div className="absolute top-3 left-3">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-black px-2 py-1 rounded-full bg-emerald-500/90 text-white shadow-sm">
+                          <CheckCircle2 className="w-2.5 h-2.5" />
+                          Verified
+                        </span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Profile Info Block */}
-                  <div className="p-5 pt-0 relative flex-1 flex flex-col justify-between space-y-4">
-                    <div>
-                      {/* Avatar with White Border (Negative Margin to overlap cover) */}
+                  {/* Profile Body */}
+                  <div className="px-5 pb-5 relative flex-1 flex flex-col">
+                    {/* Avatar + Follow inline row */}
+                    <div className="flex items-end justify-between -mt-8 mb-4">
                       <Link
                         href={`/people/${person.slug}`}
                         onClick={() => {
-                          try {
-                            sessionStorage.setItem('bharatbn_viewed_person', JSON.stringify(person));
-                          } catch {}
+                          try { sessionStorage.setItem('bharatbn_viewed_person', JSON.stringify(person)); } catch {}
                         }}
-                        className="relative -mt-10 mb-3 w-16 h-16 rounded-full bg-white border-3 border-white shadow-lg overflow-hidden flex items-center justify-center cursor-pointer block flex-shrink-0"
+                        className="relative w-16 h-16 rounded-2xl bg-white ring-4 ring-white shadow-xl overflow-hidden block flex-shrink-0 hover:ring-[#F95700]/30 transition-all"
                         title={`View ${person.name}'s profile`}
                       >
                         {person.avatarUrl ? (
@@ -487,97 +628,95 @@ export default function PeopleDirectoryPage() {
                         </div>
                       </Link>
 
-                      {/* Name & Handle */}
-                      <div className="space-y-0.5">
-                        <Link
-                          href={`/people/${person.slug}`}
-                          onClick={() => {
-                            try {
-                              sessionStorage.setItem('bharatbn_viewed_person', JSON.stringify(person));
-                            } catch {}
-                          }}
-                          className="flex items-center gap-1.5 flex-wrap cursor-pointer group/title"
-                          title={`View ${person.name}'s complete profile`}
-                        >
-                          <h3 className="text-base font-extrabold text-slate-900 group-hover:text-[#F95700] group-hover/title:text-[#F95700] transition">
-                            {person.name}
-                          </h3>
-                          {person.isVerified && (
-                            <CheckCircle2 className="w-4 h-4 text-sky-500 fill-sky-50 flex-shrink-0" />
-                          )}
-                        </Link>
-                        <p className="text-xs font-mono text-slate-400 font-medium">{person.handle}</p>
-                      </div>
+                      {/* Follow Button (top-right of avatar row) */}
+                      <button
+                        type="button"
+                        onClick={() => handleToggleFollow(person)}
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer border ${
+                          isFollowed
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
+                            : ownerSession
+                            ? 'bg-[#07213A] text-white border-transparent hover:bg-[#0A2E52] shadow-md'
+                            : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200'
+                        }`}
+                        title={!ownerSession ? 'Login to follow' : undefined}
+                      >
+                        {isFollowed ? (
+                          <>
+                            <UserCheck className="w-3.5 h-3.5" />
+                            <span>Following</span>
+                          </>
+                        ) : ownerSession ? (
+                          <>
+                            <UserPlus className="w-3.5 h-3.5" />
+                            <span>Follow</span>
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="w-3 h-3" />
+                            <span>Follow</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
 
-                      {/* Role & Location */}
-                      <div className="pt-2 space-y-1">
-                        <p className="text-xs font-semibold text-slate-700 line-clamp-1">{person.role}</p>
-                        <p className="text-[11px] text-slate-500 flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-slate-400" />
-                          <span>{person.location}</span>
-                        </p>
-                      </div>
+                    {/* Name & Handle */}
+                    <div className="mb-2">
+                      <Link
+                        href={`/people/${person.slug}`}
+                        onClick={() => {
+                          try { sessionStorage.setItem('bharatbn_viewed_person', JSON.stringify(person)); } catch {}
+                        }}
+                        className="group/name"
+                      >
+                        <h3 className="text-[15px] font-black text-slate-900 group-hover/name:text-[#F95700] transition leading-snug line-clamp-1">
+                          {person.name}
+                        </h3>
+                      </Link>
+                      <p className="text-[11px] font-mono text-slate-400 mt-0.5">{person.handle}</p>
+                    </div>
 
-                      {/* Quote / Headline */}
-                      {person.quote && (
-                        <p className="mt-3 text-xs text-slate-600 italic bg-slate-50 p-2.5 rounded-xl border border-slate-100 line-clamp-2">
+                    {/* Role & Location */}
+                    <div className="space-y-1 mb-3">
+                      <p className="text-xs font-semibold text-slate-700 line-clamp-1">{person.role}</p>
+                      <p className="text-[11px] text-slate-500 flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                        <span className="truncate capitalize">{person.location}</span>
+                      </p>
+                    </div>
+
+                    {/* Quote */}
+                    {person.quote && (
+                      <div className="flex-1 mb-4">
+                        <p className="text-[11.5px] text-slate-500 italic bg-slate-50/80 border border-slate-100 px-3 py-2.5 rounded-xl line-clamp-2 leading-relaxed">
                           &ldquo;{person.quote}&rdquo;
                         </p>
-                      )}
-                    </div>
+                      </div>
+                    )}
 
-                    {/* Stat Badges & Bottom Actions */}
-                    <div className="pt-3 border-t border-slate-100 space-y-3">
-                      <div className="flex items-center justify-between text-xs text-slate-500">
-                        <span className="font-semibold">
-                          <strong className="text-slate-900">{person.followersCount}</strong> Followers
-                        </span>
-                        <span className="font-semibold">
-                          <strong className="text-slate-900">{person.postsCount}</strong> Updates
+                    {/* Footer: Stats + View Profile */}
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-100 mt-auto">
+                      <div className="flex items-center gap-3 text-[11px] text-slate-500">
+                        <span className="flex items-center gap-1">
+                          <Users className="w-3 h-3 text-slate-400" />
+                          <strong className="text-slate-800 font-bold">{person.followersCount}</strong>
+                          <span>followers</span>
                         </span>
                       </div>
-
-                      <div className="flex items-center gap-2">
-                        {/* Follow Button */}
-                        <button
-                          type="button"
-                          onClick={() => handleToggleFollow(person)}
-                          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs ${isFollowed
-                            ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                            : 'bg-[#07213A] text-white hover:bg-[#0C2D4E]'
-                            }`}
-                        >
-                          {isFollowed ? (
-                            <>
-                              <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
-                              <span>Following</span>
-                            </>
-                          ) : (
-                            <>
-                              <UserPlus className="w-3.5 h-3.5 text-orange-400" />
-                              <span>+ Follow</span>
-                            </>
-                          )}
-                        </button>
-
-                        {/* View Profile Button (Opens full public page!) */}
-                        <Link
-                          href={`/people/${person.slug}`}
-                          onClick={() => {
-                            try {
-                              sessionStorage.setItem('bharatbn_viewed_person', JSON.stringify(person));
-                            } catch {}
-                          }}
-                          className="py-2 px-3.5 rounded-xl text-xs font-bold text-white bg-[#F95700] hover:bg-[#d94a00] shadow-sm transition flex items-center justify-center gap-1 cursor-pointer flex-shrink-0"
-                          title={`View ${person.name}'s complete profile`}
-                        >
-                          <span>View Profile</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </Link>
-                      </div>
+                      <Link
+                        href={`/people/${person.slug}`}
+                        onClick={() => {
+                          try { sessionStorage.setItem('bharatbn_viewed_person', JSON.stringify(person)); } catch {}
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-[11px] font-black transition-all shadow-sm hover:shadow-md"
+                        title={`View ${person.name}'s complete profile`}
+                      >
+                        <span>View Profile</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </Link>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
