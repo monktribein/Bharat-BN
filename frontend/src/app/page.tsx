@@ -417,58 +417,6 @@ const visualCategories = [
   },
 ];
 
-// Exact City Portals matching Reference Image 3
-const cityPortals = [
-  {
-    name: 'Noidabn',
-    cityQuery: 'noida',
-    cityName: 'Noida Hub / NCR',
-    image: 'https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    name: 'Greaternoidabn',
-    cityQuery: 'noida',
-    cityName: 'Greater Noida / Expressway',
-    image: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    name: 'Meerutbn',
-    cityQuery: 'meerut',
-    cityName: 'Meerut City / NCR',
-    image: 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    name: 'Gurgaonbn',
-    cityQuery: 'new-delhi',
-    cityName: 'Gurugram / Cyber City',
-    image: 'https://images.unsplash.com/photo-1580655653885-65763b2597d0?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    name: 'Dehradunbn',
-    cityQuery: 'dehradun',
-    cityName: 'Dehradun Valley',
-    image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    name: 'Ghaziabadbn',
-    cityQuery: 'noida',
-    cityName: 'Ghaziabad / Indirapuram',
-    image: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    name: 'Haridwarbn',
-    cityQuery: 'haridwar',
-    cityName: 'Haridwar Ghats',
-    image: 'https://images.unsplash.com/photo-1609137144813-7d9921338f24?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    name: 'Lucknowbn',
-    cityQuery: 'lucknow',
-    cityName: 'Lucknow Heritage',
-    image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=600&q=80',
-  },
-];
-
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -1207,72 +1155,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ======================================================== */}
-      {/* 4. SECTION: City Portal (Matching Reference Image 3)    */}
-      {/* ======================================================== */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="space-y-1 mb-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              City Portal
-            </h2>
-            <Link
-              href="/search"
-              className="text-xs sm:text-sm font-bold text-[#F95700] hover:underline flex items-center gap-1"
-            >
-              <span>All Cities</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-          <div className="w-14 h-1 bg-[#F95700] rounded-full" />
-        </div>
-
-        {/* 8 Visual City Cards Grid (Matching Reference Image 3: 4x2 layout) */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
-          {cityPortals.map((cp, index) => (
-            <motion.div
-              key={cp.name}
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.1 }}
-              transition={{ duration: 0.35, delay: index * 0.05 }}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              className="group relative rounded-xl overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 aspect-[16/10] bg-slate-900"
-            >
-              <Link
-                href={`/search?city=${cp.cityQuery}`}
-                className="block w-full h-full relative"
-                title={`Explore businesses in ${cp.cityName}`}
-              >
-                {/* Background Photo */}
-                <Image
-                  src={cp.image}
-                  alt={cp.name}
-                  fill
-                  sizes="(max-width: 640px) 50vw, 25vw"
-                  className="object-cover group-hover:scale-110 transition-transform duration-500 opacity-75"
-                />
-
-                {/* Dark Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/30 group-hover:from-black/75 group-hover:via-black/30 group-hover:to-transparent transition duration-300" />
-
-                {/* Gold/Orange Centered Text (Signature of Image 3) */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-2 text-center z-10">
-                  <span className="font-extrabold text-base sm:text-lg text-[#F95700] group-hover:text-amber-400 tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition transform group-hover:scale-105">
-                    {cp.name}
-                  </span>
-                  <span className="text-[10px] text-slate-300 font-medium drop-shadow-xs mt-0.5">
-                    {cp.cityName}
-                  </span>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* 5. Featured Verified Business Profile Preview */}
+      {/* 4. Featured Verified Business Profile Preview */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 25 }}
