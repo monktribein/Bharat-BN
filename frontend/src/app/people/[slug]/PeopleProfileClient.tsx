@@ -587,9 +587,10 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
         </div>
 
         {/* ========================================================================= */}
-        {/* 2. STICKY MODULE NAVIGATION BAR (Full Banner Width)                       */}
+        {/* 2. TWO-COLUMN LAYOUT: STICKY LEFT SIDEBAR NAVIGATION + EXPANDED BODY      */}
         {/* ========================================================================= */}
-        <div className="sticky top-18 z-30 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-xs p-2">
+        {/* Mobile Horizontal Pill Scroll (< lg) */}
+        <div className="lg:hidden sticky top-18 z-30 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-xs p-2">
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1 px-1">
             {[
               { id: 'overview', label: 'All Modules', icon: Sparkles },
@@ -613,15 +614,13 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                   onClick={() => {
                     setActiveTab(item.id);
                     if (item.id === 'overview') {
-                      window.scrollTo({ top: 350, behavior: 'smooth' });
+                      window.scrollTo({ top: 380, behavior: 'smooth' });
                     } else {
                       const el = document.getElementById(`module-${item.id}`);
-                      if (el) {
-                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
+                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
                   }}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap cursor-pointer shrink-0 ${
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0 ${
                     active
                       ? 'bg-[#07213A] text-white shadow-xs'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 bg-slate-50 border border-slate-200/60'
@@ -635,11 +634,98 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
           </div>
         </div>
 
-        {/* ========================================================================= */}
-        {/* 3. FULL-WIDTH MODULAR BODY (Matching Full Banner Size)                    */}
-        {/* ========================================================================= */}
-        <div className="space-y-6">
-          {/* Active Module Filter Notice if not in Overview */}
+        {/* Main Grid: Desktop Left Sidebar (3 Cols) + Right Main Content (9 Cols) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* ----------------------------------------------------------------------- */}
+          {/* COLUMN 1: STICKY LEFT SIDEBAR MODULE NAVIGATION (Exact User Request)     */}
+          {/* ----------------------------------------------------------------------- */}
+          <aside className="hidden lg:block lg:col-span-3 space-y-4 sticky top-20 z-20">
+            {/* 11 Modules Navigation Menu Card */}
+            <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-2.5 space-y-1">
+              <div className="px-3 py-2 text-[11px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center justify-between border-b border-slate-100 mb-1">
+                <span>Profile Modules</span>
+                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">11</span>
+              </div>
+              {[
+                { id: 'overview', label: 'All Modules', icon: Sparkles, count: null },
+                { id: 'about', label: 'About & Bio', icon: FileText, count: null },
+                { id: 'education', label: 'Education', icon: GraduationCap, count: person.educationList?.length || 0 },
+                { id: 'experience', label: 'Experience', icon: Briefcase, count: person.experienceList?.length || 0 },
+                { id: 'achievements', label: 'Achievements', icon: Trophy, count: person.achievementsList?.length || 0 },
+                { id: 'news', label: 'News & Media', icon: Newspaper, count: person.newsList?.length || 0 },
+                { id: 'videos', label: 'Featured Videos', icon: Video, count: (person.videoList?.length || 0) + (person.featuredVideo ? 1 : 0) },
+                { id: 'photos', label: 'Photo Gallery', icon: Camera, count: person.gallery?.length || 0 },
+                { id: 'posts', label: 'Posts & Updates', icon: Send, count: person.updates?.length || 0 },
+                { id: 'stories', label: 'Community Stories', icon: MessageSquare, count: person.communityStoriesList?.length || person.communityStoriesCount || 0 },
+                { id: 'social', label: 'Official Channels', icon: Globe, count: null },
+              ].map((item) => {
+                const Icon = item.icon;
+                const active = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      if (item.id === 'overview') {
+                        window.scrollTo({ top: 380, behavior: 'smooth' });
+                      } else {
+                        const el = document.getElementById(`module-${item.id}`);
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }}
+                    className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-between text-left cursor-pointer ${
+                      active
+                        ? 'bg-[#07213A] text-white shadow-xs'
+                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-[#F95700]' : 'text-slate-400'}`} />
+                      <span className="truncate">{item.label}</span>
+                    </div>
+                    {item.count !== null && item.count > 0 && (
+                      <span
+                        className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full ${
+                          active
+                            ? 'bg-[#F95700] text-white'
+                            : 'bg-slate-100 text-slate-600'
+                        }`}
+                      >
+                        {item.count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Profile Ownership / Claim Verification Card */}
+            <div className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-white rounded-2xl border border-orange-200/80 p-4 space-y-2.5 text-center shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-orange-100 text-[#F95700] mx-auto flex items-center justify-center">
+                <ShieldCheck className="w-5 h-5 stroke-[2.5]" />
+              </div>
+              <div className="space-y-0.5">
+                <h4 className="font-bold text-xs text-slate-900">Are you {person.name}?</h4>
+                <p className="text-[11px] text-slate-500 leading-snug">
+                  Claim this official profile to manage credentials, bio, and audience feeds.
+                </p>
+              </div>
+              <Link
+                href={`/claim/${person.slug}`}
+                className="w-full py-2 px-3 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs"
+              >
+                <span>Claim Profile</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </aside>
+
+          {/* ----------------------------------------------------------------------- */}
+          {/* COLUMN 2 (9 Cols): Spacious Content Area (No Cramping Column 3)         */}
+          {/* ----------------------------------------------------------------------- */}
+          <main className="lg:col-span-9 space-y-6 min-w-0">
+            {/* Active Module Filter Notice if not in Overview */}
           {activeTab !== 'overview' && (
             <div className="flex items-center justify-between bg-white px-6 py-3.5 rounded-2xl border border-slate-200/90 shadow-2xs">
               <div className="flex items-center gap-2.5">
@@ -1434,6 +1520,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
               <span>Claim This Profile</span>
             </Link>
           </div>
+          </main>
         </div>
       </div>
 
