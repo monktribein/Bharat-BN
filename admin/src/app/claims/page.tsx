@@ -357,9 +357,9 @@ export default function ClaimModerationPage() {
           if (data?.people && typeof data.people === 'object') {
             setPeopleClaims((prev) => {
               return prev.map((p) => {
-                const k1 = p.slug.toLowerCase();
-                const k2 = p.id.toLowerCase();
-                const remote = data.people[k1] || data.people[k2];
+                const k1 = (p.slug || '').toLowerCase();
+                const k2 = (p.id || '').toLowerCase();
+                const remote = (k1 && data.people[k1]) || (k2 && data.people[k2]);
                 if (remote) {
                   return {
                     ...p,
@@ -379,9 +379,9 @@ export default function ClaimModerationPage() {
           if (data?.businesses && typeof data.businesses === 'object') {
             setClaims((prev) => {
               return prev.map((c) => {
-                const k1 = c.businessSlug.toLowerCase();
-                const k2 = c.id.toLowerCase();
-                const remote = data.businesses[k1] || data.businesses[k2];
+                const k1 = (c.businessSlug || (c as any).slug || '').toLowerCase();
+                const k2 = (c.id || '').toLowerCase();
+                const remote = (k1 && data.businesses[k1]) || (k2 && data.businesses[k2]);
                 if (remote) {
                   return {
                     ...c,
@@ -406,9 +406,13 @@ export default function ClaimModerationPage() {
           if (Array.isArray(parsed) && parsed.length > 0) {
             setClaims((prev) => {
               const map = new Map<string, ClaimItem>();
-              parsed.forEach((c) => map.set(c.id, c));
-              prev.forEach((c) => {
-                if (!map.has(c.id)) map.set(c.id, c);
+              parsed.forEach((c: any) => {
+                const k = c.id || c.businessSlug || c.slug || '';
+                if (k) map.set(k, c);
+              });
+              prev.forEach((c: any) => {
+                const k = c.id || c.businessSlug || c.slug || '';
+                if (k && !map.has(k)) map.set(k, c);
               });
               return Array.from(map.values());
             });
@@ -422,9 +426,13 @@ export default function ClaimModerationPage() {
           if (Array.isArray(parsed)) {
             setPeopleClaims((prev) => {
               const map = new Map<string, PersonClaimItem>();
-              prev.forEach((p) => map.set(p.slug.toLowerCase(), p));
+              prev.forEach((p) => {
+                const k = (p.slug || p.id || '').toLowerCase();
+                if (k) map.set(k, p);
+              });
               parsed.forEach((p: any) => {
                 const k = (p.slug || p.id || '').toLowerCase();
+                if (!k) return;
                 const existing = map.get(k);
                 if (existing) {
                   map.set(k, {
@@ -469,9 +477,13 @@ export default function ClaimModerationPage() {
         if (Array.isArray(people) && people.length > 0) {
           setPeopleClaims((prev) => {
             const map = new Map<string, PersonClaimItem>();
-            prev.forEach((p) => map.set(p.slug.toLowerCase(), p));
+            prev.forEach((p) => {
+              const k = (p.slug || p.id || '').toLowerCase();
+              if (k) map.set(k, p);
+            });
             people.forEach((p: any) => {
               const k = (p.slug || p.id || '').toLowerCase();
+              if (!k) return;
               const existing = map.get(k);
               if (existing) {
                 map.set(k, {
@@ -488,9 +500,13 @@ export default function ClaimModerationPage() {
         if (Array.isArray(claims) && claims.length > 0) {
           setClaims((prev) => {
             const map = new Map<string, ClaimItem>();
-            prev.forEach((c) => map.set(c.businessSlug.toLowerCase(), c));
+            prev.forEach((c) => {
+              const k = (c.businessSlug || (c as any).slug || c.id || '').toLowerCase();
+              if (k) map.set(k, c);
+            });
             claims.forEach((c: any) => {
               const k = (c.businessSlug || c.slug || c.id || '').toLowerCase();
+              if (!k) return;
               const existing = map.get(k);
               if (existing) {
                 map.set(k, {
