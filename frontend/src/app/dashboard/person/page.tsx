@@ -325,20 +325,28 @@ export default function PersonDashboardPage() {
           : '';
       setAboutText(userAbout);
 
-      const userAvatar =
-        (found?.avatarUrl && !found.avatarUrl.includes('534528741775'))
-          ? found.avatarUrl
-          : (currSession.avatarUrl && !currSession.avatarUrl.includes('534528741775'))
-          ? currSession.avatarUrl
-          : (slugKey && peopleDatabase[slugKey]?.avatarUrl)
-          ? peopleDatabase[slugKey].avatarUrl
-          : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80';
+      const isKashish = slugKey === 'kashish' || Boolean(currSession?.name?.toLowerCase().includes('kashish')) || Boolean(found?.name?.toLowerCase().includes('kashish'));
+
+      const userAvatar = isKashish
+        ? '/people/kashish-avatar.png'
+        : (found?.avatarUrl && !found.avatarUrl.includes('534528741775'))
+        ? found.avatarUrl
+        : (currSession.avatarUrl && !currSession.avatarUrl.includes('534528741775'))
+        ? currSession.avatarUrl
+        : (slugKey && peopleDatabase[slugKey]?.avatarUrl)
+        ? peopleDatabase[slugKey].avatarUrl
+        : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80';
       setAvatarUrl(userAvatar);
 
-      const userCover =
-        found?.coverUrl ||
-        currSession.coverUrl ||
-        'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1600&q=80';
+      const userCover = isKashish
+        ? '/people/kashish-cover.jpg'
+        : (found?.coverUrl && !found.coverUrl.includes('photo-1579546929518') && !found.coverUrl.includes('photo-1598488035139'))
+        ? found.coverUrl
+        : (currSession.coverUrl && !currSession.coverUrl.includes('photo-1579546929518') && !currSession.coverUrl.includes('photo-1598488035139'))
+        ? currSession.coverUrl
+        : (slugKey && peopleDatabase[slugKey]?.coverUrl)
+        ? peopleDatabase[slugKey].coverUrl
+        : 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1600&q=80';
       setCoverUrl(userCover);
 
       setSocialYoutube(found?.socialLinks?.youtube || '');

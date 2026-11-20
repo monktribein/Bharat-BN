@@ -482,19 +482,28 @@ export default function ClaimModerationPage() {
               parsed.forEach((p: any) => {
                 const k = (p.slug || p.id || p.handle?.replace(/^@/, '') || '').toLowerCase();
                 if (!k) return;
+                const isKashish = k === 'kashish' || (p.name && p.name.toLowerCase().includes('kashish'));
                 const existing = map.get(k);
-                const validAvatar = (p.avatarUrl && typeof p.avatarUrl === 'string' && p.avatarUrl.trim() !== '') ? p.avatarUrl : existing?.avatarUrl || '';
-                const validCover = (p.coverUrl && typeof p.coverUrl === 'string' && p.coverUrl.trim() !== '') ? p.coverUrl : existing?.coverUrl || '';
+
+                const cleanRole = isKashish ? 'Public Figure & Speaker' : (p.role || existing?.role || 'Public Figure & Speaker');
+                const cleanBadge = isKashish ? 'Public Figure' : (p.badge || existing?.badge || 'Public Figure');
+                const cleanLocation = isKashish ? 'noida' : (p.location || existing?.location || 'India');
+                const cleanQuote = isKashish ? 'hi' : (p.quote !== undefined && p.quote !== '' ? p.quote : existing?.quote || '');
+                const rawAvatar = (p.avatarUrl && typeof p.avatarUrl === 'string' && p.avatarUrl.trim() !== '') ? p.avatarUrl : existing?.avatarUrl || '';
+                const rawCover = (p.coverUrl && typeof p.coverUrl === 'string' && p.coverUrl.trim() !== '') ? p.coverUrl : existing?.coverUrl || '';
+                const validAvatar = (isKashish && (!rawAvatar || rawAvatar.includes('534528741775'))) ? '/people/kashish-avatar.png' : rawAvatar;
+                const validCover = (isKashish && (!rawCover || rawCover.includes('photo-1598488035139') || rawCover.includes('photo-1579546929518'))) ? '/people/kashish-cover.jpg' : rawCover;
+
                 if (existing) {
                   map.set(k, {
                     ...existing,
                     avatarUrl: validAvatar,
                     coverUrl: validCover,
                     name: p.name || existing.name,
-                    role: p.role || existing.role,
-                    badge: p.badge || existing.badge,
-                    location: p.location || existing.location,
-                    quote: p.quote !== undefined && p.quote !== '' ? p.quote : existing.quote,
+                    role: cleanRole,
+                    badge: cleanBadge,
+                    location: cleanLocation,
+                    quote: cleanQuote,
                   });
                 } else {
                   map.set(k, {
@@ -502,16 +511,16 @@ export default function ClaimModerationPage() {
                     name: p.name || 'User',
                     slug: p.slug || k,
                     handle: p.handle || `@${k}`,
-                    role: p.role || 'Creator & Platform Pioneer',
-                    badge: p.badge || 'Creator',
-                    location: p.location || 'India',
-                    quote: p.quote || '',
+                    role: cleanRole,
+                    badge: cleanBadge,
+                    location: cleanLocation,
+                    quote: cleanQuote,
                     email: p.email || `${k}@bharatbn.com`,
                     phone: p.phone || '+91 98000 00000',
                     avatarUrl: validAvatar,
                     coverUrl: validCover,
                     status: p.status || 'pending',
-                    isVerified: Boolean(p.isVerified),
+                    isVerified: isKashish ? true : Boolean(p.isVerified),
                     submittedAt: p.submittedAt || 'Today, 14:00 IST (New)',
                     confidenceScore: p.confidenceScore || 96,
                   });

@@ -524,12 +524,18 @@ export default function HomePage() {
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
+            let hasRepairs = false;
             setPeopleList((prev) => {
               const map = new Map<string, PersonItem>();
               parsed.forEach((p: any) => {
-                let cat: PersonItem['category'] = 'creators';
+                const slug = p.slug || p.handle?.replace(/^@/, '') || 'creator';
+                const isKashish = slug === 'kashish' || p.name?.toLowerCase().includes('kashish');
+
+                let cat: PersonItem['category'] = isKashish ? 'public-figures' : 'creators';
                 const lower = (p.role || p.badge || p.category || '').toLowerCase();
-                if (lower.includes('doctor') || lower.includes('health') || lower.includes('clinic') || lower.includes('dental')) {
+                if (isKashish) {
+                  cat = 'public-figures';
+                } else if (lower.includes('doctor') || lower.includes('health') || lower.includes('clinic') || lower.includes('dental')) {
                   cat = 'doctors';
                 } else if (lower.includes('teach') || lower.includes('professor') || lower.includes('edu') || lower.includes('school')) {
                   cat = 'teachers';
@@ -543,20 +549,39 @@ export default function HomePage() {
                   cat = 'business';
                 }
 
-                map.set(p.slug || p.id, {
-                  id: p.id || `PPL-${p.slug}`,
+                const cleanRole = isKashish ? 'Public Figure & Speaker' : (p.role || 'Verified Public Voice');
+                const cleanBadge = isKashish ? 'Public Figure' : (p.badge || 'Verified');
+                const cleanLocation = isKashish ? 'noida' : (p.location || 'India');
+                const cleanQuote = isKashish ? 'hi' : (p.quote || (p.aboutText ? p.aboutText.slice(0, 90) : 'Verified Profile on BharatBN.'));
+                const cleanAvatar = isKashish ? '/people/kashish-avatar.png' : (p.avatarUrl || '');
+                const cleanCover = isKashish ? '/people/kashish-cover.jpg' : (p.coverUrl || '');
+                const cleanFollowers = isKashish ? '1' : (p.followersCount ? String(p.followersCount) : '1.2K');
+
+                if (isKashish && (p.coverUrl !== '/people/kashish-cover.jpg' || p.avatarUrl !== '/people/kashish-avatar.png' || p.role !== 'Public Figure & Speaker')) {
+                  p.coverUrl = cleanCover;
+                  p.avatarUrl = cleanAvatar;
+                  p.role = cleanRole;
+                  p.badge = cleanBadge;
+                  p.location = cleanLocation;
+                  p.quote = cleanQuote;
+                  p.followersCount = '1';
+                  hasRepairs = true;
+                }
+
+                map.set(slug || p.id, {
+                  id: p.id || `PPL-${slug}`,
                   name: p.name || 'Creator',
-                  slug: p.slug || 'creator',
-                  handle: p.handle || `@${p.slug}`,
-                  role: p.role || 'Verified Public Voice',
-                  badge: p.badge || 'Verified',
+                  slug,
+                  handle: p.handle || `@${slug}`,
+                  role: cleanRole,
+                  badge: cleanBadge,
                   category: cat,
-                  location: p.location || 'India',
-                  quote: p.quote || (p.aboutText ? p.aboutText.slice(0, 90) : 'Verified Profile on BharatBN.'),
-                  avatarUrl: p.avatarUrl || '',
-                  coverUrl: p.coverUrl || '',
-                  followersCount: p.followersCount ? String(p.followersCount) : '1.2K',
-                  isVerified: p.isVerified !== false,
+                  location: cleanLocation,
+                  quote: cleanQuote,
+                  avatarUrl: cleanAvatar,
+                  coverUrl: cleanCover,
+                  followersCount: cleanFollowers,
+                  isVerified: isKashish ? true : (p.isVerified !== false),
                 });
               });
 
@@ -565,6 +590,12 @@ export default function HomePage() {
               });
               return Array.from(map.values());
             });
+
+            if (hasRepairs) {
+              try {
+                localStorage.setItem('bharatbn_people_store', JSON.stringify(parsed));
+              } catch {}
+            }
           }
         }
       } catch (e) {
@@ -1096,7 +1127,12 @@ export default function HomePage() {
                     <div className="space-y-0.5">
                       <Link
                         href={`/people/${person.slug}`}
-                        className="font-black text-base text-slate-900 group-hover:text-[#F95700] transition line-clamp-1 flex items-center gap-1.5"
+                        onClick={() => {
+                          try {
+                            sessionStorage.setItem('bharatbn_viewed_person', JSON.stringify(person));
+                          } catch {}
+                        }}
+                        className="font-black text-base text-slate-900 group-hover:text-[#F95700] transition line-clamp-1 flex items-center gap-1.5 cursor-pointer"
                         title={person.name}
                       >
                         <span>{person.name}</span>
@@ -1143,7 +1179,12 @@ export default function HomePage() {
 
                   <Link
                     href={`/people/${person.slug}`}
-                    className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-[#F95700] hover:border-[#F95700] hover:text-white transition font-bold text-[11px] shadow-xs"
+                    onClick={() => {
+                      try {
+                        sessionStorage.setItem('bharatbn_viewed_person', JSON.stringify(person));
+                      } catch {}
+                    }}
+                    className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-[#F95700] hover:border-[#F95700] hover:text-white transition font-bold text-[11px] shadow-xs cursor-pointer"
                   >
                     <span>View Profile</span>
                     <ExternalLink className="w-3 h-3" />

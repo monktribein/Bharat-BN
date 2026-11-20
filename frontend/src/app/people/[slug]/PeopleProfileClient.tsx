@@ -130,7 +130,19 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
           }
         } catch {}
 
-        // 2. Check active owner session (if matching target)
+        // 2. Check direct navigation transfer bridge from card click
+        let viewedPerson: any = null;
+        try {
+          const viewedStr = sessionStorage.getItem('bharatbn_viewed_person');
+          if (viewedStr) {
+            const parsed = JSON.parse(viewedStr);
+            if (parsed && (matchCandidate(parsed) || (parsed.slug && parsed.slug.toLowerCase() === cleanTarget))) {
+              viewedPerson = parsed;
+            }
+          }
+        } catch {}
+
+        // 3. Check active owner session (if matching target)
         let sessionRecord: any = null;
         try {
           const sessionStr = localStorage.getItem('bharatbn_owner_session');
@@ -144,15 +156,70 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
           }
         } catch {}
 
-        // Source C: Combine sources with priority: sessionRecord (active edits) > storeRecord > initialPerson
+        // Source C: Combine sources with priority: sessionRecord (active edits) > viewedPerson > storeRecord > initialPerson
         const customData = {
           ...(storeRecord || {}),
+          ...(viewedPerson || {}),
           ...(sessionRecord || {}),
         };
 
-        const hasCustom = Boolean(sessionRecord || storeRecord);
+        const isKashish =
+          cleanTarget === 'kashish' ||
+          cleanTarget === 'kashish-saxena' ||
+          (customData.name || initialPerson.name)?.toLowerCase().includes('kashish');
+
+        const hasCustom = Boolean(sessionRecord || storeRecord || viewedPerson || isKashish);
         if (!hasCustom) {
           return;
+        }
+
+        // Auto-heal stale legacy browser localStorage for Kashish
+        if (isKashish) {
+          try {
+            const rawStored = localStorage.getItem('bharatbn_people_store');
+            if (rawStored) {
+              const list = JSON.parse(rawStored);
+              if (Array.isArray(list)) {
+                let changed = false;
+                const cleaned = list.map((item: any) => {
+                  const s = (item.slug || item.handle?.replace(/^@/, '') || '').toLowerCase();
+                  if (s === 'kashish' || item.name?.toLowerCase().includes('kashish')) {
+                    changed = true;
+                    return {
+                      ...item,
+                      coverUrl: '/people/kashish-cover.jpg',
+                      avatarUrl: '/people/kashish-avatar.png',
+                      role: 'Public Figure & Speaker',
+                      badge: 'Public Figure',
+                      location: 'noida',
+                      quote: 'hi',
+                      followersCount: item.followersCount || 1,
+                    };
+                  }
+                  return item;
+                });
+                if (changed) {
+                  localStorage.setItem('bharatbn_people_store', JSON.stringify(cleaned));
+                }
+              }
+            }
+          } catch {}
+
+          try {
+            const rawSess = localStorage.getItem('bharatbn_owner_session');
+            if (rawSess) {
+              const sess = JSON.parse(rawSess);
+              if (sess && (sess.slug === 'kashish' || sess.name?.toLowerCase().includes('kashish'))) {
+                sess.coverUrl = '/people/kashish-cover.jpg';
+                sess.avatarUrl = '/people/kashish-avatar.png';
+                sess.role = 'Public Figure & Speaker';
+                sess.badge = 'Public Figure';
+                sess.location = 'noida';
+                sess.quote = 'hi';
+                localStorage.setItem('bharatbn_owner_session', JSON.stringify(sess));
+              }
+            }
+          } catch {}
         }
 
         setPerson((prev) => {
@@ -161,39 +228,70 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
             cleanTarget === 'anand' ||
             (customData.name || prev.name)?.toLowerCase().includes('anand sahu');
 
-          // 1. Avatar: prioritize valid non-empty string
-          const validAvatar =
+          // 1. Avatar: prioritize valid non-empty string with stale fallback replacement
+          let rawAvatar =
             sessionRecord?.avatarUrl && typeof sessionRecord.avatarUrl === 'string' && sessionRecord.avatarUrl.trim() !== ''
               ? sessionRecord.avatarUrl
+              : viewedPerson?.avatarUrl && typeof viewedPerson.avatarUrl === 'string' && viewedPerson.avatarUrl.trim() !== ''
+              ? viewedPerson.avatarUrl
               : storeRecord?.avatarUrl && typeof storeRecord.avatarUrl === 'string' && storeRecord.avatarUrl.trim() !== ''
               ? storeRecord.avatarUrl
               : customData.avatarUrl && typeof customData.avatarUrl === 'string' && customData.avatarUrl.trim() !== ''
               ? customData.avatarUrl
               : prev.avatarUrl;
 
-          // 2. Cover: prioritize valid non-empty string
-          const validCover =
+          if (isKashish && (!rawAvatar || rawAvatar.includes('534528741775'))) {
+            rawAvatar = '/people/kashish-avatar.png';
+          }
+          const validAvatar = rawAvatar;
+
+          // 2. Cover: prioritize valid non-empty string with stale fallback replacement
+          let rawCover =
             sessionRecord?.coverUrl && typeof sessionRecord.coverUrl === 'string' && sessionRecord.coverUrl.trim() !== ''
               ? sessionRecord.coverUrl
+              : viewedPerson?.coverUrl && typeof viewedPerson.coverUrl === 'string' && viewedPerson.coverUrl.trim() !== ''
+              ? viewedPerson.coverUrl
               : storeRecord?.coverUrl && typeof storeRecord.coverUrl === 'string' && storeRecord.coverUrl.trim() !== ''
               ? storeRecord.coverUrl
               : customData.coverUrl && typeof customData.coverUrl === 'string' && customData.coverUrl.trim() !== ''
               ? customData.coverUrl
               : prev.coverUrl;
 
+          if (isKashish && (!rawCover || rawCover.includes('photo-1598488035139') || rawCover.includes('photo-1579546929518'))) {
+            rawCover = '/people/kashish-cover.jpg';
+          }
+          const validCover = rawCover;
+
           // 3. Name, Role, Badge, Location, Quote
-          const validName = sessionRecord?.name?.trim() || storeRecord?.name?.trim() || customData.name?.trim() || prev.name;
-          const validRole = sessionRecord?.role?.trim() || storeRecord?.role?.trim() || customData.role?.trim() || prev.role;
-          const validBadge = sessionRecord?.badge?.trim() || storeRecord?.badge?.trim() || customData.badge?.trim() || prev.badge;
-          const validLocation = sessionRecord?.location?.trim() || storeRecord?.location?.trim() || customData.location?.trim() || prev.location;
-          const validQuote =
+          const validName = sessionRecord?.name?.trim() || viewedPerson?.name?.trim() || storeRecord?.name?.trim() || customData.name?.trim() || prev.name;
+          let validRole = sessionRecord?.role?.trim() || viewedPerson?.role?.trim() || storeRecord?.role?.trim() || customData.role?.trim() || prev.role;
+          let validBadge = sessionRecord?.badge?.trim() || viewedPerson?.badge?.trim() || storeRecord?.badge?.trim() || customData.badge?.trim() || prev.badge;
+          let validLocation = sessionRecord?.location?.trim() || viewedPerson?.location?.trim() || storeRecord?.location?.trim() || customData.location?.trim() || prev.location;
+          let validQuote =
             sessionRecord?.quote !== undefined && sessionRecord.quote !== ''
               ? sessionRecord.quote
+              : viewedPerson?.quote !== undefined && viewedPerson.quote !== ''
+              ? viewedPerson.quote
               : storeRecord?.quote !== undefined && storeRecord.quote !== ''
               ? storeRecord.quote
               : customData.quote !== undefined && customData.quote !== ''
               ? customData.quote
               : prev.quote;
+
+          if (isKashish) {
+            if (!validRole || validRole === 'Creator & Platform Pioneer' || validRole === 'Creator & Voice of Bharat') {
+              validRole = 'Public Figure & Speaker';
+            }
+            if (!validBadge || validBadge === 'Creator') {
+              validBadge = 'Public Figure';
+            }
+            if (!validLocation || validLocation === 'Noida, UP' || validLocation === 'India') {
+              validLocation = 'noida';
+            }
+            if (!validQuote || validQuote === 'Empowering local businesses and creators across Bharat.') {
+              validQuote = 'hi';
+            }
+          }
 
           // 4. Bio / About & Website
           const resolvedWebsite = isAnand

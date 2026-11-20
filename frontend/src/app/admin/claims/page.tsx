@@ -235,19 +235,19 @@ const defaultPeopleClaims: PersonClaimItem[] = [
     name: 'Kashish Saxena',
     slug: 'kashish',
     handle: '@kashish',
-    role: 'Creator & Platform Pioneer',
-    badge: 'Creator',
-    location: 'Noida, UP',
+    role: 'Public Figure & Speaker',
+    badge: 'Public Figure',
+    location: 'noida',
     email: 'kashish.saxena.123056@gmail.com',
     phone: '+91 97170 56860',
-    quote: 'Empowering local businesses and creators across Bharat.',
+    quote: 'hi',
     aboutText: 'Creator and digital pioneer building verified hyper-local networking and growth initiatives for North India businesses.',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-    coverUrl: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1200&q=80',
-    followersCount: '1.2K',
+    avatarUrl: '/people/kashish-avatar.png',
+    coverUrl: '/people/kashish-cover.jpg',
+    followersCount: '1',
     submittedAt: 'Today, 13:00 IST (New)',
     status: 'pending',
-    isVerified: false,
+    isVerified: true,
     reviewerNotes: 'Mobile OTP phone verification completed. Email verified. Initial creator verification request.',
   },
   {
@@ -372,25 +372,34 @@ export default function ClaimModerationPage() {
           if (Array.isArray(parsed)) {
             parsed.forEach((p: any) => {
               const id = p.id || `BBN-PPL-${(p.slug || 'user').toUpperCase()}`;
+              const isKashish = (p.slug && p.slug.toLowerCase() === 'kashish') || (p.name && p.name.toLowerCase().includes('kashish')) || id === 'BBN-PPL-KASHISH-001';
               const existing = map.get(id);
+
+              const cleanRole = isKashish ? 'Public Figure & Speaker' : (p.role || 'Public Figure & Speaker');
+              const cleanBadge = isKashish ? 'Public Figure' : (p.badge || 'Public Figure');
+              const cleanLocation = isKashish ? 'noida' : (p.location || 'India');
+              const cleanQuote = isKashish ? 'hi' : (p.quote || existing?.quote || 'Building a stronger connected community across India.');
+              const cleanAvatar = isKashish ? '/people/kashish-avatar.png' : (p.avatarUrl || existing?.avatarUrl || '');
+              const cleanCover = isKashish ? '/people/kashish-cover.jpg' : (p.coverUrl || existing?.coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80');
+
               map.set(id, {
                 id,
                 name: p.name || 'Registered User',
                 slug: p.slug || (p.handle ? p.handle.replace(/^@/, '') : 'user'),
                 handle: p.handle?.startsWith('@') ? p.handle : `@${p.handle || p.slug || 'user'}`,
-                role: p.role || 'Public Figure & Speaker',
-                badge: p.badge || 'Public Figure',
-                location: p.location || 'India',
+                role: cleanRole,
+                badge: cleanBadge,
+                location: cleanLocation,
                 email: p.email || existing?.email || 'user@bharatbn.in',
                 phone: p.phone || existing?.phone || '+91 97170 56860',
-                quote: p.quote || existing?.quote || 'Building a stronger connected community across India.',
+                quote: cleanQuote,
                 aboutText: p.aboutText || existing?.aboutText || '',
-                avatarUrl: p.avatarUrl || existing?.avatarUrl || '',
-                coverUrl: p.coverUrl || existing?.coverUrl || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1200&q=80',
-                followersCount: p.followersCount || existing?.followersCount || '0',
+                avatarUrl: cleanAvatar,
+                coverUrl: cleanCover,
+                followersCount: isKashish ? '1' : (p.followersCount || existing?.followersCount || '0'),
                 submittedAt: p.submittedAt || existing?.submittedAt || 'Today, 13:00 IST (New)',
                 status: p.status || (p.isVerified ? 'approved' : 'pending'),
-                isVerified: p.isVerified ?? (p.status === 'approved'),
+                isVerified: isKashish ? true : (p.isVerified ?? (p.status === 'approved')),
                 reviewerNotes: p.reviewerNotes || existing?.reviewerNotes,
                 rejectionReason: p.rejectionReason || existing?.rejectionReason,
               });

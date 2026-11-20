@@ -163,25 +163,53 @@ export default function PeopleDirectoryPage() {
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed)) {
+            let hasRepairs = false;
             parsed.forEach((p: any) => {
               const slug = p.slug || p.handle?.replace(/^@/, '') || 'profile';
+              const isKashish = slug === 'kashish' || p.name?.toLowerCase().includes('kashish');
+
+              let cleanRole = isKashish ? 'Public Figure & Speaker' : (p.role || 'Public Figure & Speaker');
+              let cleanBadge = isKashish ? 'Public Figure' : (p.badge || 'Public Figure');
+              let cleanLocation = isKashish ? 'noida' : (p.location || 'India');
+              let cleanQuote = isKashish ? 'hi' : (p.quote || 'Building a stronger connected community across India.');
+              let cleanAvatar = isKashish ? '/people/kashish-avatar.png' : (p.avatarUrl || '');
+              let cleanCover = isKashish ? '/people/kashish-cover.jpg' : (p.coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80');
+
+              if (isKashish) {
+                if (p.coverUrl !== '/people/kashish-cover.jpg' || p.avatarUrl !== '/people/kashish-avatar.png' || p.role !== 'Public Figure & Speaker') {
+                  p.coverUrl = cleanCover;
+                  p.avatarUrl = cleanAvatar;
+                  p.role = cleanRole;
+                  p.badge = cleanBadge;
+                  p.location = cleanLocation;
+                  p.quote = cleanQuote;
+                  hasRepairs = true;
+                }
+              }
+
               map.set(slug, {
                 id: p.id || `BBN-PPL-${Date.now()}`,
                 name: p.name,
                 slug,
                 handle: p.handle?.startsWith('@') ? p.handle : `@${p.handle || slug}`,
-                role: p.role || 'Public Figure & Speaker',
-                badge: p.badge || 'Public Figure',
-                location: p.location || 'India',
-                quote: p.quote || 'Building a stronger connected community across India.',
-                avatarUrl: p.avatarUrl || '',
-                coverUrl: p.coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80',
-                followersCount: p.followersCount || '1',
+                role: cleanRole,
+                badge: cleanBadge,
+                location: cleanLocation,
+                quote: cleanQuote,
+                avatarUrl: cleanAvatar,
+                coverUrl: cleanCover,
+                followersCount: isKashish ? '1' : (p.followersCount || '1'),
                 postsCount: p.updates?.length || 1,
-                category: p.role?.toLowerCase().includes('creator') ? 'Creators & Influencers' : 'Public Figures & Speakers',
-                isVerified: (p.status === 'approved') || Boolean(p.isVerified),
+                category: isKashish ? 'Public Figures & Speakers' : (p.role?.toLowerCase().includes('creator') ? 'Creators & Influencers' : 'Public Figures & Speakers'),
+                isVerified: isKashish ? true : ((p.status === 'approved') || Boolean(p.isVerified)),
               });
             });
+
+            if (hasRepairs) {
+              try {
+                localStorage.setItem('bharatbn_people_store', JSON.stringify(parsed));
+              } catch {}
+            }
           }
         }
 
@@ -191,22 +219,31 @@ export default function PeopleDirectoryPage() {
             const sess = JSON.parse(sessionStr);
             if (sess && sess.accountType === 'person' && sess.name) {
               const sessSlug = sess.slug || sess.handle?.replace(/^@/, '') || 'profile';
+              const isKashish = sessSlug === 'kashish' || sess.name?.toLowerCase().includes('kashish');
               const existing = map.get(sessSlug);
+
+              const cleanRole = isKashish ? 'Public Figure & Speaker' : (sess.role || existing?.role || 'Creator & Platform Pioneer');
+              const cleanBadge = isKashish ? 'Public Figure' : (sess.badge || existing?.badge || 'Creator');
+              const cleanLocation = isKashish ? 'noida' : (sess.location || existing?.location || 'India');
+              const cleanQuote = isKashish ? 'hi' : (sess.quote || existing?.quote || 'Building a stronger connected community across India.');
+              const cleanAvatar = isKashish ? '/people/kashish-avatar.png' : (sess.avatarUrl || existing?.avatarUrl || '');
+              const cleanCover = isKashish ? '/people/kashish-cover.jpg' : (sess.coverUrl || existing?.coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80');
+
               map.set(sessSlug, {
                 id: sess.personId || existing?.id || `BBN-PPL-${Date.now()}`,
                 name: sess.name,
                 slug: sessSlug,
                 handle: sess.handle?.startsWith('@') ? sess.handle : `@${sess.handle || sessSlug}`,
-                role: sess.role || existing?.role || 'Creator & Platform Pioneer',
-                badge: sess.badge || existing?.badge || 'Creator',
-                location: sess.location || existing?.location || 'India',
-                quote: sess.quote || existing?.quote || 'Building a stronger connected community across India.',
-                avatarUrl: sess.avatarUrl || existing?.avatarUrl || '',
-                coverUrl: sess.coverUrl || existing?.coverUrl || 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1200&q=80',
-                followersCount: sess.followersCount || existing?.followersCount || '1.2K',
+                role: cleanRole,
+                badge: cleanBadge,
+                location: cleanLocation,
+                quote: cleanQuote,
+                avatarUrl: cleanAvatar,
+                coverUrl: cleanCover,
+                followersCount: isKashish ? '1' : (sess.followersCount || existing?.followersCount || '1.2K'),
                 postsCount: sess.postsCount || existing?.postsCount || 1,
-                category: existing?.category || (sess.role?.toLowerCase().includes('creator') ? 'Creators & Influencers' : 'Public Figures & Speakers'),
-                isVerified: sess.isVerified !== undefined ? sess.isVerified : (existing?.isVerified || false),
+                category: isKashish ? 'Public Figures & Speakers' : (existing?.category || (sess.role?.toLowerCase().includes('creator') ? 'Creators & Influencers' : 'Public Figures & Speakers')),
+                isVerified: isKashish ? true : (sess.isVerified !== undefined ? sess.isVerified : (existing?.isVerified || false)),
               });
             }
           } catch { }
@@ -416,7 +453,16 @@ export default function PeopleDirectoryPage() {
                   <div className="p-5 pt-0 relative flex-1 flex flex-col justify-between space-y-4">
                     <div>
                       {/* Avatar with White Border (Negative Margin to overlap cover) */}
-                      <div className="relative -mt-10 mb-3 w-16 h-16 rounded-full bg-white border-3 border-white shadow-lg overflow-hidden flex items-center justify-center">
+                      <Link
+                        href={`/people/${person.slug}`}
+                        onClick={() => {
+                          try {
+                            sessionStorage.setItem('bharatbn_viewed_person', JSON.stringify(person));
+                          } catch {}
+                        }}
+                        className="relative -mt-10 mb-3 w-16 h-16 rounded-full bg-white border-3 border-white shadow-lg overflow-hidden flex items-center justify-center cursor-pointer block flex-shrink-0"
+                        title={`View ${person.name}'s profile`}
+                      >
                         {person.avatarUrl ? (
                           <img
                             src={person.avatarUrl}
@@ -439,18 +485,27 @@ export default function PeopleDirectoryPage() {
                         >
                           {person.name.slice(0, 1).toUpperCase()}
                         </div>
-                      </div>
+                      </Link>
 
                       {/* Name & Handle */}
                       <div className="space-y-0.5">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <h3 className="text-base font-extrabold text-slate-900 group-hover:text-[#F95700] transition">
+                        <Link
+                          href={`/people/${person.slug}`}
+                          onClick={() => {
+                            try {
+                              sessionStorage.setItem('bharatbn_viewed_person', JSON.stringify(person));
+                            } catch {}
+                          }}
+                          className="flex items-center gap-1.5 flex-wrap cursor-pointer group/title"
+                          title={`View ${person.name}'s complete profile`}
+                        >
+                          <h3 className="text-base font-extrabold text-slate-900 group-hover:text-[#F95700] group-hover/title:text-[#F95700] transition">
                             {person.name}
                           </h3>
                           {person.isVerified && (
                             <CheckCircle2 className="w-4 h-4 text-sky-500 fill-sky-50 flex-shrink-0" />
                           )}
-                        </div>
+                        </Link>
                         <p className="text-xs font-mono text-slate-400 font-medium">{person.handle}</p>
                       </div>
 
@@ -508,6 +563,11 @@ export default function PeopleDirectoryPage() {
                         {/* View Profile Button (Opens full public page!) */}
                         <Link
                           href={`/people/${person.slug}`}
+                          onClick={() => {
+                            try {
+                              sessionStorage.setItem('bharatbn_viewed_person', JSON.stringify(person));
+                            } catch {}
+                          }}
                           className="py-2 px-3.5 rounded-xl text-xs font-bold text-white bg-[#F95700] hover:bg-[#d94a00] shadow-sm transition flex items-center justify-center gap-1 cursor-pointer flex-shrink-0"
                           title={`View ${person.name}'s complete profile`}
                         >
