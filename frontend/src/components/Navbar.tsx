@@ -22,6 +22,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import BusinessLoginModal from './BusinessLoginModal';
+import NewPostModal from './NewPostModal';
 import {
   AppNotification,
   getNotifications,
@@ -50,11 +51,12 @@ export default function Navbar() {
   const pathname = usePathname();
   const [ownerSession, setOwnerSession] = useState<UserSession | null>(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isNewPostModalOpen, setIsNewPostModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notificationsList, setNotificationsList] = useState<AppNotification[]>([]);
 
-  // Sync Notifications from Store / localStorage
+  // Sync Notifications from Store / localStorage & Listen to New Post open triggers
   useEffect(() => {
     const syncNotifs = () => {
       try {
@@ -63,13 +65,19 @@ export default function Navbar() {
       } catch {}
     };
 
+    const handleOpenNewPost = () => {
+      setIsNewPostModalOpen(true);
+    };
+
     syncNotifs();
     window.addEventListener('bharatbn_notifications_updated', syncNotifs);
     window.addEventListener('bharatbn_auth_changed', syncNotifs);
+    window.addEventListener('bharatbn_open_new_post', handleOpenNewPost);
     window.addEventListener('storage', syncNotifs);
     return () => {
       window.removeEventListener('bharatbn_notifications_updated', syncNotifs);
       window.removeEventListener('bharatbn_auth_changed', syncNotifs);
+      window.removeEventListener('bharatbn_open_new_post', handleOpenNewPost);
       window.removeEventListener('storage', syncNotifs);
     };
   }, []);
@@ -374,14 +382,15 @@ export default function Navbar() {
                     <span>Profile Dashboard</span>
                   </Link>
 
-                  <Link
-                    href="/dashboard/person#new-post"
-                    className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-[#C94A00] hover:bg-[#A83800] transition shadow-xs whitespace-nowrap flex-shrink-0"
+                  <button
+                    type="button"
+                    onClick={() => setIsNewPostModalOpen(true)}
+                    className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold text-white bg-[#C94A00] hover:bg-[#A83800] transition shadow-xs whitespace-nowrap flex-shrink-0 cursor-pointer"
                     title="Publish a new post or update"
                   >
                     <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                     <span>New Post</span>
-                  </Link>
+                  </button>
                 </>
               ) : (
                 /* === BUSINESS OWNER LOGGED IN === */
@@ -488,6 +497,12 @@ export default function Navbar() {
       isOpen={isLoginModalOpen}
       onClose={() => setIsLoginModalOpen(false)}
       initialMode={authModalMode}
+    />
+
+    {/* Dedicated Create New Post Modal */}
+    <NewPostModal
+      isOpen={isNewPostModalOpen}
+      onClose={() => setIsNewPostModalOpen(false)}
     />
   </>
 );

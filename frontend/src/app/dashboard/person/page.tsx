@@ -44,6 +44,7 @@ import {
   X,
 } from 'lucide-react';
 import BusinessLoginModal from '@/components/BusinessLoginModal';
+import NewPostModal from '@/components/NewPostModal';
 import {
   InstagramIcon,
   YouTubeIcon,
@@ -180,6 +181,7 @@ export default function PersonDashboardPage() {
   const [newPostType, setNewPostType] = useState<'Posts' | 'News' | 'Events'>('Posts');
   const [newPostDesc, setNewPostDesc] = useState('');
   const [newPostImage, setNewPostImage] = useState('');
+  const [isNewPostModalOpen, setIsNewPostModalOpen] = useState(false);
 
   // 9. Community Stories & Collabs
   const [communityStoriesList, setCommunityStoriesList] = useState<CommunityStoryItem[]>([]);
@@ -501,6 +503,54 @@ export default function PersonDashboardPage() {
       window.removeEventListener('bharatbn_follow_changed', syncMetrics);
     };
   }, [slug]);
+
+  // Listen for #new-post hash or action to immediately open New Post feature only (not all profile)
+  useEffect(() => {
+    const handleNewPostFocus = () => {
+      if (typeof window !== 'undefined') {
+        const hash = window.location.hash;
+        const search = window.location.search;
+        if (hash === '#new-post' || search.includes('newPost=true')) {
+          setIsNewPostModalOpen(true);
+          // Collapse all other profile sections so ONLY posts feature is active
+          setOpenSections({
+            basicInfo: false,
+            education: false,
+            experience: false,
+            achievements: false,
+            news: false,
+            gallery: false,
+            videos: false,
+            posts: true,
+            stories: false,
+            social: false,
+            stats: false,
+          });
+          const el = document.getElementById('section-posts') || document.getElementById('new-post');
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }
+    };
+
+    handleNewPostFocus();
+    window.addEventListener('hashchange', handleNewPostFocus);
+    window.addEventListener('bharatbn_open_new_post', () => setIsNewPostModalOpen(true));
+
+    const onPostCreated = (e: any) => {
+      const created = e.detail;
+      if (created) {
+        setUpdates((prev) => [created, ...prev.filter((p) => p.id !== created.id)]);
+      }
+    };
+    window.addEventListener('bharatbn_post_created', onPostCreated);
+
+    return () => {
+      window.removeEventListener('hashchange', handleNewPostFocus);
+      window.removeEventListener('bharatbn_post_created', onPostCreated);
+    };
+  }, []);
 
   // Direct Person Cover Upload from Device
   const handlePersonCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1477,8 +1527,18 @@ export default function PersonDashboardPage() {
               </div>
             </div>
 
-            {/* Actions: View Live & Save */}
+            {/* Actions: View Live, New Post & Save */}
             <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 self-center sm:self-end flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsNewPostModalOpen(true)}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-[#C94A00] hover:bg-[#A83800] transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                title="Publish a new post or update"
+              >
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>New Post</span>
+              </button>
+
               <Link
                 href={`/people/${slug}`}
                 target="_blank"
@@ -2631,7 +2691,8 @@ export default function PersonDashboardPage() {
       {/* ========================================================================= */}
       {/* MODULE 8: POSTS & UPDATES PUBLISHER                                       */}
       {/* ========================================================================= */}
-      <div id="section-posts" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+      <div id="new-post" className="scroll-mt-24"></div>
+      <div id="section-posts" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden scroll-mt-24">
         <button
           type="button"
           onClick={() => toggleSection('posts')}
@@ -2660,10 +2721,20 @@ export default function PersonDashboardPage() {
             {/* Create Post Form */}
             <form onSubmit={handleCreatePost} className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3 mt-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                  <Plus className="w-4 h-4 text-[#F95700]" />
-                  <span>Create New Post / Update</span>
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <Plus className="w-4 h-4 text-[#F95700]" />
+                    <span>Create New Post / Update</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsNewPostModalOpen(true)}
+                    className="px-2 py-0.5 rounded-lg bg-orange-100 hover:bg-orange-200 text-[#F95700] text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
+                    title="Open dedicated popup composer"
+                  >
+                    <span>Popup Composer</span>
+                  </button>
+                </div>
                 <div className="flex items-center gap-1">
                   {(['Posts', 'News', 'Events'] as const).map((t) => (
                     <button
@@ -3261,6 +3332,12 @@ export default function PersonDashboardPage() {
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         initialMode="login"
+      />
+
+      {/* Dedicated New Post Composer Modal */}
+      <NewPostModal
+        isOpen={isNewPostModalOpen}
+        onClose={() => setIsNewPostModalOpen(false)}
       />
     </div>
   );

@@ -271,12 +271,25 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
       );
     };
 
+    const onPostCreated = (e: any) => {
+      const newPost = e.detail;
+      if (newPost) {
+        setPerson((prev) => ({
+          ...prev,
+          updates: [newPost, ...((prev.updates || []).filter((p) => p.id !== newPost.id))],
+          postsCount: (prev.postsCount || 0) + 1,
+        }));
+      }
+    };
+
     window.addEventListener('bharatbn_metrics_updated', onMetricsUpdated);
     window.addEventListener('bharatbn_follow_changed', onMetricsUpdated);
+    window.addEventListener('bharatbn_post_created', onPostCreated);
 
     return () => {
       window.removeEventListener('bharatbn_metrics_updated', onMetricsUpdated);
       window.removeEventListener('bharatbn_follow_changed', onMetricsUpdated);
+      window.removeEventListener('bharatbn_post_created', onPostCreated);
     };
   }, [person.slug, targetSlug]);
 
