@@ -7,6 +7,7 @@ import {
   Search,
   Users,
   CheckCircle2,
+  Check,
   ExternalLink,
   MapPin,
   Sparkles,
@@ -581,13 +582,15 @@ export default function PeopleDirectoryPage() {
                       </span>
                     </div>
 
-                    {/* Verified checkmark top-left */}
+                    {/* Blue Verified Icon top-left */}
                     {person.isVerified && (
                       <div className="absolute top-3 left-3">
-                        <span className="inline-flex items-center gap-1 text-[10px] font-black px-2 py-1 rounded-full bg-emerald-500/90 text-white shadow-sm">
-                          <CheckCircle2 className="w-2.5 h-2.5" />
-                          Verified
-                        </span>
+                        <div
+                          className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-md ring-2 ring-white/80"
+                          title="Official Verified Profile"
+                        >
+                          <Check className="w-3.5 h-3.5 stroke-[3.5]" />
+                        </div>
                       </div>
                     )}
                   </div>
@@ -596,37 +599,47 @@ export default function PeopleDirectoryPage() {
                   <div className="px-5 pb-5 relative flex-1 flex flex-col">
                     {/* Avatar + Follow inline row */}
                     <div className="flex items-end justify-between -mt-8 mb-4">
-                      <Link
-                        href={`/people/${person.slug}`}
-                        onClick={() => {
-                          try { sessionStorage.setItem('bharatbn_viewed_person', JSON.stringify(person)); } catch {}
-                        }}
-                        className="relative w-16 h-16 rounded-2xl bg-white ring-4 ring-white shadow-xl overflow-hidden block flex-shrink-0 hover:ring-[#F95700]/30 transition-all"
-                        title={`View ${person.name}'s profile`}
-                      >
-                        {person.avatarUrl ? (
-                          <img
-                            src={person.avatarUrl}
-                            alt={person.name}
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                              const parent = e.currentTarget.parentElement;
-                              if (parent) {
-                                const fb = parent.querySelector('.avatar-fallback');
-                                if (fb) (fb as HTMLElement).style.display = 'flex';
-                              }
-                            }}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : null}
-                        <div
-                          className={`w-full h-full bg-gradient-to-tr from-[#07213A] to-[#F95700] text-white font-black text-xl flex items-center justify-center avatar-fallback ${
-                            person.avatarUrl ? 'hidden' : 'flex'
-                          }`}
+                      <div className="relative flex-shrink-0">
+                        <Link
+                          href={`/people/${person.slug}`}
+                          onClick={() => {
+                            try { sessionStorage.setItem('bharatbn_viewed_person', JSON.stringify(person)); } catch {}
+                          }}
+                          className="relative w-16 h-16 rounded-2xl bg-white ring-4 ring-white shadow-xl overflow-hidden block hover:ring-[#F95700]/30 transition-all"
+                          title={`View ${person.name}'s profile`}
                         >
-                          {person.name.slice(0, 1).toUpperCase()}
-                        </div>
-                      </Link>
+                          {person.avatarUrl ? (
+                            <img
+                              src={person.avatarUrl}
+                              alt={person.name}
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                const parent = e.currentTarget.parentElement;
+                                if (parent) {
+                                  const fb = parent.querySelector('.avatar-fallback');
+                                  if (fb) (fb as HTMLElement).style.display = 'flex';
+                                }
+                              }}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : null}
+                          <div
+                            className={`w-full h-full bg-gradient-to-tr from-[#07213A] to-[#F95700] text-white font-black text-xl flex items-center justify-center avatar-fallback ${
+                              person.avatarUrl ? 'hidden' : 'flex'
+                            }`}
+                          >
+                            {person.name.slice(0, 1).toUpperCase()}
+                          </div>
+                        </Link>
+                        {person.isVerified && (
+                          <div
+                            className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center ring-2 ring-white shadow-md z-10"
+                            title="Official Verified Profile"
+                          >
+                            <Check className="w-3 h-3 stroke-[3.5]" />
+                          </div>
+                        )}
+                      </div>
 
                       {/* Follow Button (top-right of avatar row) */}
                       <button
@@ -667,11 +680,19 @@ export default function PeopleDirectoryPage() {
                         onClick={() => {
                           try { sessionStorage.setItem('bharatbn_viewed_person', JSON.stringify(person)); } catch {}
                         }}
-                        className="group/name"
+                        className="group/name inline-flex items-center gap-1.5 max-w-full"
                       >
                         <h3 className="text-[15px] font-black text-slate-900 group-hover/name:text-[#F95700] transition leading-snug line-clamp-1">
                           {person.name}
                         </h3>
+                        {person.isVerified && (
+                          <div
+                            className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs flex-shrink-0"
+                            title="Official Verified Profile"
+                          >
+                            <Check className="w-2.5 h-2.5 stroke-[3.5]" />
+                          </div>
+                        )}
                       </Link>
                       <p className="text-[11px] font-mono text-slate-400 mt-0.5">{person.handle}</p>
                     </div>
