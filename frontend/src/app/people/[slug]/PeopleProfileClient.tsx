@@ -337,96 +337,151 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
           </div>
 
           {/* Profile Identity & Action Bar */}
-          <div className="px-6 sm:px-8 pb-5 pt-0 relative bg-white">
-            {/* Top Row: Avatar overlapping bottom of cover + Action buttons aligned on right */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-14 sm:-mt-16 mb-3">
-              {/* Avatar Cutout with thick white border */}
-              <div className="relative w-28 h-28 sm:w-34 sm:h-34 rounded-full bg-white border-4 border-white shadow-xl overflow-hidden flex-shrink-0 z-10 flex items-center justify-center">
-                {person.avatarUrl ? (
-                  <img
-                    src={person.avatarUrl}
-                    alt={person.name}
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      const parent = e.currentTarget.parentElement;
-                      if (parent) {
-                        const fb = parent.querySelector('.profile-avatar-fallback');
-                        if (fb) (fb as HTMLElement).style.display = 'flex';
-                      }
-                    }}
-                    className="w-full h-full object-cover"
-                  />
-                ) : null}
-                <div
-                  className={`w-full h-full bg-gradient-to-tr from-[#07213A] to-[#F95700] text-white font-black text-3xl sm:text-4xl flex items-center justify-center profile-avatar-fallback ${
-                    person.avatarUrl ? 'hidden' : 'flex'
-                  }`}
-                >
-                  {(person.name || 'P').slice(0, 1).toUpperCase()}
+          <div className="px-6 sm:px-8 pb-6 pt-0 relative bg-white">
+            <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-5">
+              {/* Left Column: 50% Cut Avatar + Identity Info (Name, Verified Badge, Role, Location) */}
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
+                {/* Avatar Cutout: Exactly 50% in cover banner (-72px) and 50% in white body (+72px) */}
+                <div className="relative -mt-16 sm:-mt-[72px] w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-white border-4 border-white shadow-xl overflow-hidden flex-shrink-0 z-20 flex items-center justify-center">
+                  {person.avatarUrl ? (
+                    <img
+                      src={person.avatarUrl}
+                      alt={person.name}
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        const parent = e.currentTarget.parentElement;
+                        if (parent) {
+                          const fb = parent.querySelector('.profile-avatar-fallback');
+                          if (fb) (fb as HTMLElement).style.display = 'flex';
+                        }
+                      }}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : null}
+                  <div
+                    className={`w-full h-full bg-gradient-to-tr from-[#07213A] to-[#F95700] text-white font-black text-3xl sm:text-4xl flex items-center justify-center profile-avatar-fallback ${
+                      person.avatarUrl ? 'hidden' : 'flex'
+                    }`}
+                  >
+                    {(person.name || 'P').slice(0, 1).toUpperCase()}
+                  </div>
+                </div>
+
+                {/* Identity Details (Starts cleanly inside white card below banner) */}
+                <div className="space-y-1.5 pt-1 sm:pt-3.5 pb-1">
+                  {/* Category Badge & Verification Status */}
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                    {person.badge && (
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold text-[#F95700] bg-orange-50 border border-orange-200 uppercase tracking-wide">
+                        {person.badge}
+                      </span>
+                    )}
+                    {!person.isVerified && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200">
+                        Pending Verification
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Name + Verified Checkmark */}
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                    <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                      {person.name}
+                    </h1>
+                    {person.isVerified && (
+                      <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs" title="Official Verified Profile">
+                        <Check className="w-3 h-3 stroke-[3.5]" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Role */}
+                  <p className="text-xs sm:text-base font-semibold text-slate-700">
+                    {person.role}
+                  </p>
+
+                  {/* Location & Handle */}
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-xs text-slate-500 font-medium pt-0.5">
+                    {person.location && (
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                        <span>{person.location}</span>
+                      </span>
+                    )}
+                    {person.slug && (
+                      <>
+                        <span className="text-slate-300">&bull;</span>
+                        <span className="font-mono text-slate-400">@{person.slug}</span>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* Action Buttons & Social Icons Row (Cleanly grouped on right in white area) */}
-              <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0">
-                {/* Follow Button */}
-                <button
-                  type="button"
-                  onClick={handleToggleFollow}
-                  className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-xs cursor-pointer ${
-                    isFollowing
-                      ? 'bg-slate-900 text-white hover:bg-slate-800'
-                      : 'bg-[#F95700] hover:bg-[#d94a00] text-white shadow-[#F95700]/25'
-                  }`}
-                >
-                  {isFollowing ? (
-                    <>
-                      <Check className="w-4 h-4 text-emerald-400 stroke-[3]" />
-                      <span>Following</span>
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-4 h-4 stroke-[3]" />
-                      <span>Follow</span>
-                    </>
-                  )}
-                </button>
-
-                {/* Message Button */}
-                <button
-                  type="button"
-                  onClick={() => setIsMessageModalOpen(true)}
-                  className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
-                >
-                  <MessageSquare className="w-4 h-4 text-slate-500" />
-                  <span>Message</span>
-                </button>
-
-                {/* Share Button */}
-                <button
-                  type="button"
-                  onClick={handleCopyShare}
-                  className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
-                  title="Share Profile Link"
-                >
-                  {copiedLink ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4 text-slate-500" />}
-                  <span>{copiedLink ? 'Copied' : 'Share'}</span>
-                </button>
-
-                {/* Visit Website Button */}
-                {person.website && (
-                  <a
-                    href={person.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-2xs"
+              {/* Right Column: Action Buttons & Social Icons (Aligned cleanly in white area) */}
+              <div className="flex flex-col items-center lg:items-end gap-2.5 pt-2 sm:pt-3.5 flex-shrink-0">
+                {/* Action Buttons Row */}
+                <div className="flex flex-wrap items-center justify-center lg:justify-end gap-2">
+                  {/* Follow Button */}
+                  <button
+                    type="button"
+                    onClick={handleToggleFollow}
+                    className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-xs cursor-pointer ${
+                      isFollowing
+                        ? 'bg-slate-900 text-white hover:bg-slate-800'
+                        : 'bg-[#F95700] hover:bg-[#d94a00] text-white shadow-[#F95700]/25'
+                    }`}
                   >
-                    <span>Website</span>
-                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-                  </a>
-                )}
+                    {isFollowing ? (
+                      <>
+                        <Check className="w-4 h-4 text-emerald-400 stroke-[3]" />
+                        <span>Following</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4 stroke-[3]" />
+                        <span>Follow</span>
+                      </>
+                    )}
+                  </button>
 
-                {/* Inline Social Icons */}
-                <div className="flex items-center gap-1.5 pl-1.5 border-l border-slate-200 ml-0.5">
+                  {/* Message Button */}
+                  <button
+                    type="button"
+                    onClick={() => setIsMessageModalOpen(true)}
+                    className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                  >
+                    <MessageSquare className="w-4 h-4 text-slate-500" />
+                    <span>Message</span>
+                  </button>
+
+                  {/* Share Button */}
+                  <button
+                    type="button"
+                    onClick={handleCopyShare}
+                    className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                    title="Share Profile Link"
+                  >
+                    {copiedLink ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4 text-slate-500" />}
+                    <span>{copiedLink ? 'Copied' : 'Share'}</span>
+                  </button>
+
+                  {/* Visit Website Button */}
+                  {person.website && (
+                    <a
+                      href={person.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-2xs"
+                    >
+                      <span>Website</span>
+                      <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                    </a>
+                  )}
+                </div>
+
+                {/* Social Icons Row */}
+                <div className="flex items-center justify-center lg:justify-end gap-2">
                   {person.socialLinks.instagram && (
                     <a
                       href={person.socialLinks.instagram}
@@ -483,52 +538,6 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     </a>
                   )}
                 </div>
-              </div>
-            </div>
-
-            {/* Profile Identity Details */}
-            <div className="space-y-1.5 pt-1">
-              {/* Name + Verified Checkmark + Category Badge */}
-              <div className="flex flex-wrap items-center gap-2.5">
-                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                  {person.name}
-                </h1>
-                {person.isVerified && (
-                  <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs" title="Official Verified Profile">
-                    <Check className="w-3 h-3 stroke-[3.5]" />
-                  </div>
-                )}
-                {person.badge && (
-                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold text-[#F95700] bg-orange-50 border border-orange-200 uppercase tracking-wide">
-                    {person.badge}
-                  </span>
-                )}
-                {!person.isVerified && (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200">
-                    Pending Verification
-                  </span>
-                )}
-              </div>
-
-              {/* Role */}
-              <p className="text-sm sm:text-base font-semibold text-slate-700">
-                {person.role}
-              </p>
-
-              {/* Location & Handle */}
-              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 font-medium pt-0.5">
-                {person.location && (
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{person.location}</span>
-                  </span>
-                )}
-                {person.slug && (
-                  <>
-                    <span className="text-slate-300">&bull;</span>
-                    <span className="font-mono text-slate-400">@{person.slug}</span>
-                  </>
-                )}
               </div>
             </div>
           </div>
