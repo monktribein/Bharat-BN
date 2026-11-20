@@ -76,6 +76,16 @@ interface PersonSession {
   storiesCount?: string | number;
   status?: string;
   isVerified?: boolean;
+  educationList?: EducationItem[];
+  experienceList?: ExperienceItem[];
+  achievementsList?: AchievementItem[];
+  newsList?: NewsItem[];
+  gallery?: { url: string; caption: string }[];
+  videoList?: VideoItem[];
+  updates?: any[];
+  communityStoriesList?: CommunityStoryItem[];
+  socialLinks?: any;
+  featuredVideo?: any;
 }
 
 export default function PersonDashboardPage() {
@@ -84,6 +94,13 @@ export default function PersonDashboardPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // Per-section dedicated saving states
+  const [savingSection, setSavingSection] = useState<string | null>(null);
+  const [savedSection, setSavedSection] = useState<string | null>(null);
+  const [isSavingAll, setIsSavingAll] = useState(false);
+  const [saveAllSuccess, setSaveAllSuccess] = useState(false);
+  const [saveToast, setSaveToast] = useState<string | null>(null);
 
   // 1. Profile Identity & Bio States
   const [name, setName] = useState('');
@@ -328,44 +345,76 @@ export default function PersonDashboardPage() {
     }
 
     // 2. Education List
-    const loadedEdu = Array.isArray(found?.educationList) && found.educationList.length > 0
+    const loadedEdu = (Array.isArray(found?.educationList) && found.educationList.length > 0)
       ? found.educationList
+      : (Array.isArray(currSession?.educationList) && currSession.educationList.length > 0)
+      ? currSession.educationList
       : (found?.education ? [{ id: 'edu-1', degree: found.education, institution: 'Academic Institution', year: 'Verified', description: 'Academic degree and qualification' }] : []);
     setEducationList(loadedEdu);
 
     // 3. Experience List
-    const loadedExp = Array.isArray(found?.experienceList) && found.experienceList.length > 0
+    const loadedExp = (Array.isArray(found?.experienceList) && found.experienceList.length > 0)
       ? found.experienceList
+      : (Array.isArray(currSession?.experienceList) && currSession.experienceList.length > 0)
+      ? currSession.experienceList
       : (found?.experience ? [{ id: 'exp-1', role: found.experience, organization: 'Organization / Institution', period: 'Ongoing', description: 'Public initiatives & leadership responsibilities' }] : []);
     setExperienceList(loadedExp);
 
     // 4. Achievements List
-    const loadedAch = Array.isArray(found?.achievementsList) && found.achievementsList.length > 0
+    const loadedAch = (Array.isArray(found?.achievementsList) && found.achievementsList.length > 0)
       ? found.achievementsList
+      : (Array.isArray(currSession?.achievementsList) && currSession.achievementsList.length > 0)
+      ? currSession.achievementsList
       : (found?.achievements ? [{ id: 'ach-1', title: found.achievements, organization: 'Recognizing Committee', year: 'Awarded', description: 'Recognized achievement and contributions' }] : []);
     setAchievementsList(loadedAch);
 
     // 5. News & Media Coverage List
-    setNewsList(Array.isArray(found?.newsList) ? found.newsList : []);
+    const loadedNews = (Array.isArray(found?.newsList) && found.newsList.length > 0)
+      ? found.newsList
+      : (Array.isArray(currSession?.newsList) && currSession.newsList.length > 0)
+      ? currSession.newsList
+      : [];
+    setNewsList(loadedNews);
 
     // 6. Photo Gallery List
-    setGallery(Array.isArray(found?.gallery) ? found.gallery : []);
+    const loadedGallery = (Array.isArray(found?.gallery) && found.gallery.length > 0)
+      ? found.gallery
+      : (Array.isArray(currSession?.gallery) && currSession.gallery.length > 0)
+      ? currSession.gallery
+      : [];
+    setGallery(loadedGallery);
 
     // 7. Video Gallery & Featured Video
-    setFeaturedVideoTitle(found?.featuredVideo?.title || 'Featured Video');
-    setFeaturedVideoSubtitle(found?.featuredVideo?.subtitle || 'Public Address & Keynote');
-    setFeaturedVideoUrl(found?.featuredVideo?.videoUrl || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+    setFeaturedVideoTitle(found?.featuredVideo?.title || currSession?.featuredVideo?.title || 'Featured Video');
+    setFeaturedVideoSubtitle(found?.featuredVideo?.subtitle || currSession?.featuredVideo?.subtitle || 'Public Address & Keynote');
+    setFeaturedVideoUrl(found?.featuredVideo?.videoUrl || currSession?.featuredVideo?.videoUrl || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
     setFeaturedVideoThumb(
       found?.featuredVideo?.thumbnailUrl ||
+        currSession?.featuredVideo?.thumbnailUrl ||
         'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80'
     );
-    setVideoList(Array.isArray(found?.videoList) ? found.videoList : []);
+    const loadedVideos = (Array.isArray(found?.videoList) && found.videoList.length > 0)
+      ? found.videoList
+      : (Array.isArray(currSession?.videoList) && currSession.videoList.length > 0)
+      ? currSession.videoList
+      : [];
+    setVideoList(loadedVideos);
 
     // 8. Posts & Updates Feed
-    setUpdates(Array.isArray(found?.updates) ? found.updates : []);
+    const loadedUpdates = (Array.isArray(found?.updates) && found.updates.length > 0)
+      ? found.updates
+      : (Array.isArray(currSession?.updates) && currSession.updates.length > 0)
+      ? currSession.updates
+      : [];
+    setUpdates(loadedUpdates);
 
     // 9. Community Stories List
-    setCommunityStoriesList(Array.isArray(found?.communityStoriesList) ? found.communityStoriesList : []);
+    const loadedStories = (Array.isArray(found?.communityStoriesList) && found.communityStoriesList.length > 0)
+      ? found.communityStoriesList
+      : (Array.isArray(currSession?.communityStoriesList) && currSession.communityStoriesList.length > 0)
+      ? currSession.communityStoriesList
+      : [];
+    setCommunityStoriesList(loadedStories);
 
     // 11. Audience Stats
     setFollowersCount(found?.followersCount ? String(found.followersCount) : (currSession.followersCount ? String(currSession.followersCount) : '0'));
@@ -513,7 +562,15 @@ export default function PersonDashboardPage() {
   };
 
   const handleDeletePhoto = (index: number) => {
-    setGallery(gallery.filter((_, i) => i !== index));
+    const next = gallery.filter((_, i) => i !== index);
+    setGallery(next);
+    saveProfileData({ gallery: next });
+    setSavedSection('gallery');
+    setSaveToast('Photo removed from gallery');
+    setTimeout(() => {
+      setSavedSection(null);
+      setSaveToast(null);
+    }, 2500);
   };
 
   // Education Handlers
@@ -527,15 +584,31 @@ export default function PersonDashboardPage() {
       year: newEduYear.trim() || undefined,
       description: newEduDesc.trim() || undefined,
     };
-    setEducationList([...educationList, item]);
+    const next = [...educationList, item];
+    setEducationList(next);
     setNewDegree('');
     setNewInstitution('');
     setNewEduYear('');
     setNewEduDesc('');
+    saveProfileData({ educationList: next });
+    setSavedSection('education');
+    setSaveToast('Education qualification added and saved!');
+    setTimeout(() => {
+      setSavedSection(null);
+      setSaveToast(null);
+    }, 3000);
   };
 
   const handleDeleteEducation = (id: string) => {
-    setEducationList(educationList.filter((item) => item.id !== id));
+    const next = educationList.filter((item) => item.id !== id);
+    setEducationList(next);
+    saveProfileData({ educationList: next });
+    setSavedSection('education');
+    setSaveToast('Education record removed');
+    setTimeout(() => {
+      setSavedSection(null);
+      setSaveToast(null);
+    }, 2500);
   };
 
   // Experience Handlers
@@ -549,15 +622,31 @@ export default function PersonDashboardPage() {
       period: newExpPeriod.trim() || undefined,
       description: newExpDesc.trim() || undefined,
     };
-    setExperienceList([...experienceList, item]);
+    const next = [...experienceList, item];
+    setExperienceList(next);
     setNewExpRole('');
     setNewExpOrg('');
     setNewExpPeriod('');
     setNewExpDesc('');
+    saveProfileData({ experienceList: next });
+    setSavedSection('experience');
+    setSaveToast('Experience record added and saved!');
+    setTimeout(() => {
+      setSavedSection(null);
+      setSaveToast(null);
+    }, 3000);
   };
 
   const handleDeleteExperience = (id: string) => {
-    setExperienceList(experienceList.filter((item) => item.id !== id));
+    const next = experienceList.filter((item) => item.id !== id);
+    setExperienceList(next);
+    saveProfileData({ experienceList: next });
+    setSavedSection('experience');
+    setSaveToast('Experience record removed');
+    setTimeout(() => {
+      setSavedSection(null);
+      setSaveToast(null);
+    }, 2500);
   };
 
   // Achievement Handlers
@@ -571,15 +660,31 @@ export default function PersonDashboardPage() {
       year: newAchYear.trim() || undefined,
       description: newAchDesc.trim() || undefined,
     };
-    setAchievementsList([...achievementsList, item]);
+    const next = [...achievementsList, item];
+    setAchievementsList(next);
     setNewAchTitle('');
     setNewAchOrg('');
     setNewAchYear('');
     setNewAchDesc('');
+    saveProfileData({ achievementsList: next });
+    setSavedSection('achievements');
+    setSaveToast('Achievement added and saved!');
+    setTimeout(() => {
+      setSavedSection(null);
+      setSaveToast(null);
+    }, 3000);
   };
 
   const handleDeleteAchievement = (id: string) => {
-    setAchievementsList(achievementsList.filter((item) => item.id !== id));
+    const next = achievementsList.filter((item) => item.id !== id);
+    setAchievementsList(next);
+    saveProfileData({ achievementsList: next });
+    setSavedSection('achievements');
+    setSaveToast('Achievement removed');
+    setTimeout(() => {
+      setSavedSection(null);
+      setSaveToast(null);
+    }, 2500);
   };
 
   // News Handlers
@@ -594,16 +699,32 @@ export default function PersonDashboardPage() {
       url: newNewsUrl.trim() || undefined,
       description: newNewsDesc.trim() || undefined,
     };
-    setNewsList([...newsList, item]);
+    const next = [...newsList, item];
+    setNewsList(next);
     setNewNewsTitle('');
     setNewNewsSource('');
     setNewNewsDate('');
     setNewNewsUrl('');
     setNewNewsDesc('');
+    saveProfileData({ newsList: next });
+    setSavedSection('news');
+    setSaveToast('News article added and saved!');
+    setTimeout(() => {
+      setSavedSection(null);
+      setSaveToast(null);
+    }, 3000);
   };
 
   const handleDeleteNews = (id: string) => {
-    setNewsList(newsList.filter((item) => item.id !== id));
+    const next = newsList.filter((item) => item.id !== id);
+    setNewsList(next);
+    saveProfileData({ newsList: next });
+    setSavedSection('news');
+    setSaveToast('News article removed');
+    setTimeout(() => {
+      setSavedSection(null);
+      setSaveToast(null);
+    }, 2500);
   };
 
   // Video Playlist Handlers
@@ -619,15 +740,31 @@ export default function PersonDashboardPage() {
         'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
       duration: newVideoDuration.trim() || undefined,
     };
-    setVideoList([...videoList, item]);
+    const next = [...videoList, item];
+    setVideoList(next);
     setNewVideoTitle('');
     setNewVideoUrl('');
     setNewVideoThumb('');
     setNewVideoDuration('');
+    saveProfileData({ videoList: next });
+    setSavedSection('videos');
+    setSaveToast('Video added to playlist and saved!');
+    setTimeout(() => {
+      setSavedSection(null);
+      setSaveToast(null);
+    }, 3000);
   };
 
   const handleDeleteVideo = (id: string) => {
-    setVideoList(videoList.filter((item) => item.id !== id));
+    const next = videoList.filter((item) => item.id !== id);
+    setVideoList(next);
+    saveProfileData({ videoList: next });
+    setSavedSection('videos');
+    setSaveToast('Video removed from playlist');
+    setTimeout(() => {
+      setSavedSection(null);
+      setSaveToast(null);
+    }, 2500);
   };
 
   // Posts Handlers
@@ -647,19 +784,43 @@ export default function PersonDashboardPage() {
       shares: 0,
     };
 
-    setUpdates([newPost, ...updates]);
+    const next = [newPost, ...updates];
+    setUpdates(next);
     setNewPostTitle('');
     setNewPostDesc('');
     setNewPostImage('');
+    saveProfileData({ updates: next });
+    setSavedSection('posts');
+    setSaveToast('Update published and saved to profile feed!');
+    setTimeout(() => {
+      setSavedSection(null);
+      setSaveToast(null);
+    }, 3000);
   };
 
   const handleDeletePost = (id: string) => {
-    setUpdates(updates.filter((p) => p.id !== id));
+    const next = updates.filter((p) => p.id !== id);
+    setUpdates(next);
+    saveProfileData({ updates: next });
+    setSavedSection('posts');
+    setSaveToast('Post removed from feed');
+    setTimeout(() => {
+      setSavedSection(null);
+      setSaveToast(null);
+    }, 2500);
   };
 
   // Story Handlers
   const handleDeleteStory = (id: string) => {
-    setCommunityStoriesList(communityStoriesList.filter((s) => s.id !== id));
+    const next = communityStoriesList.filter((s) => s.id !== id);
+    setCommunityStoriesList(next);
+    saveProfileData({ communityStoriesList: next });
+    setSavedSection('stories');
+    setSaveToast('Community story removed');
+    setTimeout(() => {
+      setSavedSection(null);
+      setSaveToast(null);
+    }, 2500);
   };
 
   const handleCopyPublicLink = () => {
@@ -669,99 +830,386 @@ export default function PersonDashboardPage() {
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  // Master Save: Persists all 11 modules to localStorage
-  const handleSaveProfile = () => {
-    setIsSaving(true);
-    setTimeout(() => {
-      const cleanSlug = (
-        slug ||
-        handle.replace(/^@/, '') ||
-        name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') ||
-        'profile'
-      )
-        .toLowerCase()
-        .trim();
+  // Base Save Engine: Persists all modules consistently to localStorage & session
+  const saveProfileData = (overrideData?: Record<string, any>) => {
+    const cleanSlug = (
+      overrideData?.slug ||
+      slug ||
+      handle.replace(/^@/, '') ||
+      name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') ||
+      'profile'
+    )
+      .toLowerCase()
+      .trim();
 
-      const updatedSession: PersonSession = {
-        accountType: 'person',
-        personId: session?.personId || `BBN-PPL-${Date.now().toString().slice(-6)}`,
-        name,
-        handle,
+    const currEdu = overrideData?.educationList || educationList;
+    const currExp = overrideData?.experienceList || experienceList;
+    const currAch = overrideData?.achievementsList || achievementsList;
+    const currNews = overrideData?.newsList || newsList;
+    const currGallery = overrideData?.gallery || gallery;
+    const currVideos = overrideData?.videoList || videoList;
+    const currUpdates = overrideData?.updates || updates;
+    const currStories = overrideData?.communityStoriesList || communityStoriesList;
+    const currSocial = {
+      youtube: (overrideData?.socialYoutube ?? socialYoutube).trim(),
+      instagram: (overrideData?.socialInstagram ?? socialInstagram).trim(),
+      twitter: (overrideData?.socialTwitter ?? socialTwitter).trim(),
+      facebook: (overrideData?.socialFacebook ?? socialFacebook).trim(),
+      linkedin: (overrideData?.socialLinkedin ?? socialLinkedin).trim(),
+    };
+    const currFeaturedVideo = {
+      title: overrideData?.featuredVideoTitle ?? featuredVideoTitle ?? 'Featured Video',
+      subtitle: overrideData?.featuredVideoSubtitle ?? featuredVideoSubtitle ?? 'Public Address & Keynote',
+      videoUrl: overrideData?.featuredVideoUrl ?? featuredVideoUrl ?? 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      thumbnailUrl:
+        overrideData?.featuredVideoThumb ??
+        featuredVideoThumb ??
+        'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
+    };
+
+    const updatedSession: PersonSession = {
+      accountType: 'person',
+      personId: session?.personId || `BBN-PPL-${Date.now().toString().slice(-6)}`,
+      name: overrideData?.name ?? name,
+      handle: overrideData?.handle ?? handle,
+      slug: cleanSlug,
+      role: overrideData?.role ?? role,
+      badge: overrideData?.badge ?? badge,
+      location: overrideData?.location ?? location,
+      quote: overrideData?.quote ?? quote,
+      website: overrideData?.website ?? website,
+      email: overrideData?.email ?? email,
+      phone: overrideData?.phone ?? phone,
+      aboutText: overrideData?.aboutText ?? aboutText,
+      avatarUrl: overrideData?.avatarUrl ?? avatarUrl,
+      coverUrl: overrideData?.coverUrl ?? coverUrl,
+      followersCount: overrideData?.followersCount ?? followersCount,
+      followingCount: overrideData?.followingCount ?? followingCount,
+      viewsCount: overrideData?.viewsCount ?? viewsCount,
+      engagementsCount: overrideData?.engagementsCount ?? engagementsCount,
+      storiesCount: String(currStories.length),
+      status: session?.status || 'pending',
+      isVerified: session?.isVerified || false,
+      educationList: currEdu,
+      experienceList: currExp,
+      achievementsList: currAch,
+      newsList: currNews,
+      gallery: currGallery,
+      videoList: currVideos,
+      updates: currUpdates,
+      communityStoriesList: currStories,
+      socialLinks: currSocial,
+      featuredVideo: currFeaturedVideo,
+    };
+
+    try {
+      localStorage.setItem('bharatbn_owner_session', JSON.stringify(updatedSession));
+      window.dispatchEvent(new Event('bharatbn_auth_changed'));
+
+      // Save into people store with all modules
+      const stored = localStorage.getItem('bharatbn_people_store');
+      let people = stored ? JSON.parse(stored) : [];
+      const idx = people.findIndex((p: any) => p.slug === cleanSlug || p.id === updatedSession.personId);
+
+      const fullRecord = {
+        ...updatedSession,
         slug: cleanSlug,
-        role,
-        badge,
-        location,
-        quote,
-        website,
-        email,
-        phone,
-        aboutText,
-        avatarUrl,
-        coverUrl,
-        followersCount,
-        followingCount,
-        viewsCount,
-        engagementsCount,
-        storiesCount: String(communityStoriesList.length),
+        socialLinks: currSocial,
+        educationList: currEdu,
+        experienceList: currExp,
+        achievementsList: currAch,
+        newsList: currNews,
+        gallery: currGallery,
+        featuredVideo: currFeaturedVideo,
+        videoList: currVideos,
+        updates: currUpdates,
+        communityStoriesList: currStories,
+        communityStoriesCount: currStories.length,
+        followingCount: Number(updatedSession.followingCount) || 12,
         status: session?.status || 'pending',
         isVerified: session?.isVerified || false,
       };
 
-      try {
-        localStorage.setItem('bharatbn_owner_session', JSON.stringify(updatedSession));
-        window.dispatchEvent(new Event('bharatbn_auth_changed'));
-
-        // Save into people store with all 11 modules
-        const stored = localStorage.getItem('bharatbn_people_store');
-        let people = stored ? JSON.parse(stored) : [];
-        const idx = people.findIndex((p: any) => p.slug === cleanSlug || p.id === updatedSession.personId);
-
-        const fullRecord = {
-          ...updatedSession,
-          slug: cleanSlug,
-          socialLinks: {
-            youtube: socialYoutube.trim(),
-            instagram: socialInstagram.trim(),
-            twitter: socialTwitter.trim(),
-            facebook: socialFacebook.trim(),
-            linkedin: socialLinkedin.trim(),
-          },
-          educationList,
-          experienceList,
-          achievementsList,
-          newsList,
-          gallery,
-          featuredVideo: {
-            title: featuredVideoTitle || 'Featured Video',
-            subtitle: featuredVideoSubtitle || 'Public Address & Keynote',
-            videoUrl: featuredVideoUrl || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-            thumbnailUrl:
-              featuredVideoThumb ||
-              'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
-          },
-          videoList,
-          updates,
-          communityStoriesList,
-          communityStoriesCount: communityStoriesList.length,
-          followingCount: Number(followingCount) || 12,
-          status: session?.status || 'pending',
-          isVerified: session?.isVerified || false,
-        };
-
-        if (idx !== -1) {
-          people[idx] = { ...people[idx], ...fullRecord };
-        } else {
-          people.unshift(fullRecord);
-        }
-        localStorage.setItem('bharatbn_people_store', JSON.stringify(people));
-        window.dispatchEvent(new Event('bharatbn_people_updated'));
-      } catch (err) {
-        console.error(err);
+      if (idx !== -1) {
+        people[idx] = { ...people[idx], ...fullRecord };
+      } else {
+        people.unshift(fullRecord);
       }
+      localStorage.setItem('bharatbn_people_store', JSON.stringify(people));
+      window.dispatchEvent(new Event('bharatbn_people_updated'));
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
+  // Dedicated Section Save: Saves ONLY that specific module & commits any typed form data
+  const handleSaveSection = (sectionKey: string) => {
+    setSavingSection(sectionKey);
+
+    let nextEdu = educationList;
+    let nextExp = experienceList;
+    let nextAch = achievementsList;
+    let nextNews = newsList;
+    let nextVideos = videoList;
+    let nextUpdates = updates;
+    let sectionToast = 'Changes saved successfully!';
+
+    if (sectionKey === 'basicInfo') {
+      sectionToast = 'Basic Info & Bio saved successfully!';
+    } else if (sectionKey === 'hero') {
+      sectionToast = 'Profile header saved successfully!';
+    } else if (sectionKey === 'education') {
+      if (newDegree.trim() && newInstitution.trim()) {
+        const item: EducationItem = {
+          id: `edu-${Date.now()}`,
+          degree: newDegree.trim(),
+          institution: newInstitution.trim(),
+          year: newEduYear.trim() || undefined,
+          description: newEduDesc.trim() || undefined,
+        };
+        nextEdu = [...educationList, item];
+        setEducationList(nextEdu);
+        setNewDegree('');
+        setNewInstitution('');
+        setNewEduYear('');
+        setNewEduDesc('');
+      }
+      sectionToast = 'Education qualifications saved successfully!';
+    } else if (sectionKey === 'experience') {
+      if (newExpRole.trim() && newExpOrg.trim()) {
+        const item: ExperienceItem = {
+          id: `exp-${Date.now()}`,
+          role: newExpRole.trim(),
+          organization: newExpOrg.trim(),
+          period: newExpPeriod.trim() || undefined,
+          description: newExpDesc.trim() || undefined,
+        };
+        nextExp = [...experienceList, item];
+        setExperienceList(nextExp);
+        setNewExpRole('');
+        setNewExpOrg('');
+        setNewExpPeriod('');
+        setNewExpDesc('');
+      }
+      sectionToast = 'Professional experience saved successfully!';
+    } else if (sectionKey === 'achievements') {
+      if (newAchTitle.trim()) {
+        const item: AchievementItem = {
+          id: `ach-${Date.now()}`,
+          title: newAchTitle.trim(),
+          organization: newAchOrg.trim() || undefined,
+          year: newAchYear.trim() || undefined,
+          description: newAchDesc.trim() || undefined,
+        };
+        nextAch = [...achievementsList, item];
+        setAchievementsList(nextAch);
+        setNewAchTitle('');
+        setNewAchOrg('');
+        setNewAchYear('');
+        setNewAchDesc('');
+      }
+      sectionToast = 'Achievements and recognitions saved successfully!';
+    } else if (sectionKey === 'news') {
+      if (newNewsTitle.trim() && newNewsSource.trim()) {
+        const item: NewsItem = {
+          id: `news-${Date.now()}`,
+          title: newNewsTitle.trim(),
+          source: newNewsSource.trim(),
+          date: newNewsDate.trim() || 'Recently',
+          url: newNewsUrl.trim() || undefined,
+          description: newNewsDesc.trim() || undefined,
+        };
+        nextNews = [...newsList, item];
+        setNewsList(nextNews);
+        setNewNewsTitle('');
+        setNewNewsSource('');
+        setNewNewsDate('');
+        setNewNewsUrl('');
+        setNewNewsDesc('');
+      }
+      sectionToast = 'News & media coverage saved successfully!';
+    } else if (sectionKey === 'gallery') {
+      sectionToast = 'Photo gallery saved successfully!';
+    } else if (sectionKey === 'videos') {
+      if (newVideoTitle.trim() && newVideoUrl.trim()) {
+        const item: VideoItem = {
+          id: `vid-${Date.now()}`,
+          title: newVideoTitle.trim(),
+          videoUrl: newVideoUrl.trim(),
+          thumbnailUrl:
+            newVideoThumb.trim() ||
+            'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
+          duration: newVideoDuration.trim() || undefined,
+        };
+        nextVideos = [...videoList, item];
+        setVideoList(nextVideos);
+        setNewVideoTitle('');
+        setNewVideoUrl('');
+        setNewVideoThumb('');
+        setNewVideoDuration('');
+      }
+      sectionToast = 'Video gallery saved successfully!';
+    } else if (sectionKey === 'posts') {
+      if (newPostTitle.trim()) {
+        const newPost = {
+          id: `post-${Date.now()}`,
+          type: newPostType,
+          title: newPostTitle.trim(),
+          desc: newPostDesc.trim(),
+          imageUrl: newPostImage.trim() || undefined,
+          date: 'Just now',
+          likes: 1,
+          comments: 0,
+          shares: 0,
+        };
+        nextUpdates = [newPost, ...updates];
+        setUpdates(nextUpdates);
+        setNewPostTitle('');
+        setNewPostDesc('');
+        setNewPostImage('');
+      }
+      sectionToast = 'Updates and announcements saved successfully!';
+    } else if (sectionKey === 'stories') {
+      sectionToast = 'Community stories saved successfully!';
+    } else if (sectionKey === 'social') {
+      sectionToast = 'Social media links saved successfully!';
+    } else if (sectionKey === 'stats') {
+      sectionToast = 'Audience metrics saved successfully!';
+    }
+
+    saveProfileData({
+      educationList: nextEdu,
+      experienceList: nextExp,
+      achievementsList: nextAch,
+      newsList: nextNews,
+      videoList: nextVideos,
+      updates: nextUpdates,
+    });
+
+    setTimeout(() => {
+      setSavingSection(null);
+      setSavedSection(sectionKey);
+      setSaveToast(sectionToast);
+      setTimeout(() => {
+        setSavedSection(null);
+        setSaveToast(null);
+      }, 3000);
+    }, 250);
+  };
+
+  // Master Save: Persists all 11 modules to localStorage together
+  const handleSaveAllModules = () => {
+    setIsSavingAll(true);
+    setIsSaving(true);
+
+    let nextEdu = educationList;
+    if (newDegree.trim() && newInstitution.trim()) {
+      const item: EducationItem = {
+        id: `edu-${Date.now()}`,
+        degree: newDegree.trim(),
+        institution: newInstitution.trim(),
+        year: newEduYear.trim() || undefined,
+        description: newEduDesc.trim() || undefined,
+      };
+      nextEdu = [...educationList, item];
+      setEducationList(nextEdu);
+      setNewDegree('');
+      setNewInstitution('');
+      setNewEduYear('');
+      setNewEduDesc('');
+    }
+
+    let nextExp = experienceList;
+    if (newExpRole.trim() && newExpOrg.trim()) {
+      const item: ExperienceItem = {
+        id: `exp-${Date.now()}`,
+        role: newExpRole.trim(),
+        organization: newExpOrg.trim(),
+        period: newExpPeriod.trim() || undefined,
+        description: newExpDesc.trim() || undefined,
+      };
+      nextExp = [...experienceList, item];
+      setExperienceList(nextExp);
+      setNewExpRole('');
+      setNewExpOrg('');
+      setNewExpPeriod('');
+      setNewExpDesc('');
+    }
+
+    let nextAch = achievementsList;
+    if (newAchTitle.trim()) {
+      const item: AchievementItem = {
+        id: `ach-${Date.now()}`,
+        title: newAchTitle.trim(),
+        organization: newAchOrg.trim() || undefined,
+        year: newAchYear.trim() || undefined,
+        description: newAchDesc.trim() || undefined,
+      };
+      nextAch = [...achievementsList, item];
+      setAchievementsList(nextAch);
+      setNewAchTitle('');
+      setNewAchOrg('');
+      setNewAchYear('');
+      setNewAchDesc('');
+    }
+
+    let nextNews = newsList;
+    if (newNewsTitle.trim() && newNewsSource.trim()) {
+      const item: NewsItem = {
+        id: `news-${Date.now()}`,
+        title: newNewsTitle.trim(),
+        source: newNewsSource.trim(),
+        date: newNewsDate.trim() || 'Recently',
+        url: newNewsUrl.trim() || undefined,
+        description: newNewsDesc.trim() || undefined,
+      };
+      nextNews = [...newsList, item];
+      setNewsList(nextNews);
+      setNewNewsTitle('');
+      setNewNewsSource('');
+      setNewNewsDate('');
+      setNewNewsUrl('');
+      setNewNewsDesc('');
+    }
+
+    let nextVideos = videoList;
+    if (newVideoTitle.trim() && newVideoUrl.trim()) {
+      const item: VideoItem = {
+        id: `vid-${Date.now()}`,
+        title: newVideoTitle.trim(),
+        videoUrl: newVideoUrl.trim(),
+        thumbnailUrl:
+          newVideoThumb.trim() ||
+          'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
+        duration: newVideoDuration.trim() || undefined,
+      };
+      nextVideos = [...videoList, item];
+      setVideoList(nextVideos);
+      setNewVideoTitle('');
+      setNewVideoUrl('');
+      setNewVideoThumb('');
+      setNewVideoDuration('');
+    }
+
+    saveProfileData({
+      educationList: nextEdu,
+      experienceList: nextExp,
+      achievementsList: nextAch,
+      newsList: nextNews,
+      videoList: nextVideos,
+    });
+
+    setTimeout(() => {
+      setIsSavingAll(false);
       setIsSaving(false);
+      setSaveAllSuccess(true);
       setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
+      setSaveToast('Profile and all 11 modules saved successfully!');
+      setTimeout(() => {
+        setSaveAllSuccess(false);
+        setSaveSuccess(false);
+        setSaveToast(null);
+      }, 3500);
     }, 400);
   };
 
@@ -769,15 +1217,15 @@ export default function PersonDashboardPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32 space-y-6">
       {/* Toast Notification when saved */}
       <AnimatePresence>
-        {saveSuccess && (
+        {(saveToast || saveSuccess) && (
           <motion.div
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className="fixed top-20 right-6 z-50 bg-emerald-600 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-emerald-400"
+            className="fixed top-20 right-6 z-50 bg-[#07213A] text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold border border-slate-700"
           >
-            <CheckCircle2 className="w-4 h-4 text-white" />
-            <span>Profile and all 11 modules saved successfully!</span>
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <span>{saveToast || 'Profile and all 11 modules saved successfully!'}</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -964,12 +1412,12 @@ export default function PersonDashboardPage() {
 
               <button
                 type="button"
-                onClick={handleSaveProfile}
-                disabled={isSaving}
+                onClick={() => handleSaveSection('hero')}
+                disabled={savingSection === 'hero'}
                 className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#F95700] hover:bg-[#d94a00] transition shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-3.5 h-3.5" />
-                <span>{isSaving ? 'Saving...' : saveSuccess ? 'Profile Saved!' : 'Save Profile'}</span>
+                <span>{savingSection === 'hero' ? 'Saving...' : savedSection === 'hero' ? '✓ Profile Saved!' : 'Save Profile'}</span>
               </button>
             </div>
           </div>
@@ -1177,12 +1625,18 @@ export default function PersonDashboardPage() {
               </span>
               <button
                 type="button"
-                onClick={handleSaveProfile}
-                disabled={isSaving}
+                onClick={() => handleSaveSection('basicInfo')}
+                disabled={savingSection === 'basicInfo'}
                 className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved to Profile!' : 'Save Basic Info & Bio'}</span>
+                <span>
+                  {savingSection === 'basicInfo'
+                    ? 'Saving Basic Info...'
+                    : savedSection === 'basicInfo'
+                    ? '✓ Basic Info Saved!'
+                    : 'Save Basic Info & Bio'}
+                </span>
               </button>
             </div>
           </div>
@@ -1312,12 +1766,18 @@ export default function PersonDashboardPage() {
               </span>
               <button
                 type="button"
-                onClick={handleSaveProfile}
-                disabled={isSaving}
+                onClick={() => handleSaveSection('education')}
+                disabled={savingSection === 'education'}
                 className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved to Profile!' : 'Save Education Qualifications'}</span>
+                <span>
+                  {savingSection === 'education'
+                    ? 'Saving Education...'
+                    : savedSection === 'education'
+                    ? '✓ Education Saved!'
+                    : 'Save Education Qualifications'}
+                </span>
               </button>
             </div>
           </div>
@@ -1447,12 +1907,18 @@ export default function PersonDashboardPage() {
               </span>
               <button
                 type="button"
-                onClick={handleSaveProfile}
-                disabled={isSaving}
+                onClick={() => handleSaveSection('experience')}
+                disabled={savingSection === 'experience'}
                 className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved to Profile!' : 'Save Professional Experience'}</span>
+                <span>
+                  {savingSection === 'experience'
+                    ? 'Saving Experience...'
+                    : savedSection === 'experience'
+                    ? '✓ Experience Saved!'
+                    : 'Save Professional Experience'}
+                </span>
               </button>
             </div>
           </div>
@@ -1581,12 +2047,18 @@ export default function PersonDashboardPage() {
               </span>
               <button
                 type="button"
-                onClick={handleSaveProfile}
-                disabled={isSaving}
+                onClick={() => handleSaveSection('achievements')}
+                disabled={savingSection === 'achievements'}
                 className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved to Profile!' : 'Save Achievements & Recognitions'}</span>
+                <span>
+                  {savingSection === 'achievements'
+                    ? 'Saving Achievements...'
+                    : savedSection === 'achievements'
+                    ? '✓ Achievements Saved!'
+                    : 'Save Achievements & Recognitions'}
+                </span>
               </button>
             </div>
           </div>
@@ -1733,12 +2205,18 @@ export default function PersonDashboardPage() {
               </span>
               <button
                 type="button"
-                onClick={handleSaveProfile}
-                disabled={isSaving}
+                onClick={() => handleSaveSection('news')}
+                disabled={savingSection === 'news'}
                 className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved to Profile!' : 'Save News & Media'}</span>
+                <span>
+                  {savingSection === 'news'
+                    ? 'Saving News...'
+                    : savedSection === 'news'
+                    ? '✓ News Saved!'
+                    : 'Save News & Media'}
+                </span>
               </button>
             </div>
           </div>
@@ -1868,12 +2346,18 @@ export default function PersonDashboardPage() {
               </span>
               <button
                 type="button"
-                onClick={handleSaveProfile}
-                disabled={isSaving}
+                onClick={() => handleSaveSection('gallery')}
+                disabled={savingSection === 'gallery'}
                 className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved to Profile!' : 'Save Photo Gallery'}</span>
+                <span>
+                  {savingSection === 'gallery'
+                    ? 'Saving Gallery...'
+                    : savedSection === 'gallery'
+                    ? '✓ Gallery Saved!'
+                    : 'Save Photo Gallery'}
+                </span>
               </button>
             </div>
           </div>
@@ -2048,12 +2532,18 @@ export default function PersonDashboardPage() {
               </span>
               <button
                 type="button"
-                onClick={handleSaveProfile}
-                disabled={isSaving}
+                onClick={() => handleSaveSection('videos')}
+                disabled={savingSection === 'videos'}
                 className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved to Profile!' : 'Save Video Gallery'}</span>
+                <span>
+                  {savingSection === 'videos'
+                    ? 'Saving Video Gallery...'
+                    : savedSection === 'videos'
+                    ? '✓ Videos Saved!'
+                    : 'Save Video Gallery'}
+                </span>
               </button>
             </div>
           </div>
@@ -2202,12 +2692,18 @@ export default function PersonDashboardPage() {
               </span>
               <button
                 type="button"
-                onClick={handleSaveProfile}
-                disabled={isSaving}
+                onClick={() => handleSaveSection('posts')}
+                disabled={savingSection === 'posts'}
                 className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved to Profile!' : 'Save Posts & Updates'}</span>
+                <span>
+                  {savingSection === 'posts'
+                    ? 'Saving Updates...'
+                    : savedSection === 'posts'
+                    ? '✓ Updates Saved!'
+                    : 'Save Posts & Updates'}
+                </span>
               </button>
             </div>
           </div>
@@ -2282,12 +2778,18 @@ export default function PersonDashboardPage() {
               </span>
               <button
                 type="button"
-                onClick={handleSaveProfile}
-                disabled={isSaving}
+                onClick={() => handleSaveSection('stories')}
+                disabled={savingSection === 'stories'}
                 className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved to Profile!' : 'Save Community Stories'}</span>
+                <span>
+                  {savingSection === 'stories'
+                    ? 'Saving Stories...'
+                    : savedSection === 'stories'
+                    ? '✓ Stories Saved!'
+                    : 'Save Community Stories'}
+                </span>
               </button>
             </div>
           </div>
@@ -2383,12 +2885,18 @@ export default function PersonDashboardPage() {
               </span>
               <button
                 type="button"
-                onClick={handleSaveProfile}
-                disabled={isSaving}
+                onClick={() => handleSaveSection('social')}
+                disabled={savingSection === 'social'}
                 className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved to Profile!' : 'Save Social Media Channels'}</span>
+                <span>
+                  {savingSection === 'social'
+                    ? 'Saving Social Channels...'
+                    : savedSection === 'social'
+                    ? '✓ Social Channels Saved!'
+                    : 'Save Social Media Channels'}
+                </span>
               </button>
             </div>
           </div>
@@ -2475,16 +2983,57 @@ export default function PersonDashboardPage() {
               </span>
               <button
                 type="button"
-                onClick={handleSaveProfile}
-                disabled={isSaving}
+                onClick={() => handleSaveSection('stats')}
+                disabled={savingSection === 'stats'}
                 className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved to Profile!' : 'Save Audience Metrics'}</span>
+                <span>
+                  {savingSection === 'stats'
+                    ? 'Saving Audience Metrics...'
+                    : savedSection === 'stats'
+                    ? '✓ Audience Metrics Saved!'
+                    : 'Save Audience Metrics'}
+                </span>
               </button>
             </div>
           </div>
         )}
+      </div>
+
+      {/* ========================================================================= */}
+      {/* FINAL MASTER SAVE CARD (After all 11 modules)                             */}
+      {/* ========================================================================= */}
+      <div className="bg-gradient-to-br from-[#07213A] to-[#0A2E52] rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-slate-800">
+        <div className="space-y-1.5 text-center md:text-left">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/20 border border-orange-500/30 text-orange-300 text-xs font-bold uppercase tracking-wider">
+            <CheckCircle2 className="w-3.5 h-3.5 text-orange-400" />
+            <span>All 11 Modules Configured</span>
+          </div>
+          <h3 className="text-xl sm:text-2xl font-black tracking-tight">Save &amp; Publish Complete Profile</h3>
+          <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
+            Click to save and synchronize all 11 sections (Bio, Education, Experience, Achievements, News, Photos, Videos, Updates, Stories, Social, Metrics) together to your public live profile.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto flex-shrink-0">
+          <Link
+            href={`/people/${slug || 'profile'}`}
+            target="_blank"
+            className="w-full sm:w-auto px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition text-center backdrop-blur-sm border border-white/10"
+          >
+            Preview Live
+          </Link>
+          <button
+            type="button"
+            onClick={handleSaveAllModules}
+            disabled={isSavingAll}
+            className="w-full sm:w-auto px-7 py-3 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white font-black text-xs sm:text-sm transition shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            <Save className="w-4 h-4" />
+            <span>{isSavingAll ? 'Saving All Changes...' : saveAllSuccess ? '✓ All 11 Modules Saved!' : 'Save All Changes'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Floating Bottom Save Action Bar - Always visible across entire page */}
@@ -2509,12 +3058,12 @@ export default function PersonDashboardPage() {
 
           <button
             type="button"
-            onClick={handleSaveProfile}
-            disabled={isSaving}
+            onClick={handleSaveAllModules}
+            disabled={isSavingAll}
             className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#F95700] hover:bg-[#d94a00] shadow-md transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
           >
             <Save className="w-3.5 h-3.5" />
-            <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved All Modules!' : 'Save All Changes'}</span>
+            <span>{isSavingAll ? 'Saving...' : saveAllSuccess ? '✓ All 11 Saved!' : 'Save All Changes'}</span>
           </button>
         </div>
       </div>
