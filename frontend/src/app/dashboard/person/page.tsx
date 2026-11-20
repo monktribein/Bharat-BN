@@ -44,6 +44,13 @@ import {
 } from 'lucide-react';
 import BusinessLoginModal from '@/components/BusinessLoginModal';
 import {
+  InstagramIcon,
+  YouTubeIcon,
+  FacebookFIcon,
+  TwitterXIcon,
+  LinkedInIcon,
+} from '@/components/SocialIcons';
+import {
   peopleDatabase,
   type EducationItem,
   type ExperienceItem,
@@ -2824,7 +2831,10 @@ export default function PersonDashboardPage() {
         {openSections.social && (
           <div className="p-5 sm:p-6 pt-0 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700">YouTube Channel URL</label>
+              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <YouTubeIcon className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                <span>YouTube Channel URL</span>
+              </label>
               <input
                 type="url"
                 value={socialYoutube}
@@ -2835,7 +2845,10 @@ export default function PersonDashboardPage() {
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700">Instagram Profile URL</label>
+              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <InstagramIcon className="w-3.5 h-3.5 text-pink-600 shrink-0" />
+                <span>Instagram Profile URL</span>
+              </label>
               <input
                 type="url"
                 value={socialInstagram}
@@ -2846,7 +2859,10 @@ export default function PersonDashboardPage() {
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700">X (Twitter) Profile URL</label>
+              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <TwitterXIcon className="w-3.5 h-3.5 text-slate-800 shrink-0" />
+                <span>X (Twitter) Profile URL</span>
+              </label>
               <input
                 type="url"
                 value={socialTwitter}
@@ -2857,7 +2873,10 @@ export default function PersonDashboardPage() {
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700">Facebook Page URL</label>
+              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <FacebookFIcon className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <span>Facebook Page URL</span>
+              </label>
               <input
                 type="url"
                 value={socialFacebook}
@@ -2868,7 +2887,10 @@ export default function PersonDashboardPage() {
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700">LinkedIn Profile URL</label>
+              <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <LinkedInIcon className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                <span>LinkedIn Profile URL</span>
+              </label>
               <input
                 type="url"
                 value={socialLinkedin}

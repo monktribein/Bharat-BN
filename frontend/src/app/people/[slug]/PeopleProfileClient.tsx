@@ -31,7 +31,16 @@ import {
   Send,
   X,
   Plus,
+  Globe,
 } from 'lucide-react';
+import {
+  InstagramIcon,
+  YouTubePlayIcon,
+  YouTubeIcon,
+  FacebookFIcon,
+  TwitterXIcon,
+  LinkedInIcon,
+} from '@/components/SocialIcons';
 import type { PersonProfile } from './peopleData';
 
 interface Props {
@@ -461,10 +470,10 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     href={person.socialLinks.facebook}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-full bg-[#1877F2] text-white flex items-center justify-center hover:opacity-90 transition shadow-2xs text-xs font-bold"
+                    className="w-8 h-8 rounded-full bg-[#1877F2] text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-2xs"
                     title="Facebook"
                   >
-                    f
+                    <FacebookFIcon className="w-3.5 h-3.5 fill-white" />
                   </a>
                 )}
                 {person.socialLinks.instagram && (
@@ -472,10 +481,10 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     href={person.socialLinks.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center hover:opacity-90 transition shadow-2xs text-xs font-bold"
+                    className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-2xs"
                     title="Instagram"
                   >
-                    📸
+                    <InstagramIcon className="w-4 h-4 text-white" />
                   </a>
                 )}
                 {person.socialLinks.youtube && (
@@ -483,10 +492,10 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     href={person.socialLinks.youtube}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-full bg-[#FF0000] text-white flex items-center justify-center hover:opacity-90 transition shadow-2xs text-xs font-bold"
+                    className="w-8 h-8 rounded-full bg-[#FF0000] text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-2xs"
                     title="YouTube"
                   >
-                    ▶
+                    <YouTubePlayIcon className="w-3.5 h-3.5 fill-white ml-0.5" />
                   </a>
                 )}
                 {person.socialLinks.twitter && (
@@ -494,10 +503,10 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     href={person.socialLinks.twitter}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center hover:opacity-90 transition shadow-2xs text-xs font-bold"
+                    className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-2xs"
                     title="Twitter / X"
                   >
-                    𝕏
+                    <TwitterXIcon className="w-3.5 h-3.5 fill-white" />
                   </a>
                 )}
                 {person.socialLinks.linkedin && (
@@ -505,10 +514,10 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     href={person.socialLinks.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-full bg-[#0A66C2] text-white flex items-center justify-center hover:opacity-90 transition shadow-2xs text-xs font-bold"
+                    className="w-8 h-8 rounded-full bg-[#0A66C2] text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-2xs"
                     title="LinkedIn"
                   >
-                    in
+                    <LinkedInIcon className="w-3.5 h-3.5 fill-white" />
                   </a>
                 )}
               </div>
@@ -1365,8 +1374,10 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     rel="noopener noreferrer"
                     className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 hover:bg-slate-50 transition"
                   >
-                    <div className="flex items-center gap-2">
-                      <span className="text-slate-400">🌐</span>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
+                        <Globe className="w-4 h-4" />
+                      </div>
                       <div>
                         <div className="font-bold text-slate-900">Website</div>
                         <div className="text-[10px] text-slate-500 font-mono truncate max-w-[150px]">
@@ -1386,8 +1397,10 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     rel="noopener noreferrer"
                     className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 hover:bg-slate-50 transition"
                   >
-                    <div className="flex items-center gap-2">
-                      <span className="text-blue-600 font-bold">f</span>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-[#1877F2] flex items-center justify-center text-white">
+                        <FacebookFIcon className="w-3.5 h-3.5 fill-white" />
+                      </div>
                       <div>
                         <div className="font-bold text-slate-900">Facebook</div>
                         <div className="text-[10px] text-slate-500 font-mono truncate max-w-[150px]">
@@ -1407,12 +1420,83 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     rel="noopener noreferrer"
                     className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 hover:bg-slate-50 transition"
                   >
-                    <div className="flex items-center gap-2">
-                      <span>📸</span>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white shadow-2xs">
+                        <InstagramIcon className="w-3.5 h-3.5 text-white" />
+                      </div>
                       <div>
                         <div className="font-bold text-slate-900">Instagram</div>
                         <div className="text-[10px] text-slate-500 font-mono truncate max-w-[150px]">
                           {person.socialLinks.instagram.replace(/^https?:\/\/(www\.)?instagram\.com\/?/, '/')}
+                        </div>
+                      </div>
+                    </div>
+                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                  </a>
+                )}
+
+                {/* YouTube */}
+                {person.socialLinks.youtube && (
+                  <a
+                    href={person.socialLinks.youtube}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 hover:bg-slate-50 transition"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-[#FF0000] flex items-center justify-center text-white shadow-2xs">
+                        <YouTubeIcon className="w-3.5 h-3.5 fill-white" />
+                      </div>
+                      <div>
+                        <div className="font-bold text-slate-900">YouTube</div>
+                        <div className="text-[10px] text-slate-500 font-mono truncate max-w-[150px]">
+                          {person.socialLinks.youtube.replace(/^https?:\/\/(www\.)?youtube\.com\/?/, '/')}
+                        </div>
+                      </div>
+                    </div>
+                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                  </a>
+                )}
+
+                {/* Twitter / X */}
+                {person.socialLinks.twitter && (
+                  <a
+                    href={person.socialLinks.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 hover:bg-slate-50 transition"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-black flex items-center justify-center text-white shadow-2xs">
+                        <TwitterXIcon className="w-3.5 h-3.5 fill-white" />
+                      </div>
+                      <div>
+                        <div className="font-bold text-slate-900">Twitter / X</div>
+                        <div className="text-[10px] text-slate-500 font-mono truncate max-w-[150px]">
+                          {person.socialLinks.twitter.replace(/^https?:\/\/(www\.)?(twitter|x)\.com\/?/, '@')}
+                        </div>
+                      </div>
+                    </div>
+                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                  </a>
+                )}
+
+                {/* LinkedIn */}
+                {person.socialLinks.linkedin && (
+                  <a
+                    href={person.socialLinks.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 hover:bg-slate-50 transition"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-[#0A66C2] flex items-center justify-center text-white shadow-2xs">
+                        <LinkedInIcon className="w-3.5 h-3.5 fill-white" />
+                      </div>
+                      <div>
+                        <div className="font-bold text-slate-900">LinkedIn</div>
+                        <div className="text-[10px] text-slate-500 font-mono truncate max-w-[150px]">
+                          {person.socialLinks.linkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\/(in|company)?\/?/, '/')}
                         </div>
                       </div>
                     </div>
@@ -1426,8 +1510,10 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                   onClick={() => setIsMessageModalOpen(true)}
                   className="w-full flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-[#F95700] hover:bg-orange-50/50 transition cursor-pointer text-left"
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="text-orange-500">✉️</span>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-orange-100 text-[#F95700] flex items-center justify-center font-bold">
+                      <MessageSquare className="w-3.5 h-3.5" />
+                    </div>
                     <div>
                       <div className="font-bold text-slate-900">Send a Message</div>
                       <div className="text-[10px] text-slate-500">Directly connect via BharatBN</div>

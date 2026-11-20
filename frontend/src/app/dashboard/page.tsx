@@ -41,6 +41,13 @@ import {
   Upload,
 } from 'lucide-react';
 import BusinessLoginModal from '@/components/BusinessLoginModal';
+import {
+  InstagramIcon,
+  YouTubeIcon,
+  FacebookFIcon,
+  TwitterXIcon,
+  LinkedInIcon,
+} from '@/components/SocialIcons';
 import { api } from '@/lib/api-client';
 
 interface OwnerSession {
@@ -1222,7 +1229,7 @@ export default function DashboardOverviewPage() {
                       <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-pink-700 flex items-center gap-1.5">
-                            <span className="text-sm">📸</span>
+                            <InstagramIcon className="w-4 h-4 text-pink-600 shrink-0" />
                             <span>Instagram Handle / URL</span>
                           </span>
                           <span
@@ -1246,7 +1253,7 @@ export default function DashboardOverviewPage() {
                       <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-red-700 flex items-center gap-1.5">
-                            <span className="text-sm">▶️</span>
+                            <YouTubeIcon className="w-4 h-4 text-red-600 shrink-0" />
                             <span>YouTube Channel</span>
                           </span>
                           <span
@@ -1270,7 +1277,7 @@ export default function DashboardOverviewPage() {
                       <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-blue-700 flex items-center gap-1.5">
-                            <span className="text-sm">📘</span>
+                            <FacebookFIcon className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                             <span>Facebook Page</span>
                           </span>
                           <span
@@ -1294,7 +1301,7 @@ export default function DashboardOverviewPage() {
                       <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-sky-700 flex items-center gap-1.5">
-                            <span className="text-sm">💼</span>
+                            <LinkedInIcon className="w-3.5 h-3.5 text-sky-600 shrink-0" />
                             <span>LinkedIn Company Profile</span>
                           </span>
                           <span
@@ -1318,7 +1325,7 @@ export default function DashboardOverviewPage() {
                       <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2 sm:col-span-2">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                            <span className="text-sm">𝕏</span>
+                            <TwitterXIcon className="w-3.5 h-3.5 text-slate-800 shrink-0" />
                             <span>Twitter / X Handle</span>
                           </span>
                           <span

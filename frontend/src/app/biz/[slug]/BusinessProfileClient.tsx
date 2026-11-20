@@ -31,6 +31,13 @@ import {
   Navigation,
 } from 'lucide-react';
 import { BusinessProfile } from './businessData';
+import {
+  InstagramIcon,
+  YouTubeIcon,
+  FacebookFIcon,
+  TwitterXIcon,
+  LinkedInIcon,
+} from '@/components/SocialIcons';
 
 function getCategorySearchUrl(cat: string, mainCategory: string = ''): string {
   const combined = `${cat} ${mainCategory}`.toLowerCase();
@@ -1041,7 +1048,7 @@ export default function BusinessProfileClient({
                       className="flex items-center gap-2 p-2.5 rounded-xl border border-pink-200 bg-pink-50/50 hover:bg-pink-100/60 text-pink-700 transition cursor-pointer"
                       title="Follow on Instagram"
                     >
-                      <span className="text-sm">📸</span>
+                      <InstagramIcon className="w-4 h-4 text-pink-600 shrink-0" />
                       <span className="truncate">Instagram</span>
                     </a>
                   )}
@@ -1057,7 +1064,7 @@ export default function BusinessProfileClient({
                       className="flex items-center gap-2 p-2.5 rounded-xl border border-red-200 bg-red-50/50 hover:bg-red-100/60 text-red-700 transition cursor-pointer"
                       title="Watch on YouTube"
                     >
-                      <span className="text-sm">▶️</span>
+                      <YouTubeIcon className="w-4 h-4 text-red-600 shrink-0" />
                       <span className="truncate">YouTube</span>
                     </a>
                   )}
@@ -1073,7 +1080,7 @@ export default function BusinessProfileClient({
                       className="flex items-center gap-2 p-2.5 rounded-xl border border-blue-200 bg-blue-50/50 hover:bg-blue-100/60 text-blue-700 transition cursor-pointer"
                       title="Follow on Facebook"
                     >
-                      <span className="text-sm">📘</span>
+                      <FacebookFIcon className="w-4 h-4 text-blue-600 shrink-0" />
                       <span className="truncate">Facebook</span>
                     </a>
                   )}
@@ -1089,7 +1096,7 @@ export default function BusinessProfileClient({
                       className="flex items-center gap-2 p-2.5 rounded-xl border border-sky-200 bg-sky-50/50 hover:bg-sky-100/60 text-sky-700 transition cursor-pointer"
                       title="Connect on LinkedIn"
                     >
-                      <span className="text-sm">💼</span>
+                      <LinkedInIcon className="w-4 h-4 text-sky-700 shrink-0" />
                       <span className="truncate">LinkedIn</span>
                     </a>
                   )}
@@ -1105,7 +1112,7 @@ export default function BusinessProfileClient({
                       className="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-800 transition cursor-pointer"
                       title="Follow on X / Twitter"
                     >
-                      <span className="text-sm">𝕏</span>
+                      <TwitterXIcon className="w-4 h-4 text-slate-800 shrink-0" />
                       <span className="truncate">Twitter / X</span>
                     </a>
                   )}

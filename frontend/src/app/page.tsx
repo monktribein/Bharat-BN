@@ -846,10 +846,7 @@ export default function HomePage() {
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                 Recent Listings
               </h2>
-              <span className="inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Auto-Sliding Feed
-              </span>
+             
             </div>
             <div className="w-14 h-1 bg-[#F95700] rounded-full" />
           </div>
