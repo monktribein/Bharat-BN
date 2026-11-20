@@ -272,13 +272,13 @@ export default function RootLayout({
       : notifications;
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <title>BharatBN — Admin Console & Moderation Portal</title>
         <meta name="description" content="BharatBN Dedicated Admin Management Console" />
         <link rel="icon" href="/logo-icon.png" />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <div className="min-h-screen bg-[#F4F6F9] text-slate-900 flex flex-col md:flex-row antialiased font-sans">
           {/* Sidebar Navigation - Enterprise Dark Midnight Console */}
           <aside className="w-full md:w-64 bg-[#071526] text-slate-300 flex-shrink-0 flex flex-col justify-between border-r border-[#0E243F] select-none">

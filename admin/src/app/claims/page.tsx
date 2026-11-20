@@ -323,6 +323,11 @@ export default function ClaimModerationPage() {
 
   // Global Notification
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Check URL query parameters for ?tab=people on mount
   useEffect(() => {
@@ -1586,11 +1591,13 @@ export default function ClaimModerationPage() {
       </AnimatePresence>
 
       {/* Real-time Cross-Port Synchronization Bridge */}
-      <iframe
-        src="http://localhost:3000/sync-bridge.html"
-        style={{ display: 'none', width: 0, height: 0, border: 'none' }}
-        title="sync-bridge"
-      />
+      {mounted && (
+        <iframe
+          src="http://localhost:3000/sync-bridge.html"
+          style={{ display: 'none', width: 0, height: 0, border: 'none' }}
+          title="sync-bridge"
+        />
+      )}
     </div>
   );
 }
