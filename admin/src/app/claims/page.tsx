@@ -212,6 +212,7 @@ interface PersonClaimItem {
   submittedAt: string;
   status: 'pending' | 'approved' | 'rejected';
   isVerified: boolean;
+  confidenceScore?: number;
   rejectionReason?: string;
   reviewerNotes?: string;
 }
@@ -358,24 +359,54 @@ export default function ClaimModerationPage() {
           // Merge People Avatars & Updates
           if (data?.people && typeof data.people === 'object') {
             setPeopleClaims((prev) => {
-              return prev.map((p) => {
-                const k1 = (p.slug || '').toLowerCase();
-                const k2 = (p.id || '').toLowerCase();
-                const remote = (k1 && data.people[k1]) || (k2 && data.people[k2]);
-                if (remote) {
-                  const validAvatar = (remote.avatarUrl && typeof remote.avatarUrl === 'string' && remote.avatarUrl.trim() !== '') ? remote.avatarUrl : p.avatarUrl;
-                  const validCover = (remote.coverUrl && typeof remote.coverUrl === 'string' && remote.coverUrl.trim() !== '') ? remote.coverUrl : p.coverUrl;
-                  return {
-                    ...p,
+              const map = new Map<string, PersonClaimItem>();
+              prev.forEach((p) => {
+                const k = (p.slug || p.id || '').toLowerCase();
+                if (k) map.set(k, p);
+              });
+
+              Object.entries(data.people).forEach(([key, remote]: [string, any]) => {
+                if (!remote) return;
+                const k1 = (remote.slug || key || '').toLowerCase();
+                const k2 = (remote.id || '').toLowerCase();
+                const existing = map.get(k1) || (k2 ? map.get(k2) : undefined);
+                const validAvatar = (remote.avatarUrl && typeof remote.avatarUrl === 'string' && remote.avatarUrl.trim() !== '') ? remote.avatarUrl : existing?.avatarUrl || '';
+                const validCover = (remote.coverUrl && typeof remote.coverUrl === 'string' && remote.coverUrl.trim() !== '') ? remote.coverUrl : existing?.coverUrl || '';
+
+                if (existing) {
+                  map.set(existing.slug ? existing.slug.toLowerCase() : k1, {
+                    ...existing,
                     avatarUrl: validAvatar,
                     coverUrl: validCover,
-                    name: remote.name || p.name,
-                    role: remote.role || p.role,
-                    badge: remote.badge || p.badge,
-                  };
+                    name: remote.name || existing.name,
+                    role: remote.role || existing.role,
+                    badge: remote.badge || existing.badge,
+                    location: remote.location || existing.location,
+                    quote: remote.quote !== undefined && remote.quote !== '' ? remote.quote : existing.quote,
+                  });
+                } else {
+                  map.set(k1, {
+                    id: remote.id || `BBN-PPL-${k1.toUpperCase()}-001`,
+                    name: remote.name || 'User',
+                    slug: remote.slug || k1,
+                    handle: remote.handle || `@${k1}`,
+                    role: remote.role || 'Creator & Platform Pioneer',
+                    badge: remote.badge || 'Creator',
+                    location: remote.location || 'India',
+                    quote: remote.quote || '',
+                    email: remote.email || `${k1}@bharatbn.com`,
+                    phone: remote.phone || '+91 98000 00000',
+                    avatarUrl: validAvatar,
+                    coverUrl: validCover,
+                    status: remote.status || 'pending',
+                    isVerified: Boolean(remote.isVerified),
+                    submittedAt: remote.submittedAt || 'Today, 14:00 IST (New)',
+                    confidenceScore: remote.confidenceScore || 96,
+                  });
                 }
-                return p;
               });
+
+              return Array.from(map.values());
             });
           }
 
@@ -449,17 +480,40 @@ export default function ClaimModerationPage() {
                 if (k) map.set(k, p);
               });
               parsed.forEach((p: any) => {
-                const k = (p.slug || p.id || '').toLowerCase();
+                const k = (p.slug || p.id || p.handle?.replace(/^@/, '') || '').toLowerCase();
                 if (!k) return;
                 const existing = map.get(k);
+                const validAvatar = (p.avatarUrl && typeof p.avatarUrl === 'string' && p.avatarUrl.trim() !== '') ? p.avatarUrl : existing?.avatarUrl || '';
+                const validCover = (p.coverUrl && typeof p.coverUrl === 'string' && p.coverUrl.trim() !== '') ? p.coverUrl : existing?.coverUrl || '';
                 if (existing) {
-                  const validAvatar = (p.avatarUrl && typeof p.avatarUrl === 'string' && p.avatarUrl.trim() !== '') ? p.avatarUrl : existing.avatarUrl;
-                  const validCover = (p.coverUrl && typeof p.coverUrl === 'string' && p.coverUrl.trim() !== '') ? p.coverUrl : existing.coverUrl;
                   map.set(k, {
                     ...existing,
                     avatarUrl: validAvatar,
                     coverUrl: validCover,
                     name: p.name || existing.name,
+                    role: p.role || existing.role,
+                    badge: p.badge || existing.badge,
+                    location: p.location || existing.location,
+                    quote: p.quote !== undefined && p.quote !== '' ? p.quote : existing.quote,
+                  });
+                } else {
+                  map.set(k, {
+                    id: p.id || `BBN-PPL-${k.toUpperCase()}-001`,
+                    name: p.name || 'User',
+                    slug: p.slug || k,
+                    handle: p.handle || `@${k}`,
+                    role: p.role || 'Creator & Platform Pioneer',
+                    badge: p.badge || 'Creator',
+                    location: p.location || 'India',
+                    quote: p.quote || '',
+                    email: p.email || `${k}@bharatbn.com`,
+                    phone: p.phone || '+91 98000 00000',
+                    avatarUrl: validAvatar,
+                    coverUrl: validCover,
+                    status: p.status || 'pending',
+                    isVerified: Boolean(p.isVerified),
+                    submittedAt: p.submittedAt || 'Today, 14:00 IST (New)',
+                    confidenceScore: p.confidenceScore || 96,
                   });
                 }
               });
@@ -582,10 +636,10 @@ export default function ClaimModerationPage() {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       return (
-        c.businessName.toLowerCase().includes(q) ||
-        c.claimantName.toLowerCase().includes(q) ||
-        c.id.toLowerCase().includes(q) ||
-        c.gstin.toLowerCase().includes(q)
+        (c.businessName || '').toLowerCase().includes(q) ||
+        (c.claimantName || '').toLowerCase().includes(q) ||
+        (c.id || '').toLowerCase().includes(q) ||
+        (c.gstin || '').toLowerCase().includes(q)
       );
     }
     return true;
@@ -597,11 +651,11 @@ export default function ClaimModerationPage() {
     if (peopleSearchQuery.trim()) {
       const q = peopleSearchQuery.toLowerCase();
       return (
-        p.name.toLowerCase().includes(q) ||
-        p.handle.toLowerCase().includes(q) ||
-        p.role.toLowerCase().includes(q) ||
-        p.email.toLowerCase().includes(q) ||
-        p.location.toLowerCase().includes(q)
+        (p.name || '').toLowerCase().includes(q) ||
+        (p.handle || '').toLowerCase().includes(q) ||
+        (p.role || '').toLowerCase().includes(q) ||
+        (p.email || '').toLowerCase().includes(q) ||
+        (p.location || '').toLowerCase().includes(q)
       );
     }
     return true;

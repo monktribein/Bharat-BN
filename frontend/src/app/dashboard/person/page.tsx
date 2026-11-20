@@ -1022,7 +1022,16 @@ export default function PersonDashboardPage() {
       // Save into people store with all modules
       const stored = localStorage.getItem('bharatbn_people_store');
       let people = stored ? JSON.parse(stored) : [];
-      const idx = people.findIndex((p: any) => p.slug === cleanSlug || p.id === updatedSession.personId);
+      const idx = people.findIndex((p: any) => {
+        const ps = (p.slug || '').toLowerCase().trim();
+        const ph = (p.handle || '').toLowerCase().replace(/^@/, '').trim();
+        const pi = (p.id || p.personId || '').toLowerCase().trim();
+        const cs = cleanSlug.replace(/^@/, '');
+        const ci = (updatedSession.personId || '').toLowerCase().trim();
+        const pn = (p.name || '').toLowerCase().trim();
+        const cn = (updatedSession.name || '').toLowerCase().trim();
+        return ps === cs || ph === cs || (ci && pi === ci) || (cn && pn === cn);
+      });
 
       const fullRecord = {
         ...updatedSession,
@@ -1062,6 +1071,7 @@ export default function PersonDashboardPage() {
         coverUrl: updatedSession.coverUrl,
         role: updatedSession.role,
         badge: updatedSession.badge,
+        location: updatedSession.location,
         quote: updatedSession.quote,
         aboutText: updatedSession.aboutText,
       });

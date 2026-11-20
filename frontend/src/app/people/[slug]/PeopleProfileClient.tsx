@@ -96,133 +96,304 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
   });
   const [selectedPhoto, setSelectedPhoto] = useState<{ url: string; caption: string } | null>(null);
 
-  // Dynamically resolve custom registered person from localStorage if visited
+  // Dynamically resolve custom registered person from localStorage & sync cache
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('bharatbn_people_store');
-      let found: any = null;
-      if (stored) {
-        const people = JSON.parse(stored);
-        if (Array.isArray(people)) {
-          found = people.find(
-            (p: any) =>
-              p.slug?.toLowerCase() === targetSlug ||
-              p.handle?.toLowerCase().replace(/^@/, '') === targetSlug
-          );
-        }
-      }
+    const cleanTarget = (targetSlug || propSlug || initialPerson.slug || '').toLowerCase().trim();
 
-      // Also check active owner session if matching
-      if (!found) {
-        const sessionStr = localStorage.getItem('bharatbn_owner_session');
-        if (sessionStr) {
-          const sess = JSON.parse(sessionStr);
-          if (
-            sess.accountType === 'person' &&
-            (sess.slug?.toLowerCase() === targetSlug || sess.handle?.toLowerCase().replace(/^@/, '') === targetSlug)
-          ) {
-            found = sess;
+    const matchCandidate = (p: any) => {
+      if (!p) return false;
+      const s = (p.slug || '').toLowerCase().trim();
+      const h = (p.handle || '').toLowerCase().replace(/^@/, '').trim();
+      const n = (p.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').trim();
+      const rawName = (p.name || '').toLowerCase().trim();
+      const rawId = (p.id || p.personId || '').toLowerCase().trim();
+      const em = (p.email || '').toLowerCase().trim();
+      return (
+        s === cleanTarget ||
+        h === cleanTarget ||
+        n === cleanTarget ||
+        (cleanTarget.length > 2 && (rawName.includes(cleanTarget) || rawId.includes(cleanTarget) || em.includes(cleanTarget)))
+      );
+    };
+
+    const resolveAndSyncProfile = () => {
+      try {
+        // 1. Check local people store
+        let storeRecord: any = null;
+        try {
+          const stored = localStorage.getItem('bharatbn_people_store');
+          if (stored) {
+            const people = JSON.parse(stored);
+            if (Array.isArray(people)) {
+              storeRecord = people.find(matchCandidate);
+            }
           }
+        } catch {}
+
+        // 2. Check active owner session (if matching target)
+        let sessionRecord: any = null;
+        try {
+          const sessionStr = localStorage.getItem('bharatbn_owner_session');
+          if (sessionStr) {
+            const sess = JSON.parse(sessionStr);
+            if (sess && sess.accountType === 'person') {
+              if (matchCandidate(sess)) {
+                sessionRecord = sess;
+              }
+            }
+          }
+        } catch {}
+
+        // Source C: Combine sources with priority: sessionRecord (active edits) > storeRecord > initialPerson
+        const customData = {
+          ...(storeRecord || {}),
+          ...(sessionRecord || {}),
+        };
+
+        const hasCustom = Boolean(sessionRecord || storeRecord);
+        if (!hasCustom) {
+          return;
         }
-      }
-
-      if (found) {
-        const isAnand =
-          targetSlug === 'anand-sahu' ||
-          targetSlug === 'anand' ||
-          found.name?.toLowerCase().includes('anand sahu');
-
-        const dynamicHighlights =
-          Array.isArray(found.highlights) && found.highlights.length > 0
-            ? found.highlights
-            : [
-                ...(found.education
-                  ? [
-                      {
-                        key: 'education',
-                        icon: 'GraduationCap',
-                        title: 'Education & Qualifications',
-                        description: found.education,
-                      },
-                    ]
-                  : []),
-                ...(found.experience
-                  ? [
-                      {
-                        key: 'experience',
-                        icon: 'Briefcase',
-                        title: 'Organizational Experience & Roles',
-                        description: found.experience,
-                      },
-                    ]
-                  : []),
-                ...(found.achievements
-                  ? [
-                      {
-                        key: 'achievements',
-                        icon: 'Trophy',
-                        title: 'Key Achievements & Recognitions',
-                        description: found.achievements,
-                      },
-                    ]
-                  : []),
-              ];
 
         setPerson((prev) => {
+          const isAnand =
+            cleanTarget === 'anand-sahu' ||
+            cleanTarget === 'anand' ||
+            (customData.name || prev.name)?.toLowerCase().includes('anand sahu');
+
+          // 1. Avatar: prioritize valid non-empty string
+          const validAvatar =
+            sessionRecord?.avatarUrl && typeof sessionRecord.avatarUrl === 'string' && sessionRecord.avatarUrl.trim() !== ''
+              ? sessionRecord.avatarUrl
+              : storeRecord?.avatarUrl && typeof storeRecord.avatarUrl === 'string' && storeRecord.avatarUrl.trim() !== ''
+              ? storeRecord.avatarUrl
+              : customData.avatarUrl && typeof customData.avatarUrl === 'string' && customData.avatarUrl.trim() !== ''
+              ? customData.avatarUrl
+              : prev.avatarUrl;
+
+          // 2. Cover: prioritize valid non-empty string
+          const validCover =
+            sessionRecord?.coverUrl && typeof sessionRecord.coverUrl === 'string' && sessionRecord.coverUrl.trim() !== ''
+              ? sessionRecord.coverUrl
+              : storeRecord?.coverUrl && typeof storeRecord.coverUrl === 'string' && storeRecord.coverUrl.trim() !== ''
+              ? storeRecord.coverUrl
+              : customData.coverUrl && typeof customData.coverUrl === 'string' && customData.coverUrl.trim() !== ''
+              ? customData.coverUrl
+              : prev.coverUrl;
+
+          // 3. Name, Role, Badge, Location, Quote
+          const validName = sessionRecord?.name?.trim() || storeRecord?.name?.trim() || customData.name?.trim() || prev.name;
+          const validRole = sessionRecord?.role?.trim() || storeRecord?.role?.trim() || customData.role?.trim() || prev.role;
+          const validBadge = sessionRecord?.badge?.trim() || storeRecord?.badge?.trim() || customData.badge?.trim() || prev.badge;
+          const validLocation = sessionRecord?.location?.trim() || storeRecord?.location?.trim() || customData.location?.trim() || prev.location;
+          const validQuote =
+            sessionRecord?.quote !== undefined && sessionRecord.quote !== ''
+              ? sessionRecord.quote
+              : storeRecord?.quote !== undefined && storeRecord.quote !== ''
+              ? storeRecord.quote
+              : customData.quote !== undefined && customData.quote !== ''
+              ? customData.quote
+              : prev.quote;
+
+          // 4. Bio / About & Website
           const resolvedWebsite = isAnand
-            ? (found.website || prev.website)
-            : ((found.website && !found.website.includes('anandsahu.com')) ? found.website : (prev.website && !prev.website.includes('anandsahu.com') ? prev.website : ''));
+            ? (customData.website || prev.website)
+            : ((customData.website && !customData.website.includes('anandsahu.com')) ? customData.website : (prev.website && !prev.website.includes('anandsahu.com') ? prev.website : ''));
 
           const resolvedAbout = isAnand
-            ? (found.aboutText || prev.aboutText)
-            : ((found.aboutText && !found.aboutText.includes('Anand Sahu')) ? found.aboutText : (prev.aboutText && !prev.aboutText.includes('Anand Sahu') ? prev.aboutText : ''));
+            ? (customData.aboutText || prev.aboutText)
+            : ((customData.aboutText && !customData.aboutText.includes('Anand Sahu')) ? customData.aboutText : (prev.aboutText && !prev.aboutText.includes('Anand Sahu') ? prev.aboutText : ''));
+
+          // 5. Dynamic Lists
+          const resolvedEdu =
+            Array.isArray(sessionRecord?.educationList) && sessionRecord.educationList.length > 0
+              ? sessionRecord.educationList
+              : Array.isArray(storeRecord?.educationList) && storeRecord.educationList.length > 0
+              ? storeRecord.educationList
+              : prev.educationList;
+
+          const resolvedExp =
+            Array.isArray(sessionRecord?.experienceList) && sessionRecord.experienceList.length > 0
+              ? sessionRecord.experienceList
+              : Array.isArray(storeRecord?.experienceList) && storeRecord.experienceList.length > 0
+              ? storeRecord.experienceList
+              : prev.experienceList;
+
+          const resolvedAch =
+            Array.isArray(sessionRecord?.achievementsList) && sessionRecord.achievementsList.length > 0
+              ? sessionRecord.achievementsList
+              : Array.isArray(storeRecord?.achievementsList) && storeRecord.achievementsList.length > 0
+              ? storeRecord.achievementsList
+              : prev.achievementsList;
+
+          const resolvedNews =
+            Array.isArray(sessionRecord?.newsList) && sessionRecord.newsList.length > 0
+              ? sessionRecord.newsList
+              : Array.isArray(storeRecord?.newsList) && storeRecord.newsList.length > 0
+              ? storeRecord.newsList
+              : prev.newsList;
+
+          const resolvedGallery =
+            Array.isArray(sessionRecord?.gallery) && sessionRecord.gallery.length > 0
+              ? sessionRecord.gallery
+              : Array.isArray(storeRecord?.gallery) && storeRecord.gallery.length > 0
+              ? storeRecord.gallery
+              : prev.gallery;
+
+          const resolvedVideos =
+            Array.isArray(sessionRecord?.videoList) && sessionRecord.videoList.length > 0
+              ? sessionRecord.videoList
+              : Array.isArray(storeRecord?.videoList) && storeRecord.videoList.length > 0
+              ? storeRecord.videoList
+              : prev.videoList;
+
+          const resolvedUpdates =
+            Array.isArray(sessionRecord?.updates) && sessionRecord.updates.length > 0
+              ? sessionRecord.updates
+              : Array.isArray(storeRecord?.updates) && storeRecord.updates.length > 0
+              ? storeRecord.updates
+              : prev.updates;
+
+          const resolvedStories =
+            Array.isArray(sessionRecord?.communityStoriesList) && sessionRecord.communityStoriesList.length > 0
+              ? sessionRecord.communityStoriesList
+              : Array.isArray(storeRecord?.communityStoriesList) && storeRecord.communityStoriesList.length > 0
+              ? storeRecord.communityStoriesList
+              : prev.communityStoriesList;
+
+          const resolvedSocial = sessionRecord?.socialLinks || storeRecord?.socialLinks || customData.socialLinks || prev.socialLinks;
 
           return {
             ...prev,
-            id: found.id || prev.id,
-            name: found.name || prev.name,
-            slug: found.slug || targetSlug,
-            role: found.role || prev.role,
-            badge: found.badge || prev.badge,
-            location: found.location || prev.location,
-            quote: found.quote ?? prev.quote,
-            avatarUrl: found.avatarUrl ?? prev.avatarUrl,
-            coverUrl: found.coverUrl || prev.coverUrl,
+            id: customData.id || prev.id,
+            name: validName,
+            slug: customData.slug || prev.slug,
+            role: validRole,
+            badge: validBadge,
+            location: validLocation,
+            quote: validQuote,
+            avatarUrl: validAvatar,
+            coverUrl: validCover,
             aboutText: resolvedAbout,
             website: resolvedWebsite,
-            socialLinks: found.socialLinks || prev.socialLinks || {},
-            highlights: dynamicHighlights.length > 0 ? dynamicHighlights : prev.highlights,
-            educationList: Array.isArray(found.educationList) && found.educationList.length > 0 ? found.educationList : prev.educationList,
-            experienceList: Array.isArray(found.experienceList) && found.experienceList.length > 0 ? found.experienceList : prev.experienceList,
-            achievementsList: Array.isArray(found.achievementsList) && found.achievementsList.length > 0 ? found.achievementsList : prev.achievementsList,
-            newsList: Array.isArray(found.newsList) && found.newsList.length > 0 ? found.newsList : prev.newsList,
-            featuredVideo: found.featuredVideo || prev.featuredVideo,
-            videoList: Array.isArray(found.videoList) && found.videoList.length > 0 ? found.videoList : prev.videoList,
-            gallery: Array.isArray(found.gallery) && found.gallery.length > 0 ? found.gallery : prev.gallery,
-            communityStoriesCount: found.communityStoriesCount !== undefined ? Number(found.communityStoriesCount) : (found.communityStoriesList ? found.communityStoriesList.length : prev.communityStoriesCount),
-            communityStoriesList: Array.isArray(found.communityStoriesList) && found.communityStoriesList.length > 0 ? found.communityStoriesList : prev.communityStoriesList,
-            updates: Array.isArray(found.updates) && found.updates.length > 0 ? found.updates : prev.updates,
-            followersCount: found.followersCount !== undefined ? Number(found.followersCount) || prev.followersCount : prev.followersCount,
-            followingCount: found.followingCount !== undefined ? Number(found.followingCount) : prev.followingCount,
-            viewsCount: found.viewsCount || prev.viewsCount,
-            isVerified: (found.status === 'approved') || Boolean(found.isVerified),
+            socialLinks: resolvedSocial,
+            educationList: resolvedEdu,
+            experienceList: resolvedExp,
+            achievementsList: resolvedAch,
+            newsList: resolvedNews,
+            gallery: resolvedGallery,
+            videoList: resolvedVideos,
+            updates: resolvedUpdates,
+            postsCount: resolvedUpdates?.length || prev.postsCount,
+            communityStoriesList: resolvedStories,
+            communityStoriesCount: resolvedStories?.length || prev.communityStoriesCount,
+            isVerified: (customData.status === 'approved') || Boolean(customData.isVerified) || prev.isVerified,
           };
         });
-        if (found.featuredVideo) {
+
+        if (customData.featuredVideo) {
           setActiveVideo({
-            title: found.featuredVideo.title || 'Featured Video',
-            subtitle: found.featuredVideo.subtitle || '',
-            url: found.featuredVideo.videoUrl || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            title: customData.featuredVideo.title || 'Featured Video',
+            subtitle: customData.featuredVideo.subtitle || '',
+            url: customData.featuredVideo.videoUrl || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
           });
         }
-        if (found.followersCount !== undefined && typeof found.followersCount === 'number') {
-          setFollowersCount(found.followersCount);
-        }
-      } else {
-        setPerson(initialPerson);
+      } catch (err) {
+        console.error('Error resolving profile data:', err);
       }
-    } catch { }
-  }, [targetSlug, initialPerson]);
+    };
+
+    resolveAndSyncProfile();
+
+    // Also fetch remote sync cache
+    fetch('/api/sync')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.people && typeof data.people === 'object') {
+          const remote = data.people[cleanTarget] || Object.values(data.people).find((p: any) => matchCandidate(p)) as any;
+          if (remote) {
+            // Check if local store or session already has custom attributes
+            let localStore: any = null;
+            let localSession: any = null;
+            try {
+              const stored = localStorage.getItem('bharatbn_people_store');
+              if (stored) {
+                const arr = JSON.parse(stored);
+                if (Array.isArray(arr)) {
+                  localStore = arr.find(matchCandidate);
+                }
+              }
+            } catch {}
+
+            try {
+              const sessionStr = localStorage.getItem('bharatbn_owner_session');
+              if (sessionStr) {
+                const sess = JSON.parse(sessionStr);
+                if (sess && sess.accountType === 'person' && matchCandidate(sess)) {
+                  localSession = sess;
+                }
+              }
+            } catch {}
+
+            setPerson((prev) => {
+              // Local user custom values ALWAYS take precedence over remote cache
+              const customAvatar = (localSession?.avatarUrl && localSession.avatarUrl.trim() !== '')
+                ? localSession.avatarUrl
+                : (localStore?.avatarUrl && localStore.avatarUrl.trim() !== '')
+                ? localStore.avatarUrl
+                : null;
+
+              const customCover = (localSession?.coverUrl && localSession.coverUrl.trim() !== '')
+                ? localSession.coverUrl
+                : (localStore?.coverUrl && localStore.coverUrl.trim() !== '')
+                ? localStore.coverUrl
+                : null;
+
+              const customName = localSession?.name?.trim() || localStore?.name?.trim();
+              const customRole = localSession?.role?.trim() || localStore?.role?.trim();
+              const customBadge = localSession?.badge?.trim() || localStore?.badge?.trim();
+              const customLocation = localSession?.location?.trim() || localStore?.location?.trim();
+              const customQuote = (localSession?.quote !== undefined && localSession?.quote !== '')
+                ? localSession.quote
+                : ((localStore?.quote !== undefined && localStore?.quote !== '') ? localStore.quote : undefined);
+
+              const rAvatar = customAvatar || (remote.avatarUrl && typeof remote.avatarUrl === 'string' && remote.avatarUrl.trim() !== '' ? remote.avatarUrl : prev.avatarUrl);
+              const rCover = customCover || (remote.coverUrl && typeof remote.coverUrl === 'string' && remote.coverUrl.trim() !== '' ? remote.coverUrl : prev.coverUrl);
+              const rName = customName || remote.name || prev.name;
+              const rRole = customRole || remote.role || prev.role;
+              const rBadge = customBadge || remote.badge || prev.badge;
+              const rLocation = customLocation || remote.location || prev.location;
+              const rQuote = customQuote !== undefined ? customQuote : (remote.quote !== undefined && remote.quote !== '' ? remote.quote : prev.quote);
+
+              return {
+                ...prev,
+                name: rName,
+                role: rRole,
+                badge: rBadge,
+                location: rLocation,
+                quote: rQuote,
+                avatarUrl: rAvatar,
+                coverUrl: rCover,
+                aboutText: localSession?.aboutText || localStore?.aboutText || remote.aboutText || prev.aboutText,
+                website: localSession?.website || localStore?.website || remote.website || prev.website,
+                isVerified: (remote.status === 'approved') || Boolean(remote.isVerified) || (localSession?.status === 'approved') || (localStore?.status === 'approved') || prev.isVerified,
+              };
+            });
+          }
+        }
+      })
+      .catch(() => null);
+
+    window.addEventListener('bharatbn_people_updated', resolveAndSyncProfile);
+    window.addEventListener('bharatbn_auth_changed', resolveAndSyncProfile);
+    window.addEventListener('storage', resolveAndSyncProfile);
+
+    return () => {
+      window.removeEventListener('bharatbn_people_updated', resolveAndSyncProfile);
+      window.removeEventListener('bharatbn_auth_changed', resolveAndSyncProfile);
+      window.removeEventListener('storage', resolveAndSyncProfile);
+    };
+  }, [targetSlug, propSlug, initialPerson]);
 
   // Sync Real Metrics, Views & Followers
   useEffect(() => {
