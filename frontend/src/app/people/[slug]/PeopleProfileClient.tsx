@@ -587,361 +587,334 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
         </div>
 
         {/* ========================================================================= */}
-        {/* 3. THREE-COLUMN BODY LAYOUT                                               */}
+        {/* 2. STICKY MODULE NAVIGATION BAR (Full Banner Width)                       */}
         {/* ========================================================================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* ======================================================================= */}
-          {/* COLUMN 1 (3 Cols): Left Navigation Modules & Claim Profile             */}
-          {/* ======================================================================= */}
-          <div className="lg:col-span-3 space-y-4">
-            {/* 11 Modules Navigation Menu */}
-            <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-2 space-y-1">
-              {[
-                { id: 'overview', label: 'Profile Overview', icon: Sparkles },
-                { id: 'about', label: 'About', icon: FileText },
-                { id: 'education', label: 'Education', icon: GraduationCap },
-                { id: 'experience', label: 'Experience', icon: Briefcase },
-                { id: 'achievements', label: 'Achievements', icon: Trophy },
-                { id: 'news', label: 'News & Media', icon: Newspaper },
-                { id: 'photos', label: 'Photo Gallery', icon: Camera },
-                { id: 'videos', label: 'Video Gallery', icon: Video },
-                { id: 'posts', label: 'Posts & Updates', icon: Send },
-                { id: 'stories', label: 'Community Stories', icon: MessageSquare },
-                { id: 'followers', label: 'Followers & Following', icon: Users },
-              ].map((item) => {
-                const Icon = item.icon;
-                const active = activeTab === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setActiveTab(item.id)}
-                    className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2.5 text-left cursor-pointer ${active
-                      ? 'bg-[#07213A] text-white shadow-xs'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                      }`}
-                  >
-                    <Icon className={`w-4 h-4 ${active ? 'text-[#F95700]' : 'text-slate-400'}`} />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Unclaimed Profile / Claim CTA Card (Exact Image Reference) */}
-            <div className="bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-white rounded-2xl border border-orange-200/80 p-5 space-y-3 text-center shadow-2xs">
-              <div className="w-12 h-12 rounded-2xl bg-orange-100 text-[#F95700] mx-auto flex items-center justify-center">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-xs font-extrabold text-slate-900">
-                  Are You {person.name}?
-                </h4>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Claim &amp; Manage Your Official Profile, publish verified statements and interact with followers.
-                </p>
-              </div>
-              <Link
-                href={`/claim/${person.slug}`}
-                className="w-full py-2.5 px-3 rounded-xl bg-white border border-[#F95700] hover:bg-[#F95700] text-[#F95700] hover:text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs block"
-              >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Claim This Profile</span>
-              </Link>
-            </div>
-          </div>
-
-          {/* ======================================================================= */}
-          {/* COLUMN 2 (6 Cols): Center Feed & Content                                */}
-          {/* ======================================================================= */}
-          <div className="lg:col-span-6 space-y-6">
-            {/* Active Module Header if not in Overview */}
-            {activeTab !== 'overview' && (
-              <div className="flex items-center justify-between bg-white px-5 py-3 rounded-2xl border border-slate-200/90 shadow-2xs">
-                <div className="flex items-center gap-2.5">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Module:</span>
-                  <span className="text-sm font-black text-slate-900 capitalize flex items-center gap-1.5">
-                    {activeTab === 'about' && 'About & Bio'}
-                    {activeTab === 'education' && 'Education & Qualifications'}
-                    {activeTab === 'experience' && 'Professional & Public Experience'}
-                    {activeTab === 'achievements' && 'Key Achievements & Recognitions'}
-                    {activeTab === 'news' && 'News & Media Coverage'}
-                    {activeTab === 'photos' && 'Photo Gallery'}
-                    {activeTab === 'videos' && 'Video Gallery'}
-                    {activeTab === 'posts' && 'Posts & Updates Timeline'}
-                    {activeTab === 'stories' && 'Community Stories'}
-                    {activeTab === 'followers' && 'Followers & Following Network'}
-                  </span>
-                </div>
+        <div className="sticky top-18 z-30 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-xs p-2">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1 px-1">
+            {[
+              { id: 'overview', label: 'All Modules', icon: Sparkles },
+              { id: 'about', label: 'About', icon: FileText },
+              { id: 'education', label: `Education (${person.educationList?.length || 0})`, icon: GraduationCap },
+              { id: 'experience', label: `Experience (${person.experienceList?.length || 0})`, icon: Briefcase },
+              { id: 'achievements', label: `Achievements (${person.achievementsList?.length || 0})`, icon: Trophy },
+              { id: 'news', label: `News (${person.newsList?.length || 0})`, icon: Newspaper },
+              { id: 'videos', label: `Videos (${(person.videoList?.length || 0) + (person.featuredVideo ? 1 : 0)})`, icon: Video },
+              { id: 'photos', label: `Photos (${person.gallery?.length || 0})`, icon: Camera },
+              { id: 'posts', label: `Posts (${person.updates?.length || 0})`, icon: Send },
+              { id: 'stories', label: `Stories (${person.communityStoriesList?.length || person.communityStoriesCount || 0})`, icon: MessageSquare },
+              { id: 'social', label: 'Official Channels', icon: Globe },
+            ].map((item) => {
+              const Icon = item.icon;
+              const active = activeTab === item.id;
+              return (
                 <button
+                  key={item.id}
                   type="button"
-                  onClick={() => setActiveTab('overview')}
-                  className="text-xs font-bold text-[#F95700] hover:text-[#d94a00] hover:underline flex items-center gap-1 cursor-pointer"
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    if (item.id === 'overview') {
+                      window.scrollTo({ top: 350, behavior: 'smooth' });
+                    } else {
+                      const el = document.getElementById(`module-${item.id}`);
+                      if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }
+                  }}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap cursor-pointer shrink-0 ${
+                    active
+                      ? 'bg-[#07213A] text-white shadow-xs'
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 bg-slate-50 border border-slate-200/60'
+                  }`}
                 >
-                  <span>&larr; View Full Overview</span>
+                  <Icon className={`w-3.5 h-3.5 ${active ? 'text-[#F95700]' : 'text-slate-500'}`} />
+                  <span>{item.label}</span>
                 </button>
-              </div>
-            )}
+              );
+            })}
+          </div>
+        </div>
 
-            {/* ------------------------------------------------------------------- */}
-            {/* 1. ABOUT SECTION (Shown in 'overview' or 'about')                   */}
-            {/* ------------------------------------------------------------------- */}
-            {(activeTab === 'overview' || activeTab === 'about') && (
-              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-6 space-y-4">
-                <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-4 rounded-full bg-[#F95700]" />
-                    <span>About {person.name}</span>
-                  </div>
-                  {activeTab === 'overview' && (
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('about')}
-                      className="text-xs font-bold text-slate-400 hover:text-[#F95700] transition cursor-pointer"
-                    >
-                      Details &rarr;
-                    </button>
-                  )}
+        {/* ========================================================================= */}
+        {/* 3. FULL-WIDTH MODULAR BODY (Matching Full Banner Size)                    */}
+        {/* ========================================================================= */}
+        <div className="space-y-6">
+          {/* Active Module Filter Notice if not in Overview */}
+          {activeTab !== 'overview' && (
+            <div className="flex items-center justify-between bg-white px-6 py-3.5 rounded-2xl border border-slate-200/90 shadow-2xs">
+              <div className="flex items-center gap-2.5">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Filtered View:</span>
+                <span className="text-sm font-black text-slate-900 capitalize flex items-center gap-1.5">
+                  {activeTab === 'about' && 'About & Bio'}
+                  {activeTab === 'education' && 'Education & Academic Qualifications'}
+                  {activeTab === 'experience' && 'Professional & Career Experience'}
+                  {activeTab === 'achievements' && 'Key Achievements & Recognitions'}
+                  {activeTab === 'news' && 'News & Media Coverage'}
+                  {activeTab === 'photos' && 'Photo Gallery'}
+                  {activeTab === 'videos' && 'Featured Video & Video Gallery'}
+                  {activeTab === 'posts' && 'Posts & Updates Timeline'}
+                  {activeTab === 'stories' && 'Community Stories & Collabs'}
+                  {activeTab === 'social' && 'Official Social Media & Channels'}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab('overview')}
+                className="text-xs font-bold text-[#F95700] hover:text-[#d94a00] hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <span>&larr; View All Modules (Full Page)</span>
+              </button>
+            </div>
+          )}
+
+          {/* ------------------------------------------------------------------- */}
+          {/* MODULE 1: ABOUT SECTION                                             */}
+          {/* ------------------------------------------------------------------- */}
+          {(activeTab === 'overview' || activeTab === 'about') && (
+            <div id="module-about" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-8 space-y-5 scroll-mt-24">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <h2 className="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2.5">
+                  <span className="w-1.5 h-5 rounded-full bg-[#F95700]" />
+                  <FileText className="w-5 h-5 text-[#F95700]" />
+                  <span>About {person.name}</span>
                 </h2>
-
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  {person.aboutText}
-                </p>
-
-                {/* 4 Feature Sub-cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                  {person.highlights.map((hl) => (
-                    <div
-                      key={hl.key}
-                      onClick={() => {
-                        if (hl.key === 'education') setActiveTab('education');
-                        if (hl.key === 'experience') setActiveTab('experience');
-                        if (hl.key === 'achievements') setActiveTab('achievements');
-                      }}
-                      className="p-3.5 rounded-xl border border-slate-200/80 bg-slate-50/60 hover:bg-slate-50 transition space-y-1 cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2">
-                        {hl.key === 'education' && <GraduationCap className="w-4 h-4 text-blue-600" />}
-                        {hl.key === 'experience' && <Briefcase className="w-4 h-4 text-amber-600" />}
-                        {hl.key === 'achievements' && <Trophy className="w-4 h-4 text-purple-600" />}
-                        {hl.key === 'initiatives' && <HeartHandshake className="w-4 h-4 text-rose-600" />}
-                        <h4 className="text-xs font-extrabold text-slate-900">{hl.title}</h4>
-                      </div>
-                      <p className="text-[11px] text-slate-500 leading-tight line-clamp-2">
-                        {hl.description}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+                {activeTab !== 'overview' && (
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('overview')}
+                    className="text-xs font-bold text-slate-400 hover:text-[#F95700] transition cursor-pointer"
+                  >
+                    View All Modules &rarr;
+                  </button>
+                )}
               </div>
-            )}
 
-            {/* ------------------------------------------------------------------- */}
-            {/* 2. EDUCATION SECTION (Shown in 'education' or overview preview)     */}
-            {/* ------------------------------------------------------------------- */}
-            {(activeTab === 'education' || (activeTab === 'overview' && (person.educationList?.length ?? 0) > 0)) && (
-              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                    <GraduationCap className="w-5 h-5 text-blue-600" />
-                    <span>Education &amp; Academic Qualifications</span>
-                  </h3>
-                  {activeTab === 'overview' && (
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('education')}
-                      className="text-xs font-bold text-slate-400 hover:text-[#F95700] transition cursor-pointer"
-                    >
-                      View All &rarr;
-                    </button>
-                  )}
-                </div>
+              <p className="text-sm text-slate-700 leading-relaxed max-w-5xl">
+                {person.aboutText}
+              </p>
 
-                {!person.educationList || person.educationList.length === 0 ? (
-                  <div className="p-6 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
-                    No education credentials listed yet.
+              {/* 4 Feature Highlights Grid (Full Width) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+                {person.highlights.map((hl) => (
+                  <div
+                    key={hl.key}
+                    onClick={() => {
+                      if (hl.key === 'education') {
+                        const el = document.getElementById('module-education');
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                      if (hl.key === 'experience') {
+                        const el = document.getElementById('module-experience');
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                      if (hl.key === 'achievements') {
+                        const el = document.getElementById('module-achievements');
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }}
+                    className="p-4 rounded-2xl border border-slate-200/80 bg-slate-50/70 hover:bg-slate-100/70 transition space-y-2 cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-2">
+                      {hl.key === 'education' && <GraduationCap className="w-5 h-5 text-blue-600" />}
+                      {hl.key === 'experience' && <Briefcase className="w-5 h-5 text-amber-600" />}
+                      {hl.key === 'achievements' && <Trophy className="w-5 h-5 text-purple-600" />}
+                      {hl.key === 'initiatives' && <HeartHandshake className="w-5 h-5 text-rose-600" />}
+                      <h4 className="text-xs font-extrabold text-slate-900 group-hover:text-[#F95700] transition">{hl.title}</h4>
+                    </div>
+                    <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
+                      {hl.description}
+                    </p>
                   </div>
-                ) : (
-                  <div className="space-y-3">
-                    {person.educationList.map((edu, idx) => (
-                      <div
-                        key={edu.id || idx}
-                        className="p-4 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-50 transition space-y-1.5"
-                      >
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <h4 className="text-sm font-extrabold text-slate-900">{edu.degree}</h4>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ------------------------------------------------------------------- */}
+          {/* MODULE 2: EDUCATION & QUALIFICATIONS                                */}
+          {/* ------------------------------------------------------------------- */}
+          {(activeTab === 'overview' || activeTab === 'education') && (
+            <div id="module-education" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-8 space-y-5 scroll-mt-24">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <h3 className="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2.5">
+                  <span className="w-1.5 h-5 rounded-full bg-blue-600" />
+                  <GraduationCap className="w-5 h-5 text-blue-600" />
+                  <span>Education &amp; Academic Qualifications</span>
+                  <span className="text-xs font-bold text-slate-400">({person.educationList?.length || 0})</span>
+                </h3>
+              </div>
+
+              {!person.educationList || person.educationList.length === 0 ? (
+                <div className="p-8 rounded-2xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
+                  No education credentials listed yet.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {person.educationList.map((edu, idx) => (
+                    <div
+                      key={edu.id || idx}
+                      className="p-5 rounded-2xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-50 hover:border-blue-200 transition space-y-2.5 flex flex-col justify-between"
+                    >
+                      <div className="space-y-1.5">
+                        <div className="flex items-start justify-between gap-2">
+                          <h4 className="text-sm font-extrabold text-slate-900 leading-snug">{edu.degree}</h4>
                           {edu.year && (
-                            <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 shrink-0">
                               {edu.year}
                             </span>
                           )}
                         </div>
-                        <p className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                          <span>🏛️</span>
+                        <p className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+                          <GraduationCap className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                           <span>{edu.institution}</span>
                         </p>
-                        {edu.description && (
-                          <p className="text-xs text-slate-500 leading-relaxed pt-0.5">
-                            {edu.description}
-                          </p>
-                        )}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ------------------------------------------------------------------- */}
-            {/* 3. EXPERIENCE SECTION (Shown in 'experience' or overview preview)    */}
-            {/* ------------------------------------------------------------------- */}
-            {(activeTab === 'experience' || (activeTab === 'overview' && (person.experienceList?.length ?? 0) > 0)) && (
-              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                    <Briefcase className="w-5 h-5 text-amber-600" />
-                    <span>Professional &amp; Public Experience</span>
-                  </h3>
-                  {activeTab === 'overview' && (
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('experience')}
-                      className="text-xs font-bold text-slate-400 hover:text-[#F95700] transition cursor-pointer"
-                    >
-                      View All &rarr;
-                    </button>
-                  )}
+                      {edu.description && (
+                        <p className="text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-2">
+                          {edu.description}
+                        </p>
+                      )}
+                    </div>
+                  ))}
                 </div>
+              )}
+            </div>
+          )}
 
-                {!person.experienceList || person.experienceList.length === 0 ? (
-                  <div className="p-6 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
-                    No experience records listed yet.
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {person.experienceList.map((exp, idx) => (
-                      <div
-                        key={exp.id || idx}
-                        className="p-4 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-50 transition space-y-1.5"
-                      >
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <h4 className="text-sm font-extrabold text-slate-900">{exp.role}</h4>
+          {/* ------------------------------------------------------------------- */}
+          {/* MODULE 3: PROFESSIONAL & PUBLIC EXPERIENCE                          */}
+          {/* ------------------------------------------------------------------- */}
+          {(activeTab === 'overview' || activeTab === 'experience') && (
+            <div id="module-experience" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-8 space-y-5 scroll-mt-24">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <h3 className="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2.5">
+                  <span className="w-1.5 h-5 rounded-full bg-amber-500" />
+                  <Briefcase className="w-5 h-5 text-amber-600" />
+                  <span>Professional &amp; Career Experience</span>
+                  <span className="text-xs font-bold text-slate-400">({person.experienceList?.length || 0})</span>
+                </h3>
+              </div>
+
+              {!person.experienceList || person.experienceList.length === 0 ? (
+                <div className="p-8 rounded-2xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
+                  No experience records listed yet.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {person.experienceList.map((exp, idx) => (
+                    <div
+                      key={exp.id || idx}
+                      className="p-5 rounded-2xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-50 hover:border-amber-200 transition space-y-2.5 flex flex-col justify-between"
+                    >
+                      <div className="space-y-1.5">
+                        <div className="flex items-start justify-between gap-2">
+                          <h4 className="text-sm font-extrabold text-slate-900 leading-snug">{exp.role}</h4>
                           {exp.period && (
-                            <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 shrink-0">
                               {exp.period}
                             </span>
                           )}
                         </div>
-                        <p className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                          <span>🏢</span>
+                        <p className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+                          <Briefcase className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                           <span>{exp.organization}</span>
                         </p>
-                        {exp.description && (
-                          <p className="text-xs text-slate-500 leading-relaxed pt-0.5">
-                            {exp.description}
-                          </p>
-                        )}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ------------------------------------------------------------------- */}
-            {/* 4. ACHIEVEMENTS SECTION (Shown in 'achievements' or overview)       */}
-            {/* ------------------------------------------------------------------- */}
-            {(activeTab === 'achievements' || (activeTab === 'overview' && (person.achievementsList?.length ?? 0) > 0)) && (
-              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                    <Trophy className="w-5 h-5 text-purple-600" />
-                    <span>Key Achievements &amp; Recognitions</span>
-                  </h3>
-                  {activeTab === 'overview' && (
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('achievements')}
-                      className="text-xs font-bold text-slate-400 hover:text-[#F95700] transition cursor-pointer"
-                    >
-                      View All &rarr;
-                    </button>
-                  )}
+                      {exp.description && (
+                        <p className="text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-2">
+                          {exp.description}
+                        </p>
+                      )}
+                    </div>
+                  ))}
                 </div>
+              )}
+            </div>
+          )}
 
-                {!person.achievementsList || person.achievementsList.length === 0 ? (
-                  <div className="p-6 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
-                    No achievements listed yet.
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {person.achievementsList.map((ach, idx) => (
-                      <div
-                        key={ach.id || idx}
-                        className="p-4 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-50 transition space-y-1.5"
-                      >
-                        <div className="flex flex-wrap items-center justify-between gap-2">
+          {/* ------------------------------------------------------------------- */}
+          {/* MODULE 4: ACHIEVEMENTS & RECOGNITIONS                               */}
+          {/* ------------------------------------------------------------------- */}
+          {(activeTab === 'overview' || activeTab === 'achievements') && (
+            <div id="module-achievements" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-8 space-y-5 scroll-mt-24">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <h3 className="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2.5">
+                  <span className="w-1.5 h-5 rounded-full bg-purple-600" />
+                  <Trophy className="w-5 h-5 text-purple-600" />
+                  <span>Key Achievements &amp; Recognitions</span>
+                  <span className="text-xs font-bold text-slate-400">({person.achievementsList?.length || 0})</span>
+                </h3>
+              </div>
+
+              {!person.achievementsList || person.achievementsList.length === 0 ? (
+                <div className="p-8 rounded-2xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
+                  No achievements listed yet.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {person.achievementsList.map((ach, idx) => (
+                    <div
+                      key={ach.id || idx}
+                      className="p-5 rounded-2xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-50 hover:border-purple-200 transition space-y-2.5 flex flex-col justify-between"
+                    >
+                      <div className="space-y-1.5">
+                        <div className="flex items-start justify-between gap-2">
                           <h4 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
                             <span>🏆</span>
                             <span>{ach.title}</span>
                           </h4>
                           {ach.year && (
-                            <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200 shrink-0">
                               {ach.year}
                             </span>
                           )}
                         </div>
                         {ach.organization && (
-                          <p className="text-xs font-semibold text-slate-700">
-                            Conferred by: <strong>{ach.organization}</strong>
-                          </p>
-                        )}
-                        {ach.description && (
-                          <p className="text-xs text-slate-500 leading-relaxed pt-0.5">
-                            {ach.description}
+                          <p className="text-xs font-semibold text-slate-600">
+                            Conferred by: <strong className="text-slate-800">{ach.organization}</strong>
                           </p>
                         )}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ------------------------------------------------------------------- */}
-            {/* 5. NEWS & MEDIA SECTION (Shown in 'news' or overview)               */}
-            {/* ------------------------------------------------------------------- */}
-            {(activeTab === 'news' || (activeTab === 'overview' && (person.newsList?.length ?? 0) > 0)) && (
-              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                    <Newspaper className="w-5 h-5 text-rose-600" />
-                    <span>News &amp; Media Coverage</span>
-                  </h3>
-                  {activeTab === 'overview' && (
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('news')}
-                      className="text-xs font-bold text-slate-400 hover:text-[#F95700] transition cursor-pointer"
-                    >
-                      View All &rarr;
-                    </button>
-                  )}
+                      {ach.description && (
+                        <p className="text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-2">
+                          {ach.description}
+                        </p>
+                      )}
+                    </div>
+                  ))}
                 </div>
+              )}
+            </div>
+          )}
 
-                {!person.newsList || person.newsList.length === 0 ? (
-                  <div className="p-6 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
-                    No press articles or media coverage listed yet.
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {person.newsList.map((item, idx) => (
-                      <div
-                        key={item.id || idx}
-                        className="p-4 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-50 transition space-y-2"
-                      >
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200">
+          {/* ------------------------------------------------------------------- */}
+          {/* MODULE 5: NEWS & MEDIA COVERAGE                                     */}
+          {/* ------------------------------------------------------------------- */}
+          {(activeTab === 'overview' || activeTab === 'news') && (
+            <div id="module-news" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-8 space-y-5 scroll-mt-24">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <h3 className="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2.5">
+                  <span className="w-1.5 h-5 rounded-full bg-rose-600" />
+                  <Newspaper className="w-5 h-5 text-rose-600" />
+                  <span>News &amp; Media Coverage</span>
+                  <span className="text-xs font-bold text-slate-400">({person.newsList?.length || 0})</span>
+                </h3>
+              </div>
+
+              {!person.newsList || person.newsList.length === 0 ? (
+                <div className="p-8 rounded-2xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
+                  No press articles or media coverage listed yet.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {person.newsList.map((item, idx) => (
+                    <div
+                      key={item.id || idx}
+                      className="p-5 rounded-2xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-50 hover:border-rose-200 transition space-y-3 flex flex-col justify-between"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200">
                             {item.source}
                           </span>
                           <span className="text-[11px] text-slate-400">{item.date}</span>
@@ -954,46 +927,40 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                             {item.description}
                           </p>
                         )}
-                        {item.url && (
-                          <a
-                            href={item.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs font-bold text-[#F95700] hover:underline inline-flex items-center gap-1 pt-1"
-                          >
-                            <span>Read Article / Media Link</span>
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        )}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ------------------------------------------------------------------- */}
-            {/* 6. FEATURED & VIDEO GALLERY (Shown in 'videos' or 'overview')       */}
-            {/* ------------------------------------------------------------------- */}
-            {(activeTab === 'overview' || activeTab === 'videos') && (
-              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                    <Video className="w-5 h-5 text-[#F95700]" />
-                    <span>Featured Video &amp; Gallery</span>
-                  </h3>
-                  {activeTab === 'overview' && (
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('videos')}
-                      className="text-xs font-bold text-slate-400 hover:text-[#F95700] transition cursor-pointer"
-                    >
-                      Gallery &rarr;
-                    </button>
-                  )}
+                      {item.url && (
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-bold text-[#F95700] hover:underline inline-flex items-center gap-1.5 pt-1"
+                        >
+                          <span>Read Full Coverage</span>
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      )}
+                    </div>
+                  ))}
                 </div>
+              )}
+            </div>
+          )}
 
-                {/* Main Video Player Card */}
+          {/* ------------------------------------------------------------------- */}
+          {/* MODULE 6: FEATURED VIDEO & GALLERY                                  */}
+          {/* ------------------------------------------------------------------- */}
+          {(activeTab === 'overview' || activeTab === 'videos') && (
+            <div id="module-videos" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-8 space-y-5 scroll-mt-24">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <h3 className="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2.5">
+                  <span className="w-1.5 h-5 rounded-full bg-[#F95700]" />
+                  <Video className="w-5 h-5 text-[#F95700]" />
+                  <span>Personal Video &amp; Gallery</span>
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                {/* Main Featured Video Player (8 cols) */}
                 <div
                   onClick={() => {
                     setActiveVideo({
@@ -1003,27 +970,27 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     });
                     setIsVideoModalOpen(true);
                   }}
-                  className="relative aspect-video rounded-2xl overflow-hidden bg-slate-900 cursor-pointer group shadow-xs"
+                  className="lg:col-span-8 relative aspect-video rounded-2xl overflow-hidden bg-slate-900 cursor-pointer group shadow-md"
                 >
                   <img
                     src={person.featuredVideo.thumbnailUrl}
                     alt={person.featuredVideo.title}
                     className="w-full h-full object-cover transition duration-300 group-hover:scale-102"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex flex-col justify-between p-4">
-                    <div className="self-end px-2.5 py-1 rounded-md bg-black/60 text-white text-[10px] font-bold">
-                      HD Video
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-transparent flex flex-col justify-between p-6">
+                    <div className="self-end px-3 py-1 rounded-md bg-black/70 text-white text-[11px] font-bold">
+                      HD Featured Video
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-[#F95700] group-hover:bg-[#d94a00] text-white flex items-center justify-center shadow-lg transition">
-                        <Play className="w-5 h-5 fill-white text-white ml-0.5" />
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-full bg-[#F95700] group-hover:bg-[#d94a00] text-white flex items-center justify-center shadow-xl transition transform group-hover:scale-105">
+                        <Play className="w-6 h-6 fill-white text-white ml-0.5" />
                       </div>
                       <div>
-                        <h4 className="text-white font-bold text-xs sm:text-sm drop-shadow-md">
+                        <h4 className="text-white font-extrabold text-base sm:text-lg drop-shadow-md">
                           {person.featuredVideo.title}
                         </h4>
-                        <p className="text-slate-300 text-[11px] drop-shadow-sm">
+                        <p className="text-slate-300 text-xs sm:text-sm drop-shadow-sm">
                           {person.featuredVideo.subtitle}
                         </p>
                       </div>
@@ -1031,384 +998,278 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                   </div>
                 </div>
 
-                {/* Additional Video Playlist Cards if available */}
-                {person.videoList && person.videoList.length > 0 && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                    {person.videoList.map((vid, idx) => (
-                      <div
-                        key={vid.id || idx}
-                        onClick={() => {
-                          setActiveVideo({
-                            title: vid.title,
-                            subtitle: vid.subtitle || '',
-                            url: vid.videoUrl,
-                          });
-                          setIsVideoModalOpen(true);
-                        }}
-                        className="p-2.5 rounded-xl border border-slate-200/80 bg-slate-50/60 hover:bg-slate-100 transition flex items-center gap-3 cursor-pointer group"
-                      >
-                        <div className="w-20 h-14 rounded-lg bg-slate-900 overflow-hidden relative flex-shrink-0">
-                          <img
-                            src={vid.thumbnailUrl}
-                            alt={vid.title}
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                            <Play className="w-4 h-4 fill-white text-white group-hover:scale-110 transition" />
-                          </div>
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <h5 className="text-xs font-bold text-slate-900 truncate">{vid.title}</h5>
-                          {vid.duration && <span className="text-[10px] text-slate-400">{vid.duration}</span>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ------------------------------------------------------------------- */}
-            {/* 7. POSTS & UPDATES TIMELINE (Shown in 'posts' or 'overview')        */}
-            {/* ------------------------------------------------------------------- */}
-            {(activeTab === 'overview' || activeTab === 'posts') && (
-              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-6 space-y-5">
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                    <Send className="w-5 h-5 text-[#F95700]" />
-                    <span>Posts &amp; Updates</span>
-                  </h3>
-
-                  {/* Filter Pills: All, Posts, News, Events */}
-                  <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold">
-                    {(['All', 'Posts', 'News', 'Events'] as const).map((tab) => (
-                      <button
-                        key={tab}
-                        type="button"
-                        onClick={() => setFeedFilter(tab)}
-                        className={`px-3 py-1 rounded-lg transition cursor-pointer ${feedFilter === tab
-                          ? 'bg-white text-slate-900 shadow-2xs'
-                          : 'text-slate-500 hover:text-slate-800'
-                          }`}
-                      >
-                        {tab}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Updates List */}
-                {filteredUpdates.length === 0 ? (
-                  <div className="p-8 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
-                    No updates published in this category yet.
-                  </div>
-                ) : (
-                  <div className="space-y-4 divide-y divide-slate-100">
-                    {filteredUpdates.map((upd) => (
-                      <div key={upd.id} className="pt-4 first:pt-0 space-y-3">
-                        <div className="flex gap-4 items-start">
-                          {/* Update Thumbnail */}
-                          {upd.imageUrl && (
-                            <div className="w-24 h-18 sm:w-28 sm:h-20 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 flex-shrink-0">
-                              <img
-                                src={upd.imageUrl}
-                                alt={upd.title}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          )}
-
-                          {/* Content */}
-                          <div className="space-y-1 min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-orange-50 text-[#F95700] border border-orange-200">
-                                {upd.type}
-                              </span>
-                              <span className="text-[11px] text-slate-400 font-medium">
-                                {upd.date}
-                              </span>
-                            </div>
-
-                            <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
-                              {upd.title}
-                            </h4>
-
-                            <p className="text-xs text-slate-600 line-clamp-2">
-                              {upd.description}
-                            </p>
-
-                            {/* Engagement Bar */}
-                            <div className="flex items-center gap-4 pt-1 text-[11px] text-slate-500 font-semibold">
-                              <button
-                                type="button"
-                                className="flex items-center gap-1 hover:text-blue-600 transition cursor-pointer"
-                              >
-                                <ThumbsUp className="w-3.5 h-3.5" />
-                                <span>{upd.likes}</span>
-                              </button>
-                              <button
-                                type="button"
-                                className="flex items-center gap-1 hover:text-slate-900 transition cursor-pointer"
-                              >
-                                <MessageSquare className="w-3.5 h-3.5" />
-                                <span>{upd.comments}</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={handleCopyShare}
-                                className="flex items-center gap-1 hover:text-[#F95700] transition cursor-pointer"
-                              >
-                                <Share2 className="w-3.5 h-3.5" />
-                                <span>Share</span>
-                              </button>
+                {/* Additional Video Playlist (4 cols) */}
+                <div className="lg:col-span-4 space-y-3">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Video Playlist</h4>
+                  {person.videoList && person.videoList.length > 0 ? (
+                    <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+                      {person.videoList.map((vid, idx) => (
+                        <div
+                          key={vid.id || idx}
+                          onClick={() => {
+                            setActiveVideo({
+                              title: vid.title,
+                              subtitle: vid.subtitle || '',
+                              url: vid.videoUrl,
+                            });
+                            setIsVideoModalOpen(true);
+                          }}
+                          className="p-3 rounded-2xl border border-slate-200/80 bg-slate-50/60 hover:bg-slate-100 transition flex items-center gap-3 cursor-pointer group"
+                        >
+                          <div className="w-24 h-16 rounded-xl bg-slate-900 overflow-hidden relative flex-shrink-0">
+                            <img
+                              src={vid.thumbnailUrl}
+                              alt={vid.title}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                              <Play className="w-4 h-4 fill-white text-white group-hover:scale-110 transition" />
                             </div>
                           </div>
+                          <div className="min-w-0 flex-1">
+                            <h5 className="text-xs font-bold text-slate-900 line-clamp-2 leading-snug">{vid.title}</h5>
+                            {vid.duration && <span className="text-[10px] text-slate-400 font-mono mt-1 block">{vid.duration}</span>}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ------------------------------------------------------------------- */}
-            {/* 8. PHOTO GALLERY SECTION (Shown in 'photos' or overview preview)    */}
-            {/* ------------------------------------------------------------------- */}
-            {(activeTab === 'overview' || activeTab === 'photos') && (
-              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                    <Camera className="w-5 h-5 text-[#F95700]" />
-                    <span>Photo Gallery ({person.gallery.length})</span>
-                  </h3>
-                  {activeTab === 'overview' && (
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('photos')}
-                      className="text-xs font-bold text-slate-400 hover:text-[#F95700] transition cursor-pointer"
-                    >
-                      View All ({person.gallery.length}) &rarr;
-                    </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-6 rounded-2xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
+                      Additional videos will appear here.
+                    </div>
                   )}
                 </div>
-
-                {person.gallery.length === 0 ? (
-                  <div className="p-8 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
-                    No photos added to gallery yet.
-                  </div>
-                ) : (
-                  <div className={`grid gap-3 ${activeTab === 'photos' ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-4'}`}>
-                    {person.gallery.map((photo, i) => (
-                      <div
-                        key={i}
-                        onClick={() => setSelectedPhoto(photo)}
-                        className="relative aspect-video rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group shadow-2xs cursor-pointer"
-                      >
-                        <img
-                          src={photo.url}
-                          alt={photo.caption}
-                          className="w-full h-full object-cover transition duration-200 group-hover:scale-105"
-                        />
-                        <div className="absolute bottom-0 inset-x-0 bg-slate-950/75 p-1.5 text-[10px] text-white font-medium truncate">
-                          {photo.caption}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ------------------------------------------------------------------- */}
-            {/* 9. COMMUNITY STORIES SECTION (Shown in 'stories' or overview)       */}
-            {/* ------------------------------------------------------------------- */}
-            {(activeTab === 'stories' || (activeTab === 'overview' && (person.communityStoriesList?.length ?? 0) > 0)) && (
-              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="w-5 h-5 text-blue-600" />
-                    <h3 className="text-base font-black text-slate-900">
-                      Community Stories &amp; Collabs ({person.communityStoriesList?.length || person.communityStoriesCount})
-                    </h3>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsStoryModalOpen(true)}
-                    className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>+ Share Your Story</span>
-                  </button>
-                </div>
-
-                {!person.communityStoriesList || person.communityStoriesList.length === 0 ? (
-                  <div className="p-8 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
-                    No community stories yet. Be the first to share your experience with {person.name}!
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {person.communityStoriesList.map((st) => (
-                      <div
-                        key={st.id}
-                        className="p-4 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-50 transition space-y-2"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center">
-                              {st.author.slice(0, 1).toUpperCase()}
-                            </div>
-                            <div>
-                              <h5 className="text-xs font-extrabold text-slate-900">{st.author}</h5>
-                              {st.role && <span className="text-[10px] text-slate-400">{st.role}</span>}
-                            </div>
-                          </div>
-                          <span className="text-[10px] text-slate-400 font-medium">{st.date}</span>
-                        </div>
-                        <p className="text-xs text-slate-600 leading-relaxed italic">
-                          &ldquo;{st.content}&rdquo;
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ------------------------------------------------------------------- */}
-            {/* 10. FOLLOWERS & AUDIENCE SECTION (Shown in 'followers')             */}
-            {/* ------------------------------------------------------------------- */}
-            {activeTab === 'followers' && (
-              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-6 space-y-6">
-                <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                    <Users className="w-5 h-5 text-[#F95700]" />
-                    <span>Followers &amp; Following Network</span>
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Audience, reach metrics, and verified members following {person.name}.
-                  </p>
-                </div>
-
-                {/* 4 Stats Cards */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="p-4 rounded-xl bg-orange-50 border border-orange-200 text-center space-y-1">
-                    <div className="text-xl font-black text-slate-900">{formattedFollowers}</div>
-                    <div className="text-[10px] font-bold text-orange-800 uppercase">Followers</div>
-                  </div>
-                  <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-center space-y-1">
-                    <div className="text-xl font-black text-slate-900">{person.followingCount}</div>
-                    <div className="text-[10px] font-bold text-blue-800 uppercase">Following</div>
-                  </div>
-                  <div className="p-4 rounded-xl bg-purple-50 border border-purple-200 text-center space-y-1">
-                    <div className="text-xl font-black text-slate-900">{person.viewsCount}</div>
-                    <div className="text-[10px] font-bold text-purple-800 uppercase">Profile Views</div>
-                  </div>
-                  <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center space-y-1">
-                    <div className="text-xl font-black text-slate-900">{person.postsCount}</div>
-                    <div className="text-[10px] font-bold text-emerald-800 uppercase">Published Posts</div>
-                  </div>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-transparent border border-orange-200 space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Bell className="w-5 h-5 text-[#F95700]" />
-                    <h4 className="font-bold text-slate-900 text-sm">
-                      {isFollowing ? 'You are following this profile' : `Follow ${person.name} on BharatBN™`}
-                    </h4>
-                  </div>
-                  <p className="text-xs text-slate-600">
-                    Receive verified updates, speeches, announcements, and direct community notifications.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={handleToggleFollow}
-                    className="px-5 py-2.5 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer"
-                  >
-                    {isFollowing ? '✓ Already Following' : '+ Follow for Updates'}
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* ======================================================================= */}
-          {/* COLUMN 3 (3 Cols): Right Sidebar                                       */}
-          {/* ======================================================================= */}
-          <div className="lg:col-span-3 space-y-4">
-            {/* Connect & Follow Card */}
-            <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 space-y-3">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Bell className="w-3.5 h-3.5 text-[#F95700]" />
-                <span>Connect &amp; Follow</span>
-              </h3>
-
-              <div className="p-4 rounded-xl bg-blue-50/70 border border-blue-200/80 space-y-2">
-                <div className="flex items-center gap-2 text-blue-900 font-bold text-xs">
-                  <Bell className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                  <span>Follow {person.name}</span>
-                </div>
-                <p className="text-[11px] text-blue-800 leading-relaxed">
-                  Get notified about their latest updates, events, videos and stories directly in your BharatBN feed.
-                </p>
-                <button
-                  type="button"
-                  onClick={handleToggleFollow}
-                  className="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-xs cursor-pointer"
-                >
-                  {isFollowing ? '✓ Already Following' : '+ Follow for Updates'}
-                </button>
               </div>
             </div>
+          )}
 
-            {/* Contact & Social Links */}
-            <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 space-y-3">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                Contact &amp; Social Links
-              </h3>
+          {/* ------------------------------------------------------------------- */}
+          {/* MODULE 7: PHOTO GALLERY                                             */}
+          {/* ------------------------------------------------------------------- */}
+          {(activeTab === 'overview' || activeTab === 'photos') && (
+            <div id="module-photos" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-8 space-y-5 scroll-mt-24">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <h3 className="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2.5">
+                  <span className="w-1.5 h-5 rounded-full bg-[#F95700]" />
+                  <Camera className="w-5 h-5 text-[#F95700]" />
+                  <span>Photo Gallery ({person.gallery.length})</span>
+                </h3>
+              </div>
 
-              <div className="space-y-2 text-xs">
+              {person.gallery.length === 0 ? (
+                <div className="p-8 rounded-2xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
+                  No photos added to gallery yet.
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {person.gallery.map((photo, i) => (
+                    <div
+                      key={i}
+                      onClick={() => setSelectedPhoto(photo)}
+                      className="relative aspect-video rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 group shadow-2xs hover:shadow-md transition cursor-pointer"
+                    >
+                      <img
+                        src={photo.url}
+                        alt={photo.caption}
+                        className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
+                      />
+                      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/85 via-slate-950/40 to-transparent p-2 text-[11px] text-white font-medium truncate">
+                        {photo.caption}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ------------------------------------------------------------------- */}
+          {/* MODULE 8: POSTS & UPDATES TIMELINE                                  */}
+          {/* ------------------------------------------------------------------- */}
+          {(activeTab === 'overview' || activeTab === 'posts') && (
+            <div id="module-posts" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-8 space-y-5 scroll-mt-24">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                <h3 className="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2.5">
+                  <span className="w-1.5 h-5 rounded-full bg-[#F95700]" />
+                  <Send className="w-5 h-5 text-[#F95700]" />
+                  <span>Posts &amp; Public Updates</span>
+                  <span className="text-xs font-bold text-slate-400">({filteredUpdates.length})</span>
+                </h3>
+
+                {/* Filter Pills */}
+                <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl text-xs font-bold">
+                  {(['All', 'Posts', 'News', 'Events'] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      type="button"
+                      onClick={() => setFeedFilter(tab)}
+                      className={`px-3.5 py-1.5 rounded-xl transition cursor-pointer ${feedFilter === tab
+                        ? 'bg-white text-slate-900 shadow-xs'
+                        : 'text-slate-500 hover:text-slate-800'
+                        }`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {filteredUpdates.length === 0 ? (
+                <div className="p-8 rounded-2xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
+                  No updates published in this category yet.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {filteredUpdates.map((upd) => (
+                    <div key={upd.id} className="p-5 rounded-2xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-50 transition space-y-3 flex flex-col justify-between">
+                      <div className="flex gap-4 items-start">
+                        {upd.imageUrl && (
+                          <div className="w-24 h-20 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 flex-shrink-0">
+                            <img
+                              src={upd.imageUrl}
+                              alt={upd.title}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <div className="space-y-1 min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-orange-50 text-[#F95700] border border-orange-200">
+                              {upd.type}
+                            </span>
+                            <span className="text-[11px] text-slate-400 font-medium">
+                              {upd.date}
+                            </span>
+                          </div>
+                          <h4 className="text-sm font-extrabold text-slate-900 leading-snug">
+                            {upd.title}
+                          </h4>
+                          <p className="text-xs text-slate-600 line-clamp-2">
+                            {upd.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-4 pt-2 border-t border-slate-200/60 text-xs text-slate-500 font-semibold">
+                        <button
+                          type="button"
+                          className="flex items-center gap-1.5 hover:text-blue-600 transition cursor-pointer"
+                        >
+                          <ThumbsUp className="w-3.5 h-3.5" />
+                          <span>{upd.likes}</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="flex items-center gap-1.5 hover:text-slate-900 transition cursor-pointer"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          <span>{upd.comments}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleCopyShare}
+                          className="flex items-center gap-1.5 hover:text-[#F95700] transition cursor-pointer"
+                        >
+                          <Share2 className="w-3.5 h-3.5" />
+                          <span>Share</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ------------------------------------------------------------------- */}
+          {/* MODULE 9: COMMUNITY STORIES & COLLABS                               */}
+          {/* ------------------------------------------------------------------- */}
+          {(activeTab === 'overview' || activeTab === 'stories') && (
+            <div id="module-stories" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-8 space-y-5 scroll-mt-24">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-1.5 h-5 rounded-full bg-blue-600" />
+                  <MessageSquare className="w-5 h-5 text-blue-600" />
+                  <h3 className="text-lg sm:text-xl font-black text-slate-900">
+                    Community Stories &amp; Collabs ({person.communityStoriesList?.length || person.communityStoriesCount})
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsStoryModalOpen(true)}
+                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                  <span>+ Share Your Story</span>
+                </button>
+              </div>
+
+              {!person.communityStoriesList || person.communityStoriesList.length === 0 ? (
+                <div className="p-8 rounded-2xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
+                  No community stories yet. Be the first to share your experience with {person.name}!
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {person.communityStoriesList.map((st) => (
+                    <div
+                      key={st.id}
+                      className="p-5 rounded-2xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-50 transition space-y-3 flex flex-col justify-between"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center">
+                            {st.author.slice(0, 1).toUpperCase()}
+                          </div>
+                          <div>
+                            <h5 className="text-xs font-extrabold text-slate-900">{st.author}</h5>
+                            {st.role && <span className="text-[10px] text-slate-400">{st.role}</span>}
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-slate-400 font-medium">{st.date}</span>
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed italic border-t border-slate-100 pt-2">
+                        &ldquo;{st.content}&rdquo;
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ------------------------------------------------------------------- */}
+          {/* MODULE 10: OFFICIAL SOCIAL CHANNELS & DIRECT CONNECT                */}
+          {/* ------------------------------------------------------------------- */}
+          {(activeTab === 'overview' || activeTab === 'social') && (
+            <div id="module-social" className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-8 space-y-5 scroll-mt-24">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <h3 className="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2.5">
+                  <span className="w-1.5 h-5 rounded-full bg-[#07213A]" />
+                  <Globe className="w-5 h-5 text-slate-800" />
+                  <span>Official Channels &amp; Direct Connect</span>
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {/* Website */}
                 {person.website && (
                   <a
                     href={person.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 hover:bg-slate-50 transition"
+                    className="flex items-center justify-between p-4 rounded-2xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-100 transition"
                   >
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-slate-200 flex items-center justify-center text-slate-700">
                         <Globe className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="font-bold text-slate-900">Website</div>
-                        <div className="text-[10px] text-slate-500 font-mono truncate max-w-[150px]">
+                        <div className="font-bold text-xs text-slate-900">Official Website</div>
+                        <div className="text-[11px] text-slate-500 font-mono truncate max-w-[180px]">
                           {person.website.replace(/^https?:\/\/(www\.)?/, '')}
                         </div>
                       </div>
                     </div>
-                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-                  </a>
-                )}
-
-                {/* Facebook */}
-                {person.socialLinks.facebook && (
-                  <a
-                    href={person.socialLinks.facebook}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 hover:bg-slate-50 transition"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-lg bg-[#1877F2] flex items-center justify-center text-white">
-                        <FacebookFIcon className="w-3.5 h-3.5 fill-white" />
-                      </div>
-                      <div>
-                        <div className="font-bold text-slate-900">Facebook</div>
-                        <div className="text-[10px] text-slate-500 font-mono truncate max-w-[150px]">
-                          {person.socialLinks.facebook.replace(/^https?:\/\/(www\.)?facebook\.com\/?/, '/')}
-                        </div>
-                      </div>
-                    </div>
-                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                    <ExternalLink className="w-4 h-4 text-slate-400" />
                   </a>
                 )}
 
@@ -1418,20 +1279,20 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     href={person.socialLinks.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 hover:bg-slate-50 transition"
+                    className="flex items-center justify-between p-4 rounded-2xl border border-pink-200 bg-pink-50/40 hover:bg-pink-100/50 transition"
                   >
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white shadow-2xs">
-                        <InstagramIcon className="w-3.5 h-3.5 text-white" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white shadow-xs">
+                        <InstagramIcon className="w-4 h-4 text-white" />
                       </div>
                       <div>
-                        <div className="font-bold text-slate-900">Instagram</div>
-                        <div className="text-[10px] text-slate-500 font-mono truncate max-w-[150px]">
-                          {person.socialLinks.instagram.replace(/^https?:\/\/(www\.)?instagram\.com\/?/, '/')}
+                        <div className="font-bold text-xs text-slate-900">Instagram</div>
+                        <div className="text-[11px] text-pink-700 font-mono truncate max-w-[180px]">
+                          {person.socialLinks.instagram.replace(/^https?:\/\/(www\.)?instagram\.com\/?/, '@')}
                         </div>
                       </div>
                     </div>
-                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                    <ExternalLink className="w-4 h-4 text-pink-400" />
                   </a>
                 )}
 
@@ -1441,20 +1302,20 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     href={person.socialLinks.youtube}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 hover:bg-slate-50 transition"
+                    className="flex items-center justify-between p-4 rounded-2xl border border-red-200 bg-red-50/40 hover:bg-red-100/50 transition"
                   >
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-lg bg-[#FF0000] flex items-center justify-center text-white shadow-2xs">
-                        <YouTubeIcon className="w-3.5 h-3.5 fill-white" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-[#FF0000] flex items-center justify-center text-white shadow-xs">
+                        <YouTubeIcon className="w-4 h-4 fill-white" />
                       </div>
                       <div>
-                        <div className="font-bold text-slate-900">YouTube</div>
-                        <div className="text-[10px] text-slate-500 font-mono truncate max-w-[150px]">
-                          {person.socialLinks.youtube.replace(/^https?:\/\/(www\.)?youtube\.com\/?/, '/')}
+                        <div className="font-bold text-xs text-slate-900">YouTube Channel</div>
+                        <div className="text-[11px] text-red-700 font-mono truncate max-w-[180px]">
+                          {person.socialLinks.youtube.replace(/^https?:\/\/(www\.)?youtube\.com\/?/, '')}
                         </div>
                       </div>
                     </div>
-                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                    <ExternalLink className="w-4 h-4 text-red-400" />
                   </a>
                 )}
 
@@ -1464,20 +1325,43 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     href={person.socialLinks.twitter}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 hover:bg-slate-50 transition"
+                    className="flex items-center justify-between p-4 rounded-2xl border border-slate-300 bg-slate-100/60 hover:bg-slate-200/60 transition"
                   >
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-lg bg-black flex items-center justify-center text-white shadow-2xs">
-                        <TwitterXIcon className="w-3.5 h-3.5 fill-white" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-black flex items-center justify-center text-white shadow-xs">
+                        <TwitterXIcon className="w-4 h-4 fill-white" />
                       </div>
                       <div>
-                        <div className="font-bold text-slate-900">Twitter / X</div>
-                        <div className="text-[10px] text-slate-500 font-mono truncate max-w-[150px]">
+                        <div className="font-bold text-xs text-slate-900">X (Twitter)</div>
+                        <div className="text-[11px] text-slate-700 font-mono truncate max-w-[180px]">
                           {person.socialLinks.twitter.replace(/^https?:\/\/(www\.)?(twitter|x)\.com\/?/, '@')}
                         </div>
                       </div>
                     </div>
-                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                    <ExternalLink className="w-4 h-4 text-slate-400" />
+                  </a>
+                )}
+
+                {/* Facebook */}
+                {person.socialLinks.facebook && (
+                  <a
+                    href={person.socialLinks.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between p-4 rounded-2xl border border-blue-200 bg-blue-50/40 hover:bg-blue-100/50 transition"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-[#1877F2] flex items-center justify-center text-white shadow-xs">
+                        <FacebookFIcon className="w-4 h-4 fill-white" />
+                      </div>
+                      <div>
+                        <div className="font-bold text-xs text-slate-900">Facebook Page</div>
+                        <div className="text-[11px] text-blue-700 font-mono truncate max-w-[180px]">
+                          {person.socialLinks.facebook.replace(/^https?:\/\/(www\.)?facebook\.com\/?/, '/')}
+                        </div>
+                      </div>
+                    </div>
+                    <ExternalLink className="w-4 h-4 text-blue-400" />
                   </a>
                 )}
 
@@ -1487,68 +1371,68 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     href={person.socialLinks.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 hover:bg-slate-50 transition"
+                    className="flex items-center justify-between p-4 rounded-2xl border border-sky-200 bg-sky-50/40 hover:bg-sky-100/50 transition"
                   >
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-lg bg-[#0A66C2] flex items-center justify-center text-white shadow-2xs">
-                        <LinkedInIcon className="w-3.5 h-3.5 fill-white" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-[#0A66C2] flex items-center justify-center text-white shadow-xs">
+                        <LinkedInIcon className="w-4 h-4 fill-white" />
                       </div>
                       <div>
-                        <div className="font-bold text-slate-900">LinkedIn</div>
-                        <div className="text-[10px] text-slate-500 font-mono truncate max-w-[150px]">
+                        <div className="font-bold text-xs text-slate-900">LinkedIn Profile</div>
+                        <div className="text-[11px] text-sky-700 font-mono truncate max-w-[180px]">
                           {person.socialLinks.linkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\/(in|company)?\/?/, '/')}
                         </div>
                       </div>
                     </div>
-                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                    <ExternalLink className="w-4 h-4 text-sky-400" />
                   </a>
                 )}
 
-                {/* Send a Message */}
+                {/* Direct Message Inquiry */}
                 <button
                   type="button"
                   onClick={() => setIsMessageModalOpen(true)}
-                  className="w-full flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-[#F95700] hover:bg-orange-50/50 transition cursor-pointer text-left"
+                  className="flex items-center justify-between p-4 rounded-2xl border border-orange-200 bg-orange-50/40 hover:bg-orange-100/50 transition cursor-pointer text-left"
                 >
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-lg bg-orange-100 text-[#F95700] flex items-center justify-center font-bold">
-                      <MessageSquare className="w-3.5 h-3.5" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-[#F95700] text-white flex items-center justify-center shadow-xs">
+                      <MessageSquare className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="font-bold text-slate-900">Send a Message</div>
-                      <div className="text-[10px] text-slate-500">Directly connect via BharatBN</div>
+                      <div className="font-bold text-xs text-slate-900">Send Direct Message</div>
+                      <div className="text-[11px] text-orange-700">Connect directly via BharatBN™</div>
                     </div>
                   </div>
-                  <span className="text-slate-400">&rsaquo;</span>
+                  <span className="text-orange-500 font-bold">&rarr;</span>
                 </button>
               </div>
             </div>
+          )}
 
-            {/* Community Stories Card (Exact Image Reference) */}
-            <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Community Stories</span>
-                </h3>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
-                  {person.communityStoriesCount}
-                </span>
+          {/* ------------------------------------------------------------------- */}
+          {/* MODULE 11: CLAIM & MANAGE PROFILE BANNER CARD                       */}
+          {/* ------------------------------------------------------------------- */}
+          <div className="bg-gradient-to-r from-[#07213A] via-[#0b2f52] to-[#07213A] rounded-3xl p-6 sm:p-8 text-white shadow-lg flex flex-col sm:flex-row items-center justify-between gap-6 border border-slate-700/60">
+            <div className="flex items-center gap-4 text-center sm:text-left">
+              <div className="w-14 h-14 rounded-2xl bg-orange-500/20 text-[#F95700] border border-orange-500/30 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-7 h-7" />
               </div>
-
-              <p className="text-[11px] text-slate-500 leading-relaxed">
-                Share your views, experiences or stories related to {person.name}.
-              </p>
-
-              <button
-                type="button"
-                onClick={() => setIsStoryModalOpen(true)}
-                className="w-full py-2.5 rounded-xl bg-white border border-slate-200 hover:border-[#F95700] hover:bg-slate-50 text-slate-800 text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
-              >
-                <span>✏️</span>
-                <span>Share Your Story</span>
-              </button>
+              <div className="space-y-1">
+                <h4 className="text-base sm:text-lg font-black text-white">
+                  Are You {person.name}?
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
+                  Claim and manage your official public profile, publish verified statements, sync credentials, and engage directly with your followers.
+                </p>
+              </div>
             </div>
+            <Link
+              href={`/claim/${person.slug}`}
+              className="px-6 py-3 rounded-2xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs sm:text-sm font-bold transition flex items-center gap-2 shadow-lg shadow-[#F95700]/25 shrink-0"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Claim This Profile</span>
+            </Link>
           </div>
         </div>
       </div>
