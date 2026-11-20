@@ -337,11 +337,11 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
           </div>
 
           {/* Profile Identity & Action Bar */}
-          <div className="px-6 sm:px-8 pb-6 pt-0 relative flex flex-col md:flex-row md:items-end justify-between gap-6 -mt-16 sm:-mt-20">
-            {/* Cutout Portrait Avatar & Name Info */}
-            <div className="flex flex-col sm:flex-row items-center sm:items-end gap-5 text-center sm:text-left">
+          <div className="px-6 sm:px-8 pb-5 pt-0 relative bg-white">
+            {/* Top Row: Avatar overlapping bottom of cover + Action buttons aligned on right */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-14 sm:-mt-16 mb-3">
               {/* Avatar Cutout with thick white border */}
-              <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-white border-4 border-white shadow-2xl overflow-hidden flex-shrink-0 z-10 flex items-center justify-center">
+              <div className="relative w-28 h-28 sm:w-34 sm:h-34 rounded-full bg-white border-4 border-white shadow-xl overflow-hidden flex-shrink-0 z-10 flex items-center justify-center">
                 {person.avatarUrl ? (
                   <img
                     src={person.avatarUrl}
@@ -358,7 +358,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                   />
                 ) : null}
                 <div
-                  className={`w-full h-full bg-gradient-to-tr from-[#07213A] to-[#F95700] text-white font-black text-4xl sm:text-5xl flex items-center justify-center profile-avatar-fallback ${
+                  className={`w-full h-full bg-gradient-to-tr from-[#07213A] to-[#F95700] text-white font-black text-3xl sm:text-4xl flex items-center justify-center profile-avatar-fallback ${
                     person.avatarUrl ? 'hidden' : 'flex'
                   }`}
                 >
@@ -366,54 +366,17 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                 </div>
               </div>
 
-              {/* Name, Verified Badge, Role & Location */}
-              <div className="space-y-1.5 pt-2">
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                  <span className="px-3 py-0.5 rounded-full text-[11px] font-bold text-[#F95700] bg-orange-50 border border-orange-200 uppercase tracking-wide">
-                    {person.badge}
-                  </span>
-                  {!person.isVerified && (
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200">
-                      Pending Verification
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                  <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                    {person.name}
-                  </h1>
-                  {/* Verified Blue Checkmark */}
-                  {person.isVerified && (
-                    <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs" title="Official Verified Profile">
-                      <Check className="w-3 h-3 stroke-[3.5]" />
-                    </div>
-                  )}
-                </div>
-
-                <p className="text-xs sm:text-sm font-semibold text-slate-700">
-                  {person.role}
-                </p>
-
-                <p className="text-xs text-slate-500 font-medium flex items-center justify-center sm:justify-start gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                  <span>{person.location}</span>
-                </p>
-              </div>
-            </div>
-
-            {/* Action Buttons & Social Icons Row */}
-            <div className="flex flex-col items-center sm:items-end gap-3 flex-shrink-0">
-              {/* Action Buttons Row */}
-              <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2">
+              {/* Action Buttons & Social Icons Row (Cleanly grouped on right in white area) */}
+              <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0">
                 {/* Follow Button */}
                 <button
                   type="button"
                   onClick={handleToggleFollow}
-                  className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-xs cursor-pointer ${isFollowing
-                    ? 'bg-slate-900 text-white hover:bg-slate-800'
-                    : 'bg-[#F95700] hover:bg-[#d94a00] text-white shadow-[#F95700]/25'
-                    }`}
+                  className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-xs cursor-pointer ${
+                    isFollowing
+                      ? 'bg-slate-900 text-white hover:bg-slate-800'
+                      : 'bg-[#F95700] hover:bg-[#d94a00] text-white shadow-[#F95700]/25'
+                  }`}
                 >
                   {isFollowing ? (
                     <>
@@ -432,7 +395,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                 <button
                   type="button"
                   onClick={() => setIsMessageModalOpen(true)}
-                  className="px-4 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                  className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
                 >
                   <MessageSquare className="w-4 h-4 text-slate-500" />
                   <span>Message</span>
@@ -442,7 +405,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                 <button
                   type="button"
                   onClick={handleCopyShare}
-                  className="px-4 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                  className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
                   title="Share Profile Link"
                 >
                   {copiedLink ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4 text-slate-500" />}
@@ -455,70 +418,116 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     href={person.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-2xs"
+                    className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-2xs"
                   >
-                    <span>Visit Website</span>
+                    <span>Website</span>
                     <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
                   </a>
                 )}
+
+                {/* Inline Social Icons */}
+                <div className="flex items-center gap-1.5 pl-1.5 border-l border-slate-200 ml-0.5">
+                  {person.socialLinks.instagram && (
+                    <a
+                      href={person.socialLinks.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-2xs"
+                      title="Instagram"
+                    >
+                      <InstagramIcon className="w-3.5 h-3.5 text-white" />
+                    </a>
+                  )}
+                  {person.socialLinks.youtube && (
+                    <a
+                      href={person.socialLinks.youtube}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-full bg-[#FF0000] text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-2xs"
+                      title="YouTube"
+                    >
+                      <YouTubePlayIcon className="w-3.5 h-3.5 fill-white ml-0.5" />
+                    </a>
+                  )}
+                  {person.socialLinks.twitter && (
+                    <a
+                      href={person.socialLinks.twitter}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-2xs"
+                      title="Twitter / X"
+                    >
+                      <TwitterXIcon className="w-3.5 h-3.5 fill-white" />
+                    </a>
+                  )}
+                  {person.socialLinks.facebook && (
+                    <a
+                      href={person.socialLinks.facebook}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-full bg-[#1877F2] text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-2xs"
+                      title="Facebook"
+                    >
+                      <FacebookFIcon className="w-3.5 h-3.5 fill-white" />
+                    </a>
+                  )}
+                  {person.socialLinks.linkedin && (
+                    <a
+                      href={person.socialLinks.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-full bg-[#0A66C2] text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-2xs"
+                      title="LinkedIn"
+                    >
+                      <LinkedInIcon className="w-3.5 h-3.5 fill-white" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Profile Identity Details */}
+            <div className="space-y-1.5 pt-1">
+              {/* Name + Verified Checkmark + Category Badge */}
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                  {person.name}
+                </h1>
+                {person.isVerified && (
+                  <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs" title="Official Verified Profile">
+                    <Check className="w-3 h-3 stroke-[3.5]" />
+                  </div>
+                )}
+                {person.badge && (
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold text-[#F95700] bg-orange-50 border border-orange-200 uppercase tracking-wide">
+                    {person.badge}
+                  </span>
+                )}
+                {!person.isVerified && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200">
+                    Pending Verification
+                  </span>
+                )}
               </div>
 
-              {/* Social Media Circular Icons Row */}
-              <div className="flex items-center gap-2 pt-1">
-                {person.socialLinks.facebook && (
-                  <a
-                    href={person.socialLinks.facebook}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-full bg-[#1877F2] text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-2xs"
-                    title="Facebook"
-                  >
-                    <FacebookFIcon className="w-3.5 h-3.5 fill-white" />
-                  </a>
+              {/* Role */}
+              <p className="text-sm sm:text-base font-semibold text-slate-700">
+                {person.role}
+              </p>
+
+              {/* Location & Handle */}
+              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 font-medium pt-0.5">
+                {person.location && (
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                    <span>{person.location}</span>
+                  </span>
                 )}
-                {person.socialLinks.instagram && (
-                  <a
-                    href={person.socialLinks.instagram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-2xs"
-                    title="Instagram"
-                  >
-                    <InstagramIcon className="w-4 h-4 text-white" />
-                  </a>
-                )}
-                {person.socialLinks.youtube && (
-                  <a
-                    href={person.socialLinks.youtube}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-full bg-[#FF0000] text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-2xs"
-                    title="YouTube"
-                  >
-                    <YouTubePlayIcon className="w-3.5 h-3.5 fill-white ml-0.5" />
-                  </a>
-                )}
-                {person.socialLinks.twitter && (
-                  <a
-                    href={person.socialLinks.twitter}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-2xs"
-                    title="Twitter / X"
-                  >
-                    <TwitterXIcon className="w-3.5 h-3.5 fill-white" />
-                  </a>
-                )}
-                {person.socialLinks.linkedin && (
-                  <a
-                    href={person.socialLinks.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-full bg-[#0A66C2] text-white flex items-center justify-center hover:opacity-90 hover:scale-105 transition shadow-2xs"
-                    title="LinkedIn"
-                  >
-                    <LinkedInIcon className="w-3.5 h-3.5 fill-white" />
-                  </a>
+                {person.slug && (
+                  <>
+                    <span className="text-slate-300">&bull;</span>
+                    <span className="font-mono text-slate-400">@{person.slug}</span>
+                  </>
                 )}
               </div>
             </div>
