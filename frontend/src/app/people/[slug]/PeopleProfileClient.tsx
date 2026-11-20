@@ -48,6 +48,9 @@ import {
   syncRealMetricsFromServer,
   getStoredFollowingList,
   getCurrentUserHandle,
+  parseFollowerCount,
+  formatFollowerCount,
+  getBaseFollowers,
 } from '@/lib/realMetrics';
 import type { PersonProfile } from './peopleData';
 
@@ -361,6 +364,20 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
 
           const resolvedSocial = sessionRecord?.socialLinks || storeRecord?.socialLinks || customData.socialLinks || prev.socialLinks;
 
+          // 6. Followers Count Resolution
+          const rawFollowers =
+            sessionRecord?.followersCount !== undefined && sessionRecord?.followersCount !== null && sessionRecord?.followersCount !== ''
+              ? sessionRecord.followersCount
+              : viewedPerson?.followersCount !== undefined && viewedPerson?.followersCount !== null && viewedPerson?.followersCount !== ''
+              ? viewedPerson.followersCount
+              : storeRecord?.followersCount !== undefined && storeRecord?.followersCount !== null && storeRecord?.followersCount !== ''
+              ? storeRecord.followersCount
+              : customData.followersCount !== undefined && customData.followersCount !== null && customData.followersCount !== ''
+              ? customData.followersCount
+              : prev.followersCount;
+
+          const validFollowers = isKashish ? 1 : (parseFollowerCount(rawFollowers) || getBaseFollowers(cleanTarget));
+
           return {
             ...prev,
             id: customData.id || prev.id,
@@ -372,6 +389,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
             quote: validQuote,
             avatarUrl: validAvatar,
             coverUrl: validCover,
+            followersCount: validFollowers,
             aboutText: resolvedAbout,
             website: resolvedWebsite,
             socialLinks: resolvedSocial,
@@ -566,10 +584,12 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
   const handleToggleFollow = async () => {
     try {
       const curSlug = (person.slug || targetSlug || '').toLowerCase().trim();
-      const updated = await toggleRealFollow(curSlug, isFollowing);
-      setIsFollowing(!isFollowing);
-      setFollowersCount(updated.followersCount);
-      if (!isFollowing) {
+      await toggleRealFollow(curSlug, isFollowing);
+      const nextFollowingState = !isFollowing;
+      setIsFollowing(nextFollowingState);
+      const delta = nextFollowingState ? 1 : -1;
+      setFollowersCount((prev) => Math.max(0, prev + delta));
+      if (nextFollowingState) {
         setFollowToast(`Following ${person.name}! You will receive verified updates.`);
       } else {
         setFollowToast(`You unfollowed ${person.name}`);
@@ -622,8 +642,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
     feedFilter === 'All' ? person.updates : person.updates.filter((u) => u.type === feedFilter);
 
   // Format follower count
-  const formattedFollowers =
-    followersCount >= 1000 ? `${(followersCount / 1000).toFixed(1)}K` : `${followersCount}`;
+  const formattedFollowers = formatFollowerCount(followersCount);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-24 text-slate-800">

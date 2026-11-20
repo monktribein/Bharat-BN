@@ -52,6 +52,94 @@ export function getStoredLikesMap(): Record<string, number> {
   }
 }
 
+export function parseFollowerCount(val: any): number {
+  if (val === undefined || val === null || val === '') return 0;
+  if (typeof val === 'number') return val;
+  const s = String(val).trim().toUpperCase();
+  if (s.endsWith('M')) {
+    const n = parseFloat(s.replace('M', ''));
+    return isNaN(n) ? 0 : Math.round(n * 1000000);
+  }
+  if (s.endsWith('K')) {
+    const n = parseFloat(s.replace('K', ''));
+    return isNaN(n) ? 0 : Math.round(n * 1000);
+  }
+  const parsed = parseInt(s.replace(/[^0-9]/g, ''), 10);
+  return isNaN(parsed) ? 0 : parsed;
+}
+
+export function formatFollowerCount(num: number): string {
+  if (isNaN(num) || num <= 0) return '0';
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+  return `${num}`;
+}
+
+export function getBaseFollowers(slug: string): number {
+  if (typeof window === 'undefined') return 0;
+  const normSlug = (slug || '').toLowerCase().trim();
+  if (!normSlug) return 0;
+
+  if (normSlug === 'kashish') return 1;
+
+  // 1. Check viewed person in sessionStorage (bridge from card)
+  try {
+    const viewedRaw = sessionStorage.getItem('bharatbn_viewed_person');
+    if (viewedRaw) {
+      const v = JSON.parse(viewedRaw);
+      const vSlug = (v.slug || v.handle || '').toLowerCase().replace(/^@/, '').trim();
+      if (vSlug === normSlug && v.followersCount) {
+        return parseFollowerCount(v.followersCount);
+      }
+    }
+  } catch {}
+
+  // 2. Check active owner session in localStorage
+  try {
+    const sessRaw = localStorage.getItem('bharatbn_owner_session');
+    if (sessRaw) {
+      const s = JSON.parse(sessRaw);
+      const sSlug = (s.slug || s.handle || '').toLowerCase().replace(/^@/, '').trim();
+      if (sSlug === normSlug && s.followersCount) {
+        return parseFollowerCount(s.followersCount);
+      }
+    }
+  } catch {}
+
+  // 3. Check bharatbn_people_store in localStorage
+  try {
+    const storeRaw = localStorage.getItem('bharatbn_people_store');
+    if (storeRaw) {
+      const arr = JSON.parse(storeRaw);
+      if (Array.isArray(arr)) {
+        const found = arr.find((p: any) => {
+          const ps = (p.slug || p.handle || '').toLowerCase().replace(/^@/, '').trim();
+          return ps === normSlug;
+        });
+        if (found && found.followersCount) {
+          return parseFollowerCount(found.followersCount);
+        }
+      }
+    }
+  } catch {}
+
+  // 4. Default seed fallbacks
+  const seedDefaults: Record<string, number> = {
+    'anand-sahu': 28400,
+    'kashish': 1,
+    'dr-rajesh-sharma': 18900,
+    'priya-menon': 12500,
+    'ai': 5800,
+    'vikram-malhotra': 34100,
+    'sunita-deshmukh': 19400,
+    'arjun-mehta': 32100,
+    'kavita-krishnan': 14600,
+    'adv-rohit-sharma': 21800,
+  };
+
+  return seedDefaults[normSlug] || 0;
+}
+
 export function getCurrentUserHandle(): string {
   if (typeof window === 'undefined') return '@visitor';
   try {
@@ -73,9 +161,10 @@ export function getRealMetrics(slug: string): RealMetrics {
   const myFollowing = getStoredFollowingList();
   const viewsMap = getStoredViewsMap();
   const likesMap = getStoredLikesMap();
+  const base = getBaseFollowers(normSlug);
 
   return {
-    followersCount: followers.length,
+    followersCount: base > 0 ? base : followers.length,
     followers,
     followingCount: myFollowing.length,
     following: myFollowing,
@@ -123,7 +212,9 @@ export async function toggleRealFollow(targetSlug: string, isCurrentlyFollowing:
       if (Array.isArray(people)) {
         const idx = people.findIndex((p: any) => p.slug?.toLowerCase() === normSlug);
         if (idx !== -1) {
-          people[idx].followersCount = followers.length;
+          const currentBase = parseFollowerCount(people[idx].followersCount);
+          const nextCount = Math.max(0, currentBase + (isCurrentlyFollowing ? -1 : 1));
+          people[idx].followersCount = formatFollowerCount(nextCount);
           localStorage.setItem('bharatbn_people_store', JSON.stringify(people));
         }
       }

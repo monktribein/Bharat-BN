@@ -512,11 +512,11 @@ export const aiProfile: PersonProfile = {
   quote: 'Empowering 1.4 Billion Indians with sovereign AI innovation and smart discovery.',
   avatarUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
   coverUrl: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1600&q=80',
-  followersCount: 0,
+  followersCount: 5800,
   followingCount: 1,
   postsCount: 18,
   viewsCount: '0',
-  isVerified: false,
+  isVerified: true,
   website: 'https://bharatbn.com/ai',
   socialLinks: {
     twitter: 'https://x.com/BharatBNAI',

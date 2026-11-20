@@ -19,6 +19,7 @@ import {
   Lock,
   LogIn,
 } from 'lucide-react';
+import { toggleRealFollow, parseFollowerCount } from '@/lib/realMetrics';
 
 interface PersonCard {
   id: string;
@@ -81,7 +82,7 @@ const defaultPeopleList: PersonCard[] = [
     quote: 'Empowering 1.4 Billion Indians with sovereign AI innovation and smart discovery.',
     avatarUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
     coverUrl: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80',
-    followersCount: '0',
+    followersCount: '5.8K',
     postsCount: 18,
     category: 'Creators & Influencers',
     isVerified: true,
@@ -298,26 +299,40 @@ export default function PeopleDirectoryPage() {
     return () => window.removeEventListener('bharatbn_auth_changed', syncSession);
   }, []);
 
-  const handleToggleFollow = (person: PersonCard) => {
+  const handleToggleFollow = async (person: PersonCard) => {
     // Require login to follow
     if (!ownerSession) {
       setShowLoginPrompt(true);
       return;
     }
     try {
-      const stored = localStorage.getItem('bharatbn_people_follows');
-      let follows: string[] = stored ? JSON.parse(stored) : [];
+      const isCurrentlyFollowing = followedSlugs.includes(person.slug);
+      await toggleRealFollow(person.slug, isCurrentlyFollowing);
 
-      if (follows.includes(person.slug)) {
-        follows = follows.filter((s) => s !== person.slug);
+      const nextFollowed = isCurrentlyFollowing
+        ? followedSlugs.filter((s) => s !== person.slug)
+        : [...followedSlugs, person.slug];
+      setFollowedSlugs(nextFollowed);
+
+      // Update card followersCount dynamically
+      setPeople((prev) =>
+        prev.map((p) => {
+          if (p.slug !== person.slug) return p;
+          const currentCount = parseFollowerCount(p.followersCount);
+          const delta = isCurrentlyFollowing ? -1 : 1;
+          const nextCount = Math.max(0, currentCount + delta);
+          return {
+            ...p,
+            followersCount: currentCount >= 1000 ? p.followersCount : String(nextCount),
+          };
+        })
+      );
+
+      if (isCurrentlyFollowing) {
         setFollowToast(`You unfollowed ${person.name}`);
       } else {
-        follows.push(person.slug);
         setFollowToast(`Following ${person.name}! You will receive their latest updates.`);
       }
-
-      localStorage.setItem('bharatbn_people_follows', JSON.stringify(follows));
-      setFollowedSlugs(follows);
       setTimeout(() => setFollowToast(''), 3000);
     } catch { }
   };
