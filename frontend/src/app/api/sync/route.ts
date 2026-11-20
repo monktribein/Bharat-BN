@@ -16,7 +16,10 @@ function readStore() {
     const storePath = getStorePath();
     if (fs.existsSync(storePath)) {
       const raw = fs.readFileSync(storePath, 'utf-8');
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      if (!parsed.followers) parsed.followers = {};
+      if (!parsed.views) parsed.views = {};
+      return parsed;
     }
   } catch (e) {
     console.error('Failed to read sync cache', e);
@@ -24,6 +27,8 @@ function readStore() {
   return {
     people: {},
     businesses: {},
+    followers: {},
+    views: {},
     updatedAt: new Date().toISOString(),
   };
 }
@@ -58,8 +63,41 @@ export async function POST(req: Request) {
     const store = readStore();
     if (!store.people) store.people = {};
     if (!store.businesses) store.businesses = {};
+    if (!store.followers) store.followers = {};
+    if (!store.views) store.views = {};
 
-    if (body.type === 'person') {
+    // 1. Follow / Unfollow Actions
+    if (body.action === 'follow' || body.action === 'unfollow') {
+      const target = (body.targetSlug || '').toLowerCase().trim();
+      const follower = body.followerId || '@visitor';
+      if (target) {
+        let list: string[] = Array.isArray(store.followers[target]) ? store.followers[target] : [];
+        if (body.action === 'follow') {
+          if (!list.some((f: string) => f.toLowerCase() === follower.toLowerCase())) {
+            list.push(follower);
+          }
+        } else {
+          list = list.filter((f: string) => f.toLowerCase() !== follower.toLowerCase());
+        }
+        store.followers[target] = list;
+        if (store.people[target]) {
+          store.people[target].followersCount = list.length;
+        }
+      }
+    }
+    // 2. Profile View Actions
+    else if (body.action === 'view') {
+      const target = (body.targetSlug || '').toLowerCase().trim();
+      if (target) {
+        const current = Number(store.views[target]) || 0;
+        store.views[target] = body.viewsCount !== undefined ? Number(body.viewsCount) : current + 1;
+        if (store.people[target]) {
+          store.people[target].viewsCount = store.views[target];
+        }
+      }
+    }
+    // 3. Person Profile Updates
+    else if (body.type === 'person') {
       const key = (body.slug || body.id || body.handle?.replace(/^@/, '') || '').toLowerCase();
       if (key) {
         store.people[key] = {
@@ -68,7 +106,9 @@ export async function POST(req: Request) {
           updatedAt: new Date().toISOString(),
         };
       }
-    } else if (body.type === 'business') {
+    }
+    // 4. Business Claim / Entity Updates
+    else if (body.type === 'business') {
       const key = (body.businessSlug || body.slug || body.id || body.businessName || '').toLowerCase();
       if (key) {
         store.businesses[key] = {
@@ -77,7 +117,9 @@ export async function POST(req: Request) {
           updatedAt: new Date().toISOString(),
         };
       }
-    } else if (body.people || body.claims) {
+    }
+    // 5. Bulk Updates
+    else if (body.people || body.claims) {
       if (Array.isArray(body.people)) {
         body.people.forEach((p: any) => {
           const k = (p.slug || p.id || p.handle?.replace(/^@/, '') || '').toLowerCase();

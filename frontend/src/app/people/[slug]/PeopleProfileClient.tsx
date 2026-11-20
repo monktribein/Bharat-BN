@@ -41,6 +41,14 @@ import {
   TwitterXIcon,
   LinkedInIcon,
 } from '@/components/SocialIcons';
+import {
+  getRealMetrics,
+  toggleRealFollow,
+  recordRealView,
+  syncRealMetricsFromServer,
+  getStoredFollowingList,
+  getCurrentUserHandle,
+} from '@/lib/realMetrics';
 import type { PersonProfile } from './peopleData';
 
 interface Props {
@@ -56,9 +64,10 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
   const [activeTab, setActiveTab] = useState('overview');
   const [feedFilter, setFeedFilter] = useState<'All' | 'Posts' | 'News' | 'Events'>('All');
 
-  // Follow state
+  // Follow & Real Metrics state
   const [isFollowing, setIsFollowing] = useState(false);
-  const [followersCount, setFollowersCount] = useState(initialPerson.followersCount);
+  const [followersCount, setFollowersCount] = useState<number>(0);
+  const [viewsCount, setViewsCount] = useState<number | string>(0);
   const [followToast, setFollowToast] = useState('');
 
   // Floating Bar Interaction states
@@ -206,51 +215,87 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
             url: found.featuredVideo.videoUrl || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
           });
         }
-        if (found.followersCount !== undefined) {
-          setFollowersCount(Number(found.followersCount) || initialPerson.followersCount);
+        if (found.followersCount !== undefined && typeof found.followersCount === 'number') {
+          setFollowersCount(found.followersCount);
         }
       } else {
         setPerson(initialPerson);
-        setFollowersCount(initialPerson.followersCount);
       }
     } catch { }
   }, [targetSlug, initialPerson]);
 
-  // Sync follow state from localStorage
+  // Sync Real Metrics, Views & Followers
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('bharatbn_people_follows');
-      if (stored) {
-        const follows: string[] = JSON.parse(stored);
-        if (follows.includes(person.slug)) {
-          setIsFollowing(true);
+    const curSlug = (person.slug || targetSlug || '').toLowerCase().trim();
+    if (!curSlug) return;
+
+    // 1. Record authentic profile view
+    const viewCount = recordRealView(curSlug);
+    setViewsCount(viewCount);
+
+    // 2. Load immediate local real metrics
+    const initialMetrics = getRealMetrics(curSlug);
+    setFollowersCount(initialMetrics.followersCount);
+    if (initialMetrics.viewsCount) {
+      setViewsCount(initialMetrics.viewsCount);
+    }
+
+    // 3. Determine if current user follows this profile
+    const myFollowing = getStoredFollowingList();
+    const myHandle = getCurrentUserHandle();
+    const isF =
+      myFollowing.includes(curSlug) ||
+      initialMetrics.followers.some((f) => f.toLowerCase() === myHandle.toLowerCase());
+    setIsFollowing(isF);
+
+    // 4. Background sync with server cache
+    syncRealMetricsFromServer(curSlug).then((remoteMetrics) => {
+      if (remoteMetrics) {
+        setFollowersCount(remoteMetrics.followersCount);
+        if (remoteMetrics.viewsCount) {
+          setViewsCount(remoteMetrics.viewsCount);
         }
       }
-    } catch { }
-  }, [person.slug]);
+    });
 
-  // Handle Follow / Unfollow
-  const handleToggleFollow = () => {
+    // 5. Event listener for real-time changes across tabs & components
+    const onMetricsUpdated = () => {
+      const updated = getRealMetrics(curSlug);
+      setFollowersCount(updated.followersCount);
+      if (updated.viewsCount) setViewsCount(updated.viewsCount);
+      const followingList = getStoredFollowingList();
+      const userHandle = getCurrentUserHandle();
+      setIsFollowing(
+        followingList.includes(curSlug) ||
+        updated.followers.some((f) => f.toLowerCase() === userHandle.toLowerCase())
+      );
+    };
+
+    window.addEventListener('bharatbn_metrics_updated', onMetricsUpdated);
+    window.addEventListener('bharatbn_follow_changed', onMetricsUpdated);
+
+    return () => {
+      window.removeEventListener('bharatbn_metrics_updated', onMetricsUpdated);
+      window.removeEventListener('bharatbn_follow_changed', onMetricsUpdated);
+    };
+  }, [person.slug, targetSlug]);
+
+  // Handle Follow / Unfollow Real Action
+  const handleToggleFollow = async () => {
     try {
-      const stored = localStorage.getItem('bharatbn_people_follows');
-      let follows: string[] = stored ? JSON.parse(stored) : [];
-
-      if (isFollowing) {
-        follows = follows.filter((s) => s !== person.slug);
-        setIsFollowing(false);
-        setFollowersCount((prev) => prev - 1);
-        setFollowToast(`You unfollowed ${person.name}`);
+      const curSlug = (person.slug || targetSlug || '').toLowerCase().trim();
+      const updated = await toggleRealFollow(curSlug, isFollowing);
+      setIsFollowing(!isFollowing);
+      setFollowersCount(updated.followersCount);
+      if (!isFollowing) {
+        setFollowToast(`Following ${person.name}! You will receive verified updates.`);
       } else {
-        follows.push(person.slug);
-        setIsFollowing(true);
-        setFollowersCount((prev) => prev + 1);
-        setFollowToast(`Following ${person.name}! You will receive in-app updates.`);
+        setFollowToast(`You unfollowed ${person.name}`);
       }
-
-      localStorage.setItem('bharatbn_people_follows', JSON.stringify(follows));
-      window.dispatchEvent(new Event('bharatbn_follow_changed'));
       setTimeout(() => setFollowToast(''), 3500);
-    } catch { }
+    } catch (err) {
+      console.error('Follow toggle failed', err);
+    }
   };
 
   // Handle Likes
@@ -554,7 +599,9 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                   <span className="font-extrabold text-sm sm:text-base text-slate-900">
                     {formattedFollowers}
                   </span>
-                  <span className="text-xs text-slate-500 ml-1.5 font-medium">Followers</span>
+                  <span className="text-xs text-slate-500 ml-1.5 font-medium">
+                    {followersCount === 1 ? 'Follower' : 'Followers'}
+                  </span>
                 </div>
               </div>
 
@@ -585,7 +632,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                 <Eye className="w-4 h-4 text-purple-600" />
                 <div>
                   <span className="font-extrabold text-sm sm:text-base text-slate-900">
-                    {person.viewsCount}
+                    {viewsCount !== undefined && viewsCount !== null ? viewsCount : (person.viewsCount || 0)}
                   </span>
                   <span className="text-xs text-slate-500 ml-1.5 font-medium">Profile Views</span>
                 </div>

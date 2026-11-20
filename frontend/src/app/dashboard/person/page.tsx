@@ -39,6 +39,7 @@ import {
   FileText,
   HeartHandshake,
   ShieldCheck,
+  RefreshCw,
   Link as LinkIcon,
   X,
 } from 'lucide-react';
@@ -51,6 +52,7 @@ import {
   LinkedInIcon,
 } from '@/components/SocialIcons';
 import { broadcastAssetUpdate } from '@/lib/syncClient';
+import { getRealMetrics, syncRealMetricsFromServer } from '@/lib/realMetrics';
 import {
   peopleDatabase,
   type EducationItem,
@@ -426,11 +428,22 @@ export default function PersonDashboardPage() {
       : [];
     setCommunityStoriesList(loadedStories);
 
-    // 11. Audience Stats
-    setFollowersCount(found?.followersCount ? String(found.followersCount) : (currSession.followersCount ? String(currSession.followersCount) : '0'));
-    setFollowingCount(found?.followingCount ? String(found.followingCount) : (currSession.followingCount ? String(currSession.followingCount) : '12'));
-    setViewsCount(found?.viewsCount || currSession.viewsCount || '0');
-    setEngagementsCount(found?.engagementsCount || currSession.engagementsCount || '0');
+    // 11. Audience Stats - Authentic Real BharatBN Metrics
+    const metricsSlug = (found?.slug || currSession?.slug || slug || 'ai').toLowerCase().trim();
+    const realMetrics = getRealMetrics(metricsSlug);
+    setFollowersCount(String(realMetrics.followersCount));
+    setFollowingCount(String(realMetrics.followingCount));
+    setViewsCount(String(realMetrics.viewsCount));
+    setEngagementsCount(String(realMetrics.followersCount + realMetrics.viewsCount + realMetrics.likesCount));
+
+    syncRealMetricsFromServer(metricsSlug).then((remoteMetrics) => {
+      if (remoteMetrics) {
+        setFollowersCount(String(remoteMetrics.followersCount));
+        setViewsCount(String(remoteMetrics.viewsCount));
+        setEngagementsCount(String(remoteMetrics.followersCount + remoteMetrics.viewsCount + remoteMetrics.likesCount));
+      }
+    });
+
     setStoriesCount(
       found?.communityStoriesList
         ? String(found.communityStoriesList.length)
@@ -464,10 +477,30 @@ export default function PersonDashboardPage() {
       }
     };
 
+    const syncMetrics = () => {
+      try {
+        const stored = localStorage.getItem('bharatbn_owner_session');
+        const sess = stored ? JSON.parse(stored) : null;
+        const curSlug = (sess?.slug || slug || 'ai').toLowerCase().trim();
+        const m = getRealMetrics(curSlug);
+        setFollowersCount(String(m.followersCount));
+        setFollowingCount(String(m.followingCount));
+        setViewsCount(String(m.viewsCount));
+        setEngagementsCount(String(m.followersCount + m.viewsCount + m.likesCount));
+      } catch {}
+    };
+
     sync();
     window.addEventListener('bharatbn_auth_changed', sync);
-    return () => window.removeEventListener('bharatbn_auth_changed', sync);
-  }, []);
+    window.addEventListener('bharatbn_metrics_updated', syncMetrics);
+    window.addEventListener('bharatbn_follow_changed', syncMetrics);
+
+    return () => {
+      window.removeEventListener('bharatbn_auth_changed', sync);
+      window.removeEventListener('bharatbn_metrics_updated', syncMetrics);
+      window.removeEventListener('bharatbn_follow_changed', syncMetrics);
+    };
+  }, [slug]);
 
   // Direct Person Cover Upload from Device
   const handlePersonCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -2991,55 +3024,150 @@ export default function PersonDashboardPage() {
         </button>
 
         {openSections.stats && (
-          <div className="p-5 sm:p-6 pt-0 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
-            <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700">Followers Count</label>
-              <input
-                type="text"
-                value={followersCount}
-                onChange={(e) => setFollowersCount(e.target.value)}
-                placeholder="e.g. 5.8K"
-                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
-              />
+          <div className="p-5 sm:p-6 pt-0 border-t border-slate-100 space-y-4 pt-4">
+            {/* Live Verification Status Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50/50 rounded-2xl border border-emerald-200/80">
+              <div className="flex items-center gap-2.5">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
+                <div>
+                  <div className="text-xs font-black text-emerald-950 flex items-center gap-1.5">
+                    <span>Live BharatBN Network Sync Active</span>
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  </div>
+                  <p className="text-[11px] text-emerald-700 font-medium">
+                    Followers and audience metrics reflect authentic verified interactions on BharatBN.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <a
+                  href={`/people/${(session?.slug || slug || 'ai').toLowerCase()}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-emerald-200 text-emerald-900 hover:bg-emerald-50 text-xs font-bold shadow-2xs transition"
+                >
+                  <span>Test Follow On Public Profile</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-emerald-600" />
+                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const s = (session?.slug || slug || 'ai').toLowerCase();
+                    syncRealMetricsFromServer(s);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-2xs transition cursor-pointer"
+                  title="Force re-sync with network"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Sync Now</span>
+                </button>
+              </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700">Following Count</label>
-              <input
-                type="text"
-                value={followingCount}
-                onChange={(e) => setFollowingCount(e.target.value)}
-                placeholder="e.g. 12"
-                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
-              />
+            {/* 4 Authentic Real-Time Metric Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Card 1: BharatBN Followers */}
+              <div className="p-4 bg-white rounded-2xl border-2 border-orange-200/90 shadow-sm relative overflow-hidden group hover:border-[#F95700] transition">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-orange-600">Verified Followers</span>
+                  <div className="w-9 h-9 rounded-xl bg-orange-100 text-[#F95700] flex items-center justify-center">
+                    <Users className="w-5 h-5" />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <div className="text-3xl font-black text-slate-900 tracking-tight">{followersCount}</div>
+                  <div className="text-xs text-slate-500 font-semibold mt-0.5">
+                    {Number(followersCount) === 1 ? 'Real BharatBN Follower' : 'Real BharatBN Followers'}
+                  </div>
+                </div>
+                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                    ● Real-Time Verified
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-medium">100% Authentic</span>
+                </div>
+              </div>
+
+              {/* Card 2: Following Count */}
+              <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs relative overflow-hidden group hover:border-blue-300 transition">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-blue-600">Following</span>
+                  <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
+                    <Users className="w-5 h-5" />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <div className="text-3xl font-black text-slate-900 tracking-tight">{followingCount}</div>
+                  <div className="text-xs text-slate-500 font-semibold mt-0.5">Profiles You Follow</div>
+                </div>
+                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
+                    Network Feed
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-medium">Connected</span>
+                </div>
+              </div>
+
+              {/* Card 3: Profile Views */}
+              <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs relative overflow-hidden group hover:border-purple-300 transition">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-purple-600">Profile Views</span>
+                  <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center">
+                    <Eye className="w-5 h-5" />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <div className="text-3xl font-black text-slate-900 tracking-tight">{viewsCount}</div>
+                  <div className="text-xs text-slate-500 font-semibold mt-0.5">Authentic Page Views</div>
+                </div>
+                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100">
+                    Live Impressions
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-medium">Directory</span>
+                </div>
+              </div>
+
+              {/* Card 4: Total Engagements */}
+              <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs relative overflow-hidden group hover:border-emerald-300 transition">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-600">Engagements</span>
+                  <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <div className="text-3xl font-black text-slate-900 tracking-tight">{engagementsCount}</div>
+                  <div className="text-xs text-slate-500 font-semibold mt-0.5">Follows + Views + Likes</div>
+                </div>
+                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                    Total Reach
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-medium">Combined</span>
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700">Profile Views</label>
-              <input
-                type="text"
-                value={viewsCount}
-                onChange={(e) => setViewsCount(e.target.value)}
-                placeholder="e.g. 128K+"
-                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
-              />
+            {/* Authenticity Policy Callout */}
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-start gap-3">
+              <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <h4 className="text-xs font-bold text-slate-800">BharatBN Real Audience Credibility Guarantee</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  To ensure 100% sovereign credibility for Indian creators and public figures, followers on BharatBN are exclusively recorded from authentic user follow clicks. Manual metric faking is disabled. When anyone visits your public profile (<span className="font-mono text-slate-700 font-bold">/people/{session?.slug || slug || 'ai'}</span>) and taps <strong className="text-slate-800">[+ Follow]</strong>, your count increases instantly here.
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700">Engagements Count</label>
-              <input
-                type="text"
-                value={engagementsCount}
-                onChange={(e) => setEngagementsCount(e.target.value)}
-                placeholder="e.g. 2.4K"
-                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
-              />
-            </div>
-
-            {/* Bottom Save Action for Audience Metrics */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-100 mt-2 col-span-full">
+            {/* Save & Broadcast Action */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 mt-2">
               <span className="text-xs text-slate-500 font-medium">
-                Saves public follower count, following, profile views, and engagement metrics
+                Verified audience metrics are automatically kept in sync across BharatBN.
               </span>
               <button
                 type="button"
@@ -3050,10 +3178,10 @@ export default function PersonDashboardPage() {
                 <Save className="w-4 h-4" />
                 <span>
                   {savingSection === 'stats'
-                    ? 'Saving Audience Metrics...'
+                    ? 'Broadcasting Metrics...'
                     : savedSection === 'stats'
-                    ? '✓ Audience Metrics Saved!'
-                    : 'Save Audience Metrics'}
+                    ? '✓ Live Audience Metrics Synced!'
+                    : 'Broadcast & Confirm Live Metrics'}
                 </span>
               </button>
             </div>

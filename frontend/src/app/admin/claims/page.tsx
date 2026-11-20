@@ -224,7 +224,7 @@ const defaultPeopleClaims: PersonClaimItem[] = [
     aboutText: 'AI is an autonomous researcher and intelligent creator system engineered for BharatBN™ — empowering local businesses, creators, and public figures with instant verified SEO catalogs, smart follow feeds, and sovereign digital infrastructure.',
     avatarUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
     coverUrl: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1600&q=80',
-    followersCount: '5.8K',
+    followersCount: '0',
     submittedAt: 'Today, 14:00 IST (New)',
     status: 'pending',
     isVerified: false,
