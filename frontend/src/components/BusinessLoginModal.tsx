@@ -127,8 +127,12 @@ export default function BusinessLoginModal({
                 name: 'Kashish Saxena',
                 slug: 'kashish',
                 handle: '@kashish',
-                role: 'Creator & Platform Pioneer',
-                avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+                role: 'Public Figure & Speaker',
+                badge: 'Public Figure',
+                location: 'noida',
+                quote: 'hi',
+                avatarUrl: '/people/kashish-avatar.png',
+                coverUrl: '/people/kashish-cover.jpg',
                 isVerified: true,
               };
             } else if (low.includes('ai') || low === '@ai' || low === 'ai') {
