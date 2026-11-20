@@ -50,6 +50,7 @@ import {
   TwitterXIcon,
   LinkedInIcon,
 } from '@/components/SocialIcons';
+import { broadcastAssetUpdate } from '@/lib/syncClient';
 import {
   peopleDatabase,
   type EducationItem,
@@ -491,6 +492,16 @@ export default function PersonDashboardPage() {
             localStorage.setItem('bharatbn_owner_session', JSON.stringify(updated));
             window.dispatchEvent(new Event('bharatbn_auth_changed'));
           }
+
+          // Real-time cross-port sync
+          broadcastAssetUpdate({
+            type: 'person',
+            id: session?.personId,
+            slug,
+            handle,
+            name,
+            coverUrl: dataUrl,
+          });
         } catch (err) {
           console.error(err);
         }
@@ -525,6 +536,16 @@ export default function PersonDashboardPage() {
             localStorage.setItem('bharatbn_owner_session', JSON.stringify(updated));
             window.dispatchEvent(new Event('bharatbn_auth_changed'));
           }
+
+          // Real-time cross-port sync
+          broadcastAssetUpdate({
+            type: 'person',
+            id: session?.personId,
+            slug,
+            handle,
+            name,
+            avatarUrl: dataUrl,
+          });
         } catch (err) {
           console.error(err);
         }
@@ -944,6 +965,21 @@ export default function PersonDashboardPage() {
       }
       localStorage.setItem('bharatbn_people_store', JSON.stringify(people));
       window.dispatchEvent(new Event('bharatbn_people_updated'));
+
+      // Real-time cross-port sync
+      broadcastAssetUpdate({
+        type: 'person',
+        id: updatedSession.personId,
+        slug: cleanSlug,
+        handle: updatedSession.handle,
+        name: updatedSession.name,
+        avatarUrl: updatedSession.avatarUrl,
+        coverUrl: updatedSession.coverUrl,
+        role: updatedSession.role,
+        badge: updatedSession.badge,
+        quote: updatedSession.quote,
+        aboutText: updatedSession.aboutText,
+      });
     } catch (err) {
       console.error(err);
     }

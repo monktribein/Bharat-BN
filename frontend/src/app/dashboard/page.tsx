@@ -48,6 +48,7 @@ import {
   TwitterXIcon,
   LinkedInIcon,
 } from '@/components/SocialIcons';
+import { broadcastAssetUpdate } from '@/lib/syncClient';
 import { api } from '@/lib/api-client';
 
 interface OwnerSession {
@@ -442,6 +443,16 @@ export default function DashboardOverviewPage() {
             localStorage.setItem('bharatbn_owner_session', JSON.stringify(updated));
             window.dispatchEvent(new Event('bharatbn_auth_changed'));
           }
+
+          // Real-time cross-port sync
+          broadcastAssetUpdate({
+            type: 'business',
+            id: session?.businessId,
+            businessName,
+            businessSlug,
+            logoUrl: dataUrl,
+            logoBase64: dataUrl,
+          });
         } catch (err) {
           console.error(err);
         }
@@ -552,6 +563,20 @@ export default function DashboardOverviewPage() {
       // 3. Dispatch global sync events
       window.dispatchEvent(new Event('bharatbn_claims_updated'));
       window.dispatchEvent(new Event('bharatbn_auth_changed'));
+
+      // Real-time cross-port sync
+      broadcastAssetUpdate({
+        type: 'business',
+        id: updatedRecord.id,
+        businessName: updatedRecord.businessName,
+        businessSlug: updatedRecord.businessSlug,
+        logoUrl: updatedRecord.logoUrl,
+        coverUrl: updatedRecord.coverUrl,
+        category: updatedRecord.category,
+        city: updatedRecord.city,
+        phone: updatedRecord.phone,
+        email: updatedRecord.email,
+      });
 
       // 4. Update Backend API in background
       try {

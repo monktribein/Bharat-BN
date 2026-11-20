@@ -63,6 +63,7 @@ const defaultClaims: ClaimItem[] = [
     id: 'BBN-CLM-799760',
     businessName: 'Apple',
     businessSlug: 'apple-khora-colony-ghaziabad-noida',
+    logoUrl: '/apple-logo.svg',
     city: 'Noida, UP',
     category: 'Automobile & EV',
     claimantName: 'Kashish Saxena (CEO)',
@@ -81,6 +82,7 @@ const defaultClaims: ClaimItem[] = [
     id: 'BBN-CLM-982104',
     businessName: 'Choco Delights & Confectionery (Cadboury)',
     businessSlug: 'choco-delights-confectionery-cadboury',
+    logoUrl: '/choco-logo.svg',
     city: 'Mumbai, MH',
     category: 'Food, Bakeries & Confectionery',
     claimantName: 'Cadboury Admin',
@@ -98,6 +100,7 @@ const defaultClaims: ClaimItem[] = [
     id: 'BBN-CLM-849102',
     businessName: 'Apex Super Speciality Dental Clinic',
     businessSlug: 'apex-super-speciality-dental-clinic',
+    logoUrl: '/apex-logo.svg',
     city: 'Mumbai, MH',
     category: 'Healthcare & Clinics',
     claimantName: 'Dr. Rajesh Sharma',
@@ -115,6 +118,7 @@ const defaultClaims: ClaimItem[] = [
     id: 'BBN-CLM-623194',
     businessName: 'Little Elly Preschool & Daycare',
     businessSlug: 'little-elly-international-preschool',
+    logoUrl: '/little-elly-logo.svg',
     city: 'Bengaluru, KA',
     category: 'Preschools & Education',
     claimantName: 'Sunita Rao',
@@ -132,6 +136,7 @@ const defaultClaims: ClaimItem[] = [
     id: 'BBN-CLM-419082',
     businessName: 'Greenfield EV Motors & Spares',
     businessSlug: 'greenfield-ev-motors-kothrud-pune',
+    logoUrl: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=200&q=80',
     city: 'Pune, MH',
     category: 'Automobile & EV',
     claimantName: 'Anil Deshmukh',
@@ -149,6 +154,7 @@ const defaultClaims: ClaimItem[] = [
     id: 'BBN-CLM-310928',
     businessName: 'Dr Batra’s Positive Health Clinic',
     businessSlug: 'dr-batras-positive-health-clinic-bandra-mumbai',
+    logoUrl: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=200&q=80',
     city: 'Mumbai, MH',
     category: 'Healthcare & Clinics',
     claimantName: 'Dr. Neha Kapoor',
@@ -167,6 +173,7 @@ const defaultClaims: ClaimItem[] = [
     id: 'BBN-CLM-109283',
     businessName: 'Kalyan Jewellers Showroom',
     businessSlug: 'kalyan-jewellers-t-nagar-chennai',
+    logoUrl: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=200&q=80',
     city: 'Chennai, TN',
     category: 'Retail & Jewellery',
     claimantName: 'R. Ramachandran',
@@ -222,8 +229,8 @@ const defaultPeopleClaims: PersonClaimItem[] = [
     phone: '+91 98000 00000',
     quote: 'Empowering 1.4 Billion Indians with sovereign AI innovation and smart discovery.',
     aboutText: 'AI is an autonomous researcher and intelligent creator system engineered for BharatBN™ — empowering local businesses, creators, and public figures with instant verified SEO catalogs, smart follow feeds, and sovereign digital infrastructure.',
-    avatarUrl: '',
-    coverUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1600&q=80',
+    avatarUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1600&q=80',
     followersCount: '5.8K',
     submittedAt: 'Today, 14:00 IST (New)',
     status: 'pending',
@@ -242,7 +249,7 @@ const defaultPeopleClaims: PersonClaimItem[] = [
     phone: '+91 97170 56860',
     quote: 'Empowering local businesses and creators across Bharat.',
     aboutText: 'Creator and digital pioneer building verified hyper-local networking and growth initiatives for North India businesses.',
-    avatarUrl: '',
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
     coverUrl: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1200&q=80',
     followersCount: '1.2K',
     submittedAt: 'Today, 13:00 IST (New)',
@@ -262,7 +269,7 @@ const defaultPeopleClaims: PersonClaimItem[] = [
     phone: '+91 98110 54321',
     quote: 'Thoughts for Nation Building and a Stronger India.',
     aboutText: 'Anand Sahu publishes commentary, event updates and photographs related to public life, social work and political activities.',
-    avatarUrl: '/people/anand-sahu-avatar.jpg',
+    avatarUrl: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=400&q=80',
     coverUrl: 'https://images.unsplash.com/photo-1598890777032-bde13fbe3492?auto=format&fit=crop&w=1600&q=80',
     followersCount: '28.4K',
     submittedAt: '18 Nov 2026',
@@ -327,13 +334,70 @@ export default function ClaimModerationPage() {
     }
   }, []);
 
-  // Load dynamically submitted business claims from localStorage
+  // Multi-tier Real-Time Sync Engine: API, LocalStorage, Cross-Port Iframe & Focus
   useEffect(() => {
-    const loadStoredClaims = () => {
+    let isSubscribed = true;
+
+    const syncFromRemote = async () => {
       try {
-        const stored = localStorage.getItem('bharatbn_claims_store');
-        if (stored) {
-          const parsed: ClaimItem[] = JSON.parse(stored);
+        let res = await fetch('/api/sync').catch(() => null);
+        if (!res || !res.ok) {
+          res = await fetch('http://localhost:3000/api/sync').catch(() => null);
+        }
+        if (res && res.ok) {
+          const data = await res.json();
+          if (!isSubscribed) return;
+
+          // Merge People Avatars & Updates
+          if (data?.people && typeof data.people === 'object') {
+            setPeopleClaims((prev) => {
+              return prev.map((p) => {
+                const k1 = p.slug.toLowerCase();
+                const k2 = p.id.toLowerCase();
+                const remote = data.people[k1] || data.people[k2];
+                if (remote) {
+                  return {
+                    ...p,
+                    avatarUrl: remote.avatarUrl || p.avatarUrl,
+                    coverUrl: remote.coverUrl || p.coverUrl,
+                    name: remote.name || p.name,
+                    role: remote.role || p.role,
+                    badge: remote.badge || p.badge,
+                  };
+                }
+                return p;
+              });
+            });
+          }
+
+          // Merge Business Logos & Updates
+          if (data?.businesses && typeof data.businesses === 'object') {
+            setClaims((prev) => {
+              return prev.map((c) => {
+                const k1 = c.businessSlug.toLowerCase();
+                const k2 = c.id.toLowerCase();
+                const remote = data.businesses[k1] || data.businesses[k2];
+                if (remote) {
+                  return {
+                    ...c,
+                    logoUrl: remote.logoUrl || remote.logoBase64 || c.logoUrl,
+                    businessName: remote.businessName || c.businessName,
+                  };
+                }
+                return c;
+              });
+            });
+          }
+        }
+      } catch (err) {}
+    };
+
+    const loadLocal = () => {
+      try {
+        // Load claims
+        const storedClaims = localStorage.getItem('bharatbn_claims_store');
+        if (storedClaims) {
+          const parsed = JSON.parse(storedClaims);
           if (Array.isArray(parsed) && parsed.length > 0) {
             setClaims((prev) => {
               const map = new Map<string, ClaimItem>();
@@ -345,70 +409,107 @@ export default function ClaimModerationPage() {
             });
           }
         }
-      } catch (e) {
-        console.error('Failed to load local claims', e);
-      }
-    };
 
-    loadStoredClaims();
-    window.addEventListener('bharatbn_claims_updated', loadStoredClaims);
-    return () => window.removeEventListener('bharatbn_claims_updated', loadStoredClaims);
-  }, []);
-
-  // Load dynamically registered people from localStorage
-  useEffect(() => {
-    const loadStoredPeople = () => {
-      try {
-        const stored = localStorage.getItem('bharatbn_people_store');
-        const map = new Map<string, PersonClaimItem>();
-
-        // Seed with default people
-        defaultPeopleClaims.forEach((p) => map.set(p.id, p));
-
-        if (stored) {
-          const parsed = JSON.parse(stored);
+        // Load people
+        const storedPeople = localStorage.getItem('bharatbn_people_store');
+        if (storedPeople) {
+          const parsed = JSON.parse(storedPeople);
           if (Array.isArray(parsed)) {
-            parsed.forEach((p: any) => {
-              const id = p.id || `BBN-PPL-${(p.slug || 'user').toUpperCase()}`;
-              const existing = map.get(id);
-              map.set(id, {
-                id,
-                name: p.name || 'Registered User',
-                slug: p.slug || (p.handle ? p.handle.replace(/^@/, '') : 'user'),
-                handle: p.handle?.startsWith('@') ? p.handle : `@${p.handle || p.slug || 'user'}`,
-                role: p.role || 'Public Figure & Speaker',
-                badge: p.badge || 'Public Figure',
-                location: p.location || 'India',
-                email: p.email || existing?.email || 'user@bharatbn.in',
-                phone: p.phone || existing?.phone || '+91 97170 56860',
-                quote: p.quote || existing?.quote || 'Building a stronger connected community across India.',
-                aboutText: p.aboutText || existing?.aboutText || '',
-                avatarUrl: p.avatarUrl || existing?.avatarUrl || '',
-                coverUrl: p.coverUrl || existing?.coverUrl || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1200&q=80',
-                followersCount: p.followersCount || existing?.followersCount || '0',
-                submittedAt: p.submittedAt || existing?.submittedAt || 'Today, 13:00 IST (New)',
-                status: p.status || (p.isVerified ? 'approved' : 'pending'),
-                isVerified: p.isVerified ?? (p.status === 'approved'),
-                reviewerNotes: p.reviewerNotes || existing?.reviewerNotes,
-                rejectionReason: p.rejectionReason || existing?.rejectionReason,
+            setPeopleClaims((prev) => {
+              const map = new Map<string, PersonClaimItem>();
+              prev.forEach((p) => map.set(p.slug.toLowerCase(), p));
+              parsed.forEach((p: any) => {
+                const k = (p.slug || p.id || '').toLowerCase();
+                const existing = map.get(k);
+                if (existing) {
+                  map.set(k, {
+                    ...existing,
+                    avatarUrl: p.avatarUrl || existing.avatarUrl,
+                    coverUrl: p.coverUrl || existing.coverUrl,
+                    name: p.name || existing.name,
+                  });
+                }
               });
+              return Array.from(map.values());
             });
           }
         }
-
-        const list = Array.from(map.values());
-        setPeopleClaims(list);
-        if (!selectedPerson && list.length > 0) {
-          setSelectedPerson(list[0]);
-        }
-      } catch (e) {
-        console.error('Failed to load local people claims', e);
-      }
+      } catch (e) {}
     };
 
-    loadStoredPeople();
-    window.addEventListener('bharatbn_people_updated', loadStoredPeople);
-    return () => window.removeEventListener('bharatbn_people_updated', loadStoredPeople);
+    // Initial load
+    loadLocal();
+    syncFromRemote();
+
+    // Listen to local changes
+    const handleLocalClaims = () => loadLocal();
+    const handleLocalPeople = () => loadLocal();
+    window.addEventListener('bharatbn_claims_updated', handleLocalClaims);
+    window.addEventListener('bharatbn_people_updated', handleLocalPeople);
+
+    // Window focus triggers instant sync
+    const handleFocus = () => {
+      loadLocal();
+      syncFromRemote();
+    };
+    window.addEventListener('focus', handleFocus);
+
+    // Fast 3s interval heartbeat sync
+    const interval = setInterval(syncFromRemote, 3000);
+
+    // Listen to iframe postMessage from http://localhost:3000/sync-bridge.html
+    const handleMessage = (evt: MessageEvent) => {
+      if (evt.data && evt.data.type === 'BBN_STORAGE_SYNC') {
+        const { people, claims } = evt.data;
+        if (Array.isArray(people) && people.length > 0) {
+          setPeopleClaims((prev) => {
+            const map = new Map<string, PersonClaimItem>();
+            prev.forEach((p) => map.set(p.slug.toLowerCase(), p));
+            people.forEach((p: any) => {
+              const k = (p.slug || p.id || '').toLowerCase();
+              const existing = map.get(k);
+              if (existing) {
+                map.set(k, {
+                  ...existing,
+                  avatarUrl: p.avatarUrl || existing.avatarUrl,
+                  coverUrl: p.coverUrl || existing.coverUrl,
+                  name: p.name || existing.name,
+                });
+              }
+            });
+            return Array.from(map.values());
+          });
+        }
+        if (Array.isArray(claims) && claims.length > 0) {
+          setClaims((prev) => {
+            const map = new Map<string, ClaimItem>();
+            prev.forEach((c) => map.set(c.businessSlug.toLowerCase(), c));
+            claims.forEach((c: any) => {
+              const k = (c.businessSlug || c.slug || c.id || '').toLowerCase();
+              const existing = map.get(k);
+              if (existing) {
+                map.set(k, {
+                  ...existing,
+                  logoUrl: c.logoUrl || c.logoBase64 || existing.logoUrl,
+                  businessName: c.businessName || existing.businessName,
+                });
+              }
+            });
+            return Array.from(map.values());
+          });
+        }
+      }
+    };
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      isSubscribed = false;
+      window.removeEventListener('bharatbn_claims_updated', handleLocalClaims);
+      window.removeEventListener('bharatbn_people_updated', handleLocalPeople);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('message', handleMessage);
+      clearInterval(interval);
+    };
   }, []);
 
   // Filtered Business Claims
@@ -737,8 +838,31 @@ export default function ClaimModerationPage() {
                           </span>
                         </div>
 
-                        <div className="font-semibold text-slate-900 truncate">
-                          {claim.businessName}
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center flex-shrink-0 p-1 relative shadow-2xs">
+                            {claim.logoUrl || claim.logoBase64 ? (
+                              <img
+                                src={claim.logoUrl || claim.logoBase64}
+                                alt={claim.businessName}
+                                className="w-full h-full object-contain"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const fb = e.currentTarget.parentElement?.querySelector('.fb-biz-sm');
+                                  if (fb) (fb as HTMLElement).style.display = 'flex';
+                                }}
+                              />
+                            ) : null}
+                            <div
+                              className={`fb-biz-sm w-full h-full bg-[#07213A] text-white font-bold text-xs rounded items-center justify-center ${
+                                claim.logoUrl || claim.logoBase64 ? 'hidden' : 'flex'
+                              }`}
+                            >
+                              {claim.businessName.slice(0, 1).toUpperCase()}
+                            </div>
+                          </div>
+                          <div className="font-semibold text-slate-900 truncate flex-1 min-w-0">
+                            {claim.businessName}
+                          </div>
                         </div>
 
                         <div className="text-[11px] text-slate-500 flex items-center justify-between font-mono">
@@ -772,9 +896,34 @@ export default function ClaimModerationPage() {
                           <span className="text-slate-300">&bull;</span>
                           <span className="text-[11px] text-slate-500 font-mono">{selectedClaim.submittedAt}</span>
                         </div>
-                        <h2 className="text-base font-bold text-slate-900 mt-1">
-                          {selectedClaim.businessName}
-                        </h2>
+                        <div className="flex items-center gap-3 mt-1">
+                          <div className="w-12 h-12 rounded-xl bg-white border-2 border-slate-200 overflow-hidden flex items-center justify-center flex-shrink-0 p-1.5 shadow-xs relative">
+                            {selectedClaim.logoUrl || selectedClaim.logoBase64 ? (
+                              <img
+                                src={selectedClaim.logoUrl || selectedClaim.logoBase64}
+                                alt={selectedClaim.businessName}
+                                className="w-full h-full object-contain"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const fb = e.currentTarget.parentElement?.querySelector('.fb-biz-lg');
+                                  if (fb) (fb as HTMLElement).style.display = 'flex';
+                                }}
+                              />
+                            ) : null}
+                            <div
+                              className={`fb-biz-lg w-full h-full bg-[#07213A] text-white font-black text-lg rounded-lg items-center justify-center ${
+                                selectedClaim.logoUrl || selectedClaim.logoBase64 ? 'hidden' : 'flex'
+                              }`}
+                            >
+                              {selectedClaim.businessName.slice(0, 1).toUpperCase()}
+                            </div>
+                          </div>
+                          <div>
+                            <h2 className="text-base font-bold text-slate-900">
+                              {selectedClaim.businessName}
+                            </h2>
+                          </div>
+                        </div>
                         <div className="text-xs text-slate-500 mt-0.5 flex items-center gap-2">
                           <span className="flex items-center gap-1">
                             <Building2 className="w-3.5 h-3.5 text-slate-400" />
@@ -1029,12 +1178,22 @@ export default function ClaimModerationPage() {
                             {/* Avatar or initial */}
                             <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden flex items-center justify-center flex-shrink-0 text-xs font-bold text-slate-700 border border-slate-300">
                               {person.avatarUrl ? (
-                                <img src={person.avatarUrl} alt={person.name} className="w-full h-full object-cover" />
-                              ) : (
-                                <span className="bg-gradient-to-tr from-amber-600 to-orange-500 text-white w-full h-full flex items-center justify-center font-bold">
-                                  {person.name.slice(0, 1).toUpperCase()}
-                                </span>
-                              )}
+                                <img
+                                  src={person.avatarUrl}
+                                  alt={person.name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                    const fb = e.currentTarget.parentElement?.querySelector('.fb-ppl-sm');
+                                    if (fb) (fb as HTMLElement).style.display = 'flex';
+                                  }}
+                                />
+                              ) : null}
+                              <span className={`fb-ppl-sm bg-gradient-to-tr from-amber-600 to-orange-500 text-white w-full h-full items-center justify-center font-bold ${
+                                person.avatarUrl ? 'hidden' : 'flex'
+                              }`}>
+                                {person.name.slice(0, 1).toUpperCase()}
+                              </span>
                             </div>
                             <div>
                               <div className="font-bold text-slate-900 flex items-center gap-1">
@@ -1092,12 +1251,22 @@ export default function ClaimModerationPage() {
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-full bg-slate-100 overflow-hidden border-2 border-slate-200 shadow-sm flex-shrink-0 flex items-center justify-center">
                           {selectedPerson.avatarUrl ? (
-                            <img src={selectedPerson.avatarUrl} alt={selectedPerson.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-tr from-amber-600 to-orange-500 text-white font-black text-lg flex items-center justify-center">
-                              {selectedPerson.name.slice(0, 1).toUpperCase()}
-                            </div>
-                          )}
+                            <img
+                              src={selectedPerson.avatarUrl}
+                              alt={selectedPerson.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                const fb = e.currentTarget.parentElement?.querySelector('.fb-ppl-lg');
+                                if (fb) (fb as HTMLElement).style.display = 'flex';
+                              }}
+                            />
+                          ) : null}
+                          <div className={`fb-ppl-lg w-full h-full bg-gradient-to-tr from-amber-600 to-orange-500 text-white font-black text-lg items-center justify-center ${
+                            selectedPerson.avatarUrl ? 'hidden' : 'flex'
+                          }`}>
+                            {selectedPerson.name.slice(0, 1).toUpperCase()}
+                          </div>
                         </div>
 
                         <div>
@@ -1415,6 +1584,13 @@ export default function ClaimModerationPage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Real-time Cross-Port Synchronization Bridge */}
+      <iframe
+        src="http://localhost:3000/sync-bridge.html"
+        style={{ display: 'none', width: 0, height: 0, border: 'none' }}
+        title="sync-bridge"
+      />
     </div>
   );
 }

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>BharatBN Sync Bridge</title>
+</head>
+<body>
+<script>
+(function() {
+  function getPayload() {
+    var people = [];
+    var claims = [];
+    var session = null;
+    try {
+      var p = localStorage.getItem('bharatbn_people_store');
+      if (p) people = JSON.parse(p);
+    } catch(e){}
+    try {
+      var c = localStorage.getItem('bharatbn_claims_store');
+      if (c) claims = JSON.parse(c);
+    } catch(e){}
+    try {
+      var s = localStorage.getItem('bharatbn_owner_session');
+      if (s) session = JSON.parse(s);
+    } catch(e){}
+    return {
+      type: 'BBN_STORAGE_SYNC',
+      people: people,
+      claims: claims,
+      session: session,
+      timestamp: Date.now()
+    };
+  }
+
+  function broadcast() {
+    try {
+      var payload = getPayload();
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage(payload, '*');
+      }
+    } catch(e){}
+  }
+
+  // Initial broadcast on mount
+  broadcast();
+
+  // Listen to window storage and custom events
+  window.addEventListener('storage', broadcast);
+  window.addEventListener('bharatbn_people_updated', broadcast);
+  window.addEventListener('bharatbn_claims_updated', broadcast);
+  window.addEventListener('bharatbn_auth_changed', broadcast);
+
+  // Periodic heartbeat sync every 2 seconds
+  setInterval(broadcast, 2000);
+
+  // Handle cross-window requests
+  window.addEventListener('message', function(evt) {
+    if (!evt.data) return;
+    if (evt.data.type === 'BBN_REQUEST_SYNC') {
+      broadcast();
+    } else if (evt.data.type === 'BBN_SET_STORAGE') {
+      try {
+        if (evt.data.key && evt.data.value) {
+          localStorage.setItem(evt.data.key, typeof evt.data.value === 'string' ? evt.data.value : JSON.stringify(evt.data.value));
+          broadcast();
+        }
+      } catch(e){}
+    }
+  });
+})();
+</script>
+</body>
+</html>
