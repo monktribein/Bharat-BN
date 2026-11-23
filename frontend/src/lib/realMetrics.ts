@@ -76,69 +76,7 @@ export function formatFollowerCount(num: number): string {
 }
 
 export function getBaseFollowers(slug: string): number {
-  if (typeof window === 'undefined') return 0;
-  const normSlug = (slug || '').toLowerCase().trim();
-  if (!normSlug) return 0;
-
-  if (normSlug === 'kashish') return 1;
-  if (normSlug === 'ai') return 0; // AI relies 100% on real authentic BharatBN followers
-
-  // 1. Check viewed person in sessionStorage (bridge from card)
-  try {
-    const viewedRaw = sessionStorage.getItem('bharatbn_viewed_person');
-    if (viewedRaw) {
-      const v = JSON.parse(viewedRaw);
-      const vSlug = (v.slug || v.handle || '').toLowerCase().replace(/^@/, '').trim();
-      if (vSlug === normSlug && v.followersCount) {
-        return parseFollowerCount(v.followersCount);
-      }
-    }
-  } catch {}
-
-  // 2. Check active owner session in localStorage
-  try {
-    const sessRaw = localStorage.getItem('bharatbn_owner_session');
-    if (sessRaw) {
-      const s = JSON.parse(sessRaw);
-      const sSlug = (s.slug || s.handle || '').toLowerCase().replace(/^@/, '').trim();
-      if (sSlug === normSlug && s.followersCount) {
-        return parseFollowerCount(s.followersCount);
-      }
-    }
-  } catch {}
-
-  // 3. Check bharatbn_people_store in localStorage
-  try {
-    const storeRaw = localStorage.getItem('bharatbn_people_store');
-    if (storeRaw) {
-      const arr = JSON.parse(storeRaw);
-      if (Array.isArray(arr)) {
-        const found = arr.find((p: any) => {
-          const ps = (p.slug || p.handle || '').toLowerCase().replace(/^@/, '').trim();
-          return ps === normSlug;
-        });
-        if (found && found.followersCount) {
-          return parseFollowerCount(found.followersCount);
-        }
-      }
-    }
-  } catch {}
-
-  // 4. Default seed fallbacks
-  const seedDefaults: Record<string, number> = {
-    'anand-sahu': 28400,
-    'kashish': 1,
-    'dr-rajesh-sharma': 18900,
-    'priya-menon': 12500,
-    'ai': 0,
-    'vikram-malhotra': 34100,
-    'sunita-deshmukh': 19400,
-    'arjun-mehta': 32100,
-    'kavita-krishnan': 14600,
-    'adv-rohit-sharma': 21800,
-  };
-
-  return seedDefaults[normSlug] || 0;
+  return 0; // Pure authentic BharatBN real followers only for ALL profiles
 }
 
 export function getCurrentUserHandle(): string {
@@ -171,10 +109,15 @@ export function getRealMetrics(slug: string): RealMetrics {
     try {
       localStorage.setItem('bharatbn_real_followers', JSON.stringify(followerMap));
     } catch {}
+  } else if (!myFollowing.includes(normSlug) && followers.some((f) => f.toLowerCase() === currentUser.toLowerCase())) {
+    followers = followers.filter((f) => f.toLowerCase() !== currentUser.toLowerCase());
+    followerMap[normSlug] = followers;
+    try {
+      localStorage.setItem('bharatbn_real_followers', JSON.stringify(followerMap));
+    } catch {}
   }
 
-  const base = getBaseFollowers(normSlug);
-  const realCount = base > 0 ? base : followers.length;
+  const realCount = followers.length;
 
   return {
     followersCount: realCount,
@@ -225,11 +168,20 @@ export async function toggleRealFollow(targetSlug: string, isCurrentlyFollowing:
       if (Array.isArray(people)) {
         const idx = people.findIndex((p: any) => p.slug?.toLowerCase() === normSlug);
         if (idx !== -1) {
-          const currentBase = parseFollowerCount(people[idx].followersCount);
-          const nextCount = Math.max(0, currentBase + (isCurrentlyFollowing ? -1 : 1));
-          people[idx].followersCount = formatFollowerCount(nextCount);
+          people[idx].followersCount = String(followers.length);
           localStorage.setItem('bharatbn_people_store', JSON.stringify(people));
         }
+      }
+    }
+  } catch {}
+
+  try {
+    const sessRaw = localStorage.getItem('bharatbn_owner_session');
+    if (sessRaw) {
+      const sess = JSON.parse(sessRaw);
+      if (sess && (sess.slug?.toLowerCase() === normSlug || sess.handle?.toLowerCase().replace(/^@/, '') === normSlug)) {
+        sess.followersCount = String(followers.length);
+        localStorage.setItem('bharatbn_owner_session', JSON.stringify(sess));
       }
     }
   } catch {}

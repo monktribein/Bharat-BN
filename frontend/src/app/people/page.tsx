@@ -50,7 +50,7 @@ const defaultPeopleList: PersonCard[] = [
     quote: 'Thoughts for Nation Building and a Stronger India.',
     avatarUrl: '/people/anand-sahu-avatar.jpg',
     coverUrl: '/people/anand-sahu-cover.jpg',
-    followersCount: '28.4K',
+    followersCount: '0',
     postsCount: 286,
     category: 'Public Figures & Speakers',
     isVerified: true,
@@ -66,7 +66,7 @@ const defaultPeopleList: PersonCard[] = [
     quote: 'hi',
     avatarUrl: '/people/kashish-avatar.png',
     coverUrl: '/people/kashish-cover.jpg',
-    followersCount: '1',
+    followersCount: '0',
     postsCount: 14,
     category: 'Public Figures & Speakers',
     isVerified: true,
@@ -98,7 +98,7 @@ const defaultPeopleList: PersonCard[] = [
     quote: 'Making world-class preventive dental healthcare accessible for every Indian.',
     avatarUrl: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400&q=80',
     coverUrl: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1200&q=80',
-    followersCount: '18.9K',
+    followersCount: '0',
     postsCount: 94,
     category: 'Industry Leaders',
     isVerified: true,
@@ -114,7 +114,7 @@ const defaultPeopleList: PersonCard[] = [
     quote: 'Sustainable green mobility and public EV infrastructure for modern India.',
     avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
     coverUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1200&q=80',
-    followersCount: '12.5K',
+    followersCount: '0',
     postsCount: 68,
     category: 'Community & Thinkers',
     isVerified: true,
@@ -130,7 +130,7 @@ const defaultPeopleList: PersonCard[] = [
     quote: 'Scaling Bharat homegrown brands into nationwide consumer powerhouses.',
     avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
     coverUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
-    followersCount: '34.1K',
+    followersCount: '0',
     postsCount: 152,
     category: 'Industry Leaders',
     isVerified: true,
@@ -180,15 +180,12 @@ export default function PeopleDirectoryPage() {
               let cleanAvatar = isKashish ? '/people/kashish-avatar.png' : (isAnand ? '/people/anand-sahu-avatar.jpg' : (p.avatarUrl || ''));
               let cleanCover = isKashish ? '/people/kashish-cover.jpg' : (isAnand ? '/people/anand-sahu-cover.jpg' : (p.coverUrl || '/people/anand-sahu-cover.jpg'));
 
-              let cleanFollowers = isKashish ? '1' : (p.followersCount || '0');
-              if (isAi) {
-                // Real organic followers only for AI
-                const realCount = getRealMetrics('ai').followersCount;
-                cleanFollowers = String(realCount);
-                if (p.followersCount !== cleanFollowers) {
-                  p.followersCount = cleanFollowers;
-                  hasRepairs = true;
-                }
+              // Pure authentic BharatBN real followers only for ALL profiles
+              const realCount = getRealMetrics(slug).followersCount;
+              const cleanFollowers = String(realCount);
+              if (p.followersCount !== cleanFollowers) {
+                p.followersCount = cleanFollowers;
+                hasRepairs = true;
               }
 
               if (isKashish) {
@@ -224,7 +221,7 @@ export default function PeopleDirectoryPage() {
                 coverUrl: cleanCover,
                 followersCount: cleanFollowers,
                 postsCount: p.updates?.length || 1,
-                category: isKashish ? 'Public Figures & Speakers' : (p.role?.toLowerCase().includes('creator') ? 'Creators & Influencers' : 'Public Figures & Speakers'),
+                category: isKashish ? 'Public Figures & Speakers' : (p.role?.toLowerCase().includes('creator') ? 'Creators & Influencers' : (p.category || 'Public Figures & Speakers')),
                 isVerified: isKashish ? true : ((p.status === 'approved') || Boolean(p.isVerified)),
               });
             });
@@ -253,7 +250,13 @@ export default function PeopleDirectoryPage() {
               const cleanQuote = isKashish ? 'hi' : (sess.quote || existing?.quote || 'Building a stronger connected community across India.');
               const cleanAvatar = isKashish ? '/people/kashish-avatar.png' : (sess.avatarUrl || existing?.avatarUrl || '');
               const cleanCover = isKashish ? '/people/kashish-cover.jpg' : (sess.coverUrl || existing?.coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80');
-              const cleanSessFollowers = isKashish ? '1' : (isAi ? String(getRealMetrics('ai').followersCount) : (sess.followersCount || existing?.followersCount || '0'));
+              const realSessFollowers = String(getRealMetrics(sessSlug).followersCount);
+              if (sess.followersCount !== realSessFollowers) {
+                sess.followersCount = realSessFollowers;
+                try {
+                  localStorage.setItem('bharatbn_owner_session', JSON.stringify(sess));
+                } catch {}
+              }
 
               map.set(sessSlug, {
                 id: sess.personId || existing?.id || `BBN-PPL-${Date.now()}`,
@@ -266,7 +269,7 @@ export default function PeopleDirectoryPage() {
                 quote: cleanQuote,
                 avatarUrl: cleanAvatar,
                 coverUrl: cleanCover,
-                followersCount: cleanSessFollowers,
+                followersCount: realSessFollowers,
                 postsCount: sess.postsCount || existing?.postsCount || 1,
                 category: isKashish ? 'Public Figures & Speakers' : (existing?.category || (sess.role?.toLowerCase().includes('creator') ? 'Creators & Influencers' : 'Public Figures & Speakers')),
                 isVerified: isKashish ? true : (sess.isVerified !== undefined ? sess.isVerified : (existing?.isVerified || false)),
@@ -275,10 +278,14 @@ export default function PeopleDirectoryPage() {
           } catch { }
         }
 
-        // Add default curated figures if not overwritten
+        // Add default curated figures if not overwritten and enforce real followers count
         defaultPeopleList.forEach((dp) => {
+          const realCount = String(getRealMetrics(dp.slug).followersCount);
           if (!map.has(dp.slug)) {
-            map.set(dp.slug, dp);
+            map.set(dp.slug, { ...dp, followersCount: realCount });
+          } else {
+            const existing = map.get(dp.slug)!;
+            map.set(dp.slug, { ...existing, followersCount: realCount });
           }
         });
 
@@ -291,10 +298,14 @@ export default function PeopleDirectoryPage() {
     loadStoredPeople();
     window.addEventListener('bharatbn_people_updated', loadStoredPeople);
     window.addEventListener('bharatbn_auth_changed', loadStoredPeople);
+    window.addEventListener('bharatbn_follow_changed', loadStoredPeople);
+    window.addEventListener('bharatbn_metrics_updated', loadStoredPeople);
     window.addEventListener('storage', loadStoredPeople);
     return () => {
       window.removeEventListener('bharatbn_people_updated', loadStoredPeople);
       window.removeEventListener('bharatbn_auth_changed', loadStoredPeople);
+      window.removeEventListener('bharatbn_follow_changed', loadStoredPeople);
+      window.removeEventListener('bharatbn_metrics_updated', loadStoredPeople);
       window.removeEventListener('storage', loadStoredPeople);
     };
   }, []);
@@ -337,16 +348,14 @@ export default function PeopleDirectoryPage() {
         : [...followedSlugs, person.slug];
       setFollowedSlugs(nextFollowed);
 
-      // Update card followersCount dynamically
+      // Update card followersCount dynamically using real count
+      const updatedCount = String(getRealMetrics(person.slug).followersCount);
       setPeople((prev) =>
         prev.map((p) => {
           if (p.slug !== person.slug) return p;
-          const currentCount = parseFollowerCount(p.followersCount);
-          const delta = isCurrentlyFollowing ? -1 : 1;
-          const nextCount = Math.max(0, currentCount + delta);
           return {
             ...p,
-            followersCount: currentCount >= 1000 ? p.followersCount : String(nextCount),
+            followersCount: updatedCount,
           };
         })
       );
@@ -759,7 +768,7 @@ export default function PeopleDirectoryPage() {
                         <span className="flex items-center gap-1">
                           <Users className="w-3 h-3 text-slate-400" />
                           <strong className="text-slate-800 font-bold">{person.followersCount}</strong>
-                          <span>followers</span>
+                          <span>{String(person.followersCount) === '1' ? 'follower' : 'followers'}</span>
                         </span>
                       </div>
                       <Link

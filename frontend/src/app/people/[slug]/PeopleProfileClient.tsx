@@ -262,43 +262,43 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
             } catch {}
           }
 
-          if (cleanTarget === 'ai') {
-            const aiReal = getRealMetrics('ai').followersCount;
-            try {
-              const rawStore = localStorage.getItem('bharatbn_people_store');
-              if (rawStore) {
-                const arr = JSON.parse(rawStore);
-                if (Array.isArray(arr)) {
-                  let changed = false;
-                  const cleaned = arr.map((item: any) => {
-                    if (item.slug === 'ai' || item.name?.toLowerCase() === 'ai') {
-                      if (item.followersCount !== String(aiReal)) {
-                        changed = true;
-                        return { ...item, followersCount: String(aiReal) };
-                      }
+          const realTargetFollowers = getRealMetrics(cleanTarget).followersCount;
+          try {
+            const rawStore = localStorage.getItem('bharatbn_people_store');
+            if (rawStore) {
+              const arr = JSON.parse(rawStore);
+              if (Array.isArray(arr)) {
+                let changed = false;
+                const cleaned = arr.map((item: any) => {
+                  const itemSlug = (item.slug || item.handle?.replace(/^@/, '') || '').toLowerCase().trim();
+                  if (itemSlug === cleanTarget || (cleanTarget === 'anand-sahu' && item.name?.toLowerCase().includes('anand sahu'))) {
+                    if (item.followersCount !== String(realTargetFollowers)) {
+                      changed = true;
+                      return { ...item, followersCount: String(realTargetFollowers) };
                     }
-                    return item;
-                  });
-                  if (changed) {
-                    localStorage.setItem('bharatbn_people_store', JSON.stringify(cleaned));
                   }
+                  return item;
+                });
+                if (changed) {
+                  localStorage.setItem('bharatbn_people_store', JSON.stringify(cleaned));
                 }
               }
-            } catch {}
+            }
+          } catch {}
 
-            try {
-              const rawSess = localStorage.getItem('bharatbn_owner_session');
-              if (rawSess) {
-                const sess = JSON.parse(rawSess);
-                if (sess && (sess.slug === 'ai' || sess.name?.toLowerCase() === 'ai')) {
-                  if (sess.followersCount !== String(aiReal)) {
-                    sess.followersCount = String(aiReal);
-                    localStorage.setItem('bharatbn_owner_session', JSON.stringify(sess));
-                  }
+          try {
+            const rawSess = localStorage.getItem('bharatbn_owner_session');
+            if (rawSess) {
+              const sess = JSON.parse(rawSess);
+              const sessSlug = (sess.slug || sess.handle?.replace(/^@/, '') || '').toLowerCase().trim();
+              if (sess && (sessSlug === cleanTarget || (cleanTarget === 'anand-sahu' && sess.name?.toLowerCase().includes('anand sahu')))) {
+                if (sess.followersCount !== String(realTargetFollowers)) {
+                  sess.followersCount = String(realTargetFollowers);
+                  localStorage.setItem('bharatbn_owner_session', JSON.stringify(sess));
                 }
               }
-            } catch {}
-          }
+            }
+          } catch {}
         }
 
         setPerson((prev) => {
@@ -446,20 +446,8 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
 
           const resolvedSocial = sessionRecord?.socialLinks || storeRecord?.socialLinks || customData.socialLinks || prev.socialLinks;
 
-          // 6. Followers Count Resolution
-          const rawFollowers =
-            sessionRecord?.followersCount !== undefined && sessionRecord?.followersCount !== null && sessionRecord?.followersCount !== ''
-              ? sessionRecord.followersCount
-              : viewedPerson?.followersCount !== undefined && viewedPerson?.followersCount !== null && viewedPerson?.followersCount !== ''
-              ? viewedPerson.followersCount
-              : storeRecord?.followersCount !== undefined && storeRecord?.followersCount !== null && storeRecord?.followersCount !== ''
-              ? storeRecord.followersCount
-              : customData.followersCount !== undefined && customData.followersCount !== null && customData.followersCount !== ''
-              ? customData.followersCount
-              : prev.followersCount;
-
-          const isAi = cleanTarget === 'ai' || (customData.name || prev.name)?.toLowerCase() === 'ai';
-          const validFollowers = isKashish ? 1 : (isAi ? getRealMetrics('ai').followersCount : (parseFollowerCount(rawFollowers) || getBaseFollowers(cleanTarget)));
+          // 6. Followers Count Resolution - 100% Real Authentic BharatBN Followers
+          const validFollowers = getRealMetrics(cleanTarget).followersCount;
 
           return {
             ...prev,
@@ -632,6 +620,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
     const onMetricsUpdated = () => {
       const updated = getRealMetrics(curSlug);
       setFollowersCount(updated.followersCount);
+      setPerson((prev) => ({ ...prev, followersCount: updated.followersCount }));
       if (updated.viewsCount) setViewsCount(updated.viewsCount);
       const followingList = getStoredFollowingList();
       const userHandle = getCurrentUserHandle();
@@ -667,11 +656,11 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
   const handleToggleFollow = async () => {
     try {
       const curSlug = (person.slug || targetSlug || '').toLowerCase().trim();
-      await toggleRealFollow(curSlug, isFollowing);
+      const updatedMetrics = await toggleRealFollow(curSlug, isFollowing);
       const nextFollowingState = !isFollowing;
       setIsFollowing(nextFollowingState);
-      const delta = nextFollowingState ? 1 : -1;
-      setFollowersCount((prev) => Math.max(0, prev + delta));
+      setFollowersCount(updatedMetrics.followersCount);
+      setPerson((prev) => ({ ...prev, followersCount: updatedMetrics.followersCount }));
       if (nextFollowingState) {
         setFollowToast(`Following ${person.name}! You will receive verified updates.`);
       } else {

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import SearchBar from '@/components/SearchBar';
+import { getRealMetrics } from '@/lib/realMetrics';
 import {
   Building2,
   CheckCircle2,
@@ -71,7 +72,7 @@ const defaultPeopleList: PersonItem[] = [
     quote: 'Thoughts for Nation Building and a Stronger India.',
     avatarUrl: '/people/anand-sahu-avatar.jpg',
     coverUrl: '/people/anand-sahu-cover.jpg',
-    followersCount: '28.4K',
+    followersCount: '0',
     isVerified: true,
   },
   {
@@ -86,7 +87,7 @@ const defaultPeopleList: PersonItem[] = [
     quote: 'Preventive cardiology and sovereign clinical trials for affordable Indian heart care.',
     avatarUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80',
     coverUrl: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=800&q=80',
-    followersCount: '19.4K',
+    followersCount: '0',
     isVerified: true,
   },
   {
@@ -101,7 +102,7 @@ const defaultPeopleList: PersonItem[] = [
     quote: 'Conceptual clarity and scientific temper for every aspiring student in India.',
     avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
     coverUrl: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80',
-    followersCount: '32.1K',
+    followersCount: '0',
     isVerified: true,
   },
   {
@@ -131,7 +132,7 @@ const defaultPeopleList: PersonItem[] = [
     quote: 'Making world-class preventive dental healthcare accessible for every Indian.',
     avatarUrl: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400&q=80',
     coverUrl: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80',
-    followersCount: '18.9K',
+    followersCount: '0',
     isVerified: true,
   },
   {
@@ -146,7 +147,7 @@ const defaultPeopleList: PersonItem[] = [
     quote: 'Ancient wisdom combined with modern critical thinking for national resurgence.',
     avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
     coverUrl: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80',
-    followersCount: '14.6K',
+    followersCount: '0',
     isVerified: true,
   },
   {
@@ -161,7 +162,7 @@ const defaultPeopleList: PersonItem[] = [
     quote: 'Defending the rule of law and constitutional justice for every citizen.',
     avatarUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80',
     coverUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
-    followersCount: '21.8K',
+    followersCount: '0',
     isVerified: true,
   },
   {
@@ -176,7 +177,7 @@ const defaultPeopleList: PersonItem[] = [
     quote: 'hi',
     avatarUrl: '/people/kashish-avatar.png',
     coverUrl: '/people/kashish-cover.jpg',
-    followersCount: '1',
+    followersCount: '0',
     isVerified: true,
   },
   {
@@ -191,7 +192,7 @@ const defaultPeopleList: PersonItem[] = [
     quote: 'Scaling Bharat homegrown brands into nationwide consumer powerhouses.',
     avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
     coverUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80',
-    followersCount: '34.1K',
+    followersCount: '0',
     isVerified: true,
   },
   {
@@ -206,7 +207,7 @@ const defaultPeopleList: PersonItem[] = [
     quote: 'Sustainable green mobility and public EV infrastructure for modern India.',
     avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
     coverUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=800&q=80',
-    followersCount: '12.5K',
+    followersCount: '0',
     isVerified: true,
   },
 ];
@@ -555,7 +556,14 @@ export default function HomePage() {
                 const cleanQuote = isKashish ? 'hi' : (p.quote || (p.aboutText ? p.aboutText.slice(0, 90) : 'Verified Profile on BharatBN.'));
                 const cleanAvatar = isKashish ? '/people/kashish-avatar.png' : (p.avatarUrl || '');
                 const cleanCover = isKashish ? '/people/kashish-cover.jpg' : (p.coverUrl || '');
-                const cleanFollowers = isKashish ? '1' : (p.followersCount ? String(p.followersCount) : '1.2K');
+                
+                // Authentic BharatBN real followers only
+                const realFollowers = String(getRealMetrics(slug).followersCount);
+                if (p.followersCount !== realFollowers) {
+                  p.followersCount = realFollowers;
+                  hasRepairs = true;
+                }
+                const cleanFollowers = realFollowers;
 
                 if (isKashish && (p.coverUrl !== '/people/kashish-cover.jpg' || p.avatarUrl !== '/people/kashish-avatar.png' || p.role !== 'Public Figure & Speaker')) {
                   p.coverUrl = cleanCover;
@@ -564,7 +572,6 @@ export default function HomePage() {
                   p.badge = cleanBadge;
                   p.location = cleanLocation;
                   p.quote = cleanQuote;
-                  p.followersCount = '1';
                   hasRepairs = true;
                 }
 
@@ -586,7 +593,13 @@ export default function HomePage() {
               });
 
               prev.forEach((p) => {
-                if (!map.has(p.slug)) map.set(p.slug, p);
+                const realCount = String(getRealMetrics(p.slug).followersCount);
+                if (!map.has(p.slug)) {
+                  map.set(p.slug, { ...p, followersCount: realCount });
+                } else {
+                  const existing = map.get(p.slug)!;
+                  map.set(p.slug, { ...existing, followersCount: realCount });
+                }
               });
               return Array.from(map.values());
             });
@@ -620,6 +633,8 @@ export default function HomePage() {
     window.addEventListener('bharatbn_people_updated', syncPeople);
     window.addEventListener('bharatbn_auth_changed', syncApprovedClaims);
     window.addEventListener('bharatbn_auth_changed', syncPeople);
+    window.addEventListener('bharatbn_follow_changed', syncPeople);
+    window.addEventListener('bharatbn_metrics_updated', syncPeople);
     window.addEventListener('storage', syncApprovedClaims);
     window.addEventListener('storage', syncPeople);
     window.addEventListener('storage', syncFollowing);
@@ -629,6 +644,8 @@ export default function HomePage() {
       window.removeEventListener('bharatbn_people_updated', syncPeople);
       window.removeEventListener('bharatbn_auth_changed', syncApprovedClaims);
       window.removeEventListener('bharatbn_auth_changed', syncPeople);
+      window.removeEventListener('bharatbn_follow_changed', syncPeople);
+      window.removeEventListener('bharatbn_metrics_updated', syncPeople);
       window.removeEventListener('storage', syncApprovedClaims);
       window.removeEventListener('storage', syncPeople);
       window.removeEventListener('storage', syncFollowing);
@@ -1173,7 +1190,7 @@ export default function HomePage() {
                       <strong className="text-slate-800 font-bold">
                         {person.followersCount}
                       </strong>{' '}
-                      followers
+                      {String(person.followersCount) === '1' ? 'follower' : 'followers'}
                     </span>
                   </div>
 
