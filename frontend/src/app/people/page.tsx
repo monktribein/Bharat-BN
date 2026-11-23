@@ -414,9 +414,9 @@ export default function PeopleDirectoryPage() {
               </div>
 
               <div>
-                <h3 className="text-xl font-black text-slate-900 mb-1">Login to Follow</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">
-                  Create a free BharatBN account or log in to follow public figures and receive their latest updates.
+                <h3 className="text-xl font-black text-slate-900">Sign In to Follow</h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Only verified logged-in members can follow profiles and receive real-time updates on BharatBN.
                 </p>
               </div>
 
@@ -598,7 +598,7 @@ export default function PeopleDirectoryPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredPeople.map((person) => {
-              const isFollowed = followedSlugs.includes(person.slug);
+              const isFollowed = Boolean(ownerSession && followedSlugs.includes(person.slug));
 
               return (
                 <motion.div

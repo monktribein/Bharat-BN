@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle2,
   MapPin,
@@ -32,6 +33,8 @@ import {
   X,
   Plus,
   Globe,
+  Lock,
+  LogIn,
 } from 'lucide-react';
 import {
   InstagramIcon,
@@ -72,6 +75,8 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
   const [followersCount, setFollowersCount] = useState<number>(0);
   const [viewsCount, setViewsCount] = useState<number | string>(0);
   const [followToast, setFollowToast] = useState('');
+  const [ownerSession, setOwnerSession] = useState<any>(null);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   // Floating Bar Interaction states
   const [likesCount, setLikesCount] = useState(initialPerson.likesCount);
@@ -98,6 +103,25 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
     url: initialPerson.featuredVideo?.videoUrl || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
   });
   const [selectedPhoto, setSelectedPhoto] = useState<{ url: string; caption: string } | null>(null);
+
+  // Sync owner session for follow permissions
+  useEffect(() => {
+    const syncSession = () => {
+      try {
+        const sess = localStorage.getItem('bharatbn_owner_session');
+        setOwnerSession(sess ? JSON.parse(sess) : null);
+      } catch {
+        setOwnerSession(null);
+      }
+    };
+    syncSession();
+    window.addEventListener('bharatbn_auth_changed', syncSession);
+    window.addEventListener('storage', syncSession);
+    return () => {
+      window.removeEventListener('bharatbn_auth_changed', syncSession);
+      window.removeEventListener('storage', syncSession);
+    };
+  }, []);
 
   // Dynamically resolve custom registered person from localStorage & sync cache
   useEffect(() => {
@@ -196,7 +220,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                       badge: 'Public Figure',
                       location: 'noida',
                       quote: 'hi',
-                      followersCount: item.followersCount || 1,
+                      followersCount: '0',
                     };
                   }
                   return item;
@@ -219,50 +243,14 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                 sess.badge = 'Public Figure';
                 sess.location = 'noida';
                 sess.quote = 'hi';
+                sess.followersCount = '0';
                 localStorage.setItem('bharatbn_owner_session', JSON.stringify(sess));
               }
             }
           } catch {}
+        }
 
-          if (cleanTarget === 'anand-sahu' || cleanTarget === 'anand') {
-            try {
-              const rawStore = localStorage.getItem('bharatbn_people_store');
-              if (rawStore) {
-                const arr = JSON.parse(rawStore);
-                if (Array.isArray(arr)) {
-                  let changed = false;
-                  const cleaned = arr.map((item: any) => {
-                    if (item.slug === 'anand-sahu' || item.name?.toLowerCase().includes('anand sahu')) {
-                      if (item.avatarUrl !== '/people/anand-sahu-avatar.jpg' || item.coverUrl !== '/people/anand-sahu-cover.jpg') {
-                        changed = true;
-                        return { ...item, avatarUrl: '/people/anand-sahu-avatar.jpg', coverUrl: '/people/anand-sahu-cover.jpg' };
-                      }
-                    }
-                    return item;
-                  });
-                  if (changed) {
-                    localStorage.setItem('bharatbn_people_store', JSON.stringify(cleaned));
-                  }
-                }
-              }
-            } catch {}
-
-            try {
-              const rawSess = localStorage.getItem('bharatbn_owner_session');
-              if (rawSess) {
-                const sess = JSON.parse(rawSess);
-                if (sess && (sess.slug === 'anand-sahu' || sess.name?.toLowerCase().includes('anand sahu'))) {
-                  if (sess.avatarUrl !== '/people/anand-sahu-avatar.jpg' || sess.coverUrl !== '/people/anand-sahu-cover.jpg') {
-                    sess.avatarUrl = '/people/anand-sahu-avatar.jpg';
-                    sess.coverUrl = '/people/anand-sahu-cover.jpg';
-                    localStorage.setItem('bharatbn_owner_session', JSON.stringify(sess));
-                  }
-                }
-              }
-            } catch {}
-          }
-
-          const realTargetFollowers = getRealMetrics(cleanTarget).followersCount;
+        if (cleanTarget === 'anand-sahu' || cleanTarget === 'anand') {
           try {
             const rawStore = localStorage.getItem('bharatbn_people_store');
             if (rawStore) {
@@ -270,11 +258,10 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
               if (Array.isArray(arr)) {
                 let changed = false;
                 const cleaned = arr.map((item: any) => {
-                  const itemSlug = (item.slug || item.handle?.replace(/^@/, '') || '').toLowerCase().trim();
-                  if (itemSlug === cleanTarget || (cleanTarget === 'anand-sahu' && item.name?.toLowerCase().includes('anand sahu'))) {
-                    if (item.followersCount !== String(realTargetFollowers)) {
+                  if (item.slug === 'anand-sahu' || item.name?.toLowerCase().includes('anand sahu')) {
+                    if (item.avatarUrl !== '/people/anand-sahu-avatar.jpg' || item.coverUrl !== '/people/anand-sahu-cover.jpg') {
                       changed = true;
-                      return { ...item, followersCount: String(realTargetFollowers) };
+                      return { ...item, avatarUrl: '/people/anand-sahu-avatar.jpg', coverUrl: '/people/anand-sahu-cover.jpg' };
                     }
                   }
                   return item;
@@ -290,10 +277,10 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
             const rawSess = localStorage.getItem('bharatbn_owner_session');
             if (rawSess) {
               const sess = JSON.parse(rawSess);
-              const sessSlug = (sess.slug || sess.handle?.replace(/^@/, '') || '').toLowerCase().trim();
-              if (sess && (sessSlug === cleanTarget || (cleanTarget === 'anand-sahu' && sess.name?.toLowerCase().includes('anand sahu')))) {
-                if (sess.followersCount !== String(realTargetFollowers)) {
-                  sess.followersCount = String(realTargetFollowers);
+              if (sess && (sess.slug === 'anand-sahu' || sess.name?.toLowerCase().includes('anand sahu'))) {
+                if (sess.avatarUrl !== '/people/anand-sahu-avatar.jpg' || sess.coverUrl !== '/people/anand-sahu-cover.jpg') {
+                  sess.avatarUrl = '/people/anand-sahu-avatar.jpg';
+                  sess.coverUrl = '/people/anand-sahu-cover.jpg';
                   localStorage.setItem('bharatbn_owner_session', JSON.stringify(sess));
                 }
               }
@@ -301,13 +288,55 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
           } catch {}
         }
 
+        const realTargetFollowers = getRealMetrics(cleanTarget).followersCount;
+        try {
+          const rawStore = localStorage.getItem('bharatbn_people_store');
+          if (rawStore) {
+            const arr = JSON.parse(rawStore);
+            if (Array.isArray(arr)) {
+              let changed = false;
+              const cleaned = arr.map((item: any) => {
+                const itemSlug = (item.slug || item.handle?.replace(/^@/, '') || '').toLowerCase().trim();
+                if (itemSlug === cleanTarget || (cleanTarget === 'anand-sahu' && item.name?.toLowerCase().includes('anand sahu')) || (cleanTarget === 'kashish' && item.name?.toLowerCase().includes('kashish'))) {
+                  if (item.followersCount !== String(realTargetFollowers)) {
+                    changed = true;
+                    return { ...item, followersCount: String(realTargetFollowers) };
+                  }
+                }
+                return item;
+              });
+              if (changed) {
+                localStorage.setItem('bharatbn_people_store', JSON.stringify(cleaned));
+              }
+            }
+          }
+        } catch {}
+
+        try {
+          const rawSess = localStorage.getItem('bharatbn_owner_session');
+          if (rawSess) {
+            const sess = JSON.parse(rawSess);
+            const sessSlug = (sess.slug || sess.handle?.replace(/^@/, '') || '').toLowerCase().trim();
+            if (sess && (sessSlug === cleanTarget || (cleanTarget === 'anand-sahu' && sess.name?.toLowerCase().includes('anand sahu')) || (cleanTarget === 'kashish' && sess.name?.toLowerCase().includes('kashish')))) {
+              if (sess.followersCount !== String(realTargetFollowers)) {
+                sess.followersCount = String(realTargetFollowers);
+                localStorage.setItem('bharatbn_owner_session', JSON.stringify(sess));
+              }
+            }
+          }
+        } catch {}
+
         setPerson((prev) => {
+          const isKashish =
+            cleanTarget === 'kashish' ||
+            cleanTarget === 'kashish-saxena' ||
+            (customData.name || prev.name)?.toLowerCase().includes('kashish');
           const isAnand =
             cleanTarget === 'anand-sahu' ||
             cleanTarget === 'anand' ||
             (customData.name || prev.name)?.toLowerCase().includes('anand sahu');
 
-          // 1. Avatar: prioritize valid non-empty string with stale fallback replacement
+          // 1. Avatar: prioritize valid non-empty string with dedicated photo overrides
           let rawAvatar =
             sessionRecord?.avatarUrl && typeof sessionRecord.avatarUrl === 'string' && sessionRecord.avatarUrl.trim() !== ''
               ? sessionRecord.avatarUrl
@@ -319,15 +348,13 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
               ? customData.avatarUrl
               : prev.avatarUrl;
 
-          if (isKashish && (!rawAvatar || rawAvatar.includes('534528741775'))) {
-            rawAvatar = '/people/kashish-avatar.png';
-          }
-          if (isAnand && (!rawAvatar || rawAvatar.includes('unsplash') || rawAvatar.includes('anand-portrait') || rawAvatar.includes('anand-sahu-avatar'))) {
-            rawAvatar = '/people/anand-sahu-avatar.jpg';
-          }
-          const validAvatar = isAnand ? '/people/anand-sahu-avatar.jpg' : rawAvatar;
+          const validAvatar = isAnand
+            ? '/people/anand-sahu-avatar.jpg'
+            : isKashish
+            ? '/people/kashish-avatar.png'
+            : (rawAvatar || prev.avatarUrl);
 
-          // 2. Cover: prioritize valid non-empty string with stale fallback replacement
+          // 2. Cover: prioritize dedicated verified covers
           let rawCover =
             sessionRecord?.coverUrl && typeof sessionRecord.coverUrl === 'string' && sessionRecord.coverUrl.trim() !== ''
               ? sessionRecord.coverUrl
@@ -339,13 +366,11 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
               ? customData.coverUrl
               : prev.coverUrl;
 
-          if (isKashish && (!rawCover || rawCover.includes('photo-1598488035139') || rawCover.includes('photo-1579546929518'))) {
-            rawCover = '/people/kashish-cover.jpg';
-          }
-          if (isAnand && (!rawCover || rawCover.includes('photo-1541872703-74c5e44368f9') || rawCover.includes('unsplash') || rawCover.includes('anand-sahu-cover'))) {
-            rawCover = '/people/anand-sahu-cover.jpg';
-          }
-          const validCover = isAnand ? '/people/anand-sahu-cover.jpg' : rawCover;
+          const validCover = isAnand
+            ? '/people/anand-sahu-cover.jpg'
+            : isKashish
+            ? '/people/kashish-cover.jpg'
+            : (rawCover && !rawCover.includes('photo-1541872703-74c5e44368f9') ? rawCover : prev.coverUrl || '/people/anand-sahu-cover.jpg');
 
           // 3. Name, Role, Badge, Location, Quote
           const validName = sessionRecord?.name?.trim() || viewedPerson?.name?.trim() || storeRecord?.name?.trim() || customData.name?.trim() || prev.name;
@@ -599,11 +624,14 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
     }
 
     // 3. Determine if current user follows this profile
+    const sessionActive = Boolean(localStorage.getItem('bharatbn_owner_session'));
     const myFollowing = getStoredFollowingList();
     const myHandle = getCurrentUserHandle();
-    const isF =
-      myFollowing.includes(curSlug) ||
-      initialMetrics.followers.some((f) => f.toLowerCase() === myHandle.toLowerCase());
+    const isF = Boolean(
+      sessionActive &&
+      (myFollowing.includes(curSlug) ||
+        initialMetrics.followers.some((f) => f.toLowerCase() === myHandle.toLowerCase()))
+    );
     setIsFollowing(isF);
 
     // 4. Background sync with server cache
@@ -622,11 +650,15 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
       setFollowersCount(updated.followersCount);
       setPerson((prev) => ({ ...prev, followersCount: updated.followersCount }));
       if (updated.viewsCount) setViewsCount(updated.viewsCount);
+      const active = Boolean(localStorage.getItem('bharatbn_owner_session'));
       const followingList = getStoredFollowingList();
       const userHandle = getCurrentUserHandle();
       setIsFollowing(
-        followingList.includes(curSlug) ||
-        updated.followers.some((f) => f.toLowerCase() === userHandle.toLowerCase())
+        Boolean(
+          active &&
+          (followingList.includes(curSlug) ||
+            updated.followers.some((f) => f.toLowerCase() === userHandle.toLowerCase()))
+        )
       );
     };
 
@@ -654,6 +686,12 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
 
   // Handle Follow / Unfollow Real Action
   const handleToggleFollow = async () => {
+    // Require active login session to follow any profile
+    if (!ownerSession) {
+      setShowLoginPrompt(true);
+      return;
+    }
+
     try {
       const curSlug = (person.slug || targetSlug || '').toLowerCase().trim();
       const updatedMetrics = await toggleRealFollow(curSlug, isFollowing);
@@ -847,17 +885,25 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-xs cursor-pointer ${
                       isFollowing
                         ? 'bg-slate-900 text-white hover:bg-slate-800'
-                        : 'bg-[#F95700] hover:bg-[#d94a00] text-white shadow-[#F95700]/25'
+                        : ownerSession
+                        ? 'bg-[#F95700] hover:bg-[#d94a00] text-white shadow-[#F95700]/25'
+                        : 'bg-slate-100 text-slate-700 hover:bg-orange-50 hover:text-orange-600 border border-slate-200'
                     }`}
+                    title={!ownerSession ? 'Login to follow' : undefined}
                   >
                     {isFollowing ? (
                       <>
                         <Check className="w-4 h-4 text-emerald-400 stroke-[3]" />
                         <span>Following</span>
                       </>
-                    ) : (
+                    ) : ownerSession ? (
                       <>
                         <Plus className="w-4 h-4 stroke-[3]" />
+                        <span>Follow</span>
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="w-3.5 h-3.5 text-slate-400" />
                         <span>Follow</span>
                       </>
                     )}
@@ -2024,7 +2070,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
             <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-400 border-l border-slate-700 pl-3">
               <Users className="w-3.5 h-3.5 text-[#F95700]" />
               <span>
-                Followed by <strong>{formattedFollowers}+</strong> members on BharatBN
+                Followed by <strong>{followersCount}</strong> {followersCount === 1 ? 'member' : 'members'} on BharatBN
               </span>
             </div>
           </div>
@@ -2300,6 +2346,72 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
           </div>
         </div>
       )}
+      {/* Sign In to Follow Modal */}
+      <AnimatePresence>
+        {showLoginPrompt && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+            onClick={() => setShowLoginPrompt(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              className="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center space-y-5 relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={() => setShowLoginPrompt(false)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition cursor-pointer"
+              >
+                <X className="w-4 h-4 text-slate-500" />
+              </button>
+
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#07213A] to-[#F95700] flex items-center justify-center mx-auto shadow-lg">
+                <Lock className="w-8 h-8 text-white" />
+              </div>
+
+              <div>
+                <h3 className="text-xl font-black text-slate-900">Sign In to Follow</h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Only verified logged-in members can follow profiles and receive real-time updates on BharatBN.
+                </p>
+              </div>
+
+              <div className="space-y-2.5 pt-2">
+                <Link
+                  href="/login"
+                  className="w-full py-3 px-6 rounded-xl bg-[#07213A] text-white font-bold text-sm hover:bg-[#0C2D4E] transition flex items-center justify-center gap-2 shadow-md"
+                  onClick={() => setShowLoginPrompt(false)}
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>Log In to BharatBN</span>
+                </Link>
+                <Link
+                  href="/signup"
+                  className="w-full py-3 px-6 rounded-xl bg-[#F95700] text-white font-bold text-sm hover:bg-[#d94a00] transition flex items-center justify-center gap-2 shadow-md"
+                  onClick={() => setShowLoginPrompt(false)}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>Create Free Account</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPrompt(false)}
+                  className="text-xs text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                >
+                  Continue browsing without account
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

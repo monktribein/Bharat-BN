@@ -97,19 +97,23 @@ export function getRealMetrics(slug: string): RealMetrics {
   const normSlug = (slug || '').toLowerCase().trim();
   const followerMap = getStoredFollowerMap();
   let followers = followerMap[normSlug] || [];
-  const myFollowing = getStoredFollowingList();
+  const sessionActive = typeof window !== 'undefined' && Boolean(localStorage.getItem('bharatbn_owner_session'));
+  const myFollowing = sessionActive ? getStoredFollowingList() : [];
   const viewsMap = getStoredViewsMap();
   const likesMap = getStoredLikesMap();
   const currentUser = getCurrentUserHandle();
 
-  // If current user is actively following this person, ensure follower list includes them
-  if (myFollowing.includes(normSlug) && !followers.some((f) => f.toLowerCase() === currentUser.toLowerCase())) {
+  // Filter out any legacy invalid/visitor handles
+  followers = followers.filter((f) => f && f !== '@visitor' && f !== '@user');
+
+  // If current logged-in user is actively following this person, ensure follower list includes them
+  if (sessionActive && myFollowing.includes(normSlug) && !followers.some((f) => f.toLowerCase() === currentUser.toLowerCase())) {
     followers = [...followers, currentUser];
     followerMap[normSlug] = followers;
     try {
       localStorage.setItem('bharatbn_real_followers', JSON.stringify(followerMap));
     } catch {}
-  } else if (!myFollowing.includes(normSlug) && followers.some((f) => f.toLowerCase() === currentUser.toLowerCase())) {
+  } else if ((!sessionActive || !myFollowing.includes(normSlug)) && followers.some((f) => f.toLowerCase() === currentUser.toLowerCase())) {
     followers = followers.filter((f) => f.toLowerCase() !== currentUser.toLowerCase());
     followerMap[normSlug] = followers;
     try {
@@ -132,6 +136,10 @@ export function getRealMetrics(slug: string): RealMetrics {
 export async function toggleRealFollow(targetSlug: string, isCurrentlyFollowing: boolean): Promise<RealMetrics> {
   const normSlug = (targetSlug || '').toLowerCase().trim();
   const currentUser = getCurrentUserHandle();
+
+  if (currentUser === '@visitor') {
+    throw new Error('Authentication required: Log in to follow on BharatBN');
+  }
 
   // 1. Update Profile Followers
   const followerMap = getStoredFollowerMap();

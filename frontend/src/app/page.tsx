@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import SearchBar from '@/components/SearchBar';
-import { getRealMetrics } from '@/lib/realMetrics';
+import { getRealMetrics, toggleRealFollow } from '@/lib/realMetrics';
 import {
   Building2,
   CheckCircle2,
@@ -30,6 +30,9 @@ import {
   Briefcase,
   Users,
   User,
+  Lock,
+  LogIn,
+  X,
 } from 'lucide-react';
 
 interface PersonItem {
@@ -446,7 +449,9 @@ export default function HomePage() {
   // People & Category Filter States
   const [peopleList, setPeopleList] = useState<PersonItem[]>(defaultPeopleList);
   const [selectedPersonCategory, setSelectedPersonCategory] = useState<string>('all');
-  const [followingMap, setFollowingMap] = useState<Record<string, boolean>>({});
+  const [ownerSession, setOwnerSession] = useState<any>(null);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [followedSlugs, setFollowedSlugs] = useState<string[]>([]);
   const peopleSliderRef = useRef<HTMLDivElement>(null);
 
   // Sync with Admin Approvals / localStorage / Cross-Port Sync
@@ -531,10 +536,11 @@ export default function HomePage() {
               parsed.forEach((p: any) => {
                 const slug = p.slug || p.handle?.replace(/^@/, '') || 'creator';
                 const isKashish = slug === 'kashish' || p.name?.toLowerCase().includes('kashish');
+                const isAnand = slug === 'anand-sahu' || slug === 'anand' || p.name?.toLowerCase().includes('anand sahu');
 
-                let cat: PersonItem['category'] = isKashish ? 'public-figures' : 'creators';
+                let cat: PersonItem['category'] = (isKashish || isAnand) ? 'public-figures' : 'creators';
                 const lower = (p.role || p.badge || p.category || '').toLowerCase();
-                if (isKashish) {
+                if (isKashish || isAnand) {
                   cat = 'public-figures';
                 } else if (lower.includes('doctor') || lower.includes('health') || lower.includes('clinic') || lower.includes('dental')) {
                   cat = 'doctors';
@@ -550,12 +556,12 @@ export default function HomePage() {
                   cat = 'business';
                 }
 
-                const cleanRole = isKashish ? 'Public Figure & Speaker' : (p.role || 'Verified Public Voice');
-                const cleanBadge = isKashish ? 'Public Figure' : (p.badge || 'Verified');
-                const cleanLocation = isKashish ? 'noida' : (p.location || 'India');
-                const cleanQuote = isKashish ? 'hi' : (p.quote || (p.aboutText ? p.aboutText.slice(0, 90) : 'Verified Profile on BharatBN.'));
-                const cleanAvatar = isKashish ? '/people/kashish-avatar.png' : (p.avatarUrl || '');
-                const cleanCover = isKashish ? '/people/kashish-cover.jpg' : (p.coverUrl || '');
+                const cleanRole = isKashish ? 'Public Figure & Speaker' : (isAnand ? 'Nationalist Thinker & Speaker' : (p.role || 'Verified Public Voice'));
+                const cleanBadge = isKashish ? 'Public Figure' : (isAnand ? 'Public Figure' : (p.badge || 'Verified'));
+                const cleanLocation = isKashish ? 'noida' : (isAnand ? 'New Delhi, India' : (p.location || 'India'));
+                const cleanQuote = isKashish ? 'hi' : (isAnand ? 'Thoughts for Nation Building and a Stronger India.' : (p.quote || (p.aboutText ? p.aboutText.slice(0, 90) : 'Verified Profile on BharatBN.')));
+                const cleanAvatar = isKashish ? '/people/kashish-avatar.png' : (isAnand ? '/people/anand-sahu-avatar.jpg' : (p.avatarUrl || ''));
+                const cleanCover = isKashish ? '/people/kashish-cover.jpg' : (isAnand ? '/people/anand-sahu-cover.jpg' : (p.coverUrl || ''));
                 
                 // Authentic BharatBN real followers only
                 const realFollowers = String(getRealMetrics(slug).followersCount);
@@ -572,12 +578,24 @@ export default function HomePage() {
                   p.badge = cleanBadge;
                   p.location = cleanLocation;
                   p.quote = cleanQuote;
+                  p.followersCount = cleanFollowers;
+                  hasRepairs = true;
+                }
+
+                if (isAnand && (p.coverUrl !== '/people/anand-sahu-cover.jpg' || p.avatarUrl !== '/people/anand-sahu-avatar.jpg')) {
+                  p.coverUrl = cleanCover;
+                  p.avatarUrl = cleanAvatar;
+                  p.role = cleanRole;
+                  p.badge = cleanBadge;
+                  p.location = cleanLocation;
+                  p.quote = cleanQuote;
+                  p.followersCount = cleanFollowers;
                   hasRepairs = true;
                 }
 
                 map.set(slug || p.id, {
                   id: p.id || `PPL-${slug}`,
-                  name: p.name || 'Creator',
+                  name: p.name || (isAnand ? 'Anand Sahu' : 'Creator'),
                   slug,
                   handle: p.handle || `@${slug}`,
                   role: cleanRole,
@@ -588,17 +606,32 @@ export default function HomePage() {
                   avatarUrl: cleanAvatar,
                   coverUrl: cleanCover,
                   followersCount: cleanFollowers,
-                  isVerified: isKashish ? true : (p.isVerified !== false),
+                  isVerified: (isKashish || isAnand) ? true : (p.isVerified !== false),
                 });
               });
 
               prev.forEach((p) => {
                 const realCount = String(getRealMetrics(p.slug).followersCount);
+                const isAnand = p.slug === 'anand-sahu';
+                const isKashish = p.slug === 'kashish';
+                const forcedAvatar = isAnand ? '/people/anand-sahu-avatar.jpg' : (isKashish ? '/people/kashish-avatar.png' : p.avatarUrl);
+                const forcedCover = isAnand ? '/people/anand-sahu-cover.jpg' : (isKashish ? '/people/kashish-cover.jpg' : p.coverUrl);
+
                 if (!map.has(p.slug)) {
-                  map.set(p.slug, { ...p, followersCount: realCount });
+                  map.set(p.slug, {
+                    ...p,
+                    avatarUrl: forcedAvatar,
+                    coverUrl: forcedCover,
+                    followersCount: realCount,
+                  });
                 } else {
                   const existing = map.get(p.slug)!;
-                  map.set(p.slug, { ...existing, followersCount: realCount });
+                  map.set(p.slug, {
+                    ...existing,
+                    avatarUrl: isAnand ? forcedAvatar : existing.avatarUrl,
+                    coverUrl: isAnand ? forcedCover : existing.coverUrl,
+                    followersCount: realCount,
+                  });
                 }
               });
               return Array.from(map.values());
@@ -616,39 +649,51 @@ export default function HomePage() {
       }
     };
 
-    const syncFollowing = () => {
+    const syncSession = () => {
       try {
-        const stored = localStorage.getItem('bharatbn_following_people');
-        if (stored) {
-          setFollowingMap(JSON.parse(stored));
+        const sess = localStorage.getItem('bharatbn_owner_session');
+        const parsed = sess ? JSON.parse(sess) : null;
+        setOwnerSession(parsed);
+        if (parsed) {
+          const follows = localStorage.getItem('bharatbn_people_follows');
+          setFollowedSlugs(follows ? JSON.parse(follows) : []);
+        } else {
+          setFollowedSlugs([]);
         }
-      } catch {}
+      } catch {
+        setOwnerSession(null);
+        setFollowedSlugs([]);
+      }
     };
 
     syncApprovedClaims();
     syncPeople();
-    syncFollowing();
+    syncSession();
 
     window.addEventListener('bharatbn_claims_updated', syncApprovedClaims);
     window.addEventListener('bharatbn_people_updated', syncPeople);
     window.addEventListener('bharatbn_auth_changed', syncApprovedClaims);
     window.addEventListener('bharatbn_auth_changed', syncPeople);
+    window.addEventListener('bharatbn_auth_changed', syncSession);
     window.addEventListener('bharatbn_follow_changed', syncPeople);
+    window.addEventListener('bharatbn_follow_changed', syncSession);
     window.addEventListener('bharatbn_metrics_updated', syncPeople);
     window.addEventListener('storage', syncApprovedClaims);
     window.addEventListener('storage', syncPeople);
-    window.addEventListener('storage', syncFollowing);
+    window.addEventListener('storage', syncSession);
 
     return () => {
       window.removeEventListener('bharatbn_claims_updated', syncApprovedClaims);
       window.removeEventListener('bharatbn_people_updated', syncPeople);
       window.removeEventListener('bharatbn_auth_changed', syncApprovedClaims);
       window.removeEventListener('bharatbn_auth_changed', syncPeople);
+      window.removeEventListener('bharatbn_auth_changed', syncSession);
       window.removeEventListener('bharatbn_follow_changed', syncPeople);
+      window.removeEventListener('bharatbn_follow_changed', syncSession);
       window.removeEventListener('bharatbn_metrics_updated', syncPeople);
       window.removeEventListener('storage', syncApprovedClaims);
       window.removeEventListener('storage', syncPeople);
-      window.removeEventListener('storage', syncFollowing);
+      window.removeEventListener('storage', syncSession);
     };
   }, []);
 
@@ -689,16 +734,24 @@ export default function HomePage() {
     }
   };
 
-  const handleToggleFollow = (id: string, e: React.MouseEvent) => {
+  const handleToggleFollow = async (person: PersonItem, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setFollowingMap((prev) => {
-      const next = { ...prev, [id]: !prev[id] };
-      try {
-        localStorage.setItem('bharatbn_following_people', JSON.stringify(next));
-      } catch {}
-      return next;
-    });
+    if (!ownerSession) {
+      setShowLoginPrompt(true);
+      return;
+    }
+    const curSlug = (person.slug || '').toLowerCase().trim();
+    const isCurrentlyFollowing = followedSlugs.includes(curSlug);
+    try {
+      await toggleRealFollow(curSlug, isCurrentlyFollowing);
+      const nextFollowed = isCurrentlyFollowing
+        ? followedSlugs.filter((s) => s !== curSlug)
+        : [...followedSlugs, curSlug];
+      setFollowedSlugs(nextFollowed);
+    } catch (err) {
+      console.error('Follow toggle failed', err);
+    }
   };
 
   const filteredPeople =
@@ -1051,7 +1104,7 @@ export default function HomePage() {
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {filteredPeople.map((person) => {
-            const isFollowed = !!followingMap[person.id];
+            const isFollowed = Boolean(ownerSession && followedSlugs.includes(person.slug));
 
             return (
               <div
@@ -1118,22 +1171,29 @@ export default function HomePage() {
                       {/* Follow Button on Card Header */}
                       <button
                         type="button"
-                        onClick={(e) => handleToggleFollow(person.id, e)}
+                        onClick={(e) => handleToggleFollow(person, e)}
                         className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition shadow-xs cursor-pointer ${
                           isFollowed
                             ? 'bg-slate-900 text-white hover:bg-slate-800'
-                            : 'bg-[#F95700] hover:bg-[#D94F00] text-white'
+                            : ownerSession
+                            ? 'bg-[#F95700] hover:bg-[#D94F00] text-white'
+                            : 'bg-slate-100 text-slate-700 hover:bg-orange-50 hover:text-orange-600 border border-slate-200'
                         }`}
-                        title={isFollowed ? 'Unfollow' : 'Follow this person'}
+                        title={!ownerSession ? 'Login to follow' : (isFollowed ? 'Unfollow' : 'Follow this person')}
                       >
                         {isFollowed ? (
                           <>
                             <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
                             <span>Following</span>
                           </>
-                        ) : (
+                        ) : ownerSession ? (
                           <>
                             <UserPlus className="w-3.5 h-3.5" />
+                            <span>Follow</span>
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="w-3 h-3 text-slate-400" />
                             <span>Follow</span>
                           </>
                         )}
@@ -1369,6 +1429,73 @@ export default function HomePage() {
           </motion.div>
         </motion.div>
       </section>
+
+      {/* Login Required Modal */}
+      <AnimatePresence>
+        {showLoginPrompt && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+            onClick={() => setShowLoginPrompt(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              className="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center space-y-5 relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={() => setShowLoginPrompt(false)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition cursor-pointer"
+              >
+                <X className="w-4 h-4 text-slate-500" />
+              </button>
+
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#07213A] to-[#F95700] flex items-center justify-center mx-auto shadow-lg">
+                <Lock className="w-8 h-8 text-white" />
+              </div>
+
+              <div>
+                <h3 className="text-xl font-black text-slate-900">Sign In to Follow</h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Only verified logged-in members can follow profiles and receive real-time updates on BharatBN.
+                </p>
+              </div>
+
+              <div className="space-y-2.5 pt-2">
+                <Link
+                  href="/login"
+                  className="w-full py-3 px-6 rounded-xl bg-[#07213A] text-white font-bold text-sm hover:bg-[#0C2D4E] transition flex items-center justify-center gap-2 shadow-md"
+                  onClick={() => setShowLoginPrompt(false)}
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>Log In to BharatBN</span>
+                </Link>
+                <Link
+                  href="/signup"
+                  className="w-full py-3 px-6 rounded-xl bg-[#F95700] text-white font-bold text-sm hover:bg-[#d94a00] transition flex items-center justify-center gap-2 shadow-md"
+                  onClick={() => setShowLoginPrompt(false)}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>Create Free Account</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPrompt(false)}
+                  className="text-xs text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                >
+                  Continue browsing without account
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

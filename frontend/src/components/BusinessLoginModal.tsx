@@ -33,7 +33,7 @@ export default function BusinessLoginModal({
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
-  const [accountType, setAccountType] = useState<'business' | 'person' | 'admin'>('business');
+  const [accountType, setAccountType] = useState<'business' | 'person'>('business');
 
   // Simple Form States
   const [name, setName] = useState('');
@@ -82,45 +82,6 @@ export default function BusinessLoginModal({
 
     setTimeout(() => {
       try {
-        if (accountType === 'admin') {
-          // ================= ADMIN CONSOLE SESSION =================
-          const validUsers = ['admin@bharatbn.com', 'admin', 'superadmin@bharatbn.com', 'superadmin'];
-          const validPasswords = ['admin123', 'bharatbn@admin2026', 'admin@2026', 'admin'];
-
-          const isValidUser = validUsers.includes(inputContact.toLowerCase());
-          const isValidPass = validPasswords.includes(inputPass.toLowerCase());
-
-          if (isValidUser && isValidPass) {
-            const adminSession = {
-              email: inputContact.includes('@') ? inputContact : 'admin@bharatbn.com',
-              name: inputContact.toLowerCase().includes('super') ? 'Superadmin HQ' : 'Operator HQ',
-              role: 'superadmin',
-              token: `bbn_adm_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 8)}`,
-              loginTime: Date.now(),
-            };
-
-            try {
-              localStorage.setItem('bharatbn_admin_session', JSON.stringify(adminSession));
-              window.dispatchEvent(new Event('bharatbn_admin_auth_changed'));
-            } catch {}
-
-            setLoginSuccess(true);
-            setIsSubmitting(false);
-            if (onLoginSuccess) onLoginSuccess(adminSession);
-
-            setTimeout(() => {
-              onClose();
-              setLoginSuccess(false);
-              router.push('/admin');
-            }, 600);
-            return;
-          } else {
-            setIsSubmitting(false);
-            setErrorMessage('Invalid admin credentials. Access denied.');
-            return;
-          }
-        }
-
         const cleanName =
           name.trim() ||
           inputContact.split('@')[0].replace(/[^a-z0-9]/gi, ' ').trim() ||
@@ -344,9 +305,7 @@ export default function BusinessLoginModal({
             <p className="text-xs text-slate-500">
               {accountType === 'business'
                 ? 'Business Account'
-                : accountType === 'person'
-                ? 'Personal Profile'
-                : 'Admin Console & Governance'}
+                : 'Personal Profile'}
             </p>
           </div>
           <button
@@ -358,10 +317,10 @@ export default function BusinessLoginModal({
           </button>
         </div>
 
-        {/* Role Toggle (Business vs Personal vs Admin) */}
+        {/* Role Toggle (Business vs Personal) */}
         {!loginSuccess && (
           <div className="p-3 bg-slate-50 border-b border-slate-100">
-            <div className="grid grid-cols-3 p-1 bg-white rounded-xl border border-slate-200 gap-1 text-xs font-semibold">
+            <div className="grid grid-cols-2 p-1 bg-white rounded-xl border border-slate-200 gap-1 text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => {
@@ -391,22 +350,6 @@ export default function BusinessLoginModal({
               >
                 <User className="w-3.5 h-3.5" />
                 <span>Personal</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setAccountType('admin');
-                  setMode('login');
-                  setErrorMessage(null);
-                }}
-                className={`py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                  accountType === 'admin'
-                    ? 'bg-[#0E2A4A] text-[#F95700] border border-[#173F6D] shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <ShieldAlert className="w-3.5 h-3.5" />
-                <span>Admin</span>
               </button>
             </div>
           </div>
@@ -497,7 +440,7 @@ export default function BusinessLoginModal({
                   {isSubmitting
                     ? 'Please wait...'
                     : mode === 'login'
-                    ? (accountType === 'admin' ? 'Sign In as Admin' : 'Log In')
+                    ? 'Log In'
                     : 'Create Account'}
                 </span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -509,12 +452,7 @@ export default function BusinessLoginModal({
         {/* Simple Footer Switcher */}
         {!loginSuccess && (
           <div className="p-3 bg-slate-50 border-t border-slate-100 text-center text-xs text-slate-500">
-            {accountType === 'admin' ? (
-              <div className="flex items-center justify-center gap-1.5 font-mono text-[11px] text-slate-500">
-                <ShieldAlert className="w-3.5 h-3.5 text-[#C94A00]" />
-                <span>Restricted Sovereign Console • Authorized Personnel</span>
-              </div>
-            ) : mode === 'login' ? (
+            {mode === 'login' ? (
               <span>
                 Don&apos;t have an account?{' '}
                 <button
