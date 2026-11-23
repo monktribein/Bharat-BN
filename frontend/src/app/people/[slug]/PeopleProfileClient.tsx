@@ -223,6 +223,44 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
               }
             }
           } catch {}
+
+          if (cleanTarget === 'ai') {
+            const aiReal = getRealMetrics('ai').followersCount;
+            try {
+              const rawStore = localStorage.getItem('bharatbn_people_store');
+              if (rawStore) {
+                const arr = JSON.parse(rawStore);
+                if (Array.isArray(arr)) {
+                  let changed = false;
+                  const cleaned = arr.map((item: any) => {
+                    if (item.slug === 'ai' || item.name?.toLowerCase() === 'ai') {
+                      if (item.followersCount !== String(aiReal)) {
+                        changed = true;
+                        return { ...item, followersCount: String(aiReal) };
+                      }
+                    }
+                    return item;
+                  });
+                  if (changed) {
+                    localStorage.setItem('bharatbn_people_store', JSON.stringify(cleaned));
+                  }
+                }
+              }
+            } catch {}
+
+            try {
+              const rawSess = localStorage.getItem('bharatbn_owner_session');
+              if (rawSess) {
+                const sess = JSON.parse(rawSess);
+                if (sess && (sess.slug === 'ai' || sess.name?.toLowerCase() === 'ai')) {
+                  if (sess.followersCount !== String(aiReal)) {
+                    sess.followersCount = String(aiReal);
+                    localStorage.setItem('bharatbn_owner_session', JSON.stringify(sess));
+                  }
+                }
+              }
+            } catch {}
+          }
         }
 
         setPerson((prev) => {
@@ -376,7 +414,8 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
               ? customData.followersCount
               : prev.followersCount;
 
-          const validFollowers = isKashish ? 1 : (parseFollowerCount(rawFollowers) || getBaseFollowers(cleanTarget));
+          const isAi = cleanTarget === 'ai' || (customData.name || prev.name)?.toLowerCase() === 'ai';
+          const validFollowers = isKashish ? 1 : (isAi ? getRealMetrics('ai').followersCount : (parseFollowerCount(rawFollowers) || getBaseFollowers(cleanTarget)));
 
           return {
             ...prev,

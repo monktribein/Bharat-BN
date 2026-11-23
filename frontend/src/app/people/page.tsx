@@ -19,7 +19,7 @@ import {
   Lock,
   LogIn,
 } from 'lucide-react';
-import { toggleRealFollow, parseFollowerCount } from '@/lib/realMetrics';
+import { toggleRealFollow, parseFollowerCount, getRealMetrics } from '@/lib/realMetrics';
 
 interface PersonCard {
   id: string;
@@ -82,7 +82,7 @@ const defaultPeopleList: PersonCard[] = [
     quote: 'Empowering 1.4 Billion Indians with sovereign AI innovation and smart discovery.',
     avatarUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
     coverUrl: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80',
-    followersCount: '5.8K',
+    followersCount: '0',
     postsCount: 18,
     category: 'Creators & Influencers',
     isVerified: true,
@@ -170,6 +170,7 @@ export default function PeopleDirectoryPage() {
             parsed.forEach((p: any) => {
               const slug = p.slug || p.handle?.replace(/^@/, '') || 'profile';
               const isKashish = slug === 'kashish' || p.name?.toLowerCase().includes('kashish');
+              const isAi = slug === 'ai' || p.name?.toLowerCase() === 'ai';
 
               let cleanRole = isKashish ? 'Public Figure & Speaker' : (p.role || 'Public Figure & Speaker');
               let cleanBadge = isKashish ? 'Public Figure' : (p.badge || 'Public Figure');
@@ -177,6 +178,17 @@ export default function PeopleDirectoryPage() {
               let cleanQuote = isKashish ? 'hi' : (p.quote || 'Building a stronger connected community across India.');
               let cleanAvatar = isKashish ? '/people/kashish-avatar.png' : (p.avatarUrl || '');
               let cleanCover = isKashish ? '/people/kashish-cover.jpg' : (p.coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80');
+
+              let cleanFollowers = isKashish ? '1' : (p.followersCount || '0');
+              if (isAi) {
+                // Real organic followers only for AI
+                const realCount = getRealMetrics('ai').followersCount;
+                cleanFollowers = String(realCount);
+                if (p.followersCount !== cleanFollowers) {
+                  p.followersCount = cleanFollowers;
+                  hasRepairs = true;
+                }
+              }
 
               if (isKashish) {
                 if (p.coverUrl !== '/people/kashish-cover.jpg' || p.avatarUrl !== '/people/kashish-avatar.png' || p.role !== 'Public Figure & Speaker') {
@@ -201,7 +213,7 @@ export default function PeopleDirectoryPage() {
                 quote: cleanQuote,
                 avatarUrl: cleanAvatar,
                 coverUrl: cleanCover,
-                followersCount: isKashish ? '1' : (p.followersCount || '1'),
+                followersCount: cleanFollowers,
                 postsCount: p.updates?.length || 1,
                 category: isKashish ? 'Public Figures & Speakers' : (p.role?.toLowerCase().includes('creator') ? 'Creators & Influencers' : 'Public Figures & Speakers'),
                 isVerified: isKashish ? true : ((p.status === 'approved') || Boolean(p.isVerified)),
@@ -223,6 +235,7 @@ export default function PeopleDirectoryPage() {
             if (sess && sess.accountType === 'person' && sess.name) {
               const sessSlug = sess.slug || sess.handle?.replace(/^@/, '') || 'profile';
               const isKashish = sessSlug === 'kashish' || sess.name?.toLowerCase().includes('kashish');
+              const isAi = sessSlug === 'ai' || sess.name?.toLowerCase() === 'ai';
               const existing = map.get(sessSlug);
 
               const cleanRole = isKashish ? 'Public Figure & Speaker' : (sess.role || existing?.role || 'Creator & Platform Pioneer');
@@ -231,6 +244,7 @@ export default function PeopleDirectoryPage() {
               const cleanQuote = isKashish ? 'hi' : (sess.quote || existing?.quote || 'Building a stronger connected community across India.');
               const cleanAvatar = isKashish ? '/people/kashish-avatar.png' : (sess.avatarUrl || existing?.avatarUrl || '');
               const cleanCover = isKashish ? '/people/kashish-cover.jpg' : (sess.coverUrl || existing?.coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80');
+              const cleanSessFollowers = isKashish ? '1' : (isAi ? String(getRealMetrics('ai').followersCount) : (sess.followersCount || existing?.followersCount || '0'));
 
               map.set(sessSlug, {
                 id: sess.personId || existing?.id || `BBN-PPL-${Date.now()}`,
@@ -243,7 +257,7 @@ export default function PeopleDirectoryPage() {
                 quote: cleanQuote,
                 avatarUrl: cleanAvatar,
                 coverUrl: cleanCover,
-                followersCount: isKashish ? '1' : (sess.followersCount || existing?.followersCount || '1.2K'),
+                followersCount: cleanSessFollowers,
                 postsCount: sess.postsCount || existing?.postsCount || 1,
                 category: isKashish ? 'Public Figures & Speakers' : (existing?.category || (sess.role?.toLowerCase().includes('creator') ? 'Creators & Influencers' : 'Public Figures & Speakers')),
                 isVerified: isKashish ? true : (sess.isVerified !== undefined ? sess.isVerified : (existing?.isVerified || false)),

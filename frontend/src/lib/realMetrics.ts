@@ -81,6 +81,7 @@ export function getBaseFollowers(slug: string): number {
   if (!normSlug) return 0;
 
   if (normSlug === 'kashish') return 1;
+  if (normSlug === 'ai') return 0; // AI relies 100% on real authentic BharatBN followers
 
   // 1. Check viewed person in sessionStorage (bridge from card)
   try {
@@ -129,7 +130,7 @@ export function getBaseFollowers(slug: string): number {
     'kashish': 1,
     'dr-rajesh-sharma': 18900,
     'priya-menon': 12500,
-    'ai': 5800,
+    'ai': 0,
     'vikram-malhotra': 34100,
     'sunita-deshmukh': 19400,
     'arjun-mehta': 32100,
@@ -157,14 +158,26 @@ export function getCurrentUserHandle(): string {
 export function getRealMetrics(slug: string): RealMetrics {
   const normSlug = (slug || '').toLowerCase().trim();
   const followerMap = getStoredFollowerMap();
-  const followers = followerMap[normSlug] || [];
+  let followers = followerMap[normSlug] || [];
   const myFollowing = getStoredFollowingList();
   const viewsMap = getStoredViewsMap();
   const likesMap = getStoredLikesMap();
+  const currentUser = getCurrentUserHandle();
+
+  // If current user is actively following this person, ensure follower list includes them
+  if (myFollowing.includes(normSlug) && !followers.some((f) => f.toLowerCase() === currentUser.toLowerCase())) {
+    followers = [...followers, currentUser];
+    followerMap[normSlug] = followers;
+    try {
+      localStorage.setItem('bharatbn_real_followers', JSON.stringify(followerMap));
+    } catch {}
+  }
+
   const base = getBaseFollowers(normSlug);
+  const realCount = base > 0 ? base : followers.length;
 
   return {
-    followersCount: base > 0 ? base : followers.length,
+    followersCount: realCount,
     followers,
     followingCount: myFollowing.length,
     following: myFollowing,
