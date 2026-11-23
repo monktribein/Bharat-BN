@@ -56,6 +56,7 @@ import {
   getBaseFollowers,
 } from '@/lib/realMetrics';
 import FollowersModal from '@/components/FollowersModal';
+import DirectMessageModal from '@/components/DirectMessageModal';
 import type { PersonProfile } from './peopleData';
 
 interface Props {
@@ -2106,82 +2107,18 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
       {/* ========================================================================= */}
 
       {/* Direct Message Modal */}
-      {isMessageModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <h3 className="font-bold text-base text-slate-900">
-                Message {person.name}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsMessageModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {messageSent ? (
-              <div className="p-6 text-center space-y-2">
-                <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
-                <h4 className="font-bold text-slate-900">Message Delivered!</h4>
-                <p className="text-xs text-slate-500">
-                  Your communication has been forwarded to {person.name}&apos;s verified communication desk.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMessageSent(false);
-                    setIsMessageModalOpen(false);
-                  }}
-                  className="mt-4 px-5 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold"
-                >
-                  Close
-                </button>
-              </div>
-            ) : (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (!messageText.trim()) return;
-                  setMessageSent(true);
-                  setMessageText('');
-                }}
-                className="space-y-3"
-              >
-                <p className="text-xs text-slate-500">
-                  Send a private message or inquiry. Profile representatives review incoming messages on BharatBN.
-                </p>
-                <textarea
-                  rows={4}
-                  required
-                  value={messageText}
-                  onChange={(e) => setMessageText(e.target.value)}
-                  placeholder="Type your message here..."
-                  className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#F95700]"
-                />
-                <div className="flex justify-end gap-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsMessageModalOpen(false)}
-                    className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-5 py-2 rounded-xl bg-[#F95700] hover:bg-[#d94a00] text-white text-xs font-bold flex items-center gap-1.5"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Send Message</span>
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
+      <DirectMessageModal
+        isOpen={isMessageModalOpen}
+        onClose={() => setIsMessageModalOpen(false)}
+        recipient={{
+          slug: person.slug,
+          name: person.name,
+          avatarUrl: person.avatarUrl,
+          role: person.role,
+          handle: (person as any).handle || `@${person.slug}`,
+          isVerified: person.isVerified,
+        }}
+      />
 
       {/* Community Story Submission Modal */}
       {isStoryModalOpen && (

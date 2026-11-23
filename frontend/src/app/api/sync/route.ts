@@ -19,6 +19,7 @@ function readStore() {
       const parsed = JSON.parse(raw);
       if (!parsed.followers) parsed.followers = {};
       if (!parsed.views) parsed.views = {};
+      if (!parsed.messages) parsed.messages = {};
       return parsed;
     }
   } catch (e) {
@@ -29,6 +30,7 @@ function readStore() {
     businesses: {},
     followers: {},
     views: {},
+    messages: {},
     updatedAt: new Date().toISOString(),
   };
 }
@@ -68,6 +70,7 @@ export async function POST(req: Request) {
     if (!store.businesses) store.businesses = {};
     if (!store.followers) store.followers = {};
     if (!store.views) store.views = {};
+    if (!store.messages) store.messages = {};
 
     // 1. Follow / Unfollow Actions
     if (body.action === 'follow' || body.action === 'unfollow') {
@@ -98,6 +101,31 @@ export async function POST(req: Request) {
         if (store.people[target]) {
           store.people[target].viewsCount = store.views[target];
         }
+      }
+    }
+    // 3. Direct Message Actions (Send, Read, Delete)
+    else if (body.action === 'send_message' && body.message) {
+      const target = (body.targetSlug || body.message.recipientSlug || '').toLowerCase().trim();
+      if (target) {
+        if (!Array.isArray(store.messages[target])) store.messages[target] = [];
+        const exists = store.messages[target].some((m: any) => m.id === body.message.id);
+        if (!exists) {
+          store.messages[target].unshift(body.message);
+        }
+      }
+    }
+    else if (body.action === 'mark_message_read' && body.messageId) {
+      const target = (body.targetSlug || body.recipientSlug || '').toLowerCase().trim();
+      if (target && Array.isArray(store.messages[target])) {
+        store.messages[target] = store.messages[target].map((m: any) =>
+          m.id === body.messageId ? { ...m, isRead: true } : m
+        );
+      }
+    }
+    else if (body.action === 'delete_message' && body.messageId) {
+      const target = (body.targetSlug || body.recipientSlug || '').toLowerCase().trim();
+      if (target && Array.isArray(store.messages[target])) {
+        store.messages[target] = store.messages[target].filter((m: any) => m.id !== body.messageId);
       }
     }
     // 3. Person Profile Updates

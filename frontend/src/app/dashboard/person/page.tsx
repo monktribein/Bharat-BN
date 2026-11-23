@@ -46,6 +46,8 @@ import {
 import BusinessLoginModal from '@/components/BusinessLoginModal';
 import NewPostModal from '@/components/NewPostModal';
 import FollowersModal from '@/components/FollowersModal';
+import InboxModal from '@/components/InboxModal';
+import { getUnreadMessageCount } from '@/lib/realMessages';
 import {
   InstagramIcon,
   YouTubeIcon,
@@ -209,6 +211,24 @@ export default function PersonDashboardPage() {
     setFollowModalTab(tab);
     setIsFollowModalOpen(true);
   };
+
+  // Real Inbox Modal & Unread Count
+  const [isInboxModalOpen, setIsInboxModalOpen] = useState(false);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState<number>(0);
+
+  useEffect(() => {
+    const updateMsgCount = () => {
+      const s = session?.slug || slug || 'kashish';
+      setUnreadMessagesCount(getUnreadMessageCount(s));
+    };
+    updateMsgCount();
+    window.addEventListener('bharatbn_messages_updated', updateMsgCount);
+    window.addEventListener('storage', updateMsgCount);
+    return () => {
+      window.removeEventListener('bharatbn_messages_updated', updateMsgCount);
+      window.removeEventListener('storage', updateMsgCount);
+    };
+  }, [session?.slug, slug]);
 
   // Accordion Expand/Collapse States (All 11 Modules from Image 1)
   const [openSections, setOpenSections] = useState({
@@ -1647,8 +1667,23 @@ export default function PersonDashboardPage() {
               </div>
             </div>
 
-            {/* Actions: View Live, New Post & Save */}
+            {/* Actions: View Live, New Post, Inbox & Save */}
             <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 self-center sm:self-end flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsInboxModalOpen(true)}
+                className="relative px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-slate-900/80 hover:bg-slate-900 backdrop-blur-md border border-white/20 transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                title="View received direct messages and inquiries"
+              >
+                <Mail className="w-3.5 h-3.5 text-[#F95700]" />
+                <span>Inbox</span>
+                {unreadMessagesCount > 0 && (
+                  <span className="ml-1 px-1.5 py-0.5 bg-[#F95700] text-white text-[10px] font-black rounded-full leading-none">
+                    {unreadMessagesCount}
+                  </span>
+                )}
+              </button>
+
               <button
                 type="button"
                 onClick={() => setIsNewPostModalOpen(true)}
@@ -1681,8 +1716,8 @@ export default function PersonDashboardPage() {
           </div>
         </div>
 
-        {/* 4 Creator Metric Stat Cards */}
-        <div className="px-6 sm:px-8 pb-5 grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
+        {/* 5 Creator Metric Stat Cards (including Real Inbox) */}
+        <div className="px-6 sm:px-8 pb-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 text-left">
           <button
             type="button"
             onClick={() => handleOpenFollowModal('followers')}
@@ -1717,6 +1752,28 @@ export default function PersonDashboardPage() {
               <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Engagements</div>
             </div>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setIsInboxModalOpen(true)}
+            className="p-4 bg-slate-50/70 hover:bg-orange-50/70 rounded-2xl border border-slate-200/80 hover:border-orange-200 shadow-2xs flex items-center gap-3 transition cursor-pointer text-left group"
+            title="Open Direct Messages & Inquiries Inbox"
+          >
+            <div className="relative w-10 h-10 rounded-full bg-orange-100 text-[#F95700] flex items-center justify-center flex-shrink-0">
+              <Mail className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              {unreadMessagesCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white" />
+              )}
+            </div>
+            <div>
+              <div className="text-xl font-black text-slate-900 group-hover:text-[#F95700] leading-tight transition-colors">
+                {unreadMessagesCount > 0 ? `${unreadMessagesCount} New` : 'Inbox'}
+              </div>
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider group-hover:text-slate-700">
+                Direct Inquiries
+              </div>
+            </div>
+          </button>
 
           <div className="p-4 bg-slate-50/70 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
@@ -3510,6 +3567,21 @@ export default function PersonDashboardPage() {
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
+          <button
+            type="button"
+            onClick={() => setIsInboxModalOpen(true)}
+            className="relative px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition flex items-center gap-1.5 cursor-pointer"
+            title="View Direct Messages & Inquiries"
+          >
+            <Mail className="w-3.5 h-3.5 text-[#F95700]" />
+            <span>Inbox</span>
+            {unreadMessagesCount > 0 && (
+              <span className="px-1.5 py-0.5 bg-[#F95700] text-white text-[10px] font-black rounded-full leading-none">
+                {unreadMessagesCount}
+              </span>
+            )}
+          </button>
+
           <Link
             href={`/people/${slug || 'profile'}`}
             target="_blank"
@@ -3557,6 +3629,17 @@ export default function PersonDashboardPage() {
           setFollowersCount(String(m.followersCount));
           setFollowingCount(String(m.followingCount));
         }}
+      />
+
+      {/* Real Inquiries & Direct Messages Inbox Modal */}
+      <InboxModal
+        isOpen={isInboxModalOpen}
+        onClose={() => {
+          setIsInboxModalOpen(false);
+          setUnreadMessagesCount(getUnreadMessageCount(session?.slug || slug || 'kashish'));
+        }}
+        recipientSlug={session?.slug || slug || 'kashish'}
+        recipientName={name || 'Personal Profile'}
       />
     </div>
   );
