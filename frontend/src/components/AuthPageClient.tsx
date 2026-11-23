@@ -284,25 +284,6 @@ function AuthPageInner({ initialMode }: AuthPageClientProps) {
     }, 500);
   };
 
-  const handleDemoFill = (type: 'kashish' | 'anand' | 'apple') => {
-    if (type === 'kashish') {
-      setAccountType('person');
-      setName('Kashish Saxena');
-      setEmailOrPhone('kashish@bharatbn.com');
-      setPassword('password123');
-    } else if (type === 'anand') {
-      setAccountType('person');
-      setName('Anand Sahu');
-      setEmailOrPhone('anand@bharatbn.com');
-      setPassword('password123');
-    } else if (type === 'apple') {
-      setAccountType('business');
-      setName('Apple');
-      setEmailOrPhone('owner@apple.com');
-      setPassword('password123');
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#F8FAFC] via-[#EEF2F6] to-[#E2E8F0] flex flex-col justify-center items-center px-4 py-12 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Decorative ambient background blur */}
@@ -530,38 +511,6 @@ function AuthPageInner({ initialMode }: AuthPageClientProps) {
                   )}
                 </button>
               </form>
-            )}
-
-            {/* Demo Quick Fill Buttons */}
-            {!authSuccess && (
-              <div className="pt-2 border-t border-slate-100 space-y-2">
-                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 block text-center">
-                  Quick Demo Login
-                </span>
-                <div className="flex flex-wrap gap-1.5 justify-center">
-                  <button
-                    type="button"
-                    onClick={() => handleDemoFill('kashish')}
-                    className="px-2.5 py-1 rounded-lg bg-orange-50 border border-orange-200/60 text-orange-700 text-[11px] font-semibold hover:bg-orange-100 transition cursor-pointer"
-                  >
-                    Kashish Saxena
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDemoFill('anand')}
-                    className="px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200/60 text-blue-700 text-[11px] font-semibold hover:bg-blue-100 transition cursor-pointer"
-                  >
-                    Anand Sahu
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDemoFill('apple')}
-                    className="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 text-[11px] font-semibold hover:bg-slate-200 transition cursor-pointer"
-                  >
-                    Apple (Business)
-                  </button>
-                </div>
-              </div>
             )}
           </div>
 
