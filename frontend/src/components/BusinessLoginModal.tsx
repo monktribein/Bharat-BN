@@ -116,7 +116,7 @@ export default function BusinessLoginModal({
             return;
           } else {
             setIsSubmitting(false);
-            setErrorMessage('Invalid admin credentials. Use admin@bharatbn.com / admin123');
+            setErrorMessage('Invalid admin credentials. Access denied.');
             return;
           }
         }
@@ -486,33 +486,6 @@ export default function BusinessLoginModal({
                   </button>
                 </div>
               </div>
-
-              {/* Admin Credentials Helper */}
-              {accountType === 'admin' && (
-                <div className="p-2.5 rounded-xl bg-orange-50 border border-orange-200 text-xs text-left">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-[#C94A00] flex items-center gap-1 text-[11px]">
-                      <Sparkles className="w-3 h-3" />
-                      Admin Master Access
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEmailOrPhone('admin@bharatbn.com');
-                        setPassword('admin123');
-                        setErrorMessage(null);
-                      }}
-                      className="text-[10px] font-mono font-bold text-[#C94A00] hover:underline cursor-pointer bg-white px-2 py-0.5 rounded border border-orange-200"
-                    >
-                      1-Click Auto-Fill
-                    </button>
-                  </div>
-                  <div className="text-[10px] text-slate-600 font-mono flex items-center justify-between">
-                    <span>User: <strong>admin@bharatbn.com</strong></span>
-                    <span>Pass: <strong>admin123</strong></span>
-                  </div>
-                </div>
-              )}
 
               {/* Submit Button */}
               <button

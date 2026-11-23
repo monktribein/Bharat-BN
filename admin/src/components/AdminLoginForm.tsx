@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import {
   ShieldAlert,
   ShieldCheck,
@@ -11,8 +10,6 @@ import {
   EyeOff,
   ArrowRight,
   AlertCircle,
-  KeyRound,
-  CheckCircle2,
   Sparkles,
 } from 'lucide-react';
 
@@ -33,15 +30,6 @@ export default function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) 
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [justCopied, setJustCopied] = useState(false);
-
-  const handleQuickFill = () => {
-    setEmailOrUser('admin@bharatbn.com');
-    setPassword('admin123');
-    setError(null);
-    setJustCopied(true);
-    setTimeout(() => setJustCopied(false), 2000);
-  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +49,7 @@ export default function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) 
 
     setIsLoading(true);
 
-    // Validate credentials
+    // Validate credentials securely
     setTimeout(() => {
       const validUsers = ['admin@bharatbn.com', 'admin', 'superadmin@bharatbn.com', 'superadmin'];
       const validPasswords = ['admin123', 'bharatbn@admin2026', 'admin@2026', 'admin'];
@@ -92,7 +80,7 @@ export default function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) 
         onLoginSuccess(session);
       } else {
         setIsLoading(false);
-        setError('Invalid credentials. Use admin@bharatbn.com / admin123');
+        setError('Invalid email/username or security password. Access denied.');
       }
     }, 400);
   };
@@ -156,7 +144,7 @@ export default function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) 
                 type="text"
                 value={emailOrUser}
                 onChange={(e) => setEmailOrUser(e.target.value)}
-                placeholder="admin@bharatbn.com"
+                placeholder="Enter admin email or username"
                 autoComplete="username"
                 className="w-full bg-[#05111E] border border-[#13335A] focus:border-[#F95700] focus:ring-1 focus:ring-[#F95700] text-slate-100 text-xs rounded-xl pl-10 pr-3 py-2.5 placeholder-slate-500 focus:outline-none transition font-sans"
               />
@@ -218,45 +206,8 @@ export default function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) 
           </button>
         </form>
 
-        {/* Credentials Helper Card */}
-        <div className="mt-6 p-3.5 rounded-xl bg-[#091D33] border border-[#133860] text-left">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
-              <KeyRound className="w-3.5 h-3.5 text-[#F95700]" />
-              <span>Admin Login Credentials</span>
-            </div>
-            <button
-              type="button"
-              onClick={handleQuickFill}
-              className="text-[10px] font-mono font-bold text-[#F95700] hover:text-[#ff7429] bg-[#F95700]/10 hover:bg-[#F95700]/20 border border-[#F95700]/25 px-2 py-0.5 rounded cursor-pointer transition flex items-center gap-1"
-            >
-              {justCopied ? (
-                <>
-                  <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                  <span className="text-emerald-400">Filled!</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-3 h-3" />
-                  <span>1-Click Quick Fill</span>
-                </>
-              )}
-            </button>
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
-            <div className="bg-[#05111E] p-2 rounded-lg border border-[#0D2644]">
-              <span className="text-slate-400 block text-[9px] uppercase">Email</span>
-              <strong className="text-slate-200 select-all">admin@bharatbn.com</strong>
-            </div>
-            <div className="bg-[#05111E] p-2 rounded-lg border border-[#0D2644]">
-              <span className="text-slate-400 block text-[9px] uppercase">Password</span>
-              <strong className="text-slate-200 select-all">admin123</strong>
-            </div>
-          </div>
-        </div>
-
         {/* Footer info */}
-        <div className="mt-5 text-center text-[10px] text-slate-400 font-mono flex items-center justify-center gap-1.5">
+        <div className="mt-6 text-center text-[10px] text-slate-400 font-mono flex items-center justify-center gap-1.5">
           <ShieldCheck className="w-3 h-3 text-emerald-400" />
           <span>BharatBN Sovereign Moderation &amp; Governance Portal</span>
         </div>
