@@ -55,6 +55,7 @@ import {
   formatFollowerCount,
   getBaseFollowers,
 } from '@/lib/realMetrics';
+import FollowersModal from '@/components/FollowersModal';
 import type { PersonProfile } from './peopleData';
 
 interface Props {
@@ -77,6 +78,15 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
   const [followToast, setFollowToast] = useState('');
   const [ownerSession, setOwnerSession] = useState<any>(null);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+
+  // Instagram-style Followers & Following Modal
+  const [isFollowModalOpen, setIsFollowModalOpen] = useState(false);
+  const [followModalTab, setFollowModalTab] = useState<'followers' | 'following'>('followers');
+
+  const handleOpenFollowModal = (tab: 'followers' | 'following') => {
+    setFollowModalTab(tab);
+    setIsFollowModalOpen(true);
+  };
 
   // Floating Bar Interaction states
   const [likesCount, setLikesCount] = useState(initialPerson.likesCount);
@@ -1045,30 +1055,40 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
           {/* 2. METRIC STAT BAR (Exact Image Reference)                              */}
           {/* ======================================================================= */}
           <div className="border-t border-slate-100 px-6 sm:px-8 py-3.5 bg-slate-50/70 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-wrap items-center gap-6 sm:gap-8">
-              {/* Followers */}
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-[#F95700]" />
+            <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+              {/* Followers (Clickable Instagram-style) */}
+              <button
+                type="button"
+                onClick={() => handleOpenFollowModal('followers')}
+                className="flex items-center gap-2 px-3 py-1.5 -ml-1 rounded-xl hover:bg-orange-50 transition cursor-pointer group text-left border border-transparent hover:border-orange-200"
+                title={`View ${person.name}'s followers`}
+              >
+                <Users className="w-4 h-4 text-[#F95700] group-hover:scale-110 transition-transform" />
                 <div>
-                  <span className="font-extrabold text-sm sm:text-base text-slate-900">
+                  <span className="font-extrabold text-sm sm:text-base text-slate-900 group-hover:text-[#F95700] transition-colors">
                     {formattedFollowers}
                   </span>
-                  <span className="text-xs text-slate-500 ml-1.5 font-medium">
+                  <span className="text-xs text-slate-500 ml-1.5 font-medium group-hover:text-slate-700">
                     {followersCount === 1 ? 'Follower' : 'Followers'}
                   </span>
                 </div>
-              </div>
+              </button>
 
-              {/* Following */}
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-blue-600" />
+              {/* Following (Clickable Instagram-style) */}
+              <button
+                type="button"
+                onClick={() => handleOpenFollowModal('following')}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-blue-50 transition cursor-pointer group text-left border border-transparent hover:border-blue-200"
+                title={`View accounts ${person.name} is following`}
+              >
+                <Users className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform" />
                 <div>
-                  <span className="font-extrabold text-sm sm:text-base text-slate-900">
+                  <span className="font-extrabold text-sm sm:text-base text-slate-900 group-hover:text-blue-600 transition-colors">
                     {person.followingCount}
                   </span>
-                  <span className="text-xs text-slate-500 ml-1.5 font-medium">Following</span>
+                  <span className="text-xs text-slate-500 ml-1.5 font-medium group-hover:text-slate-700">Following</span>
                 </div>
-              </div>
+              </button>
 
               {/* Posts & Updates */}
               <div className="flex items-center gap-2">
@@ -2378,6 +2398,24 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Instagram-Style Followers & Following Modal */}
+      <FollowersModal
+        isOpen={isFollowModalOpen}
+        onClose={() => setIsFollowModalOpen(false)}
+        targetSlug={person.slug || targetSlug}
+        targetName={person.name}
+        targetHandle={(person as any).handle || `@${person.slug || targetSlug}`}
+        initialTab={followModalTab}
+        onRequireLogin={() => setShowLoginPrompt(true)}
+        onFollowToggle={(tSlug, isNowFollowing) => {
+          if (tSlug === (person.slug || targetSlug)) {
+            setIsFollowing(isNowFollowing);
+            const m = getRealMetrics(tSlug);
+            setFollowersCount(m.followersCount);
+          }
+        }}
+      />
     </div>
   );
 }

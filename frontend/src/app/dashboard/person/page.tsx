@@ -45,6 +45,7 @@ import {
 } from 'lucide-react';
 import BusinessLoginModal from '@/components/BusinessLoginModal';
 import NewPostModal from '@/components/NewPostModal';
+import FollowersModal from '@/components/FollowersModal';
 import {
   InstagramIcon,
   YouTubeIcon,
@@ -199,6 +200,15 @@ export default function PersonDashboardPage() {
   const [viewsCount, setViewsCount] = useState('0');
   const [engagementsCount, setEngagementsCount] = useState('0');
   const [storiesCount, setStoriesCount] = useState('0');
+
+  // Instagram-Style Followers & Following Modal
+  const [isFollowModalOpen, setIsFollowModalOpen] = useState(false);
+  const [followModalTab, setFollowModalTab] = useState<'followers' | 'following'>('followers');
+
+  const handleOpenFollowModal = (tab: 'followers' | 'following') => {
+    setFollowModalTab(tab);
+    setIsFollowModalOpen(true);
+  };
 
   // Accordion Expand/Collapse States (All 11 Modules from Image 1)
   const [openSections, setOpenSections] = useState({
@@ -1673,15 +1683,20 @@ export default function PersonDashboardPage() {
 
         {/* 4 Creator Metric Stat Cards */}
         <div className="px-6 sm:px-8 pb-5 grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
-          <div className="p-4 bg-slate-50/70 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0">
-              <Users className="w-5 h-5" />
+          <button
+            type="button"
+            onClick={() => handleOpenFollowModal('followers')}
+            className="p-4 bg-slate-50/70 hover:bg-orange-50/70 rounded-2xl border border-slate-200/80 hover:border-orange-200 shadow-2xs flex items-center gap-3 transition cursor-pointer text-left group"
+            title="View Followers & Following list (Instagram style)"
+          >
+            <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 group-hover:bg-orange-100 group-hover:text-[#F95700] flex items-center justify-center flex-shrink-0 transition-colors">
+              <Users className="w-5 h-5 group-hover:scale-110 transition-transform" />
             </div>
             <div>
-              <div className="text-xl font-black text-slate-900 leading-tight">{followersCount}</div>
-              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Followers</div>
+              <div className="text-xl font-black text-slate-900 group-hover:text-[#F95700] leading-tight transition-colors">{followersCount}</div>
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider group-hover:text-slate-700">Followers</div>
             </div>
-          </div>
+          </button>
 
           <div className="p-4 bg-slate-50/70 rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
@@ -3284,6 +3299,15 @@ export default function PersonDashboardPage() {
               </div>
 
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleOpenFollowModal('followers')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-[#F95700] border border-orange-200 text-xs font-bold shadow-2xs transition cursor-pointer"
+                  title="View followers & following modal"
+                >
+                  <Users className="w-3.5 h-3.5" />
+                  <span>View Followers List</span>
+                </button>
                 <a
                   href={`/people/${(session?.slug || slug || 'ai').toLowerCase()}`}
                   target="_blank"
@@ -3311,15 +3335,20 @@ export default function PersonDashboardPage() {
             {/* 4 Authentic Real-Time Metric Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Card 1: BharatBN Followers */}
-              <div className="p-4 bg-white rounded-2xl border-2 border-orange-200/90 shadow-sm relative overflow-hidden group hover:border-[#F95700] transition">
+              <button
+                type="button"
+                onClick={() => handleOpenFollowModal('followers')}
+                className="p-4 bg-white rounded-2xl border-2 border-orange-200/90 shadow-sm relative overflow-hidden group hover:border-[#F95700] transition text-left cursor-pointer"
+                title="Click to view real followers list"
+              >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-extrabold uppercase tracking-wider text-orange-600">Verified Followers</span>
-                  <div className="w-9 h-9 rounded-xl bg-orange-100 text-[#F95700] flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-xl bg-orange-100 text-[#F95700] flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Users className="w-5 h-5" />
                   </div>
                 </div>
                 <div className="mt-3">
-                  <div className="text-3xl font-black text-slate-900 tracking-tight">{followersCount}</div>
+                  <div className="text-3xl font-black text-slate-900 tracking-tight group-hover:text-[#F95700] transition-colors">{followersCount}</div>
                   <div className="text-xs text-slate-500 font-semibold mt-0.5">
                     {Number(followersCount) === 1 ? 'Real BharatBN Follower' : 'Real BharatBN Followers'}
                   </div>
@@ -3328,29 +3357,34 @@ export default function PersonDashboardPage() {
                   <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
                     ● Real-Time Verified
                   </span>
-                  <span className="text-[11px] text-slate-400 font-medium">100% Authentic</span>
+                  <span className="text-[11px] text-orange-600 font-bold group-hover:translate-x-0.5 transition-transform">View List →</span>
                 </div>
-              </div>
+              </button>
 
               {/* Card 2: Following Count */}
-              <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs relative overflow-hidden group hover:border-blue-300 transition">
+              <button
+                type="button"
+                onClick={() => handleOpenFollowModal('following')}
+                className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs relative overflow-hidden group hover:border-blue-400 transition text-left cursor-pointer"
+                title="Click to view following list"
+              >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-extrabold uppercase tracking-wider text-blue-600">Following</span>
-                  <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Users className="w-5 h-5" />
                   </div>
                 </div>
                 <div className="mt-3">
-                  <div className="text-3xl font-black text-slate-900 tracking-tight">{followingCount}</div>
+                  <div className="text-3xl font-black text-slate-900 tracking-tight group-hover:text-blue-600 transition-colors">{followingCount}</div>
                   <div className="text-xs text-slate-500 font-semibold mt-0.5">Profiles You Follow</div>
                 </div>
                 <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
                   <span className="text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
                     Network Feed
                   </span>
-                  <span className="text-[11px] text-slate-400 font-medium">Connected</span>
+                  <span className="text-[11px] text-blue-600 font-bold group-hover:translate-x-0.5 transition-transform">View List →</span>
                 </div>
-              </div>
+              </button>
 
               {/* Card 3: Profile Views */}
               <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs relative overflow-hidden group hover:border-purple-300 transition">
@@ -3507,6 +3541,23 @@ export default function PersonDashboardPage() {
       <NewPostModal
         isOpen={isNewPostModalOpen}
         onClose={() => setIsNewPostModalOpen(false)}
+      />
+
+      {/* Instagram-Style Followers & Following Modal */}
+      <FollowersModal
+        isOpen={isFollowModalOpen}
+        onClose={() => setIsFollowModalOpen(false)}
+        targetSlug={session?.slug || slug || 'kashish'}
+        targetName={name || 'Personal Profile'}
+        targetHandle={handle || '@user'}
+        initialTab={followModalTab}
+        onFollowToggle={(tSlug, isNowFollowing) => {
+          const currentSlug = session?.slug || slug || 'kashish';
+          if (tSlug === currentSlug) {
+            const m = getRealMetrics(tSlug);
+            setFollowersCount(String(m.followersCount));
+          }
+        }}
       />
     </div>
   );
