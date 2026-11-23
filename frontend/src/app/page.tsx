@@ -560,8 +560,18 @@ export default function HomePage() {
                 const cleanBadge = isKashish ? 'Public Figure' : (isAnand ? 'Public Figure' : (p.badge || 'Verified'));
                 const cleanLocation = isKashish ? 'noida' : (isAnand ? 'New Delhi, India' : (p.location || 'India'));
                 const cleanQuote = isKashish ? 'hi' : (isAnand ? 'Thoughts for Nation Building and a Stronger India.' : (p.quote || (p.aboutText ? p.aboutText.slice(0, 90) : 'Verified Profile on BharatBN.')));
-                const cleanAvatar = isKashish ? '/people/kashish-avatar.png' : (isAnand ? '/people/anand-sahu-avatar.jpg' : (p.avatarUrl || ''));
-                const cleanCover = isKashish ? '/people/kashish-cover.jpg' : (isAnand ? '/people/anand-sahu-cover.jpg' : (p.coverUrl || ''));
+                
+                // Prioritize user custom avatar
+                const hasCustomAvatar = p.avatarUrl && typeof p.avatarUrl === 'string' && p.avatarUrl.trim() !== '' && !p.avatarUrl.includes('534528741775');
+                const cleanAvatar = hasCustomAvatar
+                  ? p.avatarUrl
+                  : (isKashish ? '/people/kashish-avatar.png' : (isAnand ? '/people/anand-sahu-avatar.jpg' : ''));
+
+                // Prioritize user custom cover
+                const hasCustomCover = p.coverUrl && typeof p.coverUrl === 'string' && p.coverUrl.trim() !== '' && !p.coverUrl.includes('photo-1541872703-74c5e44368f9') && !p.coverUrl.includes('photo-1579546929518') && !p.coverUrl.includes('photo-1598488035139');
+                const cleanCover = hasCustomCover
+                  ? p.coverUrl
+                  : (isKashish ? '/people/kashish-cover.jpg' : (isAnand ? '/people/anand-sahu-cover.jpg' : ''));
                 
                 // Authentic BharatBN real followers only
                 const realFollowers = String(getRealMetrics(slug).followersCount);
@@ -571,25 +581,13 @@ export default function HomePage() {
                 }
                 const cleanFollowers = realFollowers;
 
-                if (isKashish && (p.coverUrl !== '/people/kashish-cover.jpg' || p.avatarUrl !== '/people/kashish-avatar.png' || p.role !== 'Public Figure & Speaker')) {
+                // Only heal if stale Obama photo or broken image ID
+                if (p.coverUrl && (p.coverUrl.includes('photo-1541872703-74c5e44368f9') || p.coverUrl.includes('photo-1579546929518') || p.coverUrl.includes('photo-1598488035139'))) {
                   p.coverUrl = cleanCover;
-                  p.avatarUrl = cleanAvatar;
-                  p.role = cleanRole;
-                  p.badge = cleanBadge;
-                  p.location = cleanLocation;
-                  p.quote = cleanQuote;
-                  p.followersCount = cleanFollowers;
                   hasRepairs = true;
                 }
-
-                if (isAnand && (p.coverUrl !== '/people/anand-sahu-cover.jpg' || p.avatarUrl !== '/people/anand-sahu-avatar.jpg')) {
-                  p.coverUrl = cleanCover;
+                if (p.avatarUrl && p.avatarUrl.includes('534528741775')) {
                   p.avatarUrl = cleanAvatar;
-                  p.role = cleanRole;
-                  p.badge = cleanBadge;
-                  p.location = cleanLocation;
-                  p.quote = cleanQuote;
-                  p.followersCount = cleanFollowers;
                   hasRepairs = true;
                 }
 
@@ -614,8 +612,10 @@ export default function HomePage() {
                 const realCount = String(getRealMetrics(p.slug).followersCount);
                 const isAnand = p.slug === 'anand-sahu';
                 const isKashish = p.slug === 'kashish';
-                const forcedAvatar = isAnand ? '/people/anand-sahu-avatar.jpg' : (isKashish ? '/people/kashish-avatar.png' : p.avatarUrl);
-                const forcedCover = isAnand ? '/people/anand-sahu-cover.jpg' : (isKashish ? '/people/kashish-cover.jpg' : p.coverUrl);
+                const hasAvatar = p.avatarUrl && !p.avatarUrl.includes('534528741775');
+                const hasCover = p.coverUrl && !p.coverUrl.includes('photo-1541872703-74c5e44368f9') && !p.coverUrl.includes('photo-1579546929518') && !p.coverUrl.includes('photo-1598488035139');
+                const forcedAvatar = hasAvatar ? p.avatarUrl : (isAnand ? '/people/anand-sahu-avatar.jpg' : (isKashish ? '/people/kashish-avatar.png' : p.avatarUrl));
+                const forcedCover = hasCover ? p.coverUrl : (isAnand ? '/people/anand-sahu-cover.jpg' : (isKashish ? '/people/kashish-cover.jpg' : p.coverUrl));
 
                 if (!map.has(p.slug)) {
                   map.set(p.slug, {
@@ -628,8 +628,8 @@ export default function HomePage() {
                   const existing = map.get(p.slug)!;
                   map.set(p.slug, {
                     ...existing,
-                    avatarUrl: isAnand ? forcedAvatar : existing.avatarUrl,
-                    coverUrl: isAnand ? forcedCover : existing.coverUrl,
+                    avatarUrl: existing.avatarUrl || forcedAvatar,
+                    coverUrl: existing.coverUrl || forcedCover,
                     followersCount: realCount,
                   });
                 }
@@ -1120,7 +1120,7 @@ export default function HomePage() {
                         alt={`${person.name} Cover`}
                         onError={(e) => {
                           e.currentTarget.onerror = null;
-                          e.currentTarget.src = 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=800&q=80';
+                          e.currentTarget.src = person.slug === 'kashish' ? '/people/kashish-cover.jpg' : '/people/anand-sahu-cover.jpg';
                         }}
                         className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-500"
                       />

@@ -379,8 +379,13 @@ export default function ClaimModerationPage() {
               const cleanBadge = isKashish ? 'Public Figure' : (p.badge || 'Public Figure');
               const cleanLocation = isKashish ? 'noida' : (p.location || 'India');
               const cleanQuote = isKashish ? 'hi' : (p.quote || existing?.quote || 'Building a stronger connected community across India.');
-              const cleanAvatar = isKashish ? '/people/kashish-avatar.png' : (p.avatarUrl || existing?.avatarUrl || '');
-              const cleanCover = isKashish ? '/people/kashish-cover.jpg' : (p.coverUrl || existing?.coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80');
+              const hasAvatar = (p.avatarUrl && !p.avatarUrl.includes('534528741775')) ? p.avatarUrl : (existing?.avatarUrl && !existing.avatarUrl.includes('534528741775') ? existing.avatarUrl : null);
+              const cleanAvatar = hasAvatar || (isKashish ? '/people/kashish-avatar.png' : '');
+
+              const hasCover = (p.coverUrl && !p.coverUrl.includes('photo-1541872703-74c5e44368f9') && !p.coverUrl.includes('photo-1579546929518') && !p.coverUrl.includes('photo-1598488035139'))
+                ? p.coverUrl
+                : (existing?.coverUrl && !existing.coverUrl.includes('photo-1541872703-74c5e44368f9') && !existing.coverUrl.includes('photo-1579546929518') && !existing.coverUrl.includes('photo-1598488035139') ? existing.coverUrl : null);
+              const cleanCover = hasCover || (isKashish ? '/people/kashish-cover.jpg' : '/people/anand-sahu-cover.jpg');
 
               map.set(id, {
                 id,

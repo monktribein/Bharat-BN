@@ -293,6 +293,14 @@ export default function PersonDashboardPage() {
     setEmail(found?.email || currSession.email || '');
     setPhone(found?.phone || currSession.phone || '');
 
+    const isKashish =
+      currSession.slug === 'kashish' ||
+      slugKey === 'kashish' ||
+      currSession.handle?.toLowerCase().includes('kashish') ||
+      currSession.email?.toLowerCase().includes('kashish@') ||
+      currSession.name?.trim().toLowerCase().includes('kashish') ||
+      Boolean(found?.name?.toLowerCase().includes('kashish'));
+
     // Website & Bio (Strictly isolate Anand Sahu data from any other user!)
     if (isAnand) {
       setWebsite(found?.website || 'https://anandsahu.com');
@@ -300,8 +308,6 @@ export default function PersonDashboardPage() {
         found?.aboutText ||
           'Anand Sahu publishes commentary, event updates, and photographs related to public life, social work, and political activities. He is known for his nationalist perspective and active engagement in public discourse and youth initiatives.'
       );
-      setAvatarUrl(found?.avatarUrl || currSession.avatarUrl || '/people/anand-sahu-avatar.jpg');
-      setCoverUrl(found?.coverUrl || currSession.coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80');
       setSocialYoutube(found?.socialLinks?.youtube || 'https://youtube.com/@anandsahu');
       setSocialInstagram(found?.socialLinks?.instagram || 'https://instagram.com/anandsahuindia');
       setSocialTwitter(found?.socialLinks?.twitter || 'https://twitter.com/anandsahu');
@@ -325,45 +331,49 @@ export default function PersonDashboardPage() {
           : '';
       setAboutText(userAbout);
 
-      const isKashish = slugKey === 'kashish' || Boolean(currSession?.name?.toLowerCase().includes('kashish')) || Boolean(found?.name?.toLowerCase().includes('kashish'));
-
-      const userAvatar = isKashish
-        ? '/people/kashish-avatar.png'
-        : (found?.avatarUrl && !found.avatarUrl.includes('534528741775'))
-        ? found.avatarUrl
-        : (currSession.avatarUrl && !currSession.avatarUrl.includes('534528741775'))
-        ? currSession.avatarUrl
-        : (slugKey && peopleDatabase[slugKey]?.avatarUrl)
-        ? peopleDatabase[slugKey].avatarUrl
-        : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80';
-      setAvatarUrl(userAvatar);
-
-      const userCover = isKashish
-        ? '/people/kashish-cover.jpg'
-        : (found?.coverUrl && !found.coverUrl.includes('photo-1579546929518') && !found.coverUrl.includes('photo-1598488035139'))
-        ? found.coverUrl
-        : (currSession.coverUrl && !currSession.coverUrl.includes('photo-1579546929518') && !currSession.coverUrl.includes('photo-1598488035139'))
-        ? currSession.coverUrl
-        : (slugKey && peopleDatabase[slugKey]?.coverUrl)
-        ? peopleDatabase[slugKey].coverUrl
-        : 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1600&q=80';
-      setCoverUrl(userCover);
-
       setSocialYoutube(found?.socialLinks?.youtube || '');
       setSocialInstagram(found?.socialLinks?.instagram || '');
       setSocialTwitter(found?.socialLinks?.twitter || '');
       setSocialFacebook(found?.socialLinks?.facebook || '');
       setSocialLinkedin(found?.socialLinks?.linkedin || '');
+    }
 
-      if (currSession.website?.includes('anandsahu.com') || currSession.aboutText?.includes('Anand Sahu')) {
-        const cleanedSession = {
-          ...currSession,
-          website: userWebsite,
-          aboutText: userAbout,
-          avatarUrl: userAvatar,
-        };
-        localStorage.setItem('bharatbn_owner_session', JSON.stringify(cleanedSession));
-      }
+    // Resolve Avatar (Respect custom uploads, data URLs, and authentic profile assets)
+    const rawAvatar = currSession.avatarUrl || found?.avatarUrl;
+    let resolvedAvatar = '';
+    if (rawAvatar && (rawAvatar.startsWith('data:') || rawAvatar.startsWith('blob:') || !rawAvatar.includes('534528741775'))) {
+      resolvedAvatar = rawAvatar;
+    } else if (isAnand) {
+      resolvedAvatar = '/people/anand-sahu-avatar.jpg';
+    } else if (isKashish) {
+      resolvedAvatar = '/people/kashish-avatar.png';
+    } else {
+      resolvedAvatar = rawAvatar || (slugKey && peopleDatabase[slugKey]?.avatarUrl) || '';
+    }
+    setAvatarUrl(resolvedAvatar);
+
+    // Resolve Cover (Respect custom uploads, data URLs, and authentic profile assets - NEVER Obama photo)
+    const rawCover = currSession.coverUrl || found?.coverUrl;
+    let resolvedCover = '';
+    if (rawCover && (rawCover.startsWith('data:') || rawCover.startsWith('blob:') || (!rawCover.includes('photo-1541872703-74c5e44368f9') && !rawCover.includes('photo-1579546929518') && !rawCover.includes('photo-1598488035139')))) {
+      resolvedCover = rawCover;
+    } else if (isAnand) {
+      resolvedCover = '/people/anand-sahu-cover.jpg';
+    } else if (isKashish) {
+      resolvedCover = '/people/kashish-cover.jpg';
+    } else {
+      resolvedCover = '/people/anand-sahu-cover.jpg';
+    }
+    setCoverUrl(resolvedCover);
+
+    // Heal localStorage to prevent stale Obama photo recurrence
+    if (currSession.coverUrl?.includes('photo-1541872703-74c5e44368f9') || currSession.avatarUrl?.includes('534528741775')) {
+      const healedSession = {
+        ...currSession,
+        coverUrl: resolvedCover,
+        avatarUrl: resolvedAvatar,
+      };
+      localStorage.setItem('bharatbn_owner_session', JSON.stringify(healedSession));
     }
 
     // 2. Education List
@@ -485,6 +495,27 @@ export default function PersonDashboardPage() {
       } catch {
         setSession(null);
       }
+
+      // Also hydrate from central sync cache if present
+      fetch('/api/sync')
+        .then((r) => r.json())
+        .then((syncData) => {
+          if (syncData?.people && typeof syncData.people === 'object') {
+            const stored = localStorage.getItem('bharatbn_owner_session');
+            const sess = stored ? JSON.parse(stored) : null;
+            const curSlug = (sess?.slug || slug || 'kashish').toLowerCase().trim();
+            const remote = syncData.people[curSlug] || Object.values(syncData.people).find((p: any) => (p.slug && p.slug.toLowerCase() === curSlug) || (p.name && p.name.toLowerCase().includes(curSlug))) as any;
+            if (remote) {
+              if (remote.avatarUrl && remote.avatarUrl.startsWith('data:')) {
+                setAvatarUrl((prev) => (prev?.startsWith('data:') ? prev : remote.avatarUrl));
+              }
+              if (remote.coverUrl && remote.coverUrl.startsWith('data:')) {
+                setCoverUrl((prev) => (prev?.startsWith('data:') ? prev : remote.coverUrl));
+              }
+            }
+          }
+        })
+        .catch(() => {});
     };
 
     const syncMetrics = () => {
@@ -574,17 +605,40 @@ export default function PersonDashboardPage() {
         try {
           const stored = localStorage.getItem('bharatbn_people_store');
           let people = stored ? JSON.parse(stored) : [];
-          const idx = people.findIndex((p: any) => p.slug === slug || p.id === session?.personId);
+          const curSlug = (session?.slug || slug || '').toLowerCase().trim();
+          const curName = (session?.name || name || '').toLowerCase().trim();
+          const curId = (session?.personId || '').toLowerCase().trim();
+
+          const idx = people.findIndex((p: any) => {
+            const ps = (p.slug || '').toLowerCase().trim();
+            const pn = (p.name || '').toLowerCase().trim();
+            const pi = (p.id || p.personId || '').toLowerCase().trim();
+            return (curSlug && ps === curSlug) || (curName && pn === curName) || (curId && pi === curId);
+          });
           if (idx !== -1) {
             people[idx].coverUrl = dataUrl;
+          } else {
+            people.unshift({ ...(session || {}), coverUrl: dataUrl });
           }
           localStorage.setItem('bharatbn_people_store', JSON.stringify(people));
 
           if (session) {
             const updated = { ...session, coverUrl: dataUrl };
+            setSession(updated);
             localStorage.setItem('bharatbn_owner_session', JSON.stringify(updated));
             window.dispatchEvent(new Event('bharatbn_auth_changed'));
           }
+
+          try {
+            const viewed = sessionStorage.getItem('bharatbn_viewed_person');
+            if (viewed) {
+              const pv = JSON.parse(viewed);
+              sessionStorage.setItem('bharatbn_viewed_person', JSON.stringify({ ...pv, coverUrl: dataUrl }));
+            }
+          } catch {}
+
+          setSaveToast('Cover banner updated successfully!');
+          setTimeout(() => setSaveToast(null), 3000);
 
           // Real-time cross-port sync
           broadcastAssetUpdate({
@@ -618,17 +672,40 @@ export default function PersonDashboardPage() {
         try {
           const stored = localStorage.getItem('bharatbn_people_store');
           let people = stored ? JSON.parse(stored) : [];
-          const idx = people.findIndex((p: any) => p.slug === slug || p.id === session?.personId);
+          const curSlug = (session?.slug || slug || '').toLowerCase().trim();
+          const curName = (session?.name || name || '').toLowerCase().trim();
+          const curId = (session?.personId || '').toLowerCase().trim();
+
+          const idx = people.findIndex((p: any) => {
+            const ps = (p.slug || '').toLowerCase().trim();
+            const pn = (p.name || '').toLowerCase().trim();
+            const pi = (p.id || p.personId || '').toLowerCase().trim();
+            return (curSlug && ps === curSlug) || (curName && pn === curName) || (curId && pi === curId);
+          });
           if (idx !== -1) {
             people[idx].avatarUrl = dataUrl;
+          } else {
+            people.unshift({ ...(session || {}), avatarUrl: dataUrl });
           }
           localStorage.setItem('bharatbn_people_store', JSON.stringify(people));
 
           if (session) {
             const updated = { ...session, avatarUrl: dataUrl };
+            setSession(updated);
             localStorage.setItem('bharatbn_owner_session', JSON.stringify(updated));
             window.dispatchEvent(new Event('bharatbn_auth_changed'));
           }
+
+          try {
+            const viewed = sessionStorage.getItem('bharatbn_viewed_person');
+            if (viewed) {
+              const pv = JSON.parse(viewed);
+              sessionStorage.setItem('bharatbn_viewed_person', JSON.stringify({ ...pv, avatarUrl: dataUrl }));
+            }
+          } catch {}
+
+          setSaveToast('Profile photo / avatar updated successfully!');
+          setTimeout(() => setSaveToast(null), 3000);
 
           // Real-time cross-port sync
           broadcastAssetUpdate({
@@ -1429,11 +1506,11 @@ export default function PersonDashboardPage() {
       <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden space-y-4">
         <div className="relative h-64 sm:h-72 lg:h-80 w-full bg-slate-900 group overflow-hidden">
           <img
-            src={coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80'}
+            src={coverUrl || (name?.toLowerCase().includes('kashish') || slug === 'kashish' ? '/people/kashish-cover.jpg' : '/people/anand-sahu-cover.jpg')}
             alt="Personal Cover Banner"
             onError={(e) => {
               e.currentTarget.onerror = null;
-              e.currentTarget.src = 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80';
+              e.currentTarget.src = name?.toLowerCase().includes('kashish') || slug === 'kashish' ? '/people/kashish-cover.jpg' : '/people/anand-sahu-cover.jpg';
             }}
             className="w-full h-full object-cover object-center transition duration-500 group-hover:scale-102"
           />
@@ -1459,36 +1536,51 @@ export default function PersonDashboardPage() {
           {/* Bottom-Left: Personal Identity Overlay */}
           <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 right-4 sm:right-6 z-20 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 text-center sm:text-left">
-              {/* Profile Avatar with white ring (Fallback to initial badge if no image) */}
-              <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white border-3 sm:border-4 border-white shadow-2xl p-0.5 flex-shrink-0 flex items-center justify-center group/logo overflow-hidden">
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt={name || 'Profile'}
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      const parent = e.currentTarget.parentElement;
-                      if (parent) {
-                        const fb = parent.querySelector('.dash-avatar-fallback');
-                        if (fb) (fb as HTMLElement).style.display = 'flex';
-                      }
-                    }}
-                    className="w-full h-full object-cover rounded-full"
-                  />
-                ) : null}
-                <div
-                  className={`w-full h-full bg-gradient-to-tr from-[#07213A] to-[#F95700] text-white font-black text-2xl sm:text-3xl flex items-center justify-center rounded-full shadow-inner dash-avatar-fallback ${
-                    avatarUrl ? 'hidden' : 'flex'
-                  }`}
-                >
-                  {(name || 'U').slice(0, 1).toUpperCase()}
+              {/* Profile Avatar with white ring + permanent camera edit badge */}
+              <div className="relative flex-shrink-0">
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white border-3 sm:border-4 border-white shadow-2xl p-0.5 flex items-center justify-center group/logo overflow-hidden">
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt={name || 'Profile'}
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        const parent = e.currentTarget.parentElement;
+                        if (parent) {
+                          const fb = parent.querySelector('.dash-avatar-fallback');
+                          if (fb) (fb as HTMLElement).style.display = 'flex';
+                        }
+                      }}
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : null}
+                  <div
+                    className={`w-full h-full bg-gradient-to-tr from-[#07213A] to-[#F95700] text-white font-black text-2xl sm:text-3xl flex items-center justify-center rounded-full shadow-inner dash-avatar-fallback ${
+                      avatarUrl ? 'hidden' : 'flex'
+                    }`}
+                  >
+                    {(name || 'U').slice(0, 1).toUpperCase()}
+                  </div>
+                  <label
+                    className="absolute inset-0 bg-slate-950/75 text-white text-[10px] font-bold flex flex-col items-center justify-center opacity-0 group-hover/logo:opacity-100 transition cursor-pointer rounded-full"
+                    title="Upload Profile Photo / Logo from Device"
+                  >
+                    <Camera className="w-4 h-4 mb-0.5" />
+                    <span>Upload</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePersonAvatarUpload}
+                      className="hidden"
+                    />
+                  </label>
                 </div>
+                {/* Visible Camera Edit Badge Button */}
                 <label
-                  className="absolute inset-0 bg-slate-950/75 text-white text-[10px] font-bold flex flex-col items-center justify-center opacity-0 group-hover/logo:opacity-100 transition cursor-pointer rounded-full"
-                  title="Upload Profile Photo from Device"
+                  className="absolute bottom-0 right-0 z-30 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#F95700] hover:bg-[#d94a00] text-white shadow-lg border-2 border-white flex items-center justify-center transition cursor-pointer"
+                  title="Upload Logo / Profile Photo"
                 >
-                  <Camera className="w-4 h-4 mb-0.5" />
-                  <span>Upload</span>
+                  <Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
                   <input
                     type="file"
                     accept="image/*"
@@ -1749,6 +1841,65 @@ export default function PersonDashboardPage() {
                   placeholder="e.g. AI Innovator / Public Figure"
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:border-[#F95700]"
                 />
+              </div>
+            </div>
+
+            {/* Profile Avatar & Cover Banner Controls */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-orange-50/50 border border-orange-200/60">
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-800">Profile Photo / Logo Avatar</label>
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 rounded-full bg-white border-2 border-slate-200 shadow-sm overflow-hidden flex-shrink-0 flex items-center justify-center">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="Preview" className="w-full h-full object-cover rounded-full" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-tr from-[#07213A] to-[#F95700] text-white font-bold flex items-center justify-center text-lg">
+                        {(name || 'U').slice(0, 1).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-1.5">
+                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#07213A] hover:bg-[#0C2D4E] text-white text-xs font-bold transition shadow-xs cursor-pointer">
+                      <Camera className="w-3.5 h-3.5 text-[#F95700]" />
+                      <span>Upload Avatar</span>
+                      <input type="file" accept="image/*" onChange={handlePersonAvatarUpload} className="hidden" />
+                    </label>
+                    <input
+                      type="text"
+                      value={avatarUrl}
+                      onChange={(e) => setAvatarUrl(e.target.value)}
+                      placeholder="Or paste avatar URL"
+                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-700 focus:outline-none focus:border-[#F95700]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-800">Cover Banner</label>
+                <div className="flex items-center gap-3">
+                  <div className="w-24 h-14 rounded-xl bg-slate-800 border-2 border-slate-200 shadow-sm overflow-hidden flex-shrink-0">
+                    <img
+                      src={coverUrl || (name?.toLowerCase().includes('kashish') || slug === 'kashish' ? '/people/kashish-cover.jpg' : '/people/anand-sahu-cover.jpg')}
+                      alt="Banner Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 space-y-1.5">
+                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#07213A] hover:bg-[#0C2D4E] text-white text-xs font-bold transition shadow-xs cursor-pointer">
+                      <Camera className="w-3.5 h-3.5 text-[#F95700]" />
+                      <span>Upload Banner</span>
+                      <input type="file" accept="image/*" onChange={handlePersonCoverUpload} className="hidden" />
+                    </label>
+                    <input
+                      type="text"
+                      value={coverUrl}
+                      onChange={(e) => setCoverUrl(e.target.value)}
+                      placeholder="Or paste banner URL"
+                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-700 focus:outline-none focus:border-[#F95700]"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 

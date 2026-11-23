@@ -200,7 +200,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
           return;
         }
 
-        // Auto-heal stale legacy browser localStorage for Kashish
+        // Auto-heal stale legacy browser localStorage (only if cover has Obama/stale photo or broken avatar)
         if (isKashish) {
           try {
             const rawStored = localStorage.getItem('bharatbn_people_store');
@@ -211,17 +211,21 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                 const cleaned = list.map((item: any) => {
                   const s = (item.slug || item.handle?.replace(/^@/, '') || '').toLowerCase();
                   if (s === 'kashish' || item.name?.toLowerCase().includes('kashish')) {
-                    changed = true;
-                    return {
-                      ...item,
-                      coverUrl: '/people/kashish-cover.jpg',
-                      avatarUrl: '/people/kashish-avatar.png',
-                      role: 'Public Figure & Speaker',
-                      badge: 'Public Figure',
-                      location: 'noida',
-                      quote: 'hi',
-                      followersCount: '0',
-                    };
+                    const needsCoverHeal = !item.coverUrl || item.coverUrl.includes('photo-1541872703-74c5e44368f9') || item.coverUrl.includes('photo-1579546929518') || item.coverUrl.includes('photo-1598488035139');
+                    const needsAvatarHeal = !item.avatarUrl || item.avatarUrl.includes('534528741775');
+                    if (needsCoverHeal || needsAvatarHeal || item.followersCount !== '0') {
+                      changed = true;
+                      return {
+                        ...item,
+                        coverUrl: needsCoverHeal ? '/people/kashish-cover.jpg' : item.coverUrl,
+                        avatarUrl: needsAvatarHeal ? '/people/kashish-avatar.png' : item.avatarUrl,
+                        role: item.role || 'Public Figure & Speaker',
+                        badge: item.badge || 'Public Figure',
+                        location: item.location || 'noida',
+                        quote: item.quote || 'hi',
+                        followersCount: '0',
+                      };
+                    }
                   }
                   return item;
                 });
@@ -237,14 +241,22 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
             if (rawSess) {
               const sess = JSON.parse(rawSess);
               if (sess && (sess.slug === 'kashish' || sess.name?.toLowerCase().includes('kashish'))) {
-                sess.coverUrl = '/people/kashish-cover.jpg';
-                sess.avatarUrl = '/people/kashish-avatar.png';
-                sess.role = 'Public Figure & Speaker';
-                sess.badge = 'Public Figure';
-                sess.location = 'noida';
-                sess.quote = 'hi';
-                sess.followersCount = '0';
-                localStorage.setItem('bharatbn_owner_session', JSON.stringify(sess));
+                let sessChanged = false;
+                if (!sess.coverUrl || sess.coverUrl.includes('photo-1541872703-74c5e44368f9') || sess.coverUrl.includes('photo-1579546929518') || sess.coverUrl.includes('photo-1598488035139')) {
+                  sess.coverUrl = '/people/kashish-cover.jpg';
+                  sessChanged = true;
+                }
+                if (!sess.avatarUrl || sess.avatarUrl.includes('534528741775')) {
+                  sess.avatarUrl = '/people/kashish-avatar.png';
+                  sessChanged = true;
+                }
+                if (sess.followersCount !== '0') {
+                  sess.followersCount = '0';
+                  sessChanged = true;
+                }
+                if (sessChanged) {
+                  localStorage.setItem('bharatbn_owner_session', JSON.stringify(sess));
+                }
               }
             }
           } catch {}
@@ -259,9 +271,15 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                 let changed = false;
                 const cleaned = arr.map((item: any) => {
                   if (item.slug === 'anand-sahu' || item.name?.toLowerCase().includes('anand sahu')) {
-                    if (item.avatarUrl !== '/people/anand-sahu-avatar.jpg' || item.coverUrl !== '/people/anand-sahu-cover.jpg') {
+                    const needsCoverHeal = !item.coverUrl || item.coverUrl.includes('photo-1541872703-74c5e44368f9');
+                    const needsAvatarHeal = !item.avatarUrl || item.avatarUrl.includes('534528741775');
+                    if (needsCoverHeal || needsAvatarHeal) {
                       changed = true;
-                      return { ...item, avatarUrl: '/people/anand-sahu-avatar.jpg', coverUrl: '/people/anand-sahu-cover.jpg' };
+                      return {
+                        ...item,
+                        avatarUrl: needsAvatarHeal ? '/people/anand-sahu-avatar.jpg' : item.avatarUrl,
+                        coverUrl: needsCoverHeal ? '/people/anand-sahu-cover.jpg' : item.coverUrl,
+                      };
                     }
                   }
                   return item;
@@ -278,9 +296,16 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
             if (rawSess) {
               const sess = JSON.parse(rawSess);
               if (sess && (sess.slug === 'anand-sahu' || sess.name?.toLowerCase().includes('anand sahu'))) {
-                if (sess.avatarUrl !== '/people/anand-sahu-avatar.jpg' || sess.coverUrl !== '/people/anand-sahu-cover.jpg') {
+                let sessChanged = false;
+                if (!sess.avatarUrl || sess.avatarUrl.includes('534528741775')) {
                   sess.avatarUrl = '/people/anand-sahu-avatar.jpg';
+                  sessChanged = true;
+                }
+                if (!sess.coverUrl || sess.coverUrl.includes('photo-1541872703-74c5e44368f9')) {
                   sess.coverUrl = '/people/anand-sahu-cover.jpg';
+                  sessChanged = true;
+                }
+                if (sessChanged) {
                   localStorage.setItem('bharatbn_owner_session', JSON.stringify(sess));
                 }
               }
@@ -348,11 +373,16 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
               ? customData.avatarUrl
               : prev.avatarUrl;
 
-          const validAvatar = isAnand
-            ? '/people/anand-sahu-avatar.jpg'
-            : isKashish
-            ? '/people/kashish-avatar.png'
-            : (rawAvatar || prev.avatarUrl);
+          let validAvatar = '';
+          if (rawAvatar && (rawAvatar.startsWith('data:') || rawAvatar.startsWith('blob:') || !rawAvatar.includes('534528741775'))) {
+            validAvatar = rawAvatar;
+          } else if (isAnand) {
+            validAvatar = '/people/anand-sahu-avatar.jpg';
+          } else if (isKashish) {
+            validAvatar = '/people/kashish-avatar.png';
+          } else {
+            validAvatar = rawAvatar || prev.avatarUrl;
+          }
 
           // 2. Cover: prioritize dedicated verified covers
           let rawCover =
@@ -366,11 +396,16 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
               ? customData.coverUrl
               : prev.coverUrl;
 
-          const validCover = isAnand
-            ? '/people/anand-sahu-cover.jpg'
-            : isKashish
-            ? '/people/kashish-cover.jpg'
-            : (rawCover && !rawCover.includes('photo-1541872703-74c5e44368f9') ? rawCover : prev.coverUrl || '/people/anand-sahu-cover.jpg');
+          let validCover = '';
+          if (rawCover && (rawCover.startsWith('data:') || rawCover.startsWith('blob:') || (!rawCover.includes('photo-1541872703-74c5e44368f9') && !rawCover.includes('photo-1579546929518') && !rawCover.includes('photo-1598488035139')))) {
+            validCover = rawCover;
+          } else if (isAnand) {
+            validCover = '/people/anand-sahu-cover.jpg';
+          } else if (isKashish) {
+            validCover = '/people/kashish-cover.jpg';
+          } else {
+            validCover = '/people/anand-sahu-cover.jpg';
+          }
 
           // 3. Name, Role, Badge, Location, Quote
           const validName = sessionRecord?.name?.trim() || viewedPerson?.name?.trim() || storeRecord?.name?.trim() || customData.name?.trim() || prev.name;
