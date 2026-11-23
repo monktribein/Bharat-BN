@@ -172,7 +172,7 @@ export default function BusinessLoginModal({
                 ...session,
                 email: inputContact.includes('@') ? inputContact : `${cleanSlug}@bharatbn.com`,
                 phone: !inputContact.includes('@') ? inputContact : '+91 98000 00000',
-                followersCount: '1.2K',
+                followersCount: '0',
               });
               localStorage.setItem('bharatbn_people_store', JSON.stringify(currentPeople));
               window.dispatchEvent(new Event('bharatbn_people_updated'));

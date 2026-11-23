@@ -755,7 +755,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
   const formattedFollowers = formatFollowerCount(followersCount);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-24 text-slate-800">
+    <div className="min-h-screen bg-[#F8FAFC] pb-12 text-slate-800">
       {/* Follow Toast Notification */}
       {followToast && (
         <div className="fixed top-24 right-6 z-50 bg-[#07213A] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-xs sm:text-sm font-bold border border-slate-700 animate-in fade-in slide-in-from-top-4 duration-300">
@@ -2009,76 +2009,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
       </div>
 
       {/* ========================================================================= */}
-      {/* 4. BOTTOM FLOATING ACTION BAR (Exact Image Reference)                     */}
-      {/* ========================================================================= */}
-      <div className="fixed bottom-0 inset-x-0 z-40 bg-[#07213A] text-white border-t border-slate-700/80 shadow-2xl py-3 px-4 sm:px-8">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
-          {/* People's Response + Like & Dislike */}
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider hidden sm:inline">
-              People&apos;s Response:
-            </span>
-
-            {/* Like */}
-            <button
-              type="button"
-              onClick={handleToggleLike}
-              className={`px-3.5 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs ${hasLiked
-                ? 'bg-blue-600 text-white'
-                : 'bg-white/10 hover:bg-white/20 text-white'
-                }`}
-            >
-              <ThumbsUp className="w-3.5 h-3.5" />
-              <span>Like {(likesCount / 1000).toFixed(1)}K</span>
-            </button>
-
-            {/* Dislike */}
-            <button
-              type="button"
-              onClick={handleToggleDislike}
-              className={`px-3.5 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs ${hasDisliked
-                ? 'bg-red-600 text-white'
-                : 'bg-white/10 hover:bg-white/20 text-white'
-                }`}
-            >
-              <ThumbsDown className="w-3.5 h-3.5" />
-              <span>Dislike {dislikesCount}</span>
-            </button>
-          </div>
-
-          {/* Share, Save & Follower Proof */}
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleCopyShare}
-              className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
-            >
-              <Share2 className="w-3.5 h-3.5" />
-              <span>Share Profile</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setIsSaved(!isSaved)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${isSaved ? 'bg-amber-500 text-slate-900' : 'bg-white/10 hover:bg-white/20 text-white'
-                }`}
-            >
-              <Bookmark className="w-3.5 h-3.5" />
-              <span>{isSaved ? 'Saved' : 'Save'}</span>
-            </button>
-
-            <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-400 border-l border-slate-700 pl-3">
-              <Users className="w-3.5 h-3.5 text-[#F95700]" />
-              <span>
-                Followed by <strong>{followersCount}</strong> {followersCount === 1 ? 'member' : 'members'} on BharatBN
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* 5. MODALS (Message, Story & Video)                                        */}
+      {/* 4. MODALS (Message, Story & Video)                                        */}
       {/* ========================================================================= */}
 
       {/* Direct Message Modal */}
