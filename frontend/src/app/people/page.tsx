@@ -315,8 +315,13 @@ export default function PeopleDirectoryPage() {
                 const updated = prevPeople.map((card) => {
                   const remote = syncData.people[card.slug] || Object.values(syncData.people).find((p: any) => p.slug === card.slug || p.name?.toLowerCase() === card.name.toLowerCase()) as any;
                   if (!remote) return card;
-                  const remoteAvatar = remote.avatarUrl && typeof remote.avatarUrl === 'string' && remote.avatarUrl.trim() !== '' && !remote.avatarUrl.includes('534528741775') ? remote.avatarUrl : null;
-                  const remoteCover = remote.coverUrl && typeof remote.coverUrl === 'string' && remote.coverUrl.trim() !== '' && !remote.coverUrl.includes('photo-1541872703-74c5e44368f9') && !remote.coverUrl.includes('photo-1579546929518') && !remote.coverUrl.includes('photo-1598488035139') ? remote.coverUrl : null;
+                  const isAnand = card.slug === 'anand-sahu' || card.slug === 'anand';
+                  let remoteAvatar = remote.avatarUrl && typeof remote.avatarUrl === 'string' && remote.avatarUrl.trim() !== '' && !remote.avatarUrl.includes('534528741775') && !remote.avatarUrl.includes('photo-1541872703') ? remote.avatarUrl : null;
+                  let remoteCover = remote.coverUrl && typeof remote.coverUrl === 'string' && remote.coverUrl.trim() !== '' && !remote.coverUrl.includes('photo-1541872703') && !remote.coverUrl.includes('photo-1579546929518') && !remote.coverUrl.includes('photo-1598488035139') && !remote.coverUrl.includes('photo-1598890777032') ? remote.coverUrl : null;
+                  if (isAnand) {
+                    if (!remoteAvatar || remoteAvatar.includes('unsplash')) remoteAvatar = '/people/anand-sahu-avatar.jpg';
+                    if (!remoteCover || remoteCover.includes('unsplash')) remoteCover = '/people/anand-sahu-cover.jpg';
+                  }
                   return {
                     ...card,
                     avatarUrl: (card.avatarUrl?.startsWith('data:') ? card.avatarUrl : remoteAvatar) || card.avatarUrl,

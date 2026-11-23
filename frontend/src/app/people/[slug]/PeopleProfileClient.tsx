@@ -385,10 +385,12 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
               : prev.avatarUrl;
 
           let validAvatar = '';
-          if (rawAvatar && (rawAvatar.startsWith('data:') || rawAvatar.startsWith('blob:') || !rawAvatar.includes('534528741775'))) {
+          if (isAnand) {
+            validAvatar = (rawAvatar && (rawAvatar.startsWith('data:') || rawAvatar.startsWith('blob:')))
+              ? rawAvatar
+              : '/people/anand-sahu-avatar.jpg';
+          } else if (rawAvatar && (rawAvatar.startsWith('data:') || rawAvatar.startsWith('blob:') || (!rawAvatar.includes('534528741775') && !rawAvatar.includes('photo-1541872703')))) {
             validAvatar = rawAvatar;
-          } else if (isAnand) {
-            validAvatar = '/people/anand-sahu-avatar.jpg';
           } else if (isKashish) {
             validAvatar = '/people/kashish-avatar.png';
           } else {
@@ -408,10 +410,12 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
               : prev.coverUrl;
 
           let validCover = '';
-          if (rawCover && (rawCover.startsWith('data:') || rawCover.startsWith('blob:') || (!rawCover.includes('photo-1541872703-74c5e44368f9') && !rawCover.includes('photo-1579546929518') && !rawCover.includes('photo-1598488035139')))) {
+          if (isAnand) {
+            validCover = (rawCover && (rawCover.startsWith('data:') || rawCover.startsWith('blob:')))
+              ? rawCover
+              : '/people/anand-sahu-cover.jpg';
+          } else if (rawCover && (rawCover.startsWith('data:') || rawCover.startsWith('blob:') || (!rawCover.includes('photo-1541872703') && !rawCover.includes('photo-1579546929518') && !rawCover.includes('photo-1598488035139') && !rawCover.includes('photo-1598890777032')))) {
             validCover = rawCover;
-          } else if (isAnand) {
-            validCover = '/people/anand-sahu-cover.jpg';
           } else if (isKashish) {
             validCover = '/people/kashish-cover.jpg';
           } else {
@@ -615,8 +619,17 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                 ? localSession.quote
                 : ((localStore?.quote !== undefined && localStore?.quote !== '') ? localStore.quote : undefined);
 
-              const rAvatar = customAvatar || (remote.avatarUrl && typeof remote.avatarUrl === 'string' && remote.avatarUrl.trim() !== '' ? remote.avatarUrl : prev.avatarUrl);
-              const rCover = customCover || (remote.coverUrl && typeof remote.coverUrl === 'string' && remote.coverUrl.trim() !== '' ? remote.coverUrl : prev.coverUrl);
+              let rAvatar = customAvatar || (remote.avatarUrl && typeof remote.avatarUrl === 'string' && remote.avatarUrl.trim() !== '' ? remote.avatarUrl : prev.avatarUrl);
+              let rCover = customCover || (remote.coverUrl && typeof remote.coverUrl === 'string' && remote.coverUrl.trim() !== '' ? remote.coverUrl : prev.coverUrl);
+
+              if (cleanTarget === 'anand-sahu' || cleanTarget === 'anand') {
+                if (!customAvatar && (!rAvatar || rAvatar.includes('unsplash') || rAvatar.includes('541872703'))) {
+                  rAvatar = '/people/anand-sahu-avatar.jpg';
+                }
+                if (!customCover && (!rCover || rCover.includes('unsplash') || rCover.includes('598890777') || rCover.includes('541872703'))) {
+                  rCover = '/people/anand-sahu-cover.jpg';
+                }
+              }
               const rName = customName || remote.name || prev.name;
               const rRole = customRole || remote.role || prev.role;
               const rBadge = customBadge || remote.badge || prev.badge;

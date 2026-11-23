@@ -35,8 +35,11 @@ function readStore() {
 
 function writeStore(data: any) {
   try {
-    const storePath = getStorePath();
-    fs.writeFileSync(storePath, JSON.stringify(data, null, 2), 'utf-8');
+    const rootPath = path.resolve(process.cwd(), '..', '.sync_cache.json');
+    const localPath = path.resolve(process.cwd(), '.sync_cache.json');
+    const jsonStr = JSON.stringify(data, null, 2);
+    try { fs.writeFileSync(rootPath, jsonStr, 'utf-8'); } catch {}
+    try { fs.writeFileSync(localPath, jsonStr, 'utf-8'); } catch {}
   } catch (e) {
     console.error('Failed to write sync cache', e);
   }
@@ -69,9 +72,10 @@ export async function POST(req: Request) {
     // 1. Follow / Unfollow Actions
     if (body.action === 'follow' || body.action === 'unfollow') {
       const target = (body.targetSlug || '').toLowerCase().trim();
-      const follower = body.followerId || '@visitor';
-      if (target) {
+      const follower = body.followerId || '';
+      if (target && follower && follower !== '@visitor' && follower !== '@user') {
         let list: string[] = Array.isArray(store.followers[target]) ? store.followers[target] : [];
+        list = list.filter((f: string) => f && f !== '@visitor' && f !== '@user');
         if (body.action === 'follow') {
           if (!list.some((f: string) => f.toLowerCase() === follower.toLowerCase())) {
             list.push(follower);

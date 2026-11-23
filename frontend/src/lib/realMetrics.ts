@@ -338,7 +338,9 @@ export async function syncRealMetricsFromServer(slug: string): Promise<RealMetri
     let hasChanges = false;
     if (data.followers && data.followers[normSlug]) {
       const followerMap = getStoredFollowerMap();
-      followerMap[normSlug] = data.followers[normSlug];
+      const rawList = Array.isArray(data.followers[normSlug]) ? data.followers[normSlug] : [];
+      const cleanList = rawList.filter((f: any) => typeof f === 'string' && f.trim() !== '' && f !== '@visitor' && f !== '@user');
+      followerMap[normSlug] = cleanList;
       localStorage.setItem('bharatbn_real_followers', JSON.stringify(followerMap));
       hasChanges = true;
     }
