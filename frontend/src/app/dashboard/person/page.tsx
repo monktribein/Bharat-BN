@@ -516,11 +516,11 @@ export default function PersonDashboardPage() {
             const curSlug = (sess?.slug || slug || 'kashish').toLowerCase().trim();
             const remote = syncData.people[curSlug] || Object.values(syncData.people).find((p: any) => (p.slug && p.slug.toLowerCase() === curSlug) || (p.name && p.name.toLowerCase().includes(curSlug))) as any;
             if (remote) {
-              if (remote.avatarUrl && remote.avatarUrl.startsWith('data:')) {
-                setAvatarUrl((prev) => (prev?.startsWith('data:') ? prev : remote.avatarUrl));
+              if (!sess?.avatarUrl && remote.avatarUrl && remote.avatarUrl.startsWith('data:')) {
+                setAvatarUrl((prev) => (prev ? prev : remote.avatarUrl));
               }
-              if (remote.coverUrl && remote.coverUrl.startsWith('data:')) {
-                setCoverUrl((prev) => (prev?.startsWith('data:') ? prev : remote.coverUrl));
+              if (!sess?.coverUrl && remote.coverUrl && remote.coverUrl.startsWith('data:')) {
+                setCoverUrl((prev) => (prev ? prev : remote.coverUrl));
               }
             }
           }

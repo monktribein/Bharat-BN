@@ -702,11 +702,20 @@ export default function HomePage() {
                 const nextMap = new Map<string, PersonItem>();
                 prevPeople.forEach((p) => nextMap.set(p.slug, p));
 
+                let localSess: any = null;
+                try {
+                  const s = localStorage.getItem('bharatbn_owner_session');
+                  if (s) localSess = JSON.parse(s);
+                } catch {}
+
                 Object.entries(syncData.people).forEach(([key, remote]: [string, any]) => {
                   const s = key.toLowerCase().trim();
                   if (nextMap.has(s)) {
                     const cur = nextMap.get(s)!;
                     const isAnand = s === 'anand-sahu' || s === 'anand';
+                    const isKashish = s === 'kashish' || s === 'kashish-saxena';
+                    const isCurrentSess = localSess && (localSess.slug?.toLowerCase() === s || (isKashish && (localSess.name?.toLowerCase().includes('kashish') || localSess.slug === 'kashish')));
+
                     let remoteAvatar = remote.avatarUrl && typeof remote.avatarUrl === 'string' && remote.avatarUrl.trim() !== '' && !remote.avatarUrl.includes('534528741775') && !remote.avatarUrl.includes('photo-1541872703') ? remote.avatarUrl : null;
                     let remoteCover = remote.coverUrl && typeof remote.coverUrl === 'string' && remote.coverUrl.trim() !== '' && !remote.coverUrl.includes('photo-1541872703') && !remote.coverUrl.includes('photo-1579546929518') && !remote.coverUrl.includes('photo-1598488035139') && !remote.coverUrl.includes('photo-1598890777032') ? remote.coverUrl : null;
 
@@ -715,15 +724,34 @@ export default function HomePage() {
                       if (!remoteCover || remoteCover.includes('unsplash')) remoteCover = '/people/anand-sahu-cover.jpg';
                     }
 
+                    // User session or local custom upload always takes precedence over remote cache
+                    let finalAvatar = cur.avatarUrl;
+                    if (isCurrentSess && localSess?.avatarUrl && localSess.avatarUrl.trim() !== '') {
+                      finalAvatar = localSess.avatarUrl;
+                    } else if (cur.avatarUrl?.startsWith('data:') || cur.avatarUrl?.startsWith('blob:')) {
+                      finalAvatar = cur.avatarUrl;
+                    } else if (remoteAvatar) {
+                      finalAvatar = remoteAvatar;
+                    }
+
+                    let finalCover = cur.coverUrl;
+                    if (isCurrentSess && localSess?.coverUrl && localSess.coverUrl.trim() !== '') {
+                      finalCover = localSess.coverUrl;
+                    } else if (cur.coverUrl?.startsWith('data:') || cur.coverUrl?.startsWith('blob:')) {
+                      finalCover = cur.coverUrl;
+                    } else if (remoteCover) {
+                      finalCover = remoteCover;
+                    }
+
                     nextMap.set(s, {
                       ...cur,
-                      avatarUrl: remoteAvatar?.startsWith('data:') ? remoteAvatar : (cur.avatarUrl?.startsWith('data:') ? cur.avatarUrl : (remoteAvatar || cur.avatarUrl)),
-                      coverUrl: remoteCover?.startsWith('data:') ? remoteCover : (cur.coverUrl?.startsWith('data:') ? cur.coverUrl : (remoteCover || cur.coverUrl)),
-                      name: remote.name || cur.name,
-                      role: remote.role || cur.role,
-                      badge: remote.badge || cur.badge,
-                      location: remote.location || cur.location,
-                      quote: remote.quote || cur.quote,
+                      avatarUrl: finalAvatar,
+                      coverUrl: finalCover,
+                      name: isCurrentSess ? (localSess.name || cur.name) : (remote.name || cur.name),
+                      role: isCurrentSess ? (localSess.role || cur.role) : (remote.role || cur.role),
+                      badge: isCurrentSess ? (localSess.badge || cur.badge) : (remote.badge || cur.badge),
+                      location: isCurrentSess ? (localSess.location || cur.location) : (remote.location || cur.location),
+                      quote: isCurrentSess ? (localSess.quote !== undefined ? localSess.quote : cur.quote) : (remote.quote || cur.quote),
                     });
                   }
                 });

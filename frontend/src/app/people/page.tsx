@@ -312,20 +312,48 @@ export default function PeopleDirectoryPage() {
           .then((syncData) => {
             if (syncData?.people && typeof syncData.people === 'object') {
               setPeople((prevPeople) => {
+                let localSess: any = null;
+                try {
+                  const s = localStorage.getItem('bharatbn_owner_session');
+                  if (s) localSess = JSON.parse(s);
+                } catch {}
+
                 const updated = prevPeople.map((card) => {
                   const remote = syncData.people[card.slug] || Object.values(syncData.people).find((p: any) => p.slug === card.slug || p.name?.toLowerCase() === card.name.toLowerCase()) as any;
                   if (!remote) return card;
                   const isAnand = card.slug === 'anand-sahu' || card.slug === 'anand';
+                  const isKashish = card.slug === 'kashish' || card.slug === 'kashish-saxena';
+                  const isCurrentSess = localSess && (localSess.slug?.toLowerCase() === card.slug || (isKashish && (localSess.name?.toLowerCase().includes('kashish') || localSess.slug === 'kashish')));
+
                   let remoteAvatar = remote.avatarUrl && typeof remote.avatarUrl === 'string' && remote.avatarUrl.trim() !== '' && !remote.avatarUrl.includes('534528741775') && !remote.avatarUrl.includes('photo-1541872703') ? remote.avatarUrl : null;
                   let remoteCover = remote.coverUrl && typeof remote.coverUrl === 'string' && remote.coverUrl.trim() !== '' && !remote.coverUrl.includes('photo-1541872703') && !remote.coverUrl.includes('photo-1579546929518') && !remote.coverUrl.includes('photo-1598488035139') && !remote.coverUrl.includes('photo-1598890777032') ? remote.coverUrl : null;
                   if (isAnand) {
                     if (!remoteAvatar || remoteAvatar.includes('unsplash')) remoteAvatar = '/people/anand-sahu-avatar.jpg';
                     if (!remoteCover || remoteCover.includes('unsplash')) remoteCover = '/people/anand-sahu-cover.jpg';
                   }
+
+                  let finalAvatar = card.avatarUrl;
+                  if (isCurrentSess && localSess?.avatarUrl && localSess.avatarUrl.trim() !== '') {
+                    finalAvatar = localSess.avatarUrl;
+                  } else if (card.avatarUrl?.startsWith('data:') || card.avatarUrl?.startsWith('blob:')) {
+                    finalAvatar = card.avatarUrl;
+                  } else if (remoteAvatar) {
+                    finalAvatar = remoteAvatar;
+                  }
+
+                  let finalCover = card.coverUrl;
+                  if (isCurrentSess && localSess?.coverUrl && localSess.coverUrl.trim() !== '') {
+                    finalCover = localSess.coverUrl;
+                  } else if (card.coverUrl?.startsWith('data:') || card.coverUrl?.startsWith('blob:')) {
+                    finalCover = card.coverUrl;
+                  } else if (remoteCover) {
+                    finalCover = remoteCover;
+                  }
+
                   return {
                     ...card,
-                    avatarUrl: (card.avatarUrl?.startsWith('data:') ? card.avatarUrl : remoteAvatar) || card.avatarUrl,
-                    coverUrl: (card.coverUrl?.startsWith('data:') ? card.coverUrl : remoteCover) || card.coverUrl,
+                    avatarUrl: finalAvatar,
+                    coverUrl: finalCover,
                   };
                 });
                 return updated;
