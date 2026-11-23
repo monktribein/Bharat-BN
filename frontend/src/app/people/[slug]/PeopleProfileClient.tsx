@@ -74,6 +74,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
   // Follow & Real Metrics state
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState<number>(0);
+  const [followingCount, setFollowingCount] = useState<number>(0);
   const [viewsCount, setViewsCount] = useState<number | string>(0);
   const [followToast, setFollowToast] = useState('');
   const [ownerSession, setOwnerSession] = useState<any>(null);
@@ -664,6 +665,12 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
     // 2. Load immediate local real metrics
     const initialMetrics = getRealMetrics(curSlug);
     setFollowersCount(initialMetrics.followersCount);
+    setFollowingCount(initialMetrics.followingCount);
+    setPerson((prev) => ({
+      ...prev,
+      followersCount: initialMetrics.followersCount,
+      followingCount: initialMetrics.followingCount,
+    }));
     if (initialMetrics.viewsCount) {
       setViewsCount(initialMetrics.viewsCount);
     }
@@ -683,6 +690,14 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
     syncRealMetricsFromServer(curSlug).then((remoteMetrics) => {
       if (remoteMetrics) {
         setFollowersCount(remoteMetrics.followersCount);
+        if (remoteMetrics.followingCount !== undefined) {
+          setFollowingCount(remoteMetrics.followingCount);
+        }
+        setPerson((prev) => ({
+          ...prev,
+          followersCount: remoteMetrics.followersCount,
+          ...(remoteMetrics.followingCount !== undefined ? { followingCount: remoteMetrics.followingCount } : {}),
+        }));
         if (remoteMetrics.viewsCount) {
           setViewsCount(remoteMetrics.viewsCount);
         }
@@ -693,7 +708,12 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
     const onMetricsUpdated = () => {
       const updated = getRealMetrics(curSlug);
       setFollowersCount(updated.followersCount);
-      setPerson((prev) => ({ ...prev, followersCount: updated.followersCount }));
+      setFollowingCount(updated.followingCount);
+      setPerson((prev) => ({
+        ...prev,
+        followersCount: updated.followersCount,
+        followingCount: updated.followingCount,
+      }));
       if (updated.viewsCount) setViewsCount(updated.viewsCount);
       const active = Boolean(localStorage.getItem('bharatbn_owner_session'));
       const followingList = getStoredFollowingList();
@@ -743,7 +763,12 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
       const nextFollowingState = !isFollowing;
       setIsFollowing(nextFollowingState);
       setFollowersCount(updatedMetrics.followersCount);
-      setPerson((prev) => ({ ...prev, followersCount: updatedMetrics.followersCount }));
+      setFollowingCount(updatedMetrics.followingCount);
+      setPerson((prev) => ({
+        ...prev,
+        followersCount: updatedMetrics.followersCount,
+        followingCount: updatedMetrics.followingCount,
+      }));
       if (nextFollowingState) {
         setFollowToast(`Following ${person.name}! You will receive verified updates.`);
       } else {
@@ -1084,7 +1109,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                 <Users className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform" />
                 <div>
                   <span className="font-extrabold text-sm sm:text-base text-slate-900 group-hover:text-blue-600 transition-colors">
-                    {person.followingCount}
+                    {followingCount}
                   </span>
                   <span className="text-xs text-slate-500 ml-1.5 font-medium group-hover:text-slate-700">Following</span>
                 </div>
@@ -2409,11 +2434,18 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
         initialTab={followModalTab}
         onRequireLogin={() => setShowLoginPrompt(true)}
         onFollowToggle={(tSlug, isNowFollowing) => {
-          if (tSlug === (person.slug || targetSlug)) {
+          const currentViewingSlug = (person.slug || targetSlug || '').toLowerCase().trim();
+          if (tSlug === currentViewingSlug) {
             setIsFollowing(isNowFollowing);
-            const m = getRealMetrics(tSlug);
-            setFollowersCount(m.followersCount);
           }
+          const m = getRealMetrics(currentViewingSlug);
+          setFollowersCount(m.followersCount);
+          setFollowingCount(m.followingCount);
+          setPerson((prev) => ({
+            ...prev,
+            followersCount: m.followersCount,
+            followingCount: m.followingCount,
+          }));
         }}
       />
     </div>

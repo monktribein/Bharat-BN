@@ -32,6 +32,72 @@ export function getStoredFollowingList(): string[] {
   }
 }
 
+export function getStoredFollowingMap(): Record<string, string[]> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem('bharatbn_real_following');
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function getProfileFollowingList(slug: string): string[] {
+  if (typeof window === 'undefined') return [];
+  const normSlug = (slug || '').toLowerCase().trim();
+  if (!normSlug) return [];
+
+  // 1. If currently logged in user matches this slug, check their active following list
+  try {
+    const sessRaw = localStorage.getItem('bharatbn_owner_session');
+    if (sessRaw) {
+      const sess = JSON.parse(sessRaw);
+      const sessSlug = (sess.slug || sess.handle?.replace(/^@/, '') || '').toLowerCase().trim();
+      if (sessSlug === normSlug) {
+        const myFollows = getStoredFollowingList();
+        if (Array.isArray(myFollows)) return myFollows.filter((s) => s && s.toLowerCase() !== normSlug);
+      }
+    }
+  } catch {}
+
+  // 2. Check explicit profile following map
+  try {
+    const followingMap = getStoredFollowingMap();
+    if (Array.isArray(followingMap[normSlug])) {
+      return followingMap[normSlug].filter((s) => s && s.toLowerCase() !== normSlug);
+    }
+  } catch {}
+
+  // 3. Check individual key if set
+  try {
+    const raw = localStorage.getItem(`bharatbn_profile_following_${normSlug}`);
+    if (raw) {
+      const list = JSON.parse(raw);
+      if (Array.isArray(list)) return list.filter((s) => s && s.toLowerCase() !== normSlug);
+    }
+  } catch {}
+
+  // 4. Derive from followerMap: find all target profiles where normSlug is in their followers
+  try {
+    const followerMap = getStoredFollowerMap();
+    const derived: string[] = [];
+    for (const [target, followers] of Object.entries(followerMap)) {
+      if (Array.isArray(followers)) {
+        const hasFollower = followers.some((f) => {
+          const clean = (f || '').replace(/^@/, '').toLowerCase().trim();
+          return clean === normSlug;
+        });
+        if (hasFollower && !derived.includes(target) && target !== normSlug) {
+          derived.push(target);
+        }
+      }
+    }
+    if (derived.length > 0) return derived;
+  } catch {}
+
+  return [];
+}
+
 export function getStoredViewsMap(): Record<string, number> {
   if (typeof window === 'undefined') return {};
   try {
@@ -122,12 +188,13 @@ export function getRealMetrics(slug: string): RealMetrics {
   }
 
   const realCount = followers.length;
+  const profileFollowing = getProfileFollowingList(normSlug);
 
   return {
     followersCount: realCount,
     followers,
-    followingCount: myFollowing.length,
-    following: myFollowing,
+    followingCount: profileFollowing.length,
+    following: profileFollowing,
     viewsCount: viewsMap[normSlug] || 0,
     likesCount: likesMap[normSlug] || 0,
   };
@@ -167,6 +234,17 @@ export async function toggleRealFollow(targetSlug: string, isCurrentlyFollowing:
     }
   }
   localStorage.setItem('bharatbn_people_follows', JSON.stringify(myFollowing));
+
+  // Update profile following map for current user
+  const userSlug = currentUser.replace(/^@/, '').toLowerCase().trim();
+  if (userSlug && userSlug !== 'visitor') {
+    try {
+      const followingMap = getStoredFollowingMap();
+      followingMap[userSlug] = myFollowing;
+      localStorage.setItem('bharatbn_real_following', JSON.stringify(followingMap));
+      localStorage.setItem(`bharatbn_profile_following_${userSlug}`, JSON.stringify(myFollowing));
+    } catch {}
+  }
 
   // 3. Update in bharatbn_people_store so profile object holds real count
   try {

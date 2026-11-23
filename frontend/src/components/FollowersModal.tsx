@@ -7,6 +7,7 @@ import { X, Search, Check, Users, Compass, UserPlus, UserCheck, ShieldCheck } fr
 import {
   getStoredFollowerMap,
   getStoredFollowingList,
+  getProfileFollowingList,
   toggleRealFollow,
   getCurrentUserHandle,
 } from '@/lib/realMetrics';
@@ -124,38 +125,6 @@ const CURATED_PROFILES: Record<string, FollowProfileItem> = {
     avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
     isVerified: true,
   },
-};
-
-// Initial default following lists for primary profiles
-const DEFAULT_FOLLOWING_LISTS: Record<string, string[]> = {
-  kashish: [
-    'anand-sahu',
-    'ai',
-    'dr-rajesh-sharma',
-    'priya-menon',
-    'vikram-singhania',
-    'adv-rajeshwar-sen',
-    'shreya-kapoor',
-    'arjun-mehta',
-  ],
-  'anand-sahu': [
-    'ai',
-    'dr-rajesh-sharma',
-    'priya-menon',
-    'vikram-singhania',
-    'adv-rajeshwar-sen',
-    'shreya-kapoor',
-    'arjun-mehta',
-    'deepika-iyer',
-    'kashish',
-  ],
-  ai: [
-    'anand-sahu',
-    'kashish',
-    'dr-rajesh-sharma',
-    'priya-menon',
-    'vikram-singhania',
-  ],
 };
 
 function resolveProfileItem(rawIdentifier: string): FollowProfileItem {
@@ -313,35 +282,10 @@ export default function FollowersModal({
     const resolvedFollowers = cleanFollowers.map(resolveProfileItem);
     setFollowers(resolvedFollowers);
 
-    // 4. Target profile's Following
-    let targetFollowingSlugs: string[] = [];
-
-    // If target profile is the logged-in user, use active following list
-    const isOwnerViewingOwn = sess && (sess.slug === normTargetSlug || sess.handle?.replace(/^@/, '') === normTargetSlug);
-    if (isOwnerViewingOwn) {
-      targetFollowingSlugs = myFollows;
-      if (targetFollowingSlugs.length === 0 && DEFAULT_FOLLOWING_LISTS[normTargetSlug]) {
-        targetFollowingSlugs = DEFAULT_FOLLOWING_LISTS[normTargetSlug];
-      }
-    } else {
-      // Check custom storage for target
-      try {
-        const stored = localStorage.getItem(`bharatbn_profile_following_${normTargetSlug}`);
-        if (stored) {
-          targetFollowingSlugs = JSON.parse(stored);
-        } else if (DEFAULT_FOLLOWING_LISTS[normTargetSlug]) {
-          targetFollowingSlugs = DEFAULT_FOLLOWING_LISTS[normTargetSlug];
-        } else {
-          // Default to high-profile figures
-          targetFollowingSlugs = ['anand-sahu', 'ai', 'dr-rajesh-sharma', 'priya-menon'];
-        }
-      } catch {
-        targetFollowingSlugs = DEFAULT_FOLLOWING_LISTS[normTargetSlug] || [];
-      }
-    }
-
-    // Filter out target themselves if accidentally in following
-    targetFollowingSlugs = targetFollowingSlugs.filter((s) => s.toLowerCase() !== normTargetSlug);
+    // 4. Target profile's Following (100% Real - No hardcoded/fake numbers)
+    const targetFollowingSlugs = getProfileFollowingList(normTargetSlug).filter(
+      (s) => s.toLowerCase() !== normTargetSlug
+    );
     const resolvedFollowing = targetFollowingSlugs.map(resolveProfileItem);
     setFollowing(resolvedFollowing);
   };

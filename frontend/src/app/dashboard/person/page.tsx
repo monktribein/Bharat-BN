@@ -196,7 +196,7 @@ export default function PersonDashboardPage() {
 
   // 11. Audience & Creator Metrics
   const [followersCount, setFollowersCount] = useState('0');
-  const [followingCount, setFollowingCount] = useState('12');
+  const [followingCount, setFollowingCount] = useState('0');
   const [viewsCount, setViewsCount] = useState('0');
   const [engagementsCount, setEngagementsCount] = useState('0');
   const [storiesCount, setStoriesCount] = useState('0');
@@ -1142,7 +1142,7 @@ export default function PersonDashboardPage() {
         updates: currUpdates,
         communityStoriesList: currStories,
         communityStoriesCount: currStories.length,
-        followingCount: Number(updatedSession.followingCount) || 12,
+        followingCount: Number(updatedSession.followingCount) || 0,
         status: session?.status || 'pending',
         isVerified: session?.isVerified || false,
       };
@@ -3553,10 +3553,9 @@ export default function PersonDashboardPage() {
         initialTab={followModalTab}
         onFollowToggle={(tSlug, isNowFollowing) => {
           const currentSlug = session?.slug || slug || 'kashish';
-          if (tSlug === currentSlug) {
-            const m = getRealMetrics(tSlug);
-            setFollowersCount(String(m.followersCount));
-          }
+          const m = getRealMetrics(currentSlug);
+          setFollowersCount(String(m.followersCount));
+          setFollowingCount(String(m.followingCount));
         }}
       />
     </div>
