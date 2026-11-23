@@ -12,6 +12,8 @@ import {
   CheckCircle2,
   AlertCircle,
   ArrowRight,
+  ShieldAlert,
+  Sparkles,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -31,7 +33,7 @@ export default function BusinessLoginModal({
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
-  const [accountType, setAccountType] = useState<'business' | 'person'>('business');
+  const [accountType, setAccountType] = useState<'business' | 'person' | 'admin'>('business');
 
   // Simple Form States
   const [name, setName] = useState('');
@@ -80,6 +82,45 @@ export default function BusinessLoginModal({
 
     setTimeout(() => {
       try {
+        if (accountType === 'admin') {
+          // ================= ADMIN CONSOLE SESSION =================
+          const validUsers = ['admin@bharatbn.com', 'admin', 'superadmin@bharatbn.com', 'superadmin'];
+          const validPasswords = ['admin123', 'bharatbn@admin2026', 'admin@2026', 'admin'];
+
+          const isValidUser = validUsers.includes(inputContact.toLowerCase());
+          const isValidPass = validPasswords.includes(inputPass.toLowerCase());
+
+          if (isValidUser && isValidPass) {
+            const adminSession = {
+              email: inputContact.includes('@') ? inputContact : 'admin@bharatbn.com',
+              name: inputContact.toLowerCase().includes('super') ? 'Superadmin HQ' : 'Operator HQ',
+              role: 'superadmin',
+              token: `bbn_adm_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 8)}`,
+              loginTime: Date.now(),
+            };
+
+            try {
+              localStorage.setItem('bharatbn_admin_session', JSON.stringify(adminSession));
+              window.dispatchEvent(new Event('bharatbn_admin_auth_changed'));
+            } catch {}
+
+            setLoginSuccess(true);
+            setIsSubmitting(false);
+            if (onLoginSuccess) onLoginSuccess(adminSession);
+
+            setTimeout(() => {
+              onClose();
+              setLoginSuccess(false);
+              router.push('/admin');
+            }, 600);
+            return;
+          } else {
+            setIsSubmitting(false);
+            setErrorMessage('Invalid admin credentials. Use admin@bharatbn.com / admin123');
+            return;
+          }
+        }
+
         const cleanName =
           name.trim() ||
           inputContact.split('@')[0].replace(/[^a-z0-9]/gi, ' ').trim() ||
@@ -300,7 +341,11 @@ export default function BusinessLoginModal({
               {mode === 'login' ? 'Log In' : 'Sign Up'}
             </h2>
             <p className="text-xs text-slate-500">
-              {accountType === 'business' ? 'Business Account' : 'Personal Profile'}
+              {accountType === 'business'
+                ? 'Business Account'
+                : accountType === 'person'
+                ? 'Personal Profile'
+                : 'Admin Console & Governance'}
             </p>
           </div>
           <button
@@ -312,17 +357,17 @@ export default function BusinessLoginModal({
           </button>
         </div>
 
-        {/* Simple Role Toggle (Business vs Personal) */}
+        {/* Role Toggle (Business vs Personal vs Admin) */}
         {!loginSuccess && (
           <div className="p-3 bg-slate-50 border-b border-slate-100">
-            <div className="grid grid-cols-2 p-1 bg-white rounded-xl border border-slate-200 gap-1 text-xs font-semibold">
+            <div className="grid grid-cols-3 p-1 bg-white rounded-xl border border-slate-200 gap-1 text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => {
                   setAccountType('business');
                   setErrorMessage(null);
                 }}
-                className={`py-1.5 px-3 rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                className={`py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer ${
                   accountType === 'business'
                     ? 'bg-[#C94A00] text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
@@ -337,7 +382,7 @@ export default function BusinessLoginModal({
                   setAccountType('person');
                   setErrorMessage(null);
                 }}
-                className={`py-1.5 px-3 rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                className={`py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer ${
                   accountType === 'person'
                     ? 'bg-[#C94A00] text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
@@ -345,6 +390,22 @@ export default function BusinessLoginModal({
               >
                 <User className="w-3.5 h-3.5" />
                 <span>Personal</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAccountType('admin');
+                  setMode('login');
+                  setErrorMessage(null);
+                }}
+                className={`py-1.5 px-2 rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                  accountType === 'admin'
+                    ? 'bg-[#0E2A4A] text-[#F95700] border border-[#173F6D] shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <ShieldAlert className="w-3.5 h-3.5" />
+                <span>Admin</span>
               </button>
             </div>
           </div>
@@ -425,6 +486,33 @@ export default function BusinessLoginModal({
                 </div>
               </div>
 
+              {/* Admin Credentials Helper */}
+              {accountType === 'admin' && (
+                <div className="p-2.5 rounded-xl bg-orange-50 border border-orange-200 text-xs text-left">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-[#C94A00] flex items-center gap-1 text-[11px]">
+                      <Sparkles className="w-3 h-3" />
+                      Admin Master Access
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmailOrPhone('admin@bharatbn.com');
+                        setPassword('admin123');
+                        setErrorMessage(null);
+                      }}
+                      className="text-[10px] font-mono font-bold text-[#C94A00] hover:underline cursor-pointer bg-white px-2 py-0.5 rounded border border-orange-200"
+                    >
+                      1-Click Auto-Fill
+                    </button>
+                  </div>
+                  <div className="text-[10px] text-slate-600 font-mono flex items-center justify-between">
+                    <span>User: <strong>admin@bharatbn.com</strong></span>
+                    <span>Pass: <strong>admin123</strong></span>
+                  </div>
+                </div>
+              )}
+
               {/* Submit Button */}
               <button
                 type="submit"
@@ -435,7 +523,7 @@ export default function BusinessLoginModal({
                   {isSubmitting
                     ? 'Please wait...'
                     : mode === 'login'
-                    ? 'Log In'
+                    ? (accountType === 'admin' ? 'Sign In as Admin' : 'Log In')
                     : 'Create Account'}
                 </span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -447,7 +535,12 @@ export default function BusinessLoginModal({
         {/* Simple Footer Switcher */}
         {!loginSuccess && (
           <div className="p-3 bg-slate-50 border-t border-slate-100 text-center text-xs text-slate-500">
-            {mode === 'login' ? (
+            {accountType === 'admin' ? (
+              <div className="flex items-center justify-center gap-1.5 font-mono text-[11px] text-slate-500">
+                <ShieldAlert className="w-3.5 h-3.5 text-[#C94A00]" />
+                <span>Restricted Sovereign Console • Authorized Personnel</span>
+              </div>
+            ) : mode === 'login' ? (
               <span>
                 Don&apos;t have an account?{' '}
                 <button

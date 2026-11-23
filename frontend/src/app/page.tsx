@@ -723,13 +723,13 @@ export default function HomePage() {
           animate="visible"
           className="relative z-20 max-w-7xl mx-auto text-center space-y-6"
         >
-          <motion.div variants={itemFadeUp} className="inline-block">
+          {/* <motion.div variants={itemFadeUp} className="inline-block">
             <div className="inline-flex items-center gap-2 bg-white/95 backdrop-blur px-4 py-1.5 rounded-full border border-brand-200 shadow-xs text-xs font-semibold text-navy-900 hover:border-brand-400 transition">
               <span className="text-brandGold-500 font-bold">✦</span>
               <span className="tracking-wide">Bharat&apos;s Local Business Network</span>
               <span className="text-brandGold-500 font-bold">✦</span>
             </div>
-          </motion.div>
+          </motion.div> */}
 
           <motion.h1
             variants={itemFadeUp}

@@ -31,6 +31,7 @@ import {
   X,
   UserCheck,
 } from 'lucide-react';
+import AdminLoginForm from '@/components/AdminLoginForm';
 
 interface NavSection {
   title: string;
@@ -182,6 +183,47 @@ export default function AdminLayout({
   const pathname = usePathname();
   const router = useRouter();
 
+  // Admin Auth State
+  const [adminSession, setAdminSession] = useState<{
+    email: string;
+    name: string;
+    role: string;
+    token: string;
+    loginTime: number;
+  } | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+
+  // Check Admin Session on mount & listen to changes
+  useEffect(() => {
+    const checkAuth = () => {
+      try {
+        const stored = localStorage.getItem('bharatbn_admin_session');
+        if (stored) {
+          setAdminSession(JSON.parse(stored));
+        } else {
+          setAdminSession(null);
+        }
+      } catch {
+        setAdminSession(null);
+      } finally {
+        setIsAuthLoading(false);
+      }
+    };
+
+    checkAuth();
+    window.addEventListener('bharatbn_admin_auth_changed', checkAuth);
+    return () => window.removeEventListener('bharatbn_admin_auth_changed', checkAuth);
+  }, []);
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem('bharatbn_admin_session');
+      localStorage.removeItem('bharatbn_admin_remember');
+      window.dispatchEvent(new Event('bharatbn_admin_auth_changed'));
+    } catch {}
+    setAdminSession(null);
+  };
+
   // Notification State
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [notifFilter, setNotifFilter] = useState<'all' | 'unread'>('all');
@@ -294,6 +336,25 @@ export default function AdminLayout({
     notifFilter === 'unread'
       ? notifications.filter((n) => !n.isRead)
       : notifications;
+
+  if (isAuthLoading) {
+    return (
+      <div className="bg-[#040D18] text-slate-100 flex items-center justify-center min-h-screen font-sans">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-9 h-9 border-2 border-[#F95700]/20 border-t-[#F95700] rounded-full animate-spin" />
+          <div className="text-xs font-mono text-slate-400 tracking-wider uppercase">Authenticating Admin Session...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!adminSession) {
+    return (
+      <div className="bg-[#040D18] min-h-screen">
+        <AdminLoginForm onLoginSuccess={(sess) => setAdminSession(sess)} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F4F6F9] text-slate-900 flex flex-col md:flex-row antialiased font-sans">
@@ -621,15 +682,27 @@ export default function AdminLayout({
 
             <div className="h-5 w-[1px] bg-slate-200" />
 
-            {/* Operator Profile */}
-            <div className="flex items-center gap-2 pl-1">
-              <div className="w-8 h-8 rounded-lg bg-[#07213A] text-white font-mono font-bold text-xs flex items-center justify-center border border-navy-700 shadow-xs">
-                OP
+            {/* Operator Profile Badge & Logout */}
+            <div className="flex items-center gap-3 pl-2 border-l border-slate-200">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-[#07213A] text-white font-mono font-bold text-xs flex items-center justify-center border border-navy-700 shadow-xs relative">
+                  OP
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white animate-pulse" />
+                </div>
+                <div className="hidden lg:block text-left text-xs leading-none">
+                  <div className="font-bold text-slate-900">{adminSession?.name || 'Operator HQ'}</div>
+                  <div className="text-[10px] text-slate-500 font-mono mt-0.5">{adminSession?.email || 'admin@bharatbn.com'}</div>
+                </div>
               </div>
-              <div className="hidden lg:block text-left text-xs leading-none">
-                <div className="font-bold text-slate-900">Operator HQ</div>
-                <div className="text-[10px] text-slate-500 font-mono mt-0.5">superadmin@bharatbn</div>
-              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition border border-transparent hover:border-red-200 cursor-pointer flex items-center gap-1 text-[11px] font-semibold"
+                title="Sign out of Admin Console"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">Sign Out</span>
+              </button>
             </div>
           </div>
         </header>
