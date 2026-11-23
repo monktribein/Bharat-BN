@@ -746,11 +746,11 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
           {/* Panoramic Cover Art */}
           <div className="relative h-44 sm:h-56 md:h-64 w-full bg-slate-900 overflow-hidden">
             <img
-              src={person.coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1600&q=80'}
+              src={person.coverUrl || '/people/anand-sahu-cover.jpg'}
               alt={`${person.name} Cover`}
               onError={(e) => {
                 e.currentTarget.onerror = null;
-                e.currentTarget.src = 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1600&q=80';
+                e.currentTarget.src = '/people/anand-sahu-cover.jpg';
               }}
               className="w-full h-full object-cover object-center"
             />
