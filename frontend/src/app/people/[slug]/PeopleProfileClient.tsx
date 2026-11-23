@@ -224,6 +224,44 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
             }
           } catch {}
 
+          if (cleanTarget === 'anand-sahu' || cleanTarget === 'anand') {
+            try {
+              const rawStore = localStorage.getItem('bharatbn_people_store');
+              if (rawStore) {
+                const arr = JSON.parse(rawStore);
+                if (Array.isArray(arr)) {
+                  let changed = false;
+                  const cleaned = arr.map((item: any) => {
+                    if (item.slug === 'anand-sahu' || item.name?.toLowerCase().includes('anand sahu')) {
+                      if (item.avatarUrl !== '/people/anand-sahu-avatar.jpg' || item.coverUrl !== '/people/anand-sahu-cover.jpg') {
+                        changed = true;
+                        return { ...item, avatarUrl: '/people/anand-sahu-avatar.jpg', coverUrl: '/people/anand-sahu-cover.jpg' };
+                      }
+                    }
+                    return item;
+                  });
+                  if (changed) {
+                    localStorage.setItem('bharatbn_people_store', JSON.stringify(cleaned));
+                  }
+                }
+              }
+            } catch {}
+
+            try {
+              const rawSess = localStorage.getItem('bharatbn_owner_session');
+              if (rawSess) {
+                const sess = JSON.parse(rawSess);
+                if (sess && (sess.slug === 'anand-sahu' || sess.name?.toLowerCase().includes('anand sahu'))) {
+                  if (sess.avatarUrl !== '/people/anand-sahu-avatar.jpg' || sess.coverUrl !== '/people/anand-sahu-cover.jpg') {
+                    sess.avatarUrl = '/people/anand-sahu-avatar.jpg';
+                    sess.coverUrl = '/people/anand-sahu-cover.jpg';
+                    localStorage.setItem('bharatbn_owner_session', JSON.stringify(sess));
+                  }
+                }
+              }
+            } catch {}
+          }
+
           if (cleanTarget === 'ai') {
             const aiReal = getRealMetrics('ai').followersCount;
             try {
@@ -284,7 +322,10 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
           if (isKashish && (!rawAvatar || rawAvatar.includes('534528741775'))) {
             rawAvatar = '/people/kashish-avatar.png';
           }
-          const validAvatar = rawAvatar;
+          if (isAnand && (!rawAvatar || rawAvatar.includes('unsplash') || rawAvatar.includes('anand-portrait') || rawAvatar.includes('anand-sahu-avatar'))) {
+            rawAvatar = '/people/anand-sahu-avatar.jpg';
+          }
+          const validAvatar = isAnand ? '/people/anand-sahu-avatar.jpg' : rawAvatar;
 
           // 2. Cover: prioritize valid non-empty string with stale fallback replacement
           let rawCover =
@@ -301,7 +342,10 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
           if (isKashish && (!rawCover || rawCover.includes('photo-1598488035139') || rawCover.includes('photo-1579546929518'))) {
             rawCover = '/people/kashish-cover.jpg';
           }
-          const validCover = rawCover;
+          if (isAnand && (!rawCover || rawCover.includes('photo-1541872703-74c5e44368f9') || rawCover.includes('unsplash') || rawCover.includes('anand-sahu-cover'))) {
+            rawCover = '/people/anand-sahu-cover.jpg';
+          }
+          const validCover = isAnand ? '/people/anand-sahu-cover.jpg' : rawCover;
 
           // 3. Name, Role, Badge, Location, Quote
           const validName = sessionRecord?.name?.trim() || viewedPerson?.name?.trim() || storeRecord?.name?.trim() || customData.name?.trim() || prev.name;

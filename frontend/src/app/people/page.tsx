@@ -49,7 +49,7 @@ const defaultPeopleList: PersonCard[] = [
     location: 'New Delhi, India',
     quote: 'Thoughts for Nation Building and a Stronger India.',
     avatarUrl: '/people/anand-sahu-avatar.jpg',
-    coverUrl: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80',
+    coverUrl: '/people/anand-sahu-cover.jpg',
     followersCount: '28.4K',
     postsCount: 286,
     category: 'Public Figures & Speakers',
@@ -171,13 +171,14 @@ export default function PeopleDirectoryPage() {
               const slug = p.slug || p.handle?.replace(/^@/, '') || 'profile';
               const isKashish = slug === 'kashish' || p.name?.toLowerCase().includes('kashish');
               const isAi = slug === 'ai' || p.name?.toLowerCase() === 'ai';
+              const isAnand = slug === 'anand-sahu' || slug === 'anand' || p.name?.toLowerCase().includes('anand sahu');
 
               let cleanRole = isKashish ? 'Public Figure & Speaker' : (p.role || 'Public Figure & Speaker');
               let cleanBadge = isKashish ? 'Public Figure' : (p.badge || 'Public Figure');
               let cleanLocation = isKashish ? 'noida' : (p.location || 'India');
               let cleanQuote = isKashish ? 'hi' : (p.quote || 'Building a stronger connected community across India.');
-              let cleanAvatar = isKashish ? '/people/kashish-avatar.png' : (p.avatarUrl || '');
-              let cleanCover = isKashish ? '/people/kashish-cover.jpg' : (p.coverUrl || 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80');
+              let cleanAvatar = isKashish ? '/people/kashish-avatar.png' : (isAnand ? '/people/anand-sahu-avatar.jpg' : (p.avatarUrl || ''));
+              let cleanCover = isKashish ? '/people/kashish-cover.jpg' : (isAnand ? '/people/anand-sahu-cover.jpg' : (p.coverUrl || '/people/anand-sahu-cover.jpg'));
 
               let cleanFollowers = isKashish ? '1' : (p.followersCount || '0');
               if (isAi) {
@@ -198,6 +199,14 @@ export default function PeopleDirectoryPage() {
                   p.badge = cleanBadge;
                   p.location = cleanLocation;
                   p.quote = cleanQuote;
+                  hasRepairs = true;
+                }
+              }
+
+              if (isAnand) {
+                if (p.coverUrl !== '/people/anand-sahu-cover.jpg' || p.avatarUrl !== '/people/anand-sahu-avatar.jpg') {
+                  p.coverUrl = cleanCover;
+                  p.avatarUrl = cleanAvatar;
                   hasRepairs = true;
                 }
               }

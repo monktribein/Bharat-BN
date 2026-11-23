@@ -122,7 +122,7 @@ export const anandSahuProfile: PersonProfile = {
   location: 'New Delhi, India',
   quote: 'Thoughts for Nation Building and a Stronger India.',
   avatarUrl: '/people/anand-sahu-avatar.jpg',
-  coverUrl: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1600&q=80',
+  coverUrl: '/people/anand-sahu-cover.jpg',
   followersCount: 28400,
   followingCount: 12,
   postsCount: 286,

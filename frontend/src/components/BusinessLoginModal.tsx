@@ -159,7 +159,8 @@ export default function BusinessLoginModal({
                 slug: 'anand-sahu',
                 handle: '@anandsahu',
                 role: 'Nationalist Thinker & Speaker',
-                avatarUrl: '/people/anand-portrait.png',
+                avatarUrl: '/people/anand-sahu-avatar.jpg',
+                coverUrl: '/people/anand-sahu-cover.jpg',
                 isVerified: true,
               };
             } else if (low.includes('kashish')) {

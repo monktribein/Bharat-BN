@@ -70,7 +70,7 @@ const defaultPeopleList: PersonItem[] = [
     location: 'New Delhi, India',
     quote: 'Thoughts for Nation Building and a Stronger India.',
     avatarUrl: '/people/anand-sahu-avatar.jpg',
-    coverUrl: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=800&q=80',
+    coverUrl: '/people/anand-sahu-cover.jpg',
     followersCount: '28.4K',
     isVerified: true,
   },
