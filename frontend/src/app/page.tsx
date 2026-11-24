@@ -319,6 +319,11 @@ export default function HomePage() {
   const [isPaused, setIsPaused] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
 
+  // Auto-scroll Categories States & Ref
+  const [isCategoryPaused, setIsCategoryPaused] = useState(false);
+  const [categoryProgress, setCategoryProgress] = useState(0);
+  const categoriesSliderRef = useRef<HTMLDivElement>(null);
+
   // People & Category Filter States
   const [peopleList, setPeopleList] = useState<PersonItem[]>(defaultPeopleList);
   const [selectedPersonCategory, setSelectedPersonCategory] = useState<string>('all');
@@ -717,6 +722,45 @@ export default function HomePage() {
     }
   };
 
+  // Smooth Auto-Scrolling for Categories Section
+  useEffect(() => {
+    if (isCategoryPaused) return;
+
+    const interval = setInterval(() => {
+      const slider = categoriesSliderRef.current;
+      if (!slider) return;
+
+      const cardStep = 270;
+      const maxScroll = slider.scrollWidth - slider.clientWidth;
+
+      if (slider.scrollLeft >= maxScroll - 20) {
+        slider.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        slider.scrollBy({ left: cardStep, behavior: 'smooth' });
+      }
+    }, 2800);
+
+    return () => clearInterval(interval);
+  }, [isCategoryPaused]);
+
+  const scrollCategoriesByAmount = (direction: 'left' | 'right') => {
+    if (categoriesSliderRef.current) {
+      const amount = direction === 'left' ? -280 : 280;
+      categoriesSliderRef.current.scrollBy({ left: amount, behavior: 'smooth' });
+      setIsCategoryPaused(true);
+      setTimeout(() => setIsCategoryPaused(false), 4000);
+    }
+  };
+
+  const handleCategoryScroll = () => {
+    const slider = categoriesSliderRef.current;
+    if (!slider) return;
+    const max = slider.scrollWidth - slider.clientWidth;
+    if (max > 0) {
+      setCategoryProgress(Math.min(100, Math.max(0, (slider.scrollLeft / max) * 100)));
+    }
+  };
+
   const scrollPeopleByAmount = (direction: 'left' | 'right') => {
     if (peopleSliderRef.current) {
       const amount = direction === 'left' ? -340 : 340;
@@ -814,37 +858,62 @@ export default function HomePage() {
       </section>
 
       {/* ======================================================== */}
-      {/* 2. SECTION: Categories (Matching Reference Image 2)      */}
+      {/* 2. SECTION: Categories (Auto-Scrolling Horizontal Slider) */}
       {/* ======================================================== */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="space-y-1 mb-6">
-          <div className="flex items-center justify-between">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+        <div className="flex items-center justify-between pb-1">
+          <div className="space-y-1">
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
               Categories
             </h2>
+            <div className="w-14 h-1 bg-[#F95700] rounded-full" />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => scrollCategoriesByAmount('left')}
+              className="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition shadow-xs cursor-pointer text-slate-600 hover:text-slate-900"
+              title="Slide Left"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollCategoriesByAmount('right')}
+              className="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition shadow-xs cursor-pointer text-slate-600 hover:text-slate-900"
+              title="Slide Right"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
             <Link
               href="/search"
-              className="text-xs sm:text-sm font-bold text-[#F95700] hover:underline flex items-center gap-1"
+              className="text-xs sm:text-sm font-bold text-[#F95700] hover:underline ml-2 hidden sm:inline-flex items-center gap-1"
             >
               <span>View All</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          <div className="w-14 h-1 bg-[#F95700] rounded-full" />
         </div>
 
-        {/* 12 Visual Cards Grid (Matching Reference Image 2: 6x2 layout) */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5 sm:gap-4">
-          {visualCategories.map((cat, index) => (
+        {/* Auto-Scrolling Horizontal Carousel */}
+        <div
+          ref={categoriesSliderRef}
+          onMouseEnter={() => setIsCategoryPaused(true)}
+          onMouseLeave={() => setIsCategoryPaused(false)}
+          onTouchStart={() => setIsCategoryPaused(true)}
+          onTouchEnd={() => setIsCategoryPaused(false)}
+          onScroll={handleCategoryScroll}
+          className="flex items-stretch gap-4 overflow-x-auto py-3 px-1 no-scrollbar scroll-smooth cursor-grab active:cursor-grabbing select-none"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {/* Duplicated array for seamless continuous looping */}
+          {[...visualCategories, ...visualCategories].map((cat, index) => (
             <motion.div
-              key={cat.name}
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.1 }}
-              transition={{ duration: 0.3, delay: index * 0.04 }}
+              key={`${cat.name}-${index}`}
               whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              className="group relative rounded-xl overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 aspect-[4/3] bg-slate-900"
+              whileTap={{ scale: 0.98 }}
+              className="w-52 sm:w-60 md:w-64 flex-shrink-0 relative rounded-2xl overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 aspect-[16/10] bg-slate-900 group"
             >
               <Link
                 href={`/search?category=${cat.categorySlug}&q=${encodeURIComponent(cat.query)}`}
@@ -856,22 +925,39 @@ export default function HomePage() {
                   src={cat.image}
                   alt={cat.name}
                   fill
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
+                  sizes="(max-width: 640px) 208px, 256px"
                   className="object-cover group-hover:scale-110 transition-transform duration-500 opacity-80"
                 />
 
                 {/* Dark Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/30 group-hover:from-black/75 group-hover:via-black/30 group-hover:to-transparent transition duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/25 group-hover:from-black/75 group-hover:via-black/30 group-hover:to-transparent transition duration-300" />
 
-                {/* Gold/Orange Centered Text Title (Signature of Image 2) */}
-                <div className="absolute inset-0 flex items-center justify-center p-2 text-center z-10">
-                  <span className="font-extrabold text-sm sm:text-base text-[#F95700] group-hover:text-amber-400 tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition transform group-hover:scale-105">
+                {/* Centered Category Text */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center z-10">
+                  <span className="font-extrabold text-base sm:text-lg text-[#F95700] group-hover:text-amber-400 tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition transform group-hover:scale-105">
                     {cat.name}
+                  </span>
+                  <span className="text-[10px] font-semibold text-white/80 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    Explore Listings &rarr;
                   </span>
                 </div>
               </Link>
             </motion.div>
           ))}
+        </div>
+
+        {/* Scroll Progress Bar & Footer Indicator */}
+        <div className="space-y-1.5 pt-1">
+          <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#F95700] rounded-full transition-all duration-200"
+              style={{ width: `${Math.max(12, categoryProgress)}%` }}
+            />
+          </div>
+          <div className="flex items-center justify-between text-[11px] text-slate-400 font-medium px-0.5">
+            <span>Drag or swipe left/right to explore all categories</span>
+            <span className="font-semibold text-slate-500">{visualCategories.length} Categories Available</span>
+          </div>
         </div>
       </section>
 
