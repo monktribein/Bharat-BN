@@ -948,7 +948,7 @@ export default function HomePage() {
 
                   <div className="flex items-center gap-0.5 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded text-[11px] font-bold text-amber-700">
                     <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                    <span>{biz.rating}</span>
+                    <span>{Number(biz.rating || 4.9).toFixed(1)}</span>
                     <span className="text-[9px] text-slate-400 font-normal">({biz.reviewsCount})</span>
                   </div>
                 </div>

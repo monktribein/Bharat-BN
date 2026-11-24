@@ -91,7 +91,7 @@ export const realMigratedBusinesses: VerifiedBusiness[] = [
     "address": "27 Km Akshardham, Delhi-Hapur By Pass Road, Delhi - Meerut Expy, near AKG College, Adhyatmik Nagar,",
     "phone": "8800522533",
     "whatsapp": "918800522533",
-    "rating": 4.8999999999999995,
+    "rating": 4.9,
     "reviewsCount": 133,
     "tags": [
       "best wedding place in Ghaziabad"
@@ -274,7 +274,7 @@ export const realMigratedBusinesses: VerifiedBusiness[] = [
     "address": "D-68/3, Site-4, UPSIDC, Near By Radisson Hotel, Greater Noida, Noida - 201310, Near By Grand Venice",
     "phone": "9152306549",
     "whatsapp": "9152306549",
-    "rating": 4.8999999999999995,
+    "rating": 4.9,
     "reviewsCount": 55,
     "tags": [
       "Address",
@@ -357,7 +357,7 @@ export const realMigratedBusinesses: VerifiedBusiness[] = [
     "address": "Rizvi Furniture E-51, Site 4, MSX Mall Rd Greater Noida, Uttar Pradesh 201308 India",
     "phone": "099534 31573",
     "whatsapp": "919953431573",
-    "rating": 4.8999999999999995,
+    "rating": 4.9,
     "reviewsCount": 85,
     "tags": [
       "Rizvi Furniture - Home Furniture Shop in Greater Noida"
@@ -374,7 +374,7 @@ export const realMigratedBusinesses: VerifiedBusiness[] = [
     "address": "Sanskriti Fancy Dresses Shop No:18-19,Satyam Complex, near Navin Hospital, Sector Alpha II, Greater Noida, Uttar Pradesh 201308",
     "phone": "+91-9650501299,",
     "whatsapp": "919650501299",
-    "rating": 4.8999999999999995,
+    "rating": 4.9,
     "reviewsCount": 88,
     "tags": [
       "Delhi",
@@ -392,7 +392,7 @@ export const realMigratedBusinesses: VerifiedBusiness[] = [
     "address": "Shop- 134 GF, MSX Mall, Near Swarna Nagari, (Site 4), Greater Noida 201310",
     "phone": "+91 - 9891011561",
     "whatsapp": "919891011561",
-    "rating": 4.8999999999999995,
+    "rating": 4.9,
     "reviewsCount": 94,
     "tags": [
       "Buy Books cheap online India\"",
@@ -445,7 +445,7 @@ export const realMigratedBusinesses: VerifiedBusiness[] = [
     "address": "Unit A G - 16 &amp; 22, Amit Nagar, Sadarpur, Greater Noida, Uttar Pradesh 201308",
     "phone": "072076 66000",
     "whatsapp": "917207666000",
-    "rating": 4.8999999999999995,
+    "rating": 4.9,
     "reviewsCount": 106,
     "tags": [
       "Croma Electronics | Online Electronics Shopping | Buy Electronics Online"
@@ -462,7 +462,7 @@ export const realMigratedBusinesses: VerifiedBusiness[] = [
     "address": "Chaudhary Mahendra Market,Tugalpur,, Greater Noida, Uttar Pradesh 201308",
     "phone": "099537 54556",
     "whatsapp": "919953754556",
-    "rating": 4.8999999999999995,
+    "rating": 4.9,
     "reviewsCount": 109,
     "tags": [
       "Shri Bala ji Book Centre"
@@ -532,7 +532,7 @@ export const realMigratedBusinesses: VerifiedBusiness[] = [
     "address": "Building Material Market, Moser Baer Gol Chakkar, Surajpur, Greater Noida, Uttar Pradesh 201306",
     "phone": "081304 55987",
     "whatsapp": "918130455987",
-    "rating": 4.8999999999999995,
+    "rating": 4.9,
     "reviewsCount": 124,
     "tags": [
       "R. D. Furniture"
@@ -566,7 +566,7 @@ export const realMigratedBusinesses: VerifiedBusiness[] = [
     "address": "shop 7 maninder market tugalpur, Greater Noida, Uttar Pradesh 201306",
     "phone": "087440 11686",
     "whatsapp": "918744011686",
-    "rating": 4.8999999999999995,
+    "rating": 4.9,
     "reviewsCount": 148,
     "tags": [
       "Prem book shop"
@@ -617,7 +617,7 @@ export const realMigratedBusinesses: VerifiedBusiness[] = [
     "address": "Plot No. 23 –25 &amp; 27- 29 Knowledge Park - II Gautam Budh Nagar uttar Pradesh 201306 India",
     "phone": "(0120)2328011-20 , +91-80-4250 5000",
     "whatsapp": "918042505000",
-    "rating": 4.8999999999999995,
+    "rating": 4.9,
     "reviewsCount": 76,
     "tags": [
       "WINDERGY INDIA 2020"
@@ -653,7 +653,7 @@ export const realMigratedBusinesses: VerifiedBusiness[] = [
     "address": "H-73, Ground Floor, Sector 63, Noida, Uttar Pradesh 201301",
     "phone": "0120–4909090",
     "whatsapp": "911204909090",
-    "rating": 4.8999999999999995,
+    "rating": 4.9,
     "reviewsCount": 82,
     "tags": [
       "Grandthum | Best commercial project in Greater Noida West | Bhutani Infra"
@@ -689,7 +689,7 @@ export const realMigratedBusinesses: VerifiedBusiness[] = [
     "address": "Plot No. 20-A, Knowledge Park III, Greater Noida, Uttar Pradesh 201310",
     "phone": "9717015300",
     "whatsapp": "919717015300",
-    "rating": 4.8999999999999995,
+    "rating": 4.9,
     "reviewsCount": 91,
     "tags": [
       "Best Management College In Delhi NCR",
