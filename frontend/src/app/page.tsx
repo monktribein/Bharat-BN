@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import SearchBar from '@/components/SearchBar';
 import { getRealMetrics, toggleRealFollow } from '@/lib/realMetrics';
+import { realMigratedBusinesses, VerifiedBusiness } from '@/data/migratedBusinesses';
 import {
   Building2,
   CheckCircle2,
@@ -215,135 +216,7 @@ const defaultPeopleList: PersonItem[] = [
   },
 ];
 
-interface VerifiedBusiness {
-  id: string;
-  name: string;
-  slug: string;
-  category: string;
-  city: string;
-  phone: string;
-  whatsapp: string;
-  rating: number;
-  reviewsCount: number;
-  tags: string[];
-  isVerified: boolean;
-  statusText?: string;
-}
-
-const defaultVerifiedList: VerifiedBusiness[] = [
-  {
-    id: 'BBN-CLM-799760',
-    name: 'Apple',
-    slug: 'apple',
-    category: 'Automobile & EV',
-    city: 'Noida, UP',
-    phone: '+91 97170 56860',
-    whatsapp: '919717056860',
-    rating: 4.9,
-    reviewsCount: 38,
-    tags: ['Electric Vehicles', 'Automobile Accessories', 'Authorized Dealership'],
-    isVerified: true,
-    statusText: 'Admin Approved & Verified',
-  },
-  {
-    id: 'BBN-CLM-982104',
-    name: 'Choco Delights & Confectionery (Cadboury)',
-    slug: 'choco-delights-confectionery-cadboury',
-    category: 'Food, Bakeries & Confectionery',
-    city: 'Mumbai, MH',
-    phone: '+91 89653 26578',
-    whatsapp: '918965326578',
-    rating: 4.9,
-    reviewsCount: 48,
-    tags: ['Artisan Chocolates', 'Belgian Truffles', 'Gift Hampers'],
-    isVerified: true,
-    statusText: 'Admin Approved & Verified',
-  },
-  {
-    id: '55555555-5555-5555-5555-555555555001',
-    name: 'Apex Super Speciality Dental Clinic',
-    slug: 'apex-super-speciality-dental-clinic',
-    category: 'Healthcare & Clinics',
-    city: 'Mumbai, MH',
-    phone: '+91 98200 12345',
-    whatsapp: '919820012345',
-    rating: 4.9,
-    reviewsCount: 124,
-    tags: ['Invisalign', 'Root Canal', 'Dental Implants'],
-    isVerified: true,
-    statusText: 'Audited & Verified',
-  },
-  {
-    id: '55555555-5555-5555-5555-555555555002',
-    name: 'Little Elly International Preschool',
-    slug: 'little-elly-international-preschool',
-    category: 'Preschools & Education',
-    city: 'Bengaluru, KA',
-    phone: '+91 98450 67890',
-    whatsapp: '919845067890',
-    rating: 4.8,
-    reviewsCount: 86,
-    tags: ['Toddler Care', 'Pre-K Program', 'Daycare'],
-    isVerified: true,
-    statusText: 'Audited & Verified',
-  },
-  {
-    id: 'BBN-CLM-419082',
-    name: 'Greenfield EV Motors & Spares',
-    slug: 'greenfield-ev-motors-kothrud-pune',
-    category: 'Automobile & EV',
-    city: 'Pune, MH',
-    phone: '+91 97654 32100',
-    whatsapp: '919765432100',
-    rating: 4.7,
-    reviewsCount: 52,
-    tags: ['EV Two-Wheelers', 'Battery Swapping', 'Authorized Spares'],
-    isVerified: true,
-    statusText: 'Audited & Verified',
-  },
-  {
-    id: 'BBN-DIR-005',
-    name: 'Tata EV Mobility Hub',
-    slug: 'tata-ev-mobility-hub-sector-63-noida',
-    category: 'Automobile & EV',
-    city: 'Noida, UP',
-    phone: '+91 98188 44556',
-    whatsapp: '919818844556',
-    rating: 4.9,
-    reviewsCount: 58,
-    tags: ['Automobile Showrooms', 'Electric Cars', 'EV Fast Charging'],
-    isVerified: true,
-    statusText: 'Audited & Verified',
-  },
-  {
-    id: '55555555-5555-5555-5555-555555555003',
-    name: 'NexaByte Software & Cloud Labs',
-    slug: 'nexabyte-software-cloud-labs',
-    category: 'IT, Software & Technology',
-    city: 'Bengaluru, KA',
-    phone: '+91 98860 54321',
-    whatsapp: '919886054321',
-    rating: 4.9,
-    reviewsCount: 42,
-    tags: ['Custom Software', 'Cloud Architecture', 'Mobile Apps'],
-    isVerified: true,
-    statusText: 'Audited & Verified',
-  },
-  {
-    id: 'BBN-DIR-004',
-    name: 'Copper Chimney Fine Dining',
-    slug: 'copper-chimney-worli-mumbai',
-    category: 'Restaurants & Cafes',
-    city: 'Mumbai, MH',
-    phone: '+91 98210 55555',
-    whatsapp: '919821055555',
-    rating: 4.8,
-    reviewsCount: 95,
-    tags: ['North Indian', 'Dum Biryani', 'Banquet & Catering'],
-    isVerified: true,
-    statusText: 'Audited & Verified',
-  },
-];
+const defaultVerifiedList: VerifiedBusiness[] = realMigratedBusinesses;
 
 // Exact Categories matching Reference Image 2
 const visualCategories = [
