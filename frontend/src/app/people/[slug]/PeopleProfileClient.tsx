@@ -1215,9 +1215,9 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
         {/* Main Grid: Desktop Left Sidebar (3 Cols) + Right Main Content (9 Cols) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* ----------------------------------------------------------------------- */}
-          {/* COLUMN 1: STICKY LEFT SIDEBAR MODULE NAVIGATION (Exact User Request)     */}
+          {/* COLUMN 1: STICKY LEFT SIDEBAR MODULE NAVIGATION (Exact Image 2)         */}
           {/* ----------------------------------------------------------------------- */}
-          <aside className="hidden lg:block lg:col-span-3 space-y-4 sticky top-20 z-20">
+          <aside className="hidden lg:block lg:col-span-3 space-y-4 sticky top-20 z-20 max-h-[calc(100vh-6rem)] overflow-y-auto no-scrollbar">
             {/* 11 Modules Navigation Menu Card */}
             <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-2.5 space-y-1">
               <div className="px-3 py-2 text-[11px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center justify-between border-b border-slate-100 mb-1">
@@ -1353,7 +1353,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                 )}
               </div>
 
-              <p className="text-sm text-slate-700 leading-relaxed max-w-5xl">
+              <p className="text-sm text-slate-700 leading-relaxed w-full">
                 {person.aboutText}
               </p>
 
@@ -1413,7 +1413,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                   No education credentials listed yet.
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className={`grid gap-4 w-full ${person.educationList.length === 1 ? 'grid-cols-1' : person.educationList.length === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
                   {person.educationList.map((edu, idx) => (
                     <div
                       key={edu.id || idx}
@@ -1464,7 +1464,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                   No experience records listed yet.
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className={`grid gap-4 w-full ${person.experienceList.length === 1 ? 'grid-cols-1' : person.experienceList.length === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
                   {person.experienceList.map((exp, idx) => (
                     <div
                       key={exp.id || idx}
@@ -1515,7 +1515,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                   No achievements listed yet.
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className={`grid gap-4 w-full ${person.achievementsList.length === 1 ? 'grid-cols-1' : person.achievementsList.length === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
                   {person.achievementsList.map((ach, idx) => (
                     <div
                       key={ach.id || idx}
@@ -1570,7 +1570,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                   No press articles or media coverage listed yet.
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className={`grid gap-4 w-full ${person.newsList.length === 1 ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
                   {person.newsList.map((item, idx) => (
                     <div
                       key={item.id || idx}
@@ -1913,7 +1913,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                 </h3>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
                 {/* Website */}
                 {person.website && (
                   <a
@@ -1922,18 +1922,18 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     rel="noopener noreferrer"
                     className="flex items-center justify-between p-4 rounded-2xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-100 transition"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-slate-200 flex items-center justify-center text-slate-700">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-slate-200 flex items-center justify-center text-slate-700 shrink-0">
                         <Globe className="w-4 h-4" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <div className="font-bold text-xs text-slate-900">Official Website</div>
-                        <div className="text-[11px] text-slate-500 font-mono truncate max-w-[180px]">
+                        <div className="text-[11px] text-slate-500 font-mono truncate">
                           {person.website.replace(/^https?:\/\/(www\.)?/, '')}
                         </div>
                       </div>
                     </div>
-                    <ExternalLink className="w-4 h-4 text-slate-400" />
+                    <ExternalLink className="w-4 h-4 text-slate-400 shrink-0" />
                   </a>
                 )}
 
@@ -1945,18 +1945,18 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     rel="noopener noreferrer"
                     className="flex items-center justify-between p-4 rounded-2xl border border-pink-200 bg-pink-50/40 hover:bg-pink-100/50 transition"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white shadow-xs">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white shadow-xs shrink-0">
                         <InstagramIcon className="w-4 h-4 text-white" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <div className="font-bold text-xs text-slate-900">Instagram</div>
-                        <div className="text-[11px] text-pink-700 font-mono truncate max-w-[180px]">
+                        <div className="text-[11px] text-pink-700 font-mono truncate">
                           {person.socialLinks.instagram.replace(/^https?:\/\/(www\.)?instagram\.com\/?/, '@')}
                         </div>
                       </div>
                     </div>
-                    <ExternalLink className="w-4 h-4 text-pink-400" />
+                    <ExternalLink className="w-4 h-4 text-pink-400 shrink-0" />
                   </a>
                 )}
 
@@ -1968,18 +1968,18 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     rel="noopener noreferrer"
                     className="flex items-center justify-between p-4 rounded-2xl border border-red-200 bg-red-50/40 hover:bg-red-100/50 transition"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-[#FF0000] flex items-center justify-center text-white shadow-xs">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-[#FF0000] flex items-center justify-center text-white shadow-xs shrink-0">
                         <YouTubeIcon className="w-4 h-4 fill-white" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <div className="font-bold text-xs text-slate-900">YouTube Channel</div>
-                        <div className="text-[11px] text-red-700 font-mono truncate max-w-[180px]">
+                        <div className="text-[11px] text-red-700 font-mono truncate">
                           {person.socialLinks.youtube.replace(/^https?:\/\/(www\.)?youtube\.com\/?/, '')}
                         </div>
                       </div>
                     </div>
-                    <ExternalLink className="w-4 h-4 text-red-400" />
+                    <ExternalLink className="w-4 h-4 text-red-400 shrink-0" />
                   </a>
                 )}
 
@@ -1991,18 +1991,18 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     rel="noopener noreferrer"
                     className="flex items-center justify-between p-4 rounded-2xl border border-slate-300 bg-slate-100/60 hover:bg-slate-200/60 transition"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-black flex items-center justify-center text-white shadow-xs">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-black flex items-center justify-center text-white shadow-xs shrink-0">
                         <TwitterXIcon className="w-4 h-4 fill-white" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <div className="font-bold text-xs text-slate-900">X (Twitter)</div>
-                        <div className="text-[11px] text-slate-700 font-mono truncate max-w-[180px]">
+                        <div className="text-[11px] text-slate-700 font-mono truncate">
                           {person.socialLinks.twitter.replace(/^https?:\/\/(www\.)?(twitter|x)\.com\/?/, '@')}
                         </div>
                       </div>
                     </div>
-                    <ExternalLink className="w-4 h-4 text-slate-400" />
+                    <ExternalLink className="w-4 h-4 text-slate-400 shrink-0" />
                   </a>
                 )}
 
@@ -2014,18 +2014,18 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     rel="noopener noreferrer"
                     className="flex items-center justify-between p-4 rounded-2xl border border-blue-200 bg-blue-50/40 hover:bg-blue-100/50 transition"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-[#1877F2] flex items-center justify-center text-white shadow-xs">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-[#1877F2] flex items-center justify-center text-white shadow-xs shrink-0">
                         <FacebookFIcon className="w-4 h-4 fill-white" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <div className="font-bold text-xs text-slate-900">Facebook Page</div>
-                        <div className="text-[11px] text-blue-700 font-mono truncate max-w-[180px]">
+                        <div className="text-[11px] text-blue-700 font-mono truncate">
                           {person.socialLinks.facebook.replace(/^https?:\/\/(www\.)?facebook\.com\/?/, '/')}
                         </div>
                       </div>
                     </div>
-                    <ExternalLink className="w-4 h-4 text-blue-400" />
+                    <ExternalLink className="w-4 h-4 text-blue-400 shrink-0" />
                   </a>
                 )}
 
@@ -2037,18 +2037,18 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                     rel="noopener noreferrer"
                     className="flex items-center justify-between p-4 rounded-2xl border border-sky-200 bg-sky-50/40 hover:bg-sky-100/50 transition"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-[#0A66C2] flex items-center justify-center text-white shadow-xs">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-[#0A66C2] flex items-center justify-center text-white shadow-xs shrink-0">
                         <LinkedInIcon className="w-4 h-4 fill-white" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <div className="font-bold text-xs text-slate-900">LinkedIn Profile</div>
-                        <div className="text-[11px] text-sky-700 font-mono truncate max-w-[180px]">
+                        <div className="text-[11px] text-sky-700 font-mono truncate">
                           {person.socialLinks.linkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\/(in|company)?\/?/, '/')}
                         </div>
                       </div>
                     </div>
-                    <ExternalLink className="w-4 h-4 text-sky-400" />
+                    <ExternalLink className="w-4 h-4 text-sky-400 shrink-0" />
                   </a>
                 )}
 
@@ -2085,7 +2085,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                 <h4 className="text-base sm:text-lg font-black text-white">
                   Are You {person.name}?
                 </h4>
-                <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
+                <p className="text-xs sm:text-sm text-slate-300 w-full">
                   Claim and manage your official public profile, publish verified statements, sync credentials, and engage directly with your followers.
                 </p>
               </div>
