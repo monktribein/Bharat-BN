@@ -141,8 +141,112 @@ export function formatFollowerCount(num: number): string {
   return `${num}`;
 }
 
+export interface AdminFollowerOverride {
+  baseCount: number;
+  setAtNatural: number;
+  updatedAt: string;
+}
+
+export function getAdminFollowerOverrides(): Record<string, AdminFollowerOverride> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem('bharatbn_admin_followers_override');
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    const normalized: Record<string, AdminFollowerOverride> = {};
+    for (const [k, v] of Object.entries(parsed)) {
+      if (typeof v === 'number') {
+        normalized[k.toLowerCase().trim()] = {
+          baseCount: Math.max(0, v),
+          setAtNatural: 0,
+          updatedAt: new Date().toISOString(),
+        };
+      } else if (v && typeof (v as any).baseCount === 'number') {
+        normalized[k.toLowerCase().trim()] = {
+          baseCount: Math.max(0, (v as any).baseCount),
+          setAtNatural: Math.max(0, (v as any).setAtNatural || 0),
+          updatedAt: (v as any).updatedAt || new Date().toISOString(),
+        };
+      }
+    }
+    return normalized;
+  } catch {
+    return {};
+  }
+}
+
+export function setAdminFollowerOverride(slug: string, newCount: number | null): void {
+  if (typeof window === 'undefined') return;
+  const normSlug = (slug || '').toLowerCase().trim();
+  if (!normSlug) return;
+  try {
+    const currentMap = getAdminFollowerOverrides();
+    const followerMap = getStoredFollowerMap();
+    const naturalCount = (followerMap[normSlug] || []).filter(
+      (f) => f && f !== '@visitor' && f !== '@user'
+    ).length;
+
+    if (newCount === null || isNaN(newCount)) {
+      delete currentMap[normSlug];
+    } else {
+      currentMap[normSlug] = {
+        baseCount: Math.max(0, Math.round(newCount)),
+        setAtNatural: naturalCount,
+        updatedAt: new Date().toISOString(),
+      };
+    }
+    localStorage.setItem('bharatbn_admin_followers_override', JSON.stringify(currentMap));
+
+    // Sync to bharatbn_people_store so people directory updates instantly
+    try {
+      const pStore = localStorage.getItem('bharatbn_people_store');
+      if (pStore) {
+        const parsedPeople = JSON.parse(pStore);
+        if (Array.isArray(parsedPeople)) {
+          const updated = parsedPeople.map((p: any) => {
+            const pSlug = (p.slug || '').toLowerCase().trim();
+            if (pSlug === normSlug) {
+              const displayCount =
+                newCount !== null ? Math.max(0, Math.round(newCount)) : naturalCount;
+              return {
+                ...p,
+                followersCount: String(displayCount),
+              };
+            }
+            return p;
+          });
+          localStorage.setItem('bharatbn_people_store', JSON.stringify(updated));
+        }
+      }
+    } catch {}
+
+    // Broadcast across app
+    window.dispatchEvent(new Event('bharatbn_metrics_updated'));
+    window.dispatchEvent(new Event('bharatbn_people_updated'));
+    window.dispatchEvent(new Event('bharatbn_follow_changed'));
+
+    // Sync to backend /api/sync
+    fetch('/api/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'admin_set_followers',
+        targetSlug: normSlug,
+        followersCount: newCount !== null ? Math.max(0, Math.round(newCount)) : null,
+      }),
+    }).catch(() => null);
+  } catch (err) {
+    console.error('Failed to set admin follower override:', err);
+  }
+}
+
 export function getBaseFollowers(slug: string): number {
-  return 0; // Pure authentic BharatBN real followers only for ALL profiles
+  const normSlug = (slug || '').toLowerCase().trim();
+  const overrides = getAdminFollowerOverrides();
+  if (normSlug in overrides) {
+    return overrides[normSlug].baseCount;
+  }
+  return 0; // Pure authentic BharatBN real followers by default
 }
 
 export function getCurrentUserHandle(): string {
@@ -187,11 +291,21 @@ export function getRealMetrics(slug: string): RealMetrics {
     } catch {}
   }
 
-  const realCount = followers.length;
+  const naturalCount = followers.length;
+  const overrides = getAdminFollowerOverrides();
+  let effectiveFollowersCount = naturalCount;
+
+  // Check if Super Admin set a custom follower count for this profile
+  if (normSlug in overrides) {
+    const ov = overrides[normSlug];
+    const newOrganicSinceSet = Math.max(0, naturalCount - (ov.setAtNatural || 0));
+    effectiveFollowersCount = ov.baseCount + newOrganicSinceSet;
+  }
+
   const profileFollowing = getProfileFollowingList(normSlug);
 
   return {
-    followersCount: realCount,
+    followersCount: effectiveFollowersCount,
     followers,
     followingCount: profileFollowing.length,
     following: profileFollowing,
@@ -350,6 +464,16 @@ export async function syncRealMetricsFromServer(slug: string): Promise<RealMetri
       viewsMap[normSlug] = Math.max(viewsMap[normSlug] || 0, Number(data.views[normSlug]));
       localStorage.setItem('bharatbn_real_views', JSON.stringify(viewsMap));
       hasChanges = true;
+    }
+
+    if (data.adminFollowerOverrides && typeof data.adminFollowerOverrides === 'object') {
+      try {
+        localStorage.setItem(
+          'bharatbn_admin_followers_override',
+          JSON.stringify(data.adminFollowerOverrides)
+        );
+        hasChanges = true;
+      } catch {}
     }
 
     if (hasChanges) {

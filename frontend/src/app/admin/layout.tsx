@@ -80,7 +80,7 @@ const navSections: NavSection[] = [
         name: 'All Businesses',
         href: '/admin/listings',
         icon: Building2,
-        badge: '12',
+        badge: '935',
         badgeVariant: 'slate',
       },
       {
@@ -91,9 +91,16 @@ const navSections: NavSection[] = [
         badgeVariant: 'amber',
       },
       {
+        name: 'People & Followers',
+        href: '/admin/people',
+        icon: Users,
+        badge: 'Metrics',
+        badgeVariant: 'amber',
+      },
+      {
         name: 'Franchises & Chains',
         href: '/admin/franchises',
-        icon: Users,
+        icon: Building2,
         badge: '38 Brands',
         badgeVariant: 'blue',
       },

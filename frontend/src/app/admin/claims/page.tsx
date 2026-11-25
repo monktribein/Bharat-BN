@@ -32,6 +32,11 @@ import {
   Share2,
   Award,
 } from 'lucide-react';
+import {
+  getRealMetrics,
+  setAdminFollowerOverride,
+  getAdminFollowerOverrides,
+} from '@/lib/realMetrics';
 
 // ============================================================================
 // 1. BUSINESS CLAIMS INTERFACES & DEFAULT DATA
@@ -315,6 +320,49 @@ export default function ClaimModerationPage() {
   const [peopleNotes, setPeopleNotes] = useState('');
   const [selectedPeopleReason, setSelectedPeopleReason] = useState('Incomplete identity or KYC verification');
   const [showPeopleRejectModal, setShowPeopleRejectModal] = useState(false);
+
+  // Admin Followers Control State
+  const [customFollowersInput, setCustomFollowersInput] = useState('');
+  const [followersFeedback, setFollowersFeedback] = useState<string | null>(null);
+  const [metricsVersion, setMetricsVersion] = useState(0);
+
+  useEffect(() => {
+    if (selectedPerson) {
+      const m = getRealMetrics(selectedPerson.slug);
+      setCustomFollowersInput(String(m.followersCount));
+      setFollowersFeedback(null);
+    }
+  }, [selectedPerson?.slug, metricsVersion]);
+
+  const handleUpdateFollowers = (newVal?: number) => {
+    if (!selectedPerson) return;
+    const targetCount =
+      newVal !== undefined
+        ? newVal
+        : parseInt(customFollowersInput.replace(/[^0-9]/g, ''), 10);
+    if (isNaN(targetCount) || targetCount < 0) return;
+    setAdminFollowerOverride(selectedPerson.slug, targetCount);
+    setCustomFollowersInput(String(targetCount));
+    setMetricsVersion((v) => v + 1);
+    setFollowersFeedback(`Followers updated to ${targetCount.toLocaleString()} for ${selectedPerson.name}!`);
+    setTimeout(() => setFollowersFeedback(null), 4000);
+  };
+
+  const handleQuickAddFollowers = (delta: number) => {
+    if (!selectedPerson) return;
+    const current = getRealMetrics(selectedPerson.slug).followersCount;
+    handleUpdateFollowers(current + delta);
+  };
+
+  const handleResetToNatural = () => {
+    if (!selectedPerson) return;
+    setAdminFollowerOverride(selectedPerson.slug, null);
+    setMetricsVersion((v) => v + 1);
+    const m = getRealMetrics(selectedPerson.slug);
+    setCustomFollowersInput(String(m.followersCount));
+    setFollowersFeedback(`Reset ${selectedPerson.name} to natural organic followers (${m.followersCount})`);
+    setTimeout(() => setFollowersFeedback(null), 4000);
+  };
 
   // Global Notification
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
@@ -1175,6 +1223,111 @@ export default function ClaimModerationPage() {
                         <div className="font-mono font-bold text-slate-900">/people/{selectedPerson.slug}</div>
                       </div>
                     </div>
+
+                    {/* Admin Followers & Audience Count Control */}
+                    {(() => {
+                      const curMetrics = getRealMetrics(selectedPerson.slug);
+                      const adminOverrides = typeof window !== 'undefined' ? getAdminFollowerOverrides() : {};
+                      const hasOverride = selectedPerson.slug.toLowerCase().trim() in adminOverrides;
+                      const naturalFollowersCount = curMetrics.followers.length;
+
+                      return (
+                        <div className="p-4 rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50/80 to-white shadow-xs space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Users className="w-4 h-4 text-[#F95700]" />
+                              <h4 className="font-bold text-xs text-slate-900">
+                                Super Admin: Followers &amp; Audience Metric Controls
+                              </h4>
+                            </div>
+                            {hasOverride ? (
+                              <span className="text-[10px] bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-full font-bold">
+                                Custom Admin Override Active
+                              </span>
+                            ) : (
+                              <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">
+                                Natural Organic Mode
+                              </span>
+                            )}
+                          </div>
+
+                          <p className="text-[11px] text-slate-500 leading-relaxed">
+                            Creators cannot edit their own followers in their user dashboard. You can set a custom verified follower count here as Super Admin, or keep it 100% natural organic (from authentic user follow clicks).
+                          </p>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                            <div className="p-3 rounded-lg border border-slate-200 bg-white">
+                              <span className="text-[10px] uppercase font-mono text-slate-400 block mb-0.5">
+                                Live Displayed Followers
+                              </span>
+                              <div className="text-2xl font-black text-slate-900 flex items-baseline gap-2">
+                                <span>{curMetrics.followersCount.toLocaleString()}</span>
+                                <span className="text-xs font-normal text-slate-400">
+                                  ({naturalFollowersCount} natural)
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="p-3 rounded-lg border border-slate-200 bg-white space-y-1.5">
+                              <span className="text-[10px] uppercase font-mono text-slate-400 block">
+                                Set Custom Follower Count
+                              </span>
+                              <div className="flex items-center gap-1.5">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={customFollowersInput}
+                                  onChange={(e) => setCustomFollowersInput(e.target.value)}
+                                  placeholder="e.g. 500, 2500, 10000"
+                                  className="w-full text-xs font-mono font-bold p-1.5 rounded border border-slate-300 focus:outline-none focus:border-[#F95700]"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpdateFollowers()}
+                                  className="px-3.5 py-1.5 bg-[#07213A] hover:bg-[#F95700] text-white rounded text-xs font-bold transition whitespace-nowrap cursor-pointer shadow-xs"
+                                >
+                                  Update
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Quick Presets & Reset */}
+                          <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-100 text-xs">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] font-mono text-slate-400">Quick Add:</span>
+                              {[50, 250, 1000, 5000].map((delta) => (
+                                <button
+                                  key={delta}
+                                  type="button"
+                                  onClick={() => handleQuickAddFollowers(delta)}
+                                  className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer"
+                                >
+                                  +{delta >= 1000 ? `${delta / 1000}K` : delta}
+                                </button>
+                              ))}
+                            </div>
+
+                            {hasOverride && (
+                              <button
+                                type="button"
+                                onClick={handleResetToNatural}
+                                className="text-[11px] font-bold text-rose-600 hover:text-rose-700 hover:underline cursor-pointer"
+                              >
+                                Reset to Pure Natural Count ({naturalFollowersCount})
+                              </button>
+                            )}
+                          </div>
+
+                          {followersFeedback && (
+                            <div className="p-2 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-1.5 animate-fadeIn">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>{followersFeedback}</span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
 
                     {/* Identity Verification Audit Checklist */}
                     <div className="p-3.5 rounded-lg bg-orange-50/80 border border-orange-200 text-xs space-y-2">

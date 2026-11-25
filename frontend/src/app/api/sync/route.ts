@@ -20,6 +20,7 @@ function readStore() {
       if (!parsed.followers) parsed.followers = {};
       if (!parsed.views) parsed.views = {};
       if (!parsed.messages) parsed.messages = {};
+      if (!parsed.adminFollowerOverrides) parsed.adminFollowerOverrides = {};
       return parsed;
     }
   } catch (e) {
@@ -101,6 +102,29 @@ export async function POST(req: Request) {
         if (store.people[target]) {
           store.people[target].viewsCount = store.views[target];
         }
+      }
+    }
+    // 3. Super Admin Set Followers Action
+    else if (body.action === 'admin_set_followers') {
+      const target = (body.targetSlug || '').toLowerCase().trim();
+      const count =
+        body.followersCount !== undefined && body.followersCount !== null
+          ? Number(body.followersCount)
+          : null;
+      if (!store.adminFollowerOverrides) store.adminFollowerOverrides = {};
+      if (count === null || isNaN(count)) {
+        delete store.adminFollowerOverrides[target];
+      } else {
+        const followerMap = store.followers || {};
+        const naturalCount = Array.isArray(followerMap[target]) ? followerMap[target].length : 0;
+        store.adminFollowerOverrides[target] = {
+          baseCount: Math.max(0, Math.round(count)),
+          setAtNatural: naturalCount,
+          updatedAt: new Date().toISOString(),
+        };
+      }
+      if (store.people && store.people[target]) {
+        store.people[target].followersCount = count !== null ? String(count) : '0';
       }
     }
     // 3. Direct Message Actions (Send, Read, Delete)
