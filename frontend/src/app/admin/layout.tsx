@@ -202,6 +202,13 @@ export default function AdminLayout({
 
   // Check Admin Session on mount & listen to changes
   useEffect(() => {
+    // If accessing admin on vercel.app, automatically transfer to official production domain bharatbn.com
+    if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
+      const prodTarget = 'https://bharatbn.com' + window.location.pathname + window.location.search;
+      window.location.replace(prodTarget);
+      return;
+    }
+
     const checkAuth = () => {
       try {
         const stored = localStorage.getItem('bharatbn_admin_session');
@@ -371,7 +378,7 @@ export default function AdminLayout({
           {/* Organization Switcher Bar */}
           <div className="p-4 border-b border-[#0E243F] bg-[#05111E]">
             <div className="flex items-center justify-between">
-              <Link href="/" className="flex items-center gap-2 group">
+              <a href="https://bharatbn.com" className="flex items-center gap-2 group" title="Visit BharatBN Home">
                 <Image
                   src="/logo-dark.png"
                   alt="BharatBN"
@@ -380,7 +387,7 @@ export default function AdminLayout({
                   priority
                   className="h-7 w-auto object-contain opacity-95 group-hover:opacity-100 transition"
                 />
-              </Link>
+              </a>
               <span className="text-[10px] font-mono uppercase tracking-wider font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 px-1.5 py-0.5 rounded">
                 PROD
               </span>
@@ -472,16 +479,19 @@ export default function AdminLayout({
             </div>
           </div>
 
-          <Link
-            href="/"
-            className="flex items-center justify-between px-2.5 py-2 rounded-md text-xs text-slate-300 hover:text-white hover:bg-[#0A1E35] transition"
+          <a
+            href="https://bharatbn.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between px-2.5 py-2 rounded-md text-xs text-slate-300 hover:text-white hover:bg-[#0A1E35] transition cursor-pointer"
+            title="Open live public website on bharatbn.com"
           >
             <span className="flex items-center gap-1.5 font-medium">
               <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
               View Public Website
             </span>
             <span className="text-[11px] text-slate-400 font-mono">↗</span>
-          </Link>
+          </a>
         </div>
       </aside>
 

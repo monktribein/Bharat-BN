@@ -3,6 +3,13 @@ import type { NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const host = request.headers.get('host') || request.nextUrl.hostname || '';
+
+  // Auto-transfer any traffic on *.vercel.app directly to the official production domain bharatbn.com
+  if (host.includes('vercel.app')) {
+    const prodUrl = new URL(pathname + request.nextUrl.search, 'https://bharatbn.com');
+    return NextResponse.redirect(prodUrl, 308);
+  }
 
   // Skip static assets, Next internal files, direct API endpoints, and known Next.js routes
   if (

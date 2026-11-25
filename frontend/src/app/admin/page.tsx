@@ -513,16 +513,20 @@ export default function AdminDashboardPage() {
                       }`}
                     >
                       <td className="py-3 px-4">
-                        <Link
-                          href={`/biz/${claim.businessSlug || claim.businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                        <a
+                          href={`https://bharatbn.com/biz/${claim.businessSlug || claim.businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`https://bharatbn.com/biz/${claim.businessSlug || claim.businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`, '_blank', 'noopener,noreferrer');
+                          }}
                           className="font-semibold text-slate-900 text-xs hover:text-[#F95700] hover:underline inline-flex items-center gap-1 group transition cursor-pointer"
-                          title="Open live public business profile"
+                          title="Open live public business profile on bharatbn.com"
                         >
                           <span>{claim.businessName}</span>
                           <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-[#F95700] transition" />
-                        </Link>
+                        </a>
                         <div className="text-[11px] text-slate-500">{claim.city} &bull; {claim.category}</div>
                         <div className="font-mono text-[10px] text-slate-400 mt-0.5">{claim.id}</div>
                       </td>

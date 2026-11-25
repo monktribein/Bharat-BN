@@ -665,16 +665,20 @@ export default function AdminListingsPage() {
                     </td>
                     <td className="py-2.5 px-3">
                       <div className="font-mono text-[11px] font-bold text-slate-500">{item.id}</div>
-                      <Link
-                        href={`/biz/${item.slug}`}
+                      <a
+                        href={`https://bharatbn.com/biz/${item.slug}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-semibold text-slate-900 text-xs mt-0.5 hover:text-[#F95700] hover:underline inline-flex items-center gap-1 group transition"
-                        title="View live profile"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(`https://bharatbn.com/biz/${item.slug}`, '_blank', 'noopener,noreferrer');
+                        }}
+                        className="font-semibold text-slate-900 text-xs mt-0.5 hover:text-[#F95700] hover:underline inline-flex items-center gap-1 group transition cursor-pointer"
+                        title="View live profile on bharatbn.com"
                       >
                         <span>{item.name}</span>
                         <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-[#F95700] transition" />
-                      </Link>
+                      </a>
                       <div className="text-[11px] text-slate-400 font-mono">{item.phone}</div>
                     </td>
                     <td className="py-2.5 px-3">
@@ -756,15 +760,20 @@ export default function AdminListingsPage() {
                           <Edit className="w-3 h-3 text-[#F95700]" />
                           <span>Edit</span>
                         </button>
-                        <Link
-                          href={`/biz/${item.slug}`}
+                        <a
+                          href={`https://bharatbn.com/biz/${item.slug}`}
                           target="_blank"
-                          className="text-xs font-semibold text-brand-600 hover:text-brand-700 inline-flex items-center gap-0.5 ml-1"
-                          title="Open live listing"
+                          rel="noopener noreferrer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`https://bharatbn.com/biz/${item.slug}`, '_blank', 'noopener,noreferrer');
+                          }}
+                          className="text-xs font-semibold text-brand-600 hover:text-brand-700 inline-flex items-center gap-0.5 ml-1 cursor-pointer"
+                          title="Open live listing on bharatbn.com"
                         >
                           <span>Live</span>
                           <ExternalLink className="w-3 h-3" />
-                        </Link>
+                        </a>
                       </div>
                     </td>
                   </tr>
@@ -1111,14 +1120,19 @@ export default function AdminListingsPage() {
 
             {/* Modal Footer */}
             <div className="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between flex-shrink-0">
-              <Link
-                href={`/biz/${editForm.slug}`}
+              <a
+                href={`https://bharatbn.com/biz/${editForm.slug}`}
                 target="_blank"
-                className="text-xs font-semibold text-slate-600 hover:text-[#F95700] inline-flex items-center gap-1 transition"
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(`https://bharatbn.com/biz/${editForm.slug}`, '_blank', 'noopener,noreferrer');
+                }}
+                className="text-xs font-semibold text-slate-600 hover:text-[#F95700] inline-flex items-center gap-1 transition cursor-pointer"
               >
-                <span>Preview Current Live Page</span>
+                <span>Preview Current Live Page on bharatbn.com</span>
                 <ExternalLink className="w-3 h-3" />
-              </Link>
+              </a>
 
               <div className="flex items-center gap-2">
                 <button

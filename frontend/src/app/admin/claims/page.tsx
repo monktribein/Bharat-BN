@@ -839,10 +839,14 @@ export default function ClaimModerationPage() {
                           </span>
                           <span className="text-slate-300">|</span>
                           <a
-                            href={`/biz/${selectedClaim.businessSlug}`}
+                            href={`https://bharatbn.com/biz/${selectedClaim.businessSlug}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-brand-600 hover:text-brand-700 font-medium inline-flex items-center gap-1"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(`https://bharatbn.com/biz/${selectedClaim.businessSlug}`, '_blank', 'noopener,noreferrer');
+                            }}
+                            className="text-brand-600 hover:text-brand-700 font-medium inline-flex items-center gap-1 cursor-pointer"
                           >
                             View Live Listing <ExternalLink className="w-3 h-3" />
                           </a>
