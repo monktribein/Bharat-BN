@@ -74,7 +74,16 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
 
   // Follow & Real Metrics state
   const [isFollowing, setIsFollowing] = useState(false);
-  const [followersCount, setFollowersCount] = useState<number>(0);
+  const [followersCount, setFollowersCount] = useState<number>(() => {
+    const curSlug = (propSlug || initialPerson.slug || '').toLowerCase().trim();
+    if (typeof window !== 'undefined' && curSlug) {
+      try {
+        const m = getRealMetrics(curSlug);
+        if (m.followersCount > 0) return m.followersCount;
+      } catch {}
+    }
+    return initialPerson.followersCount || 0;
+  });
   const [followingCount, setFollowingCount] = useState<number>(0);
   const [viewsCount, setViewsCount] = useState<number | string>(0);
   const [followToast, setFollowToast] = useState('');
@@ -225,7 +234,7 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                   if (s === 'kashish' || item.name?.toLowerCase().includes('kashish')) {
                     const needsCoverHeal = !item.coverUrl || item.coverUrl.includes('photo-1541872703-74c5e44368f9') || item.coverUrl.includes('photo-1579546929518') || item.coverUrl.includes('photo-1598488035139');
                     const needsAvatarHeal = !item.avatarUrl || item.avatarUrl.includes('534528741775');
-                    if (needsCoverHeal || needsAvatarHeal || item.followersCount !== '0') {
+                    if (needsCoverHeal || needsAvatarHeal) {
                       changed = true;
                       return {
                         ...item,
@@ -235,7 +244,6 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                         badge: item.badge || 'Public Figure',
                         location: item.location || 'noida',
                         quote: item.quote || 'hi',
-                        followersCount: '0',
                       };
                     }
                   }
@@ -260,10 +268,6 @@ export default function PeopleProfileClient({ person: initialPerson, slug: propS
                 }
                 if (!sess.avatarUrl || sess.avatarUrl.includes('534528741775')) {
                   sess.avatarUrl = '/people/kashish-avatar.png';
-                  sessChanged = true;
-                }
-                if (sess.followersCount !== '0') {
-                  sess.followersCount = '0';
                   sessChanged = true;
                 }
                 if (sessChanged) {

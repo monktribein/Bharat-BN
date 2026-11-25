@@ -249,7 +249,7 @@ const defaultPeopleClaims: PersonClaimItem[] = [
     aboutText: 'Creator and digital pioneer building verified hyper-local networking and growth initiatives for North India businesses.',
     avatarUrl: '/people/kashish-avatar.png',
     coverUrl: '/people/kashish-cover.jpg',
-    followersCount: '0',
+    followersCount: '1000',
     submittedAt: 'Today, 13:00 IST (New)',
     status: 'pending',
     isVerified: true,
@@ -1103,17 +1103,30 @@ export default function ClaimModerationPage() {
                             </div>
                           </div>
 
-                          <span
-                            className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded uppercase ${
-                              person.status === 'approved'
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                : person.status === 'rejected'
-                                ? 'bg-red-50 text-red-700 border border-red-200'
-                                : 'bg-amber-50 text-amber-700 border border-amber-200'
-                            }`}
-                          >
-                            {person.status}
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(`/people/${person.slug}`, '_blank', 'noopener,noreferrer');
+                              }}
+                              title={`Open ${person.name}'s live profile in new tab`}
+                              className="p-1 rounded hover:bg-orange-100 text-slate-400 hover:text-[#F95700] transition cursor-pointer"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </button>
+                            <span
+                              className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded uppercase ${
+                                person.status === 'approved'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : person.status === 'rejected'
+                                  ? 'bg-red-50 text-red-700 border border-red-200'
+                                  : 'bg-amber-50 text-amber-700 border border-amber-200'
+                              }`}
+                            >
+                              {person.status}
+                            </span>
+                          </div>
                         </div>
 
                         <div className="text-[11px] text-slate-600 line-clamp-1 font-medium">
@@ -1146,15 +1159,25 @@ export default function ClaimModerationPage() {
                     {/* Header */}
                     <div className="flex items-start justify-between border-b border-slate-200 pb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-slate-100 overflow-hidden border-2 border-slate-200 shadow-sm flex-shrink-0 flex items-center justify-center">
+                        <a
+                          href={`/people/${selectedPerson.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`/people/${selectedPerson.slug}`, '_blank', 'noopener,noreferrer');
+                          }}
+                          title={`Open ${selectedPerson.name}'s profile in new tab`}
+                          className="w-12 h-12 rounded-full bg-slate-100 overflow-hidden border-2 border-slate-200 hover:border-[#F95700] hover:ring-2 hover:ring-orange-200 transition shadow-sm flex-shrink-0 flex items-center justify-center cursor-pointer group"
+                        >
                           {selectedPerson.avatarUrl ? (
-                            <img src={selectedPerson.avatarUrl} alt={selectedPerson.name} className="w-full h-full object-cover" />
+                            <img src={selectedPerson.avatarUrl} alt={selectedPerson.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                           ) : (
                             <div className="w-full h-full bg-gradient-to-tr from-amber-600 to-orange-500 text-white font-black text-lg flex items-center justify-center">
                               {selectedPerson.name.slice(0, 1).toUpperCase()}
                             </div>
                           )}
-                        </div>
+                        </a>
 
                         <div>
                           <div className="flex items-center gap-2">
@@ -1163,9 +1186,20 @@ export default function ClaimModerationPage() {
                             <span className="text-[11px] text-slate-500 font-mono">{selectedPerson.submittedAt}</span>
                           </div>
                           <div className="flex items-center gap-1.5 mt-0.5">
-                            <h2 className="text-base font-bold text-slate-900">
-                              {selectedPerson.name}
-                            </h2>
+                            <a
+                              href={`/people/${selectedPerson.slug}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(`/people/${selectedPerson.slug}`, '_blank', 'noopener,noreferrer');
+                              }}
+                              className="text-base font-bold text-slate-900 hover:text-[#F95700] hover:underline flex items-center gap-1 transition cursor-pointer"
+                              title="Click to open profile in new tab"
+                            >
+                              <span>{selectedPerson.name}</span>
+                              <ExternalLink className="w-3.5 h-3.5 opacity-60 hover:opacity-100" />
+                            </a>
                             {selectedPerson.isVerified && (
                               <div className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs" title="Official Verified Profile">
                                 <Check className="w-2.5 h-2.5 stroke-[3.5]" />
@@ -1183,7 +1217,11 @@ export default function ClaimModerationPage() {
                               href={`/people/${selectedPerson.slug}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[#F95700] hover:underline font-bold inline-flex items-center gap-1"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(`/people/${selectedPerson.slug}`, '_blank', 'noopener,noreferrer');
+                              }}
+                              className="px-2.5 py-0.5 bg-[#F95700] hover:bg-orange-600 text-white font-bold text-[11px] rounded inline-flex items-center gap-1 transition shadow-xs cursor-pointer"
                             >
                               View Live Profile <ExternalLink className="w-3 h-3" />
                             </a>
@@ -1218,9 +1256,23 @@ export default function ClaimModerationPage() {
                         <span className="text-[10px] uppercase font-mono text-slate-400">Public Figure Category</span>
                         <div className="font-semibold text-slate-800">{selectedPerson.badge}</div>
                       </div>
-                      <div className="p-3 rounded border border-slate-100 bg-slate-50/50 space-y-1">
-                        <span className="text-[10px] uppercase font-mono text-slate-400">Public URL Slug</span>
-                        <div className="font-mono font-bold text-slate-900">/people/{selectedPerson.slug}</div>
+                      <div className="p-3 rounded border border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                        <div>
+                          <span className="text-[10px] uppercase font-mono text-slate-400 block">Public URL Slug</span>
+                          <div className="font-mono font-bold text-slate-900">/people/{selectedPerson.slug}</div>
+                        </div>
+                        <a
+                          href={`/people/${selectedPerson.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`/people/${selectedPerson.slug}`, '_blank', 'noopener,noreferrer');
+                          }}
+                          className="px-2.5 py-1 bg-[#07213A] hover:bg-[#F95700] text-white rounded text-[11px] font-bold inline-flex items-center gap-1 shadow-xs transition cursor-pointer"
+                        >
+                          Open ↗
+                        </a>
                       </div>
                     </div>
 

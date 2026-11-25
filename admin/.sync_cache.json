@@ -14,8 +14,8 @@
       "coverUrl": "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1600&q=80",
       "isVerified": false,
       "status": "pending",
-      "followersCount": 1,
-      "viewsCount": 2
+      "followersCount": 0,
+      "viewsCount": 3
     },
     "kashish": {
       "id": "BBN-PPL-KASHISH-001",
@@ -140,14 +140,13 @@
   "followers": {
     "anand-sahu": [],
     "kashish": [],
-    "ai": [
-      "@kashish"
-    ]
+    "ai": []
   },
   "views": {
     "kashish": 2,
-    "ai": 2,
+    "ai": 3,
     "anand-sahu": 3
   },
-  "updatedAt": "2026-11-23T11:35:11.648Z"
+  "updatedAt": "2026-11-24T04:21:39.983Z",
+  "messages": {}
 }

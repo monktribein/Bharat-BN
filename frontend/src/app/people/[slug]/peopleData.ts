@@ -345,7 +345,7 @@ export const kashishProfile: PersonProfile = {
   quote: 'hi',
   avatarUrl: '/people/kashish-avatar.png',
   coverUrl: '/people/kashish-cover.jpg',
-  followersCount: 0,
+  followersCount: 1000,
   followingCount: 0,
   postsCount: 14,
   viewsCount: '1',

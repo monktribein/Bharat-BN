@@ -1,48 +1,78 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 
-function getStorePath(): string {
-  // Check parent directory (project root) first
-  const rootPath = path.resolve(process.cwd(), '..', '.sync_cache.json');
-  if (fs.existsSync(rootPath)) return rootPath;
-  const localPath = path.resolve(process.cwd(), '.sync_cache.json');
-  if (fs.existsSync(localPath)) return localPath;
-  return rootPath;
+// Global cache for lambda environment
+const g = globalThis as any;
+if (!g.__BHARATBN_SYNC_STORE__) {
+  g.__BHARATBN_SYNC_STORE__ = null;
+}
+
+const DEFAULT_OVERRIDE_STORE = {
+  kashish: {
+    baseCount: 1000,
+    setAtNatural: 0,
+    updatedAt: '2026-11-25T12:00:00.000Z',
+  },
+};
+
+function getStorePaths(): string[] {
+  const paths: string[] = [];
+  try {
+    paths.push(path.join(os.tmpdir(), 'bharatbn_sync_cache.json'));
+  } catch {}
+  try {
+    paths.push(path.resolve(process.cwd(), '.sync_cache.json'));
+  } catch {}
+  try {
+    paths.push(path.resolve(process.cwd(), '..', '.sync_cache.json'));
+  } catch {}
+  return paths;
 }
 
 function readStore() {
+  if (g.__BHARATBN_SYNC_STORE__) {
+    return g.__BHARATBN_SYNC_STORE__;
+  }
   try {
-    const storePath = getStorePath();
-    if (fs.existsSync(storePath)) {
-      const raw = fs.readFileSync(storePath, 'utf-8');
-      const parsed = JSON.parse(raw);
-      if (!parsed.followers) parsed.followers = {};
-      if (!parsed.views) parsed.views = {};
-      if (!parsed.messages) parsed.messages = {};
-      if (!parsed.adminFollowerOverrides) parsed.adminFollowerOverrides = {};
-      return parsed;
+    for (const p of getStorePaths()) {
+      if (fs.existsSync(p)) {
+        const raw = fs.readFileSync(p, 'utf-8');
+        const parsed = JSON.parse(raw);
+        if (!parsed.followers) parsed.followers = {};
+        if (!parsed.views) parsed.views = {};
+        if (!parsed.messages) parsed.messages = {};
+        if (!parsed.adminFollowerOverrides) parsed.adminFollowerOverrides = { ...DEFAULT_OVERRIDE_STORE };
+        g.__BHARATBN_SYNC_STORE__ = parsed;
+        return parsed;
+      }
     }
   } catch (e) {
     console.error('Failed to read sync cache', e);
   }
-  return {
+  const fallback = {
     people: {},
     businesses: {},
     followers: {},
     views: {},
     messages: {},
+    adminFollowerOverrides: { ...DEFAULT_OVERRIDE_STORE },
     updatedAt: new Date().toISOString(),
   };
+  g.__BHARATBN_SYNC_STORE__ = fallback;
+  return fallback;
 }
 
 function writeStore(data: any) {
+  g.__BHARATBN_SYNC_STORE__ = data;
   try {
-    const rootPath = path.resolve(process.cwd(), '..', '.sync_cache.json');
-    const localPath = path.resolve(process.cwd(), '.sync_cache.json');
     const jsonStr = JSON.stringify(data, null, 2);
-    try { fs.writeFileSync(rootPath, jsonStr, 'utf-8'); } catch {}
-    try { fs.writeFileSync(localPath, jsonStr, 'utf-8'); } catch {}
+    for (const p of getStorePaths()) {
+      try {
+        fs.writeFileSync(p, jsonStr, 'utf-8');
+      } catch {}
+    }
   } catch (e) {
     console.error('Failed to write sync cache', e);
   }

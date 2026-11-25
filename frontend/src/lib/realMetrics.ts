@@ -137,8 +137,8 @@ export function parseFollowerCount(val: any): number {
 export function formatFollowerCount(num: number): string {
   if (isNaN(num) || num <= 0) return '0';
   if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-  if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
-  return `${num}`;
+  if (num >= 10000) return `${(num / 1000).toFixed(1)}K`;
+  return num.toLocaleString('en-IN');
 }
 
 export interface AdminFollowerOverride {
@@ -147,13 +147,22 @@ export interface AdminFollowerOverride {
   updatedAt: string;
 }
 
+export const DEFAULT_ADMIN_FOLLOWER_OVERRIDES: Record<string, AdminFollowerOverride> = {
+  kashish: {
+    baseCount: 1000,
+    setAtNatural: 0,
+    updatedAt: '2026-11-25T12:00:00.000Z',
+  },
+};
+
 export function getAdminFollowerOverrides(): Record<string, AdminFollowerOverride> {
-  if (typeof window === 'undefined') return {};
+  const defaults: Record<string, AdminFollowerOverride> = { ...DEFAULT_ADMIN_FOLLOWER_OVERRIDES };
+  if (typeof window === 'undefined') return defaults;
   try {
     const raw = localStorage.getItem('bharatbn_admin_followers_override');
-    if (!raw) return {};
+    if (!raw) return defaults;
     const parsed = JSON.parse(raw);
-    const normalized: Record<string, AdminFollowerOverride> = {};
+    const normalized: Record<string, AdminFollowerOverride> = { ...defaults };
     for (const [k, v] of Object.entries(parsed)) {
       if (typeof v === 'number') {
         normalized[k.toLowerCase().trim()] = {
@@ -171,7 +180,7 @@ export function getAdminFollowerOverrides(): Record<string, AdminFollowerOverrid
     }
     return normalized;
   } catch {
-    return {};
+    return defaults;
   }
 }
 
@@ -188,14 +197,31 @@ export function setAdminFollowerOverride(slug: string, newCount: number | null):
 
     if (newCount === null || isNaN(newCount)) {
       delete currentMap[normSlug];
+      delete DEFAULT_ADMIN_FOLLOWER_OVERRIDES[normSlug];
     } else {
-      currentMap[normSlug] = {
+      const overrideObj = {
         baseCount: Math.max(0, Math.round(newCount)),
         setAtNatural: naturalCount,
         updatedAt: new Date().toISOString(),
       };
+      currentMap[normSlug] = overrideObj;
+      DEFAULT_ADMIN_FOLLOWER_OVERRIDES[normSlug] = overrideObj;
     }
     localStorage.setItem('bharatbn_admin_followers_override', JSON.stringify(currentMap));
+
+    // Sync to bharatbn_owner_session if active user matches this slug
+    try {
+      const sessStr = localStorage.getItem('bharatbn_owner_session');
+      if (sessStr) {
+        const sess = JSON.parse(sessStr);
+        const sSlug = (sess.slug || sess.handle?.replace(/^@/, '') || '').toLowerCase().trim();
+        if (sSlug === normSlug) {
+          sess.followersCount = String(newCount !== null ? Math.max(0, Math.round(newCount)) : naturalCount);
+          localStorage.setItem('bharatbn_owner_session', JSON.stringify(sess));
+          window.dispatchEvent(new Event('bharatbn_auth_changed'));
+        }
+      }
+    } catch {}
 
     // Sync to bharatbn_people_store so people directory updates instantly
     try {

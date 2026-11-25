@@ -518,14 +518,20 @@ export default function AdminPeoplePage() {
 
                     {/* Actions */}
                     <td className="py-3 px-4 text-right">
-                      <Link
+                      <a
                         href={`/people/${person.slug}`}
                         target="_blank"
-                        className="inline-flex items-center gap-1 text-[11px] font-bold text-[#F95700] hover:underline"
+                        rel="noopener noreferrer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(`/people/${person.slug}`, '_blank', 'noopener,noreferrer');
+                        }}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 hover:bg-[#F95700] text-[#F95700] hover:text-white border border-orange-200 rounded text-[11px] font-bold transition shadow-xs cursor-pointer"
+                        title={`Open ${person.name}'s profile in new tab`}
                       >
-                        <span>View</span>
+                        <span>View Profile</span>
                         <ExternalLink className="w-3 h-3" />
-                      </Link>
+                      </a>
                     </td>
                   </tr>
                 );
