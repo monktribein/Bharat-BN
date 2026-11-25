@@ -84,3 +84,11 @@ $RECYCLE.BIN/
 
 # 10. Large Raw XML Dumps
 database/wp_export/*.xml
+
+# 11. Runtime sync store (live data on the server, must not be overwritten by deploys)
+.sync_cache.json
+**/.sync_cache.json
+
+# 12. Production env files
+.env.production
+**/.env.production
