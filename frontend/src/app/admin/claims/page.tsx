@@ -1108,9 +1108,9 @@ export default function ClaimModerationPage() {
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                window.open(`/people/${person.slug}`, '_blank', 'noopener,noreferrer');
+                                window.open(`https://bharatbn.com/people/${person.slug}`, '_blank', 'noopener,noreferrer');
                               }}
-                              title={`Open ${person.name}'s live profile in new tab`}
+                              title={`Open ${person.name}'s live profile on bharatbn.com`}
                               className="p-1 rounded hover:bg-orange-100 text-slate-400 hover:text-[#F95700] transition cursor-pointer"
                             >
                               <ExternalLink className="w-3.5 h-3.5" />
@@ -1160,14 +1160,14 @@ export default function ClaimModerationPage() {
                     <div className="flex items-start justify-between border-b border-slate-200 pb-4">
                       <div className="flex items-center gap-3">
                         <a
-                          href={`/people/${selectedPerson.slug}`}
+                          href={`https://bharatbn.com/people/${selectedPerson.slug}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => {
                             e.stopPropagation();
-                            window.open(`/people/${selectedPerson.slug}`, '_blank', 'noopener,noreferrer');
+                            window.open(`https://bharatbn.com/people/${selectedPerson.slug}`, '_blank', 'noopener,noreferrer');
                           }}
-                          title={`Open ${selectedPerson.name}'s profile in new tab`}
+                          title={`Open ${selectedPerson.name}'s profile on bharatbn.com`}
                           className="w-12 h-12 rounded-full bg-slate-100 overflow-hidden border-2 border-slate-200 hover:border-[#F95700] hover:ring-2 hover:ring-orange-200 transition shadow-sm flex-shrink-0 flex items-center justify-center cursor-pointer group"
                         >
                           {selectedPerson.avatarUrl ? (
@@ -1187,15 +1187,15 @@ export default function ClaimModerationPage() {
                           </div>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <a
-                              href={`/people/${selectedPerson.slug}`}
+                              href={`https://bharatbn.com/people/${selectedPerson.slug}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                window.open(`/people/${selectedPerson.slug}`, '_blank', 'noopener,noreferrer');
+                                window.open(`https://bharatbn.com/people/${selectedPerson.slug}`, '_blank', 'noopener,noreferrer');
                               }}
                               className="text-base font-bold text-slate-900 hover:text-[#F95700] hover:underline flex items-center gap-1 transition cursor-pointer"
-                              title="Click to open profile in new tab"
+                              title="Click to open profile on bharatbn.com"
                             >
                               <span>{selectedPerson.name}</span>
                               <ExternalLink className="w-3.5 h-3.5 opacity-60 hover:opacity-100" />
@@ -1214,12 +1214,12 @@ export default function ClaimModerationPage() {
                             </span>
                             <span className="text-slate-300">|</span>
                             <a
-                              href={`/people/${selectedPerson.slug}`}
+                              href={`https://bharatbn.com/people/${selectedPerson.slug}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                window.open(`/people/${selectedPerson.slug}`, '_blank', 'noopener,noreferrer');
+                                window.open(`https://bharatbn.com/people/${selectedPerson.slug}`, '_blank', 'noopener,noreferrer');
                               }}
                               className="px-2.5 py-0.5 bg-[#F95700] hover:bg-orange-600 text-white font-bold text-[11px] rounded inline-flex items-center gap-1 transition shadow-xs cursor-pointer"
                             >
@@ -1259,15 +1259,15 @@ export default function ClaimModerationPage() {
                       <div className="p-3 rounded border border-slate-100 bg-slate-50/50 flex items-center justify-between">
                         <div>
                           <span className="text-[10px] uppercase font-mono text-slate-400 block">Public URL Slug</span>
-                          <div className="font-mono font-bold text-slate-900">/people/{selectedPerson.slug}</div>
+                          <div className="font-mono font-bold text-slate-900">bharatbn.com/people/{selectedPerson.slug}</div>
                         </div>
                         <a
-                          href={`/people/${selectedPerson.slug}`}
+                          href={`https://bharatbn.com/people/${selectedPerson.slug}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => {
                             e.stopPropagation();
-                            window.open(`/people/${selectedPerson.slug}`, '_blank', 'noopener,noreferrer');
+                            window.open(`https://bharatbn.com/people/${selectedPerson.slug}`, '_blank', 'noopener,noreferrer');
                           }}
                           className="px-2.5 py-1 bg-[#07213A] hover:bg-[#F95700] text-white rounded text-[11px] font-bold inline-flex items-center gap-1 shadow-xs transition cursor-pointer"
                         >

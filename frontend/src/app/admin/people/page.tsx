@@ -391,21 +391,41 @@ export default function AdminPeoplePage() {
                     {/* Profile */}
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="relative w-10 h-10 rounded-full overflow-hidden bg-slate-100 border border-slate-200 flex-shrink-0">
+                        <a
+                          href={`https://bharatbn.com/people/${person.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`https://bharatbn.com/people/${person.slug}`, '_blank', 'noopener,noreferrer');
+                          }}
+                          title={`Open ${person.name}'s profile on bharatbn.com`}
+                          className="relative w-10 h-10 rounded-full overflow-hidden bg-slate-100 border border-slate-200 flex-shrink-0 hover:ring-2 hover:ring-orange-300 transition group cursor-pointer block"
+                        >
                           {person.avatarUrl ? (
                             <img
                               src={person.avatarUrl}
                               alt={person.name}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                             />
                           ) : (
                             <div className="w-full h-full bg-[#07213A] text-white font-bold flex items-center justify-center text-xs">
                               {person.name.slice(0, 2).toUpperCase()}
                             </div>
                           )}
-                        </div>
+                        </a>
                         <div>
-                          <div className="flex items-center gap-1 font-bold text-slate-900">
+                          <a
+                            href={`https://bharatbn.com/people/${person.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(`https://bharatbn.com/people/${person.slug}`, '_blank', 'noopener,noreferrer');
+                            }}
+                            className="flex items-center gap-1 font-bold text-slate-900 hover:text-[#F95700] hover:underline transition cursor-pointer"
+                            title={`Open ${person.name}'s profile on bharatbn.com`}
+                          >
                             <span>{person.name}</span>
                             {person.isVerified && (
                               <div
@@ -415,7 +435,7 @@ export default function AdminPeoplePage() {
                                 <Check className="w-2 h-2 stroke-[3.5]" />
                               </div>
                             )}
-                          </div>
+                          </a>
                           <span className="text-[11px] font-mono text-slate-400">{person.handle}</span>
                         </div>
                       </div>
@@ -519,15 +539,15 @@ export default function AdminPeoplePage() {
                     {/* Actions */}
                     <td className="py-3 px-4 text-right">
                       <a
-                        href={`/people/${person.slug}`}
+                        href={`https://bharatbn.com/people/${person.slug}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => {
                           e.stopPropagation();
-                          window.open(`/people/${person.slug}`, '_blank', 'noopener,noreferrer');
+                          window.open(`https://bharatbn.com/people/${person.slug}`, '_blank', 'noopener,noreferrer');
                         }}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-orange-50 hover:bg-[#F95700] text-[#F95700] hover:text-white border border-orange-200 rounded text-[11px] font-bold transition shadow-xs cursor-pointer"
-                        title={`Open ${person.name}'s profile in new tab`}
+                        title={`Open ${person.name}'s profile on bharatbn.com`}
                       >
                         <span>View Profile</span>
                         <ExternalLink className="w-3 h-3" />
