@@ -479,9 +479,8 @@ export function getBusinessBySlug(slug: string): BusinessProfile {
       (b.wpId && String(b.wpId) === cleanSlug)
   );
   if (migrated) {
-    const bizImage =
-      migrated.image ||
-      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80';
+    const isOriginal = Boolean(migrated.image && migrated.image.includes('globalbn.com'));
+    const bizImage = isOriginal ? migrated.image : '';
 
     return {
       id: migrated.id,
@@ -508,20 +507,19 @@ export function getBusinessBySlug(slug: string): BusinessProfile {
       description: `${migrated.name} is an officially audited and verified business listed on BharatBN™ Business Network in ${migrated.city}. Contact directly via phone or WhatsApp.`,
       aboutStory: `${migrated.name} has been serving the local community with dedicated expertise and verified service standards. Audited against official records, the team is committed to transparency, fast communication, and high customer satisfaction.`,
       establishedYear: 2019,
-      coverUrl: bizImage,
-      logoUrl: bizImage,
+      coverUrl: bizImage || undefined,
+      logoUrl: bizImage || undefined,
       rating: Number(migrated.rating || 4.9),
       reviewsCount: migrated.reviewsCount || 24,
-      gallery: [
-        {
-          url: bizImage,
-          caption: `${migrated.name} — Verified Facility & Operations`,
-        },
-        {
-          url: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=1200&q=80',
-          caption: `${migrated.name} — Certified Quality Standards`,
-        },
-      ],
+      gallery:
+        isOriginal && bizImage
+          ? [
+              {
+                url: bizImage,
+                caption: `${migrated.name} — Verified Facility & Operations`,
+              },
+            ]
+          : [],
       workingHours: [
         { days: 'Monday – Saturday', time: '09:30 AM – 08:30 PM', isOpenNow: true },
         { days: 'Sunday', time: '10:00 AM – 06:00 PM', isOpenNow: true },
@@ -599,16 +597,7 @@ export function getBusinessBySlug(slug: string): BusinessProfile {
     establishedYear: 2020,
     rating: 4.9,
     reviewsCount: 32,
-    gallery: [
-      {
-        url: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=1200&q=80',
-        caption: `${formattedName} — Certified Quality Standards`,
-      },
-      {
-        url: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=1200&q=80',
-        caption: `${formattedName} — Speciality Services & Packaging`,
-      },
-    ],
+    gallery: [],
     workingHours: [
       { days: 'Monday – Saturday', time: '09:30 AM – 09:30 PM', isOpenNow: true },
       { days: 'Sunday', time: '10:00 AM – 08:00 PM', isOpenNow: true },

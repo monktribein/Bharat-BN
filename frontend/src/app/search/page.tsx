@@ -40,7 +40,7 @@ interface DirectoryListing {
   isClaimed: boolean;
 }
 
-// Convert all 1,617 real businesses into standardized DirectoryListing records
+// Convert all clean real businesses into standardized DirectoryListing records
 const defaultDirectoryListings: DirectoryListing[] = realMigratedBusinesses.map((b) => ({
   id: b.id,
   name: b.name,
@@ -52,9 +52,7 @@ const defaultDirectoryListings: DirectoryListing[] = realMigratedBusinesses.map(
   address: b.address || `${b.city}, India`,
   phone: b.phone || '+91 97170 56860',
   whatsapp: (b.whatsapp || b.phone || '919717056860').replace(/[^0-9]/g, ''),
-  image:
-    b.image ||
-    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80',
+  image: b.image && b.image.includes('globalbn.com') ? b.image : '',
   rating: Number(b.rating || 4.9),
   reviewsCount: b.reviewsCount || 24,
   services:
@@ -478,22 +476,37 @@ function SearchContent() {
                 className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 hover:border-[#F95700] hover:shadow-md transition-all duration-300 space-y-3 group"
               >
                 <div className="flex flex-col sm:flex-row items-start gap-4">
-                  {/* Business Cover Image */}
-                  <div className="relative w-full sm:w-44 h-36 sm:h-32 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 border border-slate-100">
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      fill
-                      sizes="(max-width: 640px) 100vw, 176px"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute top-2 left-2 z-10">
-                      <span className="inline-flex items-center gap-1 bg-black/75 backdrop-blur-xs text-white px-2 py-0.5 rounded text-[10px] font-bold">
+                  {/* Business Cover Image or Verified Enterprise Badge */}
+                  {item.image && item.image.includes('globalbn.com') ? (
+                    <div className="relative w-full sm:w-44 h-36 sm:h-32 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 border border-slate-100">
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 176px"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute top-2 left-2 z-10">
+                        <span className="inline-flex items-center gap-1 bg-black/75 backdrop-blur-xs text-white px-2 py-0.5 rounded text-[10px] font-bold">
+                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                          {Number(item.rating || 4.9).toFixed(1)}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="relative w-full sm:w-44 h-36 sm:h-32 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/80 flex flex-col items-center justify-center p-3 text-center flex-shrink-0 group-hover:border-[#F95700]/40 transition">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#07213A] to-[#1b4d7e] text-white font-mono font-bold text-sm flex items-center justify-center mb-1.5 shadow-xs">
+                        {item.name.slice(0, 2).toUpperCase()}
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-700 uppercase tracking-wider line-clamp-1">
+                        {item.city}
+                      </span>
+                      <span className="inline-flex items-center gap-0.5 text-[10px] text-amber-600 font-bold mt-1">
                         <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                         {Number(item.rating || 4.9).toFixed(1)}
                       </span>
                     </div>
-                  </div>
+                  )}
 
                   {/* Main Details */}
                   <div className="flex-1 min-w-0 space-y-1.5 w-full">

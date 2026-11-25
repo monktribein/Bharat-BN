@@ -1077,6 +1077,19 @@ export default function HomePage() {
                   </div>
                 </div>
 
+                {/* Real WordPress Featured Image */}
+                {biz.image && biz.image.includes('globalbn.com') && (
+                  <div className="relative w-full h-36 rounded-xl overflow-hidden bg-slate-100 border border-slate-100">
+                    <Image
+                      src={biz.image}
+                      alt={biz.name}
+                      fill
+                      sizes="(max-width: 640px) 280px, 320px"
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                )}
+
                 {/* Business Name */}
                 <Link
                   href={`/biz/${biz.slug}`}
