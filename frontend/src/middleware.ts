@@ -9,6 +9,8 @@ export async function middleware(request: NextRequest) {
     pathname === '/' ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/people') ||
     pathname.startsWith('/search') ||
     pathname.startsWith('/biz') ||
     pathname.startsWith('/claim') ||
