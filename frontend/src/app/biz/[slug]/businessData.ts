@@ -462,25 +462,34 @@ export const businessDatabase: Record<string, BusinessProfile> = {
 };
 
 export function getBusinessBySlug(slug: string): BusinessProfile {
-  const cleanSlug = (slug || '').toLowerCase().trim();
+  const cleanSlug = decodeURIComponent(slug || '').toLowerCase().trim().replace(/\/+$/, '');
 
   // 1. Direct dictionary match
   if (businessDatabase[cleanSlug]) {
     return businessDatabase[cleanSlug];
   }
 
-  // 2. Real WordPress Migrated Businesses Match
+  // 2. Real WordPress Migrated Businesses Match across all 1,617 listings
   const migrated = realMigratedBusinesses.find(
-    (b) => b.slug === cleanSlug || cleanSlug.includes(b.slug) || (b.slug.length > 5 && b.slug.includes(cleanSlug))
+    (b) =>
+      b.slug === cleanSlug ||
+      cleanSlug.includes(b.slug) ||
+      (b.slug.length > 5 && b.slug.includes(cleanSlug)) ||
+      b.id.toLowerCase() === cleanSlug ||
+      (b.wpId && String(b.wpId) === cleanSlug)
   );
   if (migrated) {
+    const bizImage =
+      migrated.image ||
+      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80';
+
     return {
       id: migrated.id,
       name: migrated.name,
       slug: migrated.slug,
-      phone: migrated.phone,
-      whatsapp: migrated.whatsapp,
-      email: 'contact@' + migrated.slug.replace(/[^a-z0-9]/g, '') + '.in',
+      phone: migrated.phone || '+91 97170 56860',
+      whatsapp: (migrated.whatsapp || migrated.phone || '919717056860').replace(/[^0-9]/g, ''),
+      email: 'contact@' + (migrated.slug.replace(/[^a-z0-9]/g, '') || 'business') + '.in',
       website: 'https://bharatbn.com/' + migrated.slug + '/',
       addressLine: migrated.address || 'Commercial Center, NCR, India',
       landmark: 'Near Central Commercial Belt, ' + (migrated.city || 'Greater Noida'),
@@ -490,23 +499,27 @@ export function getBusinessBySlug(slug: string): BusinessProfile {
       category: migrated.category,
       categoryHierarchy: ['Directory', 'Verified Local Businesses', migrated.category, migrated.name],
       services:
-        migrated.tags && migrated.tags.length > 0
+        migrated.services && migrated.services.length > 0
+          ? migrated.services
+          : migrated.tags && migrated.tags.length > 0
           ? migrated.tags
           : ['Audited Services', 'Verified Direct Inquiry', 'Certified Standards'],
       amenities: ['Air Conditioned', 'Online Payments & UPI', 'Official GST Invoicing', 'Customer Parking', 'Verified Partner'],
       description: `${migrated.name} is an officially audited and verified business listed on BharatBN™ Business Network in ${migrated.city}. Contact directly via phone or WhatsApp.`,
       aboutStory: `${migrated.name} has been serving the local community with dedicated expertise and verified service standards. Audited against official records, the team is committed to transparency, fast communication, and high customer satisfaction.`,
       establishedYear: 2019,
-      rating: migrated.rating,
-      reviewsCount: migrated.reviewsCount,
+      coverUrl: bizImage,
+      logoUrl: bizImage,
+      rating: Number(migrated.rating || 4.9),
+      reviewsCount: migrated.reviewsCount || 24,
       gallery: [
+        {
+          url: bizImage,
+          caption: `${migrated.name} — Verified Facility & Operations`,
+        },
         {
           url: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=1200&q=80',
           caption: `${migrated.name} — Certified Quality Standards`,
-        },
-        {
-          url: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=1200&q=80',
-          caption: `${migrated.name} — Verified Facility`,
         },
       ],
       workingHours: [

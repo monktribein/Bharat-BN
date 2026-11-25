@@ -216,80 +216,106 @@ const defaultPeopleList: PersonItem[] = [
   },
 ];
 
-const defaultVerifiedList: VerifiedBusiness[] = realMigratedBusinesses;
+const defaultVerifiedList: VerifiedBusiness[] = realMigratedBusinesses
+  .filter((b) => b.image && b.image.includes('globalbn.com'))
+  .slice(0, 36);
 
-// Exact Categories matching Reference Image 2
+// Exact Categories matching Reference with Badges and Subtitles
 const visualCategories = [
   {
-    name: 'Health',
+    name: 'Health & Medical',
     categorySlug: 'healthcare-clinics',
     query: 'Health',
+    tag: 'Most Popular',
+    subtitle: 'Clinics, Hospitals & Labs',
     image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=600&q=80',
   },
   {
-    name: 'Education',
+    name: 'Education & Schools',
     categorySlug: 'education-preschools',
     query: 'Education',
+    tag: 'Top Rated',
+    subtitle: 'Schools, Daycare & Coaching',
     image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80',
   },
   {
-    name: 'Food & Cafe',
+    name: 'Food & Dining',
     categorySlug: 'food-confectionery',
     query: 'Food',
+    tag: 'Trending',
+    subtitle: 'Restaurants, Cafes & Bakeries',
     image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80',
   },
   {
-    name: 'Malls',
+    name: 'Malls & Retail Hubs',
     categorySlug: 'retail-shopping',
     query: 'Mall',
+    tag: 'Popular',
+    subtitle: 'Shopping Centers & Stores',
     image: 'https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?auto=format&fit=crop&w=600&q=80',
   },
   {
-    name: 'Entertainment',
+    name: 'Entertainment & Events',
     categorySlug: 'restaurants-cafes',
     query: 'Entertainment',
+    tag: 'Grand',
+    subtitle: 'Venues, Cinemas & Events',
     image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=80',
   },
   {
-    name: 'Hobbies',
+    name: 'Hobbies & Creative',
     categorySlug: 'education-preschools',
     query: 'Hobbies',
+    tag: 'Custom',
+    subtitle: 'Music, Art & Activities',
     image: 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=600&q=80',
   },
   {
-    name: 'Real-Estate',
+    name: 'Real Estate & Builders',
     categorySlug: 'real-estate-builders',
     query: 'Real Estate',
+    tag: 'Verified',
+    subtitle: 'Commercial, Plots & Homes',
     image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=600&q=80',
   },
   {
-    name: 'Citizens',
+    name: 'Citizens & Legal',
     categorySlug: 'legal-financial-services',
     query: 'Citizen Services',
+    tag: 'Official',
+    subtitle: 'Notary, CA & Legal Services',
     image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80',
   },
   {
-    name: 'Associations',
+    name: 'IT & Software',
     categorySlug: 'it-software-technology',
-    query: 'Associations',
+    query: 'Software',
+    tag: 'High Intent',
+    subtitle: 'Web, Apps & Cloud Tech',
     image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=600&q=80',
   },
   {
-    name: 'Fashion Lifestyle',
+    name: 'Fashion & Lifestyle',
     categorySlug: 'retail-shopping',
     query: 'Fashion',
+    tag: 'Trending',
+    subtitle: 'Apparel, Boutiques & Jewellers',
     image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=600&q=80',
   },
   {
     name: 'Pet & Animals',
     categorySlug: 'healthcare-clinics',
     query: 'Pet Veterinary',
+    tag: 'Care',
+    subtitle: 'Vets, Pet Shops & Grooming',
     image: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80',
   },
   {
-    name: 'Services',
+    name: 'Services & Logistics',
     categorySlug: 'legal-financial-services',
     query: 'Services',
+    tag: 'Essential',
+    subtitle: 'Maintenance, Repairs & Transport',
     image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80',
   },
 ];
@@ -730,7 +756,7 @@ export default function HomePage() {
       const slider = categoriesSliderRef.current;
       if (!slider) return;
 
-      const cardStep = 270;
+      const cardStep = 280;
       const maxScroll = slider.scrollWidth - slider.clientWidth;
 
       if (slider.scrollLeft >= maxScroll - 20) {
@@ -745,7 +771,7 @@ export default function HomePage() {
 
   const scrollCategoriesByAmount = (direction: 'left' | 'right') => {
     if (categoriesSliderRef.current) {
-      const amount = direction === 'left' ? -280 : 280;
+      const amount = direction === 'left' ? -290 : 290;
       categoriesSliderRef.current.scrollBy({ left: amount, behavior: 'smooth' });
       setIsCategoryPaused(true);
       setTimeout(() => setIsCategoryPaused(false), 4000);
@@ -858,7 +884,7 @@ export default function HomePage() {
       </section>
 
       {/* ======================================================== */}
-      {/* 2. SECTION: Categories (Auto-Scrolling Horizontal Slider) */}
+      {/* 2. SECTION: Categories (Auto-Scrolling TMKG Reference)  */}
       {/* ======================================================== */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
         <div className="flex items-center justify-between pb-1">
@@ -904,58 +930,70 @@ export default function HomePage() {
           onTouchStart={() => setIsCategoryPaused(true)}
           onTouchEnd={() => setIsCategoryPaused(false)}
           onScroll={handleCategoryScroll}
-          className="flex items-stretch gap-4 overflow-x-auto py-3 px-1 no-scrollbar scroll-smooth cursor-grab active:cursor-grabbing select-none"
+          className="flex items-stretch gap-4 overflow-x-auto py-2 px-1 no-scrollbar scroll-smooth cursor-grab active:cursor-grabbing select-none"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {/* Duplicated array for seamless continuous looping */}
+          {/* Double array for infinite seamless looping */}
           {[...visualCategories, ...visualCategories].map((cat, index) => (
             <motion.div
               key={`${cat.name}-${index}`}
-              whileHover={{ scale: 1.03 }}
+              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-52 sm:w-60 md:w-64 flex-shrink-0 relative rounded-2xl overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 aspect-[16/10] bg-slate-900 group"
+              className="w-56 sm:w-64 flex-shrink-0 relative rounded-2xl overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 bg-white border border-slate-200/90 group flex flex-col justify-between"
             >
               <Link
                 href={`/search?category=${cat.categorySlug}&q=${encodeURIComponent(cat.query)}`}
-                className="block w-full h-full relative"
-                title={`Explore ${cat.name} on BharatBN`}
+                className="block h-full relative"
               >
-                {/* Background Photo */}
-                <Image
-                  src={cat.image}
-                  alt={cat.name}
-                  fill
-                  sizes="(max-width: 640px) 208px, 256px"
-                  className="object-cover group-hover:scale-110 transition-transform duration-500 opacity-80"
-                />
+                {/* Top Image Box */}
+                <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-900">
+                  <Image
+                    src={cat.image}
+                    alt={cat.name}
+                    fill
+                    sizes="(max-width: 640px) 224px, 256px"
+                    className="object-cover group-hover:scale-108 transition-transform duration-500 opacity-85"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  {cat.tag && (
+                    <div className="absolute top-2.5 left-2.5 z-10">
+                      <span className="bg-[#F95700] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                        {cat.tag}
+                      </span>
+                    </div>
+                  )}
+                </div>
 
-                {/* Dark Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/25 group-hover:from-black/75 group-hover:via-black/30 group-hover:to-transparent transition duration-300" />
-
-                {/* Centered Category Text */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center z-10">
-                  <span className="font-extrabold text-base sm:text-lg text-[#F95700] group-hover:text-amber-400 tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition transform group-hover:scale-105">
-                    {cat.name}
-                  </span>
-                  <span className="text-[10px] font-semibold text-white/80 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    Explore Listings &rarr;
-                  </span>
+                {/* Card Content & Footer Link */}
+                <div className="p-3.5 flex flex-col justify-between bg-white flex-1">
+                  <div>
+                    <h3 className="font-extrabold text-sm sm:text-base text-slate-900 group-hover:text-[#F95700] transition line-clamp-1 leading-snug">
+                      {cat.name}
+                    </h3>
+                    <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5 font-medium">
+                      {cat.subtitle}
+                    </p>
+                  </div>
+                  <div className="pt-2.5 mt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-[#F95700]">
+                    <span>Explore Directory</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
               </Link>
             </motion.div>
           ))}
         </div>
 
-        {/* Scroll Progress Bar & Footer Indicator */}
+        {/* Scroll Progress Bar & Helper Footer */}
         <div className="space-y-1.5 pt-1">
           <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
             <div
               className="h-full bg-[#F95700] rounded-full transition-all duration-200"
-              style={{ width: `${Math.max(12, categoryProgress)}%` }}
+              style={{ width: `${Math.max(10, categoryProgress)}%` }}
             />
           </div>
           <div className="flex items-center justify-between text-[11px] text-slate-400 font-medium px-0.5">
-            <span>Drag or swipe left/right to explore all categories</span>
+            <span>⇄ Drag or swipe left/right to explore all categories</span>
             <span className="font-semibold text-slate-500">{visualCategories.length} Categories Available</span>
           </div>
         </div>

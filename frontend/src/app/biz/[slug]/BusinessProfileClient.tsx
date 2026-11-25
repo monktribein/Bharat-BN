@@ -541,7 +541,7 @@ export default function BusinessProfileClient({
 
                 <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-800 border border-amber-200/80 px-2.5 py-1 rounded-full text-xs font-bold">
                   <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  <span>{business.rating}</span>
+                  <span>{Number(business.rating || 4.9).toFixed(1)}</span>
                   <span className="text-slate-400 font-normal">({business.reviewsCount} Reviews)</span>
                 </span>
 
@@ -823,7 +823,7 @@ export default function BusinessProfileClient({
                 </div>
                 <div className="flex items-center gap-1 text-sm font-bold text-amber-700">
                   <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  <span>{business.rating} / 5.0 Rating</span>
+                  <span>{Number(business.rating || 4.9).toFixed(1)} / 5.0 Rating</span>
                 </div>
               </div>
 
@@ -1362,7 +1362,7 @@ export default function BusinessProfileClient({
                       </div>
                       <div className="flex items-center gap-0.5 text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 flex-shrink-0">
                         <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                        <span>{sim.rating}</span>
+                        <span>{Number(sim.rating || 4.9).toFixed(1)}</span>
                       </div>
                     </div>
 
