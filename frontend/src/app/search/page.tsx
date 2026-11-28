@@ -491,7 +491,15 @@ function SearchContent() {
   }, [listings, activeCategory, activeQuery, activeCity]);
 
   const { matches: finalResults, inOtherCities: otherCityResults } = filteredListings;
-  const displayItems = finalResults.length > 0 ? finalResults : otherCityResults;
+  const displayItems = useMemo(() => {
+    const raw = finalResults.length > 0 ? finalResults : otherCityResults;
+    return [...raw].sort((a, b) => {
+      const aHasVisual = Boolean(a.image || a.logo || getBusinessLogo(a.slug, a.name));
+      const bHasVisual = Boolean(b.image || b.logo || getBusinessLogo(b.slug, b.name));
+      if (aHasVisual !== bHasVisual) return aHasVisual ? -1 : 1;
+      return 0;
+    });
+  }, [finalResults, otherCityResults]);
 
   // Pagination calculation
   const totalPages = Math.ceil(displayItems.length / ITEMS_PER_PAGE);
