@@ -595,12 +595,23 @@ export default function HomePage() {
   useEffect(() => {
     const loadHomeBanner = async () => {
       try {
-        const res = await fetch('/api/sync', { cache: 'no-store' });
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.homeBanner) {
-            setHomeBanner((prev) => ({ ...prev, ...data.homeBanner }));
+        const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || 'https://bharat-bn-xxgp.vercel.app';
+        const isLocal = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
+        const urls = isLocal ? ['/api/sync'] : ['/api/sync', `${adminUrl}/api/sync`];
+        const results = await Promise.allSettled(
+          urls.map((u) => fetch(u, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)))
+        );
+        let bestBanner: any = null;
+        for (const r of results) {
+          if (r.status === 'fulfilled' && r.value?.homeBanner) {
+            const b = r.value.homeBanner;
+            if (!bestBanner || (b.updatedAt || '') > (bestBanner.updatedAt || '')) {
+              bestBanner = b;
+            }
           }
+        }
+        if (bestBanner) {
+          setHomeBanner((prev) => ({ ...prev, ...bestBanner }));
         }
       } catch { }
     };

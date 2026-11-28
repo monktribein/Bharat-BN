@@ -88,8 +88,52 @@ export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: corsHeaders });
 }
 
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const BANNER_BUCKET = 'site-config';
+const BANNER_OBJECT = 'home-banner.json';
+
+async function readBannerFromSupabase() {
+  if (!SUPABASE_URL) return null;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/storage/v1/object/public/${BANNER_BUCKET}/${BANNER_OBJECT}`, {
+      cache: 'no-store',
+    });
+    if (res.ok) return await res.json();
+  } catch {}
+  return null;
+}
+
+async function writeBannerToSupabase(banner: any) {
+  if (!SUPABASE_URL || !SUPABASE_KEY) return false;
+  try {
+    await fetch(`${SUPABASE_URL}/storage/v1/bucket`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${SUPABASE_KEY}`, apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: BANNER_BUCKET, name: BANNER_BUCKET, public: true }),
+    });
+    const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${BANNER_BUCKET}/${BANNER_OBJECT}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        apikey: SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'x-upsert': 'true',
+      },
+      body: JSON.stringify(banner),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 export async function GET() {
   const store = readStore();
+  const supaBanner = await readBannerFromSupabase();
+  if (supaBanner) {
+    store.homeBanner = supaBanner;
+  }
   return NextResponse.json(store, { headers: corsHeaders });
 }
 
@@ -211,6 +255,7 @@ export async function POST(req: Request) {
         ...body.homeBanner,
         updatedAt: new Date().toISOString(),
       };
+      await writeBannerToSupabase(store.homeBanner);
     }
     // 6. Bulk Updates
     else if (body.people || body.claims) {
