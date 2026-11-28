@@ -149,7 +149,15 @@ export async function POST(req: Request) {
         };
       }
     }
-    // 5. Bulk Updates
+    // 5. Home Banner Update
+    else if (body.action === 'update_home_banner' && body.homeBanner) {
+      store.homeBanner = {
+        ...(store.homeBanner || {}),
+        ...body.homeBanner,
+        updatedAt: new Date().toISOString(),
+      };
+    }
+    // 6. Bulk Updates
     else if (body.people || body.claims) {
       if (Array.isArray(body.people)) {
         body.people.forEach((p: any) => {

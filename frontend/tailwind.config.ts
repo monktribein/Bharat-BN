@@ -10,8 +10,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: [
-          '"Plus Jakarta Sans"',
-          'Inter',
+          '"Open Sans"',
           '-apple-system',
           'BlinkMacSystemFont',
           '"Segoe UI"',
@@ -19,8 +18,8 @@ const config: Config = {
           'sans-serif',
         ],
         display: [
-          '"Plus Jakarta Sans"',
-          'Inter',
+          '"Switzer"',
+          '"Open Sans"',
           '-apple-system',
           'sans-serif',
         ],

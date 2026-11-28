@@ -77,16 +77,17 @@ export default function DirectMessageModal({
 
   // Load sent history
   const loadHistory = () => {
+    if (!recipient?.slug) return;
     const handleOrSlug = userSession?.handle || userSession?.slug || senderName || 'guest';
     const history = getSentMessages(handleOrSlug, recipient.slug);
     setSentHistory(history);
   };
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && recipient?.slug) {
       loadHistory();
     }
-  }, [isOpen, userSession, recipient.slug]);
+  }, [isOpen, userSession, recipient?.slug]);
 
   if (!isOpen) return null;
 

@@ -50,7 +50,7 @@ const defaultPeople: PersonAdminItem[] = [
     badge: 'AI Innovator',
     category: 'tech',
     location: 'Bengaluru, KA',
-    avatarUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
+    avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA3hEgLT9ydPe-iOHF398fMJVnm1uzTONhg_QOIdUI2uP9_uAzy9s2Kx_I_vCL1VKGcriHuGeSVJCWeON9JvPqcVeFBpbAPuVEnCtDyLBvmixloh9FSU2lFkMbq0JLuRRhkRrwvARsAF20IB_RytUQmF4OquaihJpOVa-E-lJdrtePNSAWffnmdmjlc3asHGZpx8bIX656Xb3kNa-lUWpr5oZsYcHYyiOJdyz7kjJ7H',
     isVerified: true,
     status: 'approved',
   },

@@ -437,8 +437,519 @@ const littleEllyBusiness: BusinessProfile = {
   ],
 };
 
+const amitySchoolBusiness: BusinessProfile = {
+  id: 'BBN-SCH-NOIDA-44-001',
+  name: 'Amity International School, Noida',
+  slug: 'amity-international-school',
+  phone: '+91 120 439 9000',
+  whatsapp: '919818000000',
+  email: 'admissions@aisn.amity.edu',
+  website: 'https://aisn.amity.edu',
+  addressLine: 'Sector 44, Noida, Gautam Buddha Nagar',
+  landmark: 'Opposite Mahamaya Flyover Corridor',
+  city: 'Noida',
+  state: 'Uttar Pradesh',
+  pincode: '201303',
+  category: 'CBSE Senior Secondary Institution',
+  categoryHierarchy: ['Education & Schools', 'CBSE Schools', 'Senior Secondary Campuses', 'Amity Education Group'],
+  services: [
+    'Amiown Montessori Pre-Primary',
+    'CBSE Foundational & NEP Wing',
+    'Atal Tinkering STEM & Robotics Lab',
+    'Senior Secondary Science, Commerce & Arts',
+    'Semi-Olympic Heated Swimming Arena',
+    'JEE / NEET / CUET Mentoring Cells',
+    'Global University Counseling Desk',
+    'GPS-Monitored Fleet Transport',
+  ],
+  amenities: [
+    'Central HVAC with HEPA Air Filtration',
+    '320+ CCTV Zero-Blind-Spot Network',
+    'Full-Time Medical Infirmary (2 MBBS Doctors)',
+    'FIFA Synthetic Turf & 400m Track',
+    'FSSAI Certified 100% Pure Veg Canteen',
+    'Resource Library with 45,000+ Titles',
+    'RFID Automated Security Gates',
+    'Biometric Police Verified Campus Staff',
+  ],
+  description:
+    'Established in 1994 under the aegis of the Ritnand Balved Education Foundation (RBEF), Amity International School, Noida stands as a benchmark of holistic, globally oriented Indian education. Spanning an expansive 15-acre campus in Sector 44, the institution synthesizes traditional Vedic human values with modern technological pedagogy, preparing students for competitive global leadership.',
+  aboutStory:
+    'Established in 1994 under the aegis of the Ritnand Balved Education Foundation (RBEF), Amity International School, Noida stands as a benchmark of holistic, globally oriented Indian education. Spanning an expansive 15-acre campus in Sector 44, the institution synthesizes traditional Vedic human values with modern technological pedagogy, preparing students for competitive global leadership.',
+  seoTitle: 'Amity International School, Noida | CBSE Affiliated | BharatBN™',
+  seoDescription:
+    'Explore Amity International School, Sector 44 Noida. Discover audited campus facilities, CBSE academic wings, verified parent reviews, admissions and contact details on BharatBN.',
+  establishedYear: 1994,
+  rating: 4.8,
+  reviewsCount: 428,
+  coverUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDxE4CTBABtRH269uabKbn2DhJi-i_xt931NiyWevA77xu_pMDbDsxBQd8x6yo5VH7bNvgIFS6retyfla2NzKSY08wBm_35dK5knVtKxnzsCnWNcIzPf2ubIxH19Bb5X5xAxpew-tjsqLlGSHEM_lTLp_01TpGHRk8cdcXqIsA7G503z3nA4UuPfJurHyuFvhu6GhhLuvbIwdocu7xw3fzdWotxu-sJJ-WGVVm_peYX',
+  gallery: [
+    {
+      url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDxE4CTBABtRH269uabKbn2DhJi-i_xt931NiyWevA77xu_pMDbDsxBQd8x6yo5VH7bNvgIFS6retyfla2NzKSY08wBm_35dK5knVtKxnzsCnWNcIzPf2ubIxH19Bb5X5xAxpew-tjsqLlGSHEM_lTLp_01TpGHRk8cdcXqIsA7G503z3nA4UuPfJurHyuFvhu6GhhLuvbIwdocu7xw3fzdWotxu-sJJ-WGVVm_peYX',
+      caption: 'Main Academic Wing — Central Campus & Amphitheatre (Audited Dec 2025)',
+    },
+    {
+      url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDuZx47w-7P53rqNswNp3qybJ4LL6-4aDtbdBIq6VzhTmC9lagTU21vG2hzvDk5nJcgncYUoyqqK0aEKYGh6LNPM6ggw70mSvCYsjLOr0LqD13kn_b-0tkAoYX-KfLjbBzGb6AqPgr1Gwz5rPbgIeYVhm4WVbWJW7V7YWqJqJlqEK3D_7NhxcmsF_Jh57qQmMGHQd4b3fxUf3gRa7kl6oIv5NvQRjkBvNcrgA1ljf-j',
+      caption: 'Smart Classrooms with Interactive Audio-Visual Infrastructure',
+    },
+    {
+      url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBDpDsP9aSiVf0AlW6BFQMFiePjBKeS_XrzNry_jZboVuvMZASFTYpHiHcnysC-S5rSMSlrnvBil5YvCsdvYypmt8ualaj6QTi0Me37c-TFfS3NvQm9NfXcYCWwTTw8N8qCxkZDFd9AmuAKQ3_a7D58mGzvGSG4UNVE5a5KcsI4TF8_JwGGUX9r6QskE13_zeO6dPkz2ei_9fqAMyIanPf42KSSRcoCjY1-LadX1GbP',
+      caption: 'Atal Tinkering STEM & Robotics Laboratory',
+    },
+    {
+      url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDC4jyPZ-Y0uFmqAIyeZLYA0gwSBOiz2hd-KftLRHfMUheUfalNRf--v_JUXPfBub2LAupP4MLcj7r7h29z5bXbNdwMolAJJJaGWats-3VFfgJUWqrJdz-fyQb_CBVaIUNzksLBrMybx9ZO66kNEPF0RIKlK5VsPgI651T_epWRzAfURWC-3w4tjQIPLpRccocgPiqo0GcD_nowIWu5tUBfrVKFHkTLldr8UvImP57J',
+      caption: 'Olympic Swimming & Indoor Multi-Court Sports Arena',
+    },
+  ],
+  workingHours: [
+    { days: 'Monday – Friday', time: '08:00 AM – 04:00 PM', isOpenNow: true },
+    { days: 'Saturday (Administrative)', time: '08:30 AM – 01:30 PM', isOpenNow: false },
+    { days: 'Sunday & Gazetted Holidays', time: 'Closed (Security On-Duty)', isOpenNow: false },
+  ],
+  owner: {
+    name: 'Mrs. Renu Singh',
+    role: 'Principal — Amity International School',
+    memberSince: '1994 (Founding Principal)',
+    verifiedDocType: 'CBSE Affiliation #2130230 & RBEF Trust',
+    responseRate: '100% (< 10 mins)',
+  },
+  reviews: [
+    {
+      id: 'rev-amity-1',
+      author: 'Rajesh K. Sharma',
+      rating: 5,
+      date: '2 weeks ago',
+      comment:
+        'Our son joined in Class VI and the academic transformation has been remarkable. The robotics team mentorship under the Atal Tinkering Lab gives hands-on engineering exposure. The bus tracking app works reliably every morning. Highly recommended for parents who want both discipline and modern STEM exposure.',
+      verified: true,
+    },
+    {
+      id: 'rev-amity-2',
+      author: 'Dr. Priya Deshmukh',
+      rating: 5,
+      date: 'January 2026',
+      comment:
+        'The Amiown pre-primary wing is exceptionally sensitive to early childhood developmental milestones. The teacher-student ratio of 1:12 in kindergarten allows individual emotional care. Hygiene in washrooms and cafeteria is spotlessly maintained.',
+      verified: true,
+    },
+    {
+      id: 'rev-amity-3',
+      author: 'Col. Amitav Sen (Retd.)',
+      rating: 5,
+      date: 'December 2025',
+      comment:
+        'Sports infrastructure is world-class. My daughter represents UP state in swimming and the dedicated coaches provide morning and evening training. Seamless coordination between academics and athletics.',
+      verified: true,
+    },
+  ],
+};
+
+const drSanjayGuptaBusiness: BusinessProfile = {
+  id: 'WP-87923',
+  name: 'Best Robotic Knee Replacement Surgeon in Noida – Dr. Sanjay Gupta',
+  slug: 'best-robotic-knee-replacement-surgeon-in-noida',
+  logoUrl: '/biz/dr-sanjay-gupta.png',
+  phone: '+91 886 044 4888',
+  whatsapp: '918860444888',
+  email: 'sanjaigupta06@gmail.com',
+  website: 'https://drsanjaygupta.info/',
+  addressLine: '3D-5L, Wave City Centre, Sector 32',
+  landmark: 'Near Wave City Centre Metro Station, Sector 32',
+  city: 'Noida',
+  state: 'Uttar Pradesh',
+  pincode: '201301',
+  category: 'Healthcare & Clinics',
+  categoryHierarchy: ['Healthcare & Clinics', 'Orthopedics & Joint Replacement', 'Robotic Knee Replacement', 'Sports Medicine'],
+  services: [
+    'Robotic-Assisted Knee Replacement',
+    'Total & Partial Knee Arthroplasty',
+    'Minimally Invasive Hip Replacement',
+    'Sports Medicine & Arthroscopy',
+    '3D CT-Based Pre-Surgical AI Planning',
+    'Rapid Recovery & Pain Management Protocol',
+    'Complex Deformity Correction Surgery',
+    'Geriatric Osteoarthritis Joint Preservation',
+  ],
+  amenities: [
+    'State-of-the-Art Robotic Surgical Navigation',
+    'Sub-Millimeter Bone Cut Accuracy System',
+    'Ultra-Clean Modular Joint Operatory Suites',
+    'Personalized Day-1 Mobility Protocol',
+    'Direct Front-Desk WhatsApp Inquiries',
+    'Wheelchair & Stretcher Accessible Facility',
+    'Digital Pre-Op & Post-Op Joint Scans',
+    'Cashless Mediclaim & Health Insurance TPA Support',
+  ],
+  description:
+    'Dr. Sanjay Gupta is a Gold Medalist in MS Orthopedics with premier international surgical training from both India and the United Kingdom (MCh Orth UK, FRCS Tr & Orth). With over two decades of clinical mastery and 2,000+ successful joint surgeries, he is recognized as the leading robotic knee replacement surgeon in Noida and Delhi NCR.',
+  aboutStory:
+    'Dr. Sanjay Gupta stands at the forefront of robotic orthopedic surgery in India. Having trained extensively at apex orthopedic centers across the United Kingdom and India, he holds the prestigious FRCS (Tr & Orth) and MCh Orth degrees alongside Golden Fellowships in Knee Replacement, Hip Replacement, and Sports Medicine (UK). As one of the earliest adopters of robotic knee surgery in Noida, Dr. Gupta utilizes advanced 3D imaging and AI planning to deliver customized implant alignment, negligible tissue trauma, and near-zero post-op pain. Active adults, athletes, and elderly citizens suffering from advanced arthritis regain active lifestyle and independence within days.',
+  establishedYear: 2004,
+  rating: 5.0,
+  reviewsCount: 73,
+  gallery: [
+    {
+      url: '/biz/dr-sanjay-gupta.png',
+      caption: 'Dr. Sanjay Gupta — Best Robotic Knee Replacement Surgeon in Noida',
+    },
+  ],
+  workingHours: [
+    { days: 'Monday – Wednesday & Friday – Saturday', time: '06:00 PM – 08:00 PM', isOpenNow: true },
+    { days: 'Thursday & Sunday', time: 'By Prior Appointment / Emergency', isOpenNow: false },
+  ],
+  owner: {
+    name: 'Neelansh Dubey (Verified Partner)',
+    role: 'Digital Health Coordinator & Verified Partner',
+    memberSince: '19 Feb 2024',
+    verifiedDocType: 'Medical Council of India & NMC Verified',
+    responseRate: '100% (< 10 mins)',
+  },
+  reviews: [
+    {
+      id: 'rev-sg1',
+      author: 'Meera S. (Age 62)',
+      rating: 5,
+      date: '20 Nov 2026',
+      comment:
+        'I had both my knees replaced by Dr. Sanjay Gupta using robotic surgery. I was walking within 2 days and pain-free in a week! I am back to my morning walks and yoga. Truly the best robotic knee replacement surgeon in Noida!',
+      verified: true,
+    },
+    {
+      id: 'rev-sg2',
+      author: 'Ravi T. (IT Professional)',
+      rating: 5,
+      date: '12 Nov 2026',
+      comment:
+        'The level of care and precision Dr. Gupta provides is unmatched. His UK training, clear explanation of the 3D robotic procedure, and calm approach made all the difference.',
+      verified: true,
+    },
+    {
+      id: 'rev-sg3',
+      author: 'Col. Rajesh Bakshi (Retd.)',
+      rating: 5,
+      date: '28 Oct 2026',
+      comment:
+        'Outstanding surgeon with impeccable ethics. After 8 years of severe osteoarthritis pain, robotic surgery restored full flexion in my knee without any complications.',
+      verified: true,
+    },
+  ],
+};
+
+const bharratAeroplaneBusiness: BusinessProfile = {
+  id: 'WP-88681',
+  name: 'Bharrat Aeroplane Restaurant',
+  slug: 'bharrat-aeroplane-restaurant',
+  logoUrl: '/biz/bharrat-aeroplane.png',
+  phone: '+91 98200 99881',
+  whatsapp: '919820099881',
+  email: 'reservations@bharrataeroplane.com',
+  website: 'https://bharatbn.com/bharrat-aeroplane-restaurant/',
+  addressLine: 'Link Road, Metro Station Corridor, Andheri West',
+  landmark: 'Near Metro Station, New Link Road',
+  city: 'Mumbai',
+  state: 'Maharashtra',
+  pincode: '400053',
+  category: 'Food & Dining',
+  categoryHierarchy: ['Food & Dining', 'Restaurants', 'Aviation Themed Dining', 'Fine Dining & Buffet'],
+  services: [
+    'Aircraft Cabin Family Dining',
+    'Cockpit Simulation Photo-Op',
+    'Multi-Cuisine Continental & North Indian Buffet',
+    'South Indian Specialty Delicacies',
+    'Kids Pilot Experience Zone',
+    'Corporate Flight & Banquet Hall',
+    'Live Mocktail Runway Bar',
+  ],
+  amenities: [
+    'Authentic Aeroplane Cabin Seating',
+    'First-Class Luxury Dining Suites',
+    'Boarding Pass Style Table Reservations',
+    'Full Air-Conditioned Pressurized Ambience',
+    'Valet Car Parking & Metro Access',
+    'Pure Veg & Non-Veg Dedicated Kitchens',
+    'FSSAI Hygiene Grade A+ Certified',
+  ],
+  description:
+    'Bharrat Aeroplane Restaurant in Mumbai offers India\'s premier one-of-a-kind aviation dining experience inside a real aircraft-themed venue. Featuring flight-attendant style hospitality, gourmet multi-cuisine dining, and authentic cockpit photo suites.',
+  aboutStory:
+    'Bharrat Aeroplane Restaurant brings the wonder of flight directly to food lovers in Mumbai. Guests enter through an authentic boarding gate lounge with customized boarding passes before taking their seats in ergonomically designed first-class aircraft booths. Featuring an expansive menu spanning authentic North Indian curries, Continental pastas, sizzling tandoori platters, and South Indian delicacies, our master chefs curate an unforgettable boarding experience for families, celebrations, and corporate gatherings.',
+  establishedYear: 2021,
+  rating: 4.9,
+  reviewsCount: 114,
+  gallery: [
+    {
+      url: '/biz/bharrat-aeroplane.png',
+      caption: 'Bharrat Aeroplane Restaurant — Iconic Runway Entrance & Airplane Theme',
+    },
+  ],
+  workingHours: [
+    { days: 'Monday – Sunday', time: '11:30 AM – 11:30 PM', isOpenNow: true },
+  ],
+  owner: {
+    name: 'Rajeevbba (Verified Partner)',
+    role: 'Founder & Operations Director',
+    memberSince: '12 Mar 2026',
+    verifiedDocType: 'FSSAI License & GSTIN Verified',
+    responseRate: '100% (< 10 mins)',
+  },
+  reviews: [
+    {
+      id: 'rev-ba1',
+      author: 'Rohit Kulkarni',
+      rating: 5,
+      date: '24 Nov 2026',
+      comment:
+        'Unbelievable experience! Kids felt like they were boarding a real flight. The boarding pass tickets and cabin announcements add such a fun touch. Food was hot, fresh, and delicious.',
+      verified: true,
+    },
+    {
+      id: 'rev-ba2',
+      author: 'Ananya Deshmukh',
+      rating: 5,
+      date: '20 Nov 2026',
+      comment:
+        'Celebrated our family anniversary in the First Class cabin suite. The continental sizzler and dal makhani were superb. Truly unique ambiance in Mumbai!',
+      verified: true,
+    },
+    {
+      id: 'rev-ba3',
+      author: 'Captain Sanjeev Verma (Retd.)',
+      rating: 5,
+      date: '14 Nov 2026',
+      comment:
+        'As an aviation enthusiast, I was amazed by the authentic cabin detailing, window views, and warm hospitality. A must-visit dining destination.',
+      verified: true,
+    },
+  ],
+};
+
+const drSwetaGuptaBusiness: BusinessProfile = {
+  id: 'WP-88033',
+  name: 'Discover the Best IVF Doctor in Noida – Dr. Sweta Gupta',
+  slug: 'discover-the-best-ivf-doctor-in-noida-dr-sweta-gupta',
+  logoUrl: '/biz/dr-sweta-gupta.png',
+  phone: '+91 81301 40007',
+  whatsapp: '918130140007',
+  email: 'swetagupta06@yahoo.com',
+  website: 'https://drswetagupta.com/',
+  addressLine: '3D-5L, Wave City Centre, Sector 32',
+  landmark: 'Near Wave City Centre Metro Station, Sector 32',
+  city: 'Noida',
+  state: 'Uttar Pradesh',
+  pincode: '201301',
+  category: 'Healthcare & Clinics',
+  categoryHierarchy: ['Healthcare & Clinics', 'Fertility & IVF Centers', 'Reproductive Medicine', 'Gynecology'],
+  services: [
+    'Advanced IVF & ICSI Technology',
+    'IUI (Intrauterine Insemination)',
+    'Blastocyst Culture & Laser Assisted Hatching',
+    'Egg & Embryo Vitrification / Freezing',
+    'Recurrent Implantation Failure Diagnostics',
+    'Male Infertility & Micro-TESE Treatment',
+    'Donor Oocyte & Surrogacy Support',
+  ],
+  amenities: [
+    'Clean-Room Positive Pressure IVF Embryology Lab',
+    'Advanced RI Witness Traceability System',
+    'Strict Patient Confidentiality Chambers',
+    'Dedicated Counselor & Psychological Support',
+    'Direct WhatsApp Consultation with Care Coordinator',
+    'Wheelchair & Metro Accessible Facility',
+  ],
+  description:
+    'Dr. Sweta Gupta is an internationally renowned fertility specialist and Medical Director of SG IVF Clinic, Noida. With over 20+ years of clinical excellence, prestigious MRCOG (UK) credentials, and 12,000+ successful IVF cycles, she is celebrated as the top IVF doctor in Noida.',
+  aboutStory:
+    'Dr. Sweta Gupta completed her advanced clinical fellowships in reproductive medicine and IVF in the United Kingdom, acquiring the esteemed Membership of the Royal College of Obstetricians and Gynaecologists (MRCOG-UK). Practicing with deep compassion and transparent clinical ethics, Dr. Gupta and her multidisciplinary embryology team at SG IVF Clinic maintain exceptionally high cumulative pregnancy success rates, offering personalized hope to couples from across India and abroad.',
+  establishedYear: 2005,
+  rating: 5.0,
+  reviewsCount: 96,
+  gallery: [
+    {
+      url: '/biz/dr-sweta-gupta.png',
+      caption: 'Dr. Sweta Gupta — Best IVF Doctor in Noida, SG IVF Clinic',
+    },
+  ],
+  workingHours: [
+    { days: 'Monday – Saturday', time: '10:00 AM – 06:30 PM', isOpenNow: true },
+    { days: 'Sunday', time: 'By Prior Appointment Only', isOpenNow: false },
+  ],
+  owner: {
+    name: 'Aahan Sharma (Verified Partner)',
+    role: 'Clinical Operations Head & Verified Partner',
+    memberSince: '14 Jul 2025',
+    verifiedDocType: 'Medical Council of India & ART Bank License',
+    responseRate: '100% (< 10 mins)',
+  },
+  reviews: [
+    {
+      id: 'rev-sg1',
+      author: 'Pooja & Amit Aggarwal',
+      rating: 5,
+      date: '18 Nov 2026',
+      comment:
+        'After 6 years of trying and 2 failed attempts elsewhere, we met Dr. Sweta Gupta. Her diagnosis was precise and her empathy made all the difference. Today we are blessed with twins!',
+      verified: true,
+    },
+  ],
+};
+
+const nktechAiSeoBusiness: BusinessProfile = {
+  id: 'WP-88019',
+  name: 'Best AI SEO Agency in India | NKTech Noida',
+  slug: 'best-ai-seo-agency-in-india',
+  logoUrl: '/biz/nktech-ai-seo.png',
+  phone: '+91 89208 77101',
+  whatsapp: '918920877101',
+  email: 'info@nktech.in',
+  website: 'https://nktech.in/',
+  addressLine: 'E Block, Sector 63, Noida',
+  landmark: 'Commercial IT Corridor, Sector 63',
+  city: 'Noida',
+  state: 'Uttar Pradesh',
+  pincode: '201301',
+  category: 'IT & Software',
+  categoryHierarchy: ['IT & Software', 'Digital Marketing', 'AI SEO & SGE Optimization', 'Local Search Engine'],
+  services: [
+    'Google AI Overviews (SGE) Ranking Engine',
+    'Programmatic Hyperlocal SEO & Directory Indexing',
+    'Google Maps 3-Pack & Local NAP Canonical Sync',
+    'High-Conversion Enterprise B2B Lead Funnels',
+    'E-Commerce & Shopify Growth SEO',
+    'AI Content Strategy & Semantic Schema Modeling',
+  ],
+  amenities: [
+    'Proprietary Pay-As-You-Rank™ Milestone Tracker',
+    'Dedicated Account Manager on Front-Desk WhatsApp',
+    'Real-Time SERP & AI Overview Performance Dashboard',
+    'No Upfront Locking Contracts for Audited MSMEs',
+  ],
+  description:
+    'NKTech Noida is India\'s top AI-driven SEO agency. Specializing in Google AI Overviews, Pay-As-You-Rank search engines, and programmatic directory dominance, NKTech drives verified organic leads for regional enterprise founders.',
+  aboutStory:
+    'Headquartered in Sector 63 Noida, NKTech is an enterprise digital transformation agency built for the AI search revolution. As traditional search algorithms evolve into LLM-driven summaries, NKTech equips MSMEs, healthcare networks, and franchise chains with semantic structured data, entity-first brand graphs, and zero-spam customer acquisition corridors.',
+  establishedYear: 2018,
+  rating: 5.0,
+  reviewsCount: 88,
+  gallery: [
+    {
+      url: '/biz/nktech-ai-seo.png',
+      caption: 'NKTech — India\'s Leading AI-Driven Search Engine Agency',
+    },
+  ],
+  workingHours: [
+    { days: 'Monday – Saturday', time: '09:30 AM – 07:00 PM', isOpenNow: true },
+    { days: 'Sunday', time: 'Closed', isOpenNow: false },
+  ],
+  owner: {
+    name: 'Neelansh Dubey (Verified Partner)',
+    role: 'Founder & AI Growth Strategist',
+    memberSince: '12 Jul 2025',
+    verifiedDocType: 'MCA, GSTIN & MSME Registered',
+    responseRate: '100% (< 5 mins)',
+  },
+  reviews: [
+    {
+      id: 'rev-nk1',
+      author: 'Sunil Manchanda (Retail Chain Director)',
+      rating: 5,
+      date: '21 Nov 2026',
+      comment:
+        'NKTech took our local clinics into Google AI Overviews within 45 days. The WhatsApp inquiry flow has doubled. Exceptional team.',
+      verified: true,
+    },
+  ],
+};
+
+const cottonYarnPanipatBusiness: BusinessProfile = {
+  id: 'WP-87913',
+  name: 'Cotton Polyester Yarn Exporters in Panipat – Bhagwati Exports',
+  slug: 'cotton-polyester-yarn-exporters-in-panipat',
+  logoUrl: '/biz/bhagwati-yarn-panipat.webp',
+  phone: '+91 98120 44550',
+  whatsapp: '919812044550',
+  email: 'exports@bhagwatiexports.in',
+  website: 'https://bhagwatiexports.in/',
+  addressLine: 'Industrial Area, GT Road',
+  landmark: 'Near Transport Nagar, GT Road',
+  city: 'Panipat',
+  state: 'Haryana',
+  pincode: '132103',
+  category: 'Manufacturing & Industrial',
+  categoryHierarchy: ['Manufacturing & Industrial', 'Textiles & Fabrics', 'Yarn Spinning Mills', 'Exporters'],
+  services: [
+    'Recycled Cotton Yarn (Ne 10s to 30s)',
+    'Open-End High Tenacity Polyester Yarn',
+    'Melange & Dyed Weaving Yarns',
+    'Terry Towel & Blanket Weaving Blends',
+    'Custom Count Spinning on Order',
+    'Worldwide Container Logistics & Documentation',
+  ],
+  amenities: [
+    'Automated German Spinning Rotors',
+    'In-House Tensile Strength & CSP Testing Lab',
+    'Bulk Warehouse & Fast Loading Docks',
+    'ISO 9001:2015 & OEKO-TEX Standard 100 Certified',
+  ],
+  description:
+    'Bhagwati Exports is a premier yarn spinning mill and international exporter in Panipat, Haryana. Providing high-tensile cotton-polyester blended yarns for global carpet, towel, upholstery, and apparel manufacturers.',
+  aboutStory:
+    'Located in Panipat — celebrated globally as India’s textile weaving capital — Bhagwati Exports combines modern rotor spinning with sustainable eco-recycled fiber processing. Our yarns are exported across Europe, the Middle East, Southeast Asia, and the Americas, meeting strict global tensile standards and color fastness benchmarks.',
+  establishedYear: 2011,
+  rating: 4.9,
+  reviewsCount: 62,
+  gallery: [
+    {
+      url: '/biz/bhagwati-yarn-panipat.webp',
+      caption: 'Bhagwati Exports Panipat — Cotton & Polyester Yarn Spinning Spools',
+    },
+  ],
+  workingHours: [
+    { days: 'Monday – Saturday', time: '08:30 AM – 08:00 PM', isOpenNow: true },
+    { days: 'Sunday', time: 'Loading Operations by Schedule', isOpenNow: false },
+  ],
+  owner: {
+    name: 'Neelansh Dubey (Verified Partner)',
+    role: 'Export Trade Liaison & Partner',
+    memberSince: '26 Jun 2025',
+    verifiedDocType: 'IEC (Import Export Code) & GSTIN Verified',
+    responseRate: '100% (< 15 mins)',
+  },
+  reviews: [
+    {
+      id: 'rev-by1',
+      author: 'Marcus Weber (Textile Importer, Hamburg)',
+      rating: 5,
+      date: '16 Nov 2026',
+      comment:
+        'Consistently uniform yarn quality and zero breakage on our automatic loom runs. Bhagwati Exports is our most reliable partner in North India.',
+      verified: true,
+    },
+  ],
+};
+
 // Database dictionary supporting both Clean Name-Based Slugs and Legacy Aliases
 export const businessDatabase: Record<string, BusinessProfile> = {
+  // 5 GlobalBN Official Featured Listings
+  'bharrat-aeroplane-restaurant': bharratAeroplaneBusiness,
+  'aeroplane-restaurant': bharratAeroplaneBusiness,
+  'discover-the-best-ivf-doctor-in-noida-dr-sweta-gupta': drSwetaGuptaBusiness,
+  'dr-sweta-gupta': drSwetaGuptaBusiness,
+  'best-ivf-doctor-in-noida': drSwetaGuptaBusiness,
+  'best-ai-seo-agency-in-india': nktechAiSeoBusiness,
+  'nktech-noida': nktechAiSeoBusiness,
+  'best-seo-company-noida': nktechAiSeoBusiness,
+  'best-robotic-knee-replacement-surgeon-in-noida': drSanjayGuptaBusiness,
+  'dr-sanjay-gupta': drSanjayGuptaBusiness,
+  'drsanjaygupta': drSanjayGuptaBusiness,
+  'best-knee-replacement-surgeon-in-noida': drSanjayGuptaBusiness,
+  'cotton-polyester-yarn-exporters-in-panipat': cottonYarnPanipatBusiness,
+  'bhagwati-exports': cottonYarnPanipatBusiness,
+  'bhagwati-exports-panipat': cottonYarnPanipatBusiness,
+
+  // 0. Amity International School, Noida (Stitch Redesign Showcase)
+  'amity-international-school': amitySchoolBusiness,
+  'amity-international-school-noida': amitySchoolBusiness,
+  'amity': amitySchoolBusiness,
   // 1. Choco Delights & Confectionery (Cadboury) - Clean Name URL & Legacy Alias
   'choco-delights-confectionery-cadboury': chocoBusiness,
   'choco-delights-confectionery-andheri-mumbai': chocoBusiness,
@@ -545,6 +1056,24 @@ export function getBusinessBySlug(slug: string): BusinessProfile {
   }
 
   // 3. Substring/fuzzy brand matches
+  if (cleanSlug.includes('aeroplane')) {
+    return bharratAeroplaneBusiness;
+  }
+  if (cleanSlug.includes('sweta-gupta') || cleanSlug.includes('ivf-doctor')) {
+    return drSwetaGuptaBusiness;
+  }
+  if (cleanSlug.includes('ai-seo') || cleanSlug.includes('nktech')) {
+    return nktechAiSeoBusiness;
+  }
+  if (cleanSlug.includes('cotton-polyester') || cleanSlug.includes('bhagwati') || cleanSlug.includes('yarn-exporter')) {
+    return cottonYarnPanipatBusiness;
+  }
+  if (cleanSlug.includes('robotic-knee') || cleanSlug.includes('sanjay-gupta') || cleanSlug.includes('knee-replacement')) {
+    return drSanjayGuptaBusiness;
+  }
+  if (cleanSlug.includes('amity')) {
+    return amitySchoolBusiness;
+  }
   if (cleanSlug.includes('choco') || cleanSlug.includes('cadboury')) {
     return chocoBusiness;
   }

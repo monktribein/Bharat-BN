@@ -24,6 +24,7 @@ import {
   Command,
   UserCheck,
   LogOut,
+  Image as ImageIcon,
 } from 'lucide-react';
 import AdminLoginForm from '@/components/AdminLoginForm';
 
@@ -66,6 +67,13 @@ const navSections: NavSection[] = [
         icon: ShieldAlert,
         badge: '1',
         badgeVariant: 'amber',
+      },
+      {
+        name: 'Homepage Banner',
+        href: '/banner',
+        icon: ImageIcon,
+        badge: 'Live',
+        badgeVariant: 'emerald',
       },
     ],
   },

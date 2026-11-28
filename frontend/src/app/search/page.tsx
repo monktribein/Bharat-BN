@@ -33,6 +33,7 @@ interface DirectoryListing {
   phone: string;
   whatsapp: string;
   image: string;
+  logo?: string;
   rating: number;
   reviewsCount: number;
   services: string[];
@@ -40,30 +41,276 @@ interface DirectoryListing {
   isClaimed: boolean;
 }
 
+// Helper to resolve real official brand logos for featured & claimed entities
+const getBusinessLogo = (slug: string = '', name: string = ''): string => {
+  const s = slug.toLowerCase();
+  const n = name.toLowerCase();
+  if (s.includes('choco') || n.includes('choco') || n.includes('cadboury') || n.includes('cadbury')) {
+    return '/choco-logo.svg';
+  }
+  if (s.includes('apex') || n.includes('apex') || n.includes('dental')) {
+    return '/apex-logo.svg';
+  }
+  if (s.includes('apple') || n.includes('apple')) {
+    return '/apple-logo.svg';
+  }
+  if (s.includes('elly') || n.includes('elly') || n.includes('preschool')) {
+    return '/little-elly-logo.svg';
+  }
+  return '';
+};
+
+// Canonical verified flagship businesses with real official logos
+const canonicalFeaturedListings: DirectoryListing[] = [
+  {
+    id: 'WP-88681',
+    name: 'Bharrat Aeroplane Restaurant',
+    slug: 'bharrat-aeroplane-restaurant',
+    category: 'Food & Dining',
+    categorySlug: 'food-confectionery',
+    city: 'Mumbai, MH',
+    citySlug: 'mumbai',
+    address: 'Link Road, Metro Station Corridor, Andheri West, Mumbai – 400053',
+    phone: '+91 98200 99881',
+    whatsapp: '919820099881',
+    image: '/biz/bharrat-aeroplane.png',
+    logo: '/biz/bharrat-aeroplane.png',
+    rating: 4.9,
+    reviewsCount: 114,
+    services: [
+      'Aircraft Cabin Family Dining',
+      'Cockpit Simulation Photo-Op',
+      'Continental & North Indian Buffet',
+      'South Indian Specialty Delicacies',
+    ],
+    isVerified: true,
+    isClaimed: true,
+  },
+  {
+    id: 'WP-88033',
+    name: 'Discover the Best IVF Doctor in Noida – Dr. Sweta Gupta',
+    slug: 'discover-the-best-ivf-doctor-in-noida-dr-sweta-gupta',
+    category: 'Healthcare & Clinics',
+    categorySlug: 'healthcare-clinics',
+    city: 'Noida / NCR',
+    citySlug: 'noida',
+    address: '3D-5L, Wave City Centre, Sector 32, Noida – 201301',
+    phone: '+91 81301 40007',
+    whatsapp: '918130140007',
+    image: '/biz/dr-sweta-gupta.png',
+    logo: '/biz/dr-sweta-gupta.png',
+    rating: 5.0,
+    reviewsCount: 96,
+    services: [
+      'Advanced IVF & ICSI Cycles',
+      'IUI Fertility Treatment',
+      'Blastocyst Embryo Transfer',
+      'Egg & Embryo Vitrification',
+    ],
+    isVerified: true,
+    isClaimed: true,
+  },
+  {
+    id: 'WP-88019',
+    name: 'Best AI SEO Agency in India | NKTech Noida',
+    slug: 'best-ai-seo-agency-in-india',
+    category: 'IT & Software',
+    categorySlug: 'it-software-technology',
+    city: 'Noida / NCR',
+    citySlug: 'noida',
+    address: 'E Block, Sector 63, Noida, Uttar Pradesh 201301',
+    phone: '+91 89208 77101',
+    whatsapp: '918920877101',
+    image: '/biz/nktech-ai-seo.png',
+    logo: '/biz/nktech-ai-seo.png',
+    rating: 5.0,
+    reviewsCount: 88,
+    services: [
+      'Google AI Overviews (SGE) Ranking',
+      'Pay-As-You-Rank™ Milestone Tracker',
+      'Local SEO & Google Maps 3-Pack',
+      'Enterprise Programmatic Lead Funnels',
+    ],
+    isVerified: true,
+    isClaimed: true,
+  },
+  {
+    id: 'WP-87913',
+    name: 'Cotton Polyester Yarn Exporters in Panipat – Bhagwati Exports',
+    slug: 'cotton-polyester-yarn-exporters-in-panipat',
+    category: 'Manufacturing & Industrial',
+    categorySlug: 'manufacturing-industrial',
+    city: 'Panipat, Haryana',
+    citySlug: 'panipat',
+    address: 'Industrial Area, GT Road, Panipat, Haryana 132103',
+    phone: '+91 98120 44550',
+    whatsapp: '919812044550',
+    image: '/biz/bhagwati-yarn-panipat.webp',
+    logo: '/biz/bhagwati-yarn-panipat.webp',
+    rating: 4.9,
+    reviewsCount: 62,
+    services: [
+      'Recycled Cotton Yarn Spinning',
+      'Open-End High Tenacity Polyester Yarn',
+      'Melange & Dyed Weaving Blends',
+      'Worldwide Containerized Export Logistics',
+    ],
+    isVerified: true,
+    isClaimed: true,
+  },
+  {
+    id: 'WP-87923',
+    name: 'Best Robotic Knee Replacement Surgeon in Noida – Dr. Sanjay Gupta',
+    slug: 'best-robotic-knee-replacement-surgeon-in-noida',
+    category: 'Healthcare & Clinics',
+    categorySlug: 'healthcare-clinics',
+    city: 'Noida / NCR',
+    citySlug: 'noida',
+    address: '3D-5L, Wave City Centre, Sector 32, Noida – 201301',
+    phone: '+91 886 044 4888',
+    whatsapp: '918860444888',
+    image: '/biz/dr-sanjay-gupta.png',
+    logo: '/biz/dr-sanjay-gupta.png',
+    rating: 5.0,
+    reviewsCount: 73,
+    services: [
+      'Robotic Knee Replacement',
+      'Joint Replacement Surgery',
+      'Hip Replacement',
+      'Sports Medicine & Arthroscopy',
+      'AI Pre-Surgical 3D Planning',
+    ],
+    isVerified: true,
+    isClaimed: true,
+  },
+  {
+    id: 'BBN-CLM-982104',
+    name: 'Choco Delights & Confectionery (Cadboury)',
+    slug: 'choco-delights-confectionery-cadboury',
+    category: 'Food & Dining',
+    categorySlug: 'food-confectionery',
+    city: 'Mumbai, MH',
+    citySlug: 'mumbai',
+    address: 'Shop 12, Crystal Plaza, New Link Road, Andheri West, Mumbai',
+    phone: '+91 89653 26578',
+    whatsapp: '918965326578',
+    image: '',
+    logo: '/choco-logo.svg',
+    rating: 5.0,
+    reviewsCount: 38,
+    services: ['Handmade Truffles', 'Cadbury Gift Hampers', 'Dark Chocolate Slabs', 'Custom Cake Delivery'],
+    isVerified: true,
+    isClaimed: true,
+  },
+  {
+    id: '55555555-5555-5555-5555-555555555001',
+    name: 'Apex Super Speciality Dental Clinic',
+    slug: 'apex-super-speciality-dental-clinic',
+    category: 'Healthcare & Clinics',
+    categorySlug: 'healthcare-clinics',
+    city: 'Mumbai, MH',
+    citySlug: 'mumbai',
+    address: 'Shop 4, Greenfield Heights, Lokhandwala Complex, Andheri West, Mumbai',
+    phone: '+91 98200 12345',
+    whatsapp: '919820012345',
+    image: '',
+    logo: '/apex-logo.svg',
+    rating: 5.0,
+    reviewsCount: 42,
+    services: ['Invisalign Aligners', 'Dental Implants', 'Root Canal Treatment', 'Teeth Whitening'],
+    isVerified: true,
+    isClaimed: true,
+  },
+  {
+    id: 'BBN-SCH-NOIDA-44-001',
+    name: 'Amity International School, Noida',
+    slug: 'amity-international-school',
+    category: 'Education & Schools',
+    categorySlug: 'education-schools',
+    city: 'Noida / NCR',
+    citySlug: 'noida',
+    address: 'Sector 44, Noida, Gautam Buddha Nagar, Uttar Pradesh 201303',
+    phone: '+91 120 439 9000',
+    whatsapp: '919818000000',
+    image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1200&q=80',
+    logo: '',
+    rating: 4.8,
+    reviewsCount: 428,
+    services: ['CBSE Affiliated K-12', 'Atal Tinkering Lab', 'Olympic Swimming & Turf', 'Robotics Academy'],
+    isVerified: true,
+    isClaimed: true,
+  },
+  {
+    id: 'BBN-CLM-APPLE-01',
+    name: 'Apple',
+    slug: 'apple',
+    category: 'Electronics & Appliances',
+    categorySlug: 'electronics-appliances',
+    city: 'Noida / NCR',
+    citySlug: 'noida',
+    address: 'Plot 18, Commercial Belt, Sector 63, Noida, Uttar Pradesh',
+    phone: '+91 98110 99881',
+    whatsapp: '919811099881',
+    image: '',
+    logo: '/apple-logo.svg',
+    rating: 4.9,
+    reviewsCount: 65,
+    services: ['iPhone & Mac Sales', 'Official Apple Support', 'Device Diagnostics', 'Trade-in Upgrades'],
+    isVerified: true,
+    isClaimed: true,
+  },
+  {
+    id: 'BBN-CLM-ELLY-01',
+    name: 'Little Elly International Preschool',
+    slug: 'little-elly-preschool',
+    category: 'Education & Schools',
+    categorySlug: 'education-schools',
+    city: 'Noida / NCR',
+    citySlug: 'noida',
+    address: 'B-12, Sector 50, Noida, Uttar Pradesh 201301',
+    phone: '+91 98180 55443',
+    whatsapp: '919818055443',
+    image: '',
+    logo: '/little-elly-logo.svg',
+    rating: 4.9,
+    reviewsCount: 29,
+    services: ['Playgroup & Nursery', 'Kindergarten (LKG & UKG)', 'Daycare & Activity Hub', 'Vedic Early Math'],
+    isVerified: true,
+    isClaimed: true,
+  },
+];
+
 // Convert all clean real businesses into standardized DirectoryListing records
-const defaultDirectoryListings: DirectoryListing[] = realMigratedBusinesses.map((b) => ({
-  id: b.id,
-  name: b.name,
-  slug: b.slug,
-  category: b.category,
-  categorySlug: b.categorySlug || b.category.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-  city: b.city,
-  citySlug: b.citySlug || b.city.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-  address: b.address || `${b.city}, India`,
-  phone: b.phone || '+91 97170 56860',
-  whatsapp: (b.whatsapp || b.phone || '919717056860').replace(/[^0-9]/g, ''),
-  image: b.image && b.image.includes('globalbn.com') ? b.image : '',
-  rating: Number(b.rating || 4.9),
-  reviewsCount: b.reviewsCount || 24,
-  services:
-    b.services && b.services.length > 0
-      ? b.services
-      : b.tags && b.tags.length > 0
-      ? b.tags
-      : ['Audited Enterprise', 'Direct Inquiries'],
-  isVerified: b.isVerified ?? true,
-  isClaimed: b.isClaimed ?? false,
-}));
+const defaultDirectoryListings: DirectoryListing[] = [
+  ...canonicalFeaturedListings,
+  ...realMigratedBusinesses.map((b) => {
+    const matchedLogo = (b as any).logo || getBusinessLogo(b.slug, b.name);
+    return {
+      id: b.id,
+      name: b.name,
+      slug: b.slug,
+      category: b.category,
+      categorySlug: b.categorySlug || b.category.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      city: b.city,
+      citySlug: b.citySlug || b.city.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      address: b.address || `${b.city}, India`,
+      phone: b.phone || '+91 97170 56860',
+      whatsapp: (b.whatsapp || b.phone || '919717056860').replace(/[^0-9]/g, ''),
+      image: b.image || '',
+      logo: matchedLogo,
+      rating: Number(b.rating || 4.9),
+      reviewsCount: b.reviewsCount || 24,
+      services:
+        b.services && b.services.length > 0
+          ? b.services
+          : b.tags && b.tags.length > 0
+          ? b.tags
+          : ['Audited Enterprise', 'Direct Inquiries'],
+      isVerified: b.isVerified ?? true,
+      isClaimed: b.isClaimed ?? false,
+    };
+  }),
+];
 
 // Top cities from real database
 const TOP_CITIES = [
@@ -135,29 +382,31 @@ function SearchContent() {
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            const dynamic: DirectoryListing[] = parsed.map((c: any) => ({
-              id: c.id,
-              name: c.businessName,
-              slug: c.businessSlug || 'business',
-              category: c.category || 'Automobile & EV',
-              categorySlug: (c.category || 'automobile-ev').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-              city: c.city || 'Noida',
-              citySlug: (c.city || 'noida').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-              address: c.addressLine || `${c.city || 'Local'}, ${c.state || ''}`,
-              phone: c.phone || '+91 97170 56860',
-              whatsapp: (c.phone || c.whatsapp || '919717056860').replace(/[^0-9]/g, ''),
-              image:
-                c.coverUrl ||
-                'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80',
-              rating: 5.0,
-              reviewsCount: 1,
-              services:
-                Array.isArray(c.services) && c.services.length > 0
-                  ? c.services
-                  : ['Verified Business Profile', 'Direct Customer Inquiries'],
-              isVerified: true,
-              isClaimed: true,
-            }));
+            const dynamic: DirectoryListing[] = parsed.map((c: any) => {
+              const matchedLogo = c.logoUrl || c.logo || getBusinessLogo(c.businessSlug || '', c.businessName || '');
+              return {
+                id: c.id,
+                name: c.businessName,
+                slug: c.businessSlug || 'business',
+                category: c.category || 'Automobile & EV',
+                categorySlug: (c.category || 'automobile-ev').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                city: c.city || 'Noida',
+                citySlug: (c.city || 'noida').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                address: c.addressLine || `${c.city || 'Local'}, ${c.state || ''}`,
+                phone: c.phone || '+91 97170 56860',
+                whatsapp: (c.phone || c.whatsapp || '919717056860').replace(/[^0-9]/g, ''),
+                image: c.coverUrl || c.image || '',
+                logo: matchedLogo,
+                rating: 5.0,
+                reviewsCount: 1,
+                services:
+                  Array.isArray(c.services) && c.services.length > 0
+                    ? c.services
+                    : ['Verified Business Profile', 'Direct Customer Inquiries'],
+                isVerified: true,
+                isClaimed: true,
+              };
+            });
 
             setListings((prev) => {
               const map = new Map<string, DirectoryListing>();
@@ -476,37 +725,56 @@ function SearchContent() {
                 className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 hover:border-[#F95700] hover:shadow-md transition-all duration-300 space-y-3 group"
               >
                 <div className="flex flex-col sm:flex-row items-start gap-4">
-                  {/* Business Cover Image or Verified Enterprise Badge */}
-                  {item.image && item.image.includes('globalbn.com') ? (
-                    <div className="relative w-full sm:w-44 h-36 sm:h-32 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 border border-slate-100">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        sizes="(max-width: 640px) 100vw, 176px"
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <div className="absolute top-2 left-2 z-10">
-                        <span className="inline-flex items-center gap-1 bg-black/75 backdrop-blur-xs text-white px-2 py-0.5 rounded text-[10px] font-bold">
+                  {/* Business Cover Image or Real Official Brand Logo */}
+                  {(() => {
+                    const resolvedLogo = item.logo || getBusinessLogo(item.slug, item.name);
+                    if (item.image) {
+                      return (
+                        <div className="relative w-full sm:w-44 h-36 sm:h-32 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 border border-slate-100">
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            onError={(e) => {
+                              // If image fails, hide broken image tag
+                              e.currentTarget.style.display = 'none';
+                            }}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <div className="absolute top-2 left-2 z-10">
+                            <span className="inline-flex items-center gap-1 bg-black/75 backdrop-blur-xs text-white px-2 py-0.5 rounded text-[10px] font-bold">
+                              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                              {Number(item.rating || 4.9).toFixed(1)}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="relative w-full sm:w-44 h-36 sm:h-32 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/80 flex flex-col items-center justify-center p-3 text-center flex-shrink-0 group-hover:border-[#F95700]/40 transition">
+                        {resolvedLogo ? (
+                          <div className="w-14 h-14 rounded-xl overflow-hidden bg-white border border-slate-200/80 shadow-xs flex items-center justify-center p-1.5 mb-1.5 group-hover:scale-105 transition-transform">
+                            <img
+                              src={resolvedLogo}
+                              alt={item.name}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#07213A] to-[#1b4d7e] text-white font-mono font-bold text-sm flex items-center justify-center mb-1.5 shadow-xs">
+                            {item.name.slice(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                        <span className="text-[10px] font-bold text-slate-700 uppercase tracking-wider line-clamp-1">
+                          {item.city}
+                        </span>
+                        <span className="inline-flex items-center gap-0.5 text-[10px] text-amber-600 font-bold mt-1">
                           <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                           {Number(item.rating || 4.9).toFixed(1)}
                         </span>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="relative w-full sm:w-44 h-36 sm:h-32 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200/80 flex flex-col items-center justify-center p-3 text-center flex-shrink-0 group-hover:border-[#F95700]/40 transition">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#07213A] to-[#1b4d7e] text-white font-mono font-bold text-sm flex items-center justify-center mb-1.5 shadow-xs">
-                        {item.name.slice(0, 2).toUpperCase()}
-                      </div>
-                      <span className="text-[10px] font-bold text-slate-700 uppercase tracking-wider line-clamp-1">
-                        {item.city}
-                      </span>
-                      <span className="inline-flex items-center gap-0.5 text-[10px] text-amber-600 font-bold mt-1">
-                        <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                        {Number(item.rating || 4.9).toFixed(1)}
-                      </span>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {/* Main Details */}
                   <div className="flex-1 min-w-0 space-y-1.5 w-full">
