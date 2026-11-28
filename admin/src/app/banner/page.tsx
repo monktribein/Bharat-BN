@@ -99,18 +99,30 @@ export default function AdminBannerPage() {
         throw new Error('Failed to save hero background banner.');
       }
 
-      const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000';
+      const isLocalhost =
+        typeof window !== 'undefined' && window.location.hostname.includes('localhost');
+      const frontendUrl =
+        process.env.NEXT_PUBLIC_MAIN_SITE_URL ||
+        process.env.NEXT_PUBLIC_FRONTEND_URL ||
+        (isLocalhost ? 'http://localhost:3000' : 'https://bharatbn.com');
+
+      let syncedToFrontend = false;
       try {
-        await fetch(`${frontendUrl}/api/sync`, {
+        const fRes = await fetch(`${frontendUrl}/api/sync`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
+        syncedToFrontend = fRes.ok;
       } catch {
-        // Shared .sync_cache.json already updated
+        // Ignore if frontend is offline locally
       }
 
-      setSaveMessage('Hero background banner published! Refresh the BharatBN homepage to view.');
+      setSaveMessage(
+        syncedToFrontend
+          ? `Hero background banner published live to ${frontendUrl}! Refresh the homepage to view.`
+          : 'Saved in Admin, but could not reach the live frontend sync endpoint.'
+      );
       setTimeout(() => setSaveMessage(''), 5000);
     } catch (err: any) {
       setErrorMessage(err?.message || 'Error saving banner.');
@@ -145,7 +157,13 @@ export default function AdminBannerPage() {
 
         <div className="flex items-center gap-2.5">
           <a
-            href={process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000'}
+            href={
+              process.env.NEXT_PUBLIC_MAIN_SITE_URL ||
+              process.env.NEXT_PUBLIC_FRONTEND_URL ||
+              (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')
+                ? 'https://bharatbn.com'
+                : 'http://localhost:3000')
+            }
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition"

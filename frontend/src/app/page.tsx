@@ -439,12 +439,24 @@ const flagshipVerifiedBusinesses: VerifiedBusiness[] = [
   },
 ];
 
-const defaultVerifiedList: VerifiedBusiness[] = [
-  ...flagshipVerifiedBusinesses,
-  ...realMigratedBusinesses
-    .filter((b) => b.image && b.image.includes('globalbn.com'))
-    .slice(0, 36),
-];
+const defaultVerifiedList: VerifiedBusiness[] = (() => {
+  const seen = new Set<string>();
+  const combined: VerifiedBusiness[] = [];
+  const candidates = [
+    ...flagshipVerifiedBusinesses.filter((b) => Boolean(b.image)),
+    ...realMigratedBusinesses.filter((b) =>
+      Boolean(b.image && (b.image.startsWith('/wp-uploads/') || b.image.startsWith('/biz/')))
+    ),
+  ];
+  for (const b of candidates) {
+    if (!seen.has(b.slug)) {
+      seen.add(b.slug);
+      combined.push(b);
+    }
+    if (combined.length >= 40) break;
+  }
+  return combined;
+})();
 
 // Exact Categories matching Reference with Badges and Subtitles
 const visualCategories = [
