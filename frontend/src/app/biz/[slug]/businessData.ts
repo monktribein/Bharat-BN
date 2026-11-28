@@ -990,24 +990,28 @@ export function getBusinessBySlug(slug: string): BusinessProfile {
       (b.wpId && String(b.wpId) === cleanSlug)
   );
   if (migrated) {
-    const isOriginal = Boolean(migrated.image && migrated.image.includes('globalbn.com'));
+    const isOriginal = Boolean(migrated.image && (migrated.image.includes('/wp-uploads/') || migrated.image.startsWith('/biz/') || migrated.image.includes('globalbn.com')));
     const bizImage = isOriginal ? migrated.image : '';
 
+    const mAny = migrated as any;
     return {
       id: migrated.id,
       name: migrated.name,
       slug: migrated.slug,
       phone: migrated.phone || '+91 97170 56860',
       whatsapp: (migrated.whatsapp || migrated.phone || '919717056860').replace(/[^0-9]/g, ''),
-      email: 'contact@' + (migrated.slug.replace(/[^a-z0-9]/g, '') || 'business') + '.in',
-      website: 'https://bharatbn.com/' + migrated.slug + '/',
+      email: mAny.email || 'contact@' + (migrated.slug.replace(/[^a-z0-9]/g, '') || 'business') + '.in',
+      website: mAny.website || 'https://bharatbn.com/' + migrated.slug + '/',
       addressLine: migrated.address || 'Commercial Center, NCR, India',
       landmark: 'Near Central Commercial Belt, ' + (migrated.city || 'Greater Noida'),
       city: (migrated.city || 'Greater Noida').replace(', NCR', '').replace(', UP', ''),
       state: 'Uttar Pradesh',
       pincode: '201301',
       category: migrated.category,
-      categoryHierarchy: ['Directory', 'Verified Local Businesses', migrated.category, migrated.name],
+      categoryHierarchy:
+        Array.isArray(mAny.categoryHierarchy) && mAny.categoryHierarchy.length > 0
+          ? mAny.categoryHierarchy
+          : ['Directory', 'Verified Local Businesses', migrated.category, migrated.name],
       services:
         migrated.services && migrated.services.length > 0
           ? migrated.services
@@ -1015,9 +1019,13 @@ export function getBusinessBySlug(slug: string): BusinessProfile {
           ? migrated.tags
           : ['Audited Services', 'Verified Direct Inquiry', 'Certified Standards'],
       amenities: ['Air Conditioned', 'Online Payments & UPI', 'Official GST Invoicing', 'Customer Parking', 'Verified Partner'],
-      description: `${migrated.name} is an officially audited and verified business listed on BharatBN™ Business Network in ${migrated.city}. Contact directly via phone or WhatsApp.`,
-      aboutStory: `${migrated.name} has been serving the local community with dedicated expertise and verified service standards. Audited against official records, the team is committed to transparency, fast communication, and high customer satisfaction.`,
-      establishedYear: 2019,
+      description:
+        mAny.description ||
+        `${migrated.name} is an officially audited and verified business listed on BharatBN™ Business Network in ${migrated.city}. Contact directly via phone or WhatsApp.`,
+      aboutStory:
+        mAny.description ||
+        `${migrated.name} has been serving the local community with dedicated expertise and verified service standards. Audited against official records, the team is committed to transparency, fast communication, and high customer satisfaction.`,
+      establishedYear: mAny.establishedYear || 2019,
       coverUrl: bizImage || undefined,
       logoUrl: bizImage || undefined,
       rating: Number(migrated.rating || 4.9),
@@ -1038,7 +1046,7 @@ export function getBusinessBySlug(slug: string): BusinessProfile {
       owner: {
         name: 'Official Business Operator',
         role: 'Verified Business Manager',
-        memberSince: 'Nov 2019',
+        memberSince: mAny.memberSince || 'Nov 2019',
         verifiedDocType: 'ROC & GSTIN Verified',
         responseRate: '100% (< 15 mins)',
       },
