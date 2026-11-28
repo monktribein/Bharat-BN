@@ -355,6 +355,7 @@ function SearchContent() {
   const [activeCity, setActiveCity] = useState(city);
   const [activeCategory, setActiveCategory] = useState(category);
   const [listings, setListings] = useState<DirectoryListing[]>(defaultDirectoryListings);
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const [currentPage, setCurrentPage] = useState(1);
 
   // Sync state if URL query params change
@@ -728,15 +729,14 @@ function SearchContent() {
                   {/* Business Cover Image or Real Official Brand Logo */}
                   {(() => {
                     const resolvedLogo = item.logo || getBusinessLogo(item.slug, item.name);
-                    if (item.image) {
+                    if (item.image && !item.image.includes('globalbn.com') && !failedImages[item.id]) {
                       return (
                         <div className="relative w-full sm:w-44 h-36 sm:h-32 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 border border-slate-100">
                           <img
                             src={item.image}
                             alt={item.name}
-                            onError={(e) => {
-                              // If image fails, hide broken image tag
-                              e.currentTarget.style.display = 'none';
+                            onError={() => {
+                              setFailedImages((prev) => ({ ...prev, [item.id]: true }));
                             }}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />

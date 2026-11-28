@@ -552,6 +552,7 @@ const itemFadeUp = {
 
 export default function HomePage() {
   const [verifiedBusinesses, setVerifiedBusinesses] = useState<VerifiedBusiness[]>(defaultVerifiedList);
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const [isPaused, setIsPaused] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
 
@@ -1340,14 +1341,14 @@ export default function HomePage() {
                   {/* Real WordPress / Claimed Featured Image or Brand Logo */}
                   {(() => {
                     const bLogo = (biz as any).logo || getBusinessLogo(biz.slug, biz.name);
-                    if (biz.image) {
+                    if (biz.image && !biz.image.includes('globalbn.com') && !failedImages[biz.id]) {
                       return (
                         <div className="relative w-full h-36 rounded-xl overflow-hidden bg-slate-100 border border-slate-100">
                           <img
                             src={biz.image}
                             alt={biz.name}
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
+                            onError={() => {
+                              setFailedImages((prev) => ({ ...prev, [biz.id]: true }));
                             }}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
