@@ -1341,7 +1341,7 @@ export default function HomePage() {
                   {/* Real WordPress / Claimed Featured Image or Brand Logo */}
                   {(() => {
                     const bLogo = (biz as any).logo || getBusinessLogo(biz.slug, biz.name);
-                    if (biz.image && !biz.image.includes('globalbn.com') && !failedImages[biz.id]) {
+                    if (biz.image && !failedImages[biz.id]) {
                       return (
                         <div className="relative w-full h-36 rounded-xl overflow-hidden bg-slate-100 border border-slate-100">
                           <img

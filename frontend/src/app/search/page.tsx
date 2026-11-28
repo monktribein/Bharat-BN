@@ -729,7 +729,7 @@ function SearchContent() {
                   {/* Business Cover Image or Real Official Brand Logo */}
                   {(() => {
                     const resolvedLogo = item.logo || getBusinessLogo(item.slug, item.name);
-                    if (item.image && !item.image.includes('globalbn.com') && !failedImages[item.id]) {
+                    if (item.image && !failedImages[item.id]) {
                       return (
                         <div className="relative w-full sm:w-44 h-36 sm:h-32 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 border border-slate-100">
                           <img
