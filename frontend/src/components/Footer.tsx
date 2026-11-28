@@ -170,10 +170,10 @@ export default function Footer() {
                 </li>
                 <li>
                   <Link
-                    href="/search?q=growth"
+                    href="/blog"
                     className="text-slate-400 hover:text-white transition flex items-center gap-1.5 group"
                   >
-                    <span>Knowledge Base</span>
+                    <span>BharatBN Blog</span>
                   </Link>
                 </li>
               </ul>
